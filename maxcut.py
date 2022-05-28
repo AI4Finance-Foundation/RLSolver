@@ -49,6 +49,7 @@ class DHN:
         self.G = G
         self.optimizer = torch.optim.Adam(self.policy.parameters(), self.learning_rate)
         self.replay_buffer = []
+        self.obj_record = []
                 
                 
     def explore(self,):
@@ -87,7 +88,7 @@ class DHN:
             for i in range(self.state_dim):
                 for j in range(self.state_dim):
                     obj += p[0,i] * (1 - p[0,j]) * self.adjacency_mat[i][j]
-
+            '''
             obj_1 = 0
             l = min(100, len(self.replay_buffer))
             l_ = np.random.randint(0, len(self.replay_buffer), [l])
@@ -98,22 +99,49 @@ class DHN:
                     obj_1 += (1 - p[0,traj[i - 1]]) * p[0,traj[i]]
             obj_1 = obj_1 / len(self.replay_buffer)
             obj += obj_1
+            '''
             obj = -obj
-            print(obj.item())
+            #print(obj.item())
+            self.obj_record.append(obj.item())
             self.optimizer.zero_grad()
             obj.backward()
             clip_grad_norm_(parameters=self.optimizer.param_groups[0]["params"], max_norm=self.clip_grad_norm)
             self.optimizer.step()
     
     def save(self,):
-        import time
-        t = int(time.time())
+        
+        #print(self.obj_record)
+        import os
+        file_list = os.listdir()
+        if '{}'.format(self.action_dim) not in file_list:
+            os.mkdir('{}'.format(self.action_dim))
+        file_list = os.listdir('./{}/'.format(self.action_dim))
+        
+        exp_id = 0
+
+        for name in file_list:
+            exp_id_ = int(name)
+            if exp_id_+1 > exp_id:
+                exp_id = exp_id_ + 1
+        print("Objective function is:\n")
+        import plotext as plt
+        plt.plot(self.obj_record)
+        plt.title("Exp {} Obj ".format(exp_id))
+        plt.show()
+        print("Finished experiment {}.".format(exp_id))
+
+
+        os.mkdir('./{}/{}/'.format(self.action_dim, exp_id))
         t = self.action_dim
-        path = 'policy_{}.pth'.format(t)
+        path = './{}/{}/policy.pth'.format(self.action_dim, exp_id)
         matrix_file = ''
         torch.save(self.policy.state_dict(), path)
-        matrix_file = 'adjacency_{}.npy'.format(t)
+        matrix_file = './{}/{}/adjacency.npy'.format(self.action_dim, exp_id)
         np.save(matrix_file, self.adjacency_mat)
+        obj_record = np.array(self.obj_record)
+
+        np.save('./{}/{}/obj.npy'.format(self.action_dim,exp_id), obj_record)
+        
 
     def load(self, path_1, path_2):
         self.policy.load_state_dict(torch.load(path_1, map_location=torch.device('cpu')))
@@ -130,7 +158,10 @@ class DHN:
 def get_adjacency_matrix(size=10):
     '''generate a binary symmetric matrix'''
     mat = np.random.randint(0, 2, (size, size))
-    mat ^= mat.T
+    for i in range(size):
+        for j in range(0, i):
+            mat[j,i] = mat[i,j]
+    #mat ^= mat.T
     return mat
 
 def run(seed=1, gpu_id = 0, v_num = 10):
@@ -139,14 +170,19 @@ def run(seed=1, gpu_id = 0, v_num = 10):
     s = v_num
     mat = get_adjacency_matrix(s)
     agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
-    for i in tqdm(range(100)):
-        agent.explore()
-        agent.train()
+    try:
+        for i in tqdm(range(100)):
+            #agent.explore()
+            agent.train()
         agent.save()
+    except KeyboardInterrupt:
+        agent.save()
+        exit()
     
     
 if __name__ =='__main__':
     GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0  # >=0 means GPU ID, -1 means CPU
     v_num = int(sys.argv[2]) if len(sys.argv) > 2 else 10
     #ENV_ID = int(sys.argv[3]) if len(sys.argv) > 3 else 1  
-    run(1, GPU_ID, v_num)
+    while True:
+        run(1, GPU_ID, v_num)
