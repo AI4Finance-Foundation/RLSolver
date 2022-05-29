@@ -33,7 +33,7 @@ def read_adjacency_matrix(n: int):
 def write_result_gurobi(model, n :int):
     file_name = RESULT_GUROBI_DIR + "_NUM_NODES=" + str(n) + ".txt"
     with open(file_name, 'w', encoding="UTF-8") as file:
-        file.write(f"obj when NUM_NODES={n}: {model.getObjective()}")
+        file.write(f"obj when NUM_NODES={n}: {model.objVal}")
 
 
 def run_using_gurobi(nums:list = NUMS_NODES):
