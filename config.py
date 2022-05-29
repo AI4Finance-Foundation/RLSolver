@@ -1,5 +1,5 @@
 
-NUMS_NODES = [4, 6, 8, 10, 100]  # a list indicates the num of nodes.
+NUMS_NODES = [4, 6, 8, 10]  # a list indicates the num of nodes.
 
 ADJACENCY_MATRIX_DIR = "adjacency_matrix"
 
