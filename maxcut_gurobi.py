@@ -8,7 +8,7 @@ from config import (
 NUMS_NODES,
 ADJACENCY_MATRIX_DIR,
 RESULT_DIR,
-
+RESULT_GUROBI_DIR,
 )
 
 def calc_file(n: int):
@@ -16,6 +16,9 @@ def calc_file(n: int):
 
 def generate_adjacency_matrix(n: int):
     adjacency_matrix = np.random.randint(0, 2, (n, n))
+    for j in range(n):
+        for i in range(0, j):
+            adjacency_matrix[i][j] = adjacency_matrix[j][i]
     adjacency_matrix[adjacency_matrix == 0] = -10000
     file = calc_file(n)
     np.save(file, adjacency_matrix)
@@ -26,6 +29,12 @@ def read_adjacency_matrix(n: int):
     file = calc_file(n)
     adjacency_matrix = np.load(file)
     return adjacency_matrix
+
+def write_result_gurobi(model, n :int):
+    file_name = RESULT_GUROBI_DIR + "_NUM_NODES=" + str(n) + ".txt"
+    with open(file_name, 'w', encoding="UTF-8") as file:
+        file.write(f"obj when NUM_NODES={n}: {model.getObjective()}")
+
 
 def run_using_gurobi(nums:list = NUMS_NODES):
     for n in nums:
@@ -72,6 +81,7 @@ def run_using_gurobi_fixed_num_nodes(n: int):
         # else:
         #     result.Recommend_to_increase_max_running_duration = False
         #     # model.getAttr('SolCount') >= 1  # get the SolCount
+        write_result_gurobi(model, n)
 
     num_vars = model.getAttr(GRB.Attr.NumVars)
     num_constrs = model.getAttr(GRB.Attr.NumConstrs)
@@ -86,6 +96,8 @@ def run_using_gurobi_fixed_num_nodes(n: int):
     if model.getAttr('SolCount') == 0:  # model.getAttr(GRB.Attr.SolCount)
         print("No solution.")
     print("SolCount: ", model.getAttr('SolCount'))
+
+
 
 if __name__ == '__main__':
     # generate_adjacency_matrix()
