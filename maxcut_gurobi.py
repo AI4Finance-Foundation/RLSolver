@@ -29,8 +29,11 @@ def read_adjacency_matrix(n: int = NUMS_NODES[0]):
     adjacency_matrix = np.load(file)
     return adjacency_matrix
 
+def run_using_gurobi(nums :list = NUMS_NODES):
+    for n in nums:
+        run_using_gurobi_fixed_num_nodes(n)
 
-def run_using_gurobi(n: int = NUMS_NODES[0]):
+def run_using_gurobi_fixed_num_nodes(n: int = NUMS_NODES[0]):
     model = Model("maxcut")
     file = calc_file(n)
     node_indices = list(range(n))
