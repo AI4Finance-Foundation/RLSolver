@@ -5,7 +5,7 @@ import os
 
 
 from config import (
-NUM_NODES,
+NUMS_NODES,
 ADJACENCY_MATRIX_DIR,
 ADJACENCY_MATRIX,
 RESULT_DIR,
@@ -13,10 +13,10 @@ RESULT_DIR,
 
 )
 
-def calc_file(n: int = NUM_NODES):
-    return ADJACENCY_MATRIX_DIR + "/NUM_NODES=" + str(n) + ".npy"
+def calc_file(n: int = NUMS_NODES[0]):
+    return ADJACENCY_MATRIX_DIR + "/NUMS_NODES=" + str(n) + ".npy"
 
-def generate_adjacency_matrix(n: int = NUM_NODES):
+def generate_adjacency_matrix(n: int = NUMS_NODES[0]):
     adjacency_matrix = np.random.randint(0, 2, (n, n))
     adjacency_matrix[adjacency_matrix == 0] = -10000
     file = calc_file(n)
@@ -24,13 +24,13 @@ def generate_adjacency_matrix(n: int = NUM_NODES):
     pass
 
 
-def read_adjacency_matrix(n: int = NUM_NODES):
+def read_adjacency_matrix(n: int = NUMS_NODES[0]):
     file = calc_file(n)
     adjacency_matrix = np.load(file)
     return adjacency_matrix
 
 
-def run_using_gurobi(n: int = NUM_NODES):
+def run_using_gurobi(n: int = NUMS_NODES[0]):
     model = Model("maxcut")
     file = calc_file(n)
     node_indices = list(range(n))
@@ -42,7 +42,8 @@ def run_using_gurobi(n: int = NUM_NODES):
 
     x = model.addVars(n, vtype=GRB.BINARY, name="x")
     y = model.addVars(n, n, vtype=GRB.BINARY, name="y")
-    model.setObjective(quicksum(quicksum(adjacency_matrix[i][j] * y[(i, j)]) for i in range(0, j)) for j in node_indices)
+    model.setObjective(quicksum(quicksum(adjacency_matrix[i][j] * y[(i, j)] for i in range(0, j)) for j in node_indices),
+                       GRB.MAXIMIZE)
 
     # constrs
     for j in node_indices:
@@ -88,6 +89,7 @@ def run_using_gurobi(n: int = NUM_NODES):
 if __name__ == '__main__':
     # generate_adjacency_matrix()
     # adjacency_matrix = read_adjacency_matrix()
-    run_using_gurobi()
+
+    run_using_gurobi(NUMS_NODES)
     pass
 
