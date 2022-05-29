@@ -8,7 +8,7 @@ from config import (
 NUMS_NODES,
 ADJACENCY_MATRIX_DIR,
 RESULT_DIR,
-RESULT_GUROBI,
+RESULT_GUROBI_DIR,
 )
 
 def calc_file(n: int):
@@ -16,6 +16,9 @@ def calc_file(n: int):
 
 def generate_adjacency_matrix(n: int):
     adjacency_matrix = np.random.randint(0, 2, (n, n))
+    for j in range(n):
+        for i in range(0, j):
+            adjacency_matrix[i][j] = adjacency_matrix[j][i]
     adjacency_matrix[adjacency_matrix == 0] = -10000
     file = calc_file(n)
     np.save(file, adjacency_matrix)
@@ -28,7 +31,7 @@ def read_adjacency_matrix(n: int):
     return adjacency_matrix
 
 def write_result_gurobi(model, n :int):
-    file_name = RESULT_DIR + "/" + RESULT_GUROBI + "/.txt"
+    file_name = RESULT_GUROBI_DIR + "_NUM_NODES=" + str(n) + ".txt"
     with open(file_name, 'w', encoding="UTF-8") as file:
         file.write(f"obj when NUM_NODES={n}: {model.getObjective()}")
 
