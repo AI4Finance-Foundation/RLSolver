@@ -1,0 +1,7 @@
+
+NUM_NODES = 4
+ADJACENCY_MATRIX_DIR = "./adjacency_matrix/NUM_NODES" + str(NUM_NODES)
+
+ADJACENCY_MATRIX = []
+
+
