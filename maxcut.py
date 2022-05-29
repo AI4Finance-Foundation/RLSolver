@@ -104,6 +104,7 @@ class DHN:
             #print(obj.item())
             self.obj_record.append(obj.item())
             self.optimizer.zero_grad()
+            print(obj.grad)
             obj.backward()
             clip_grad_norm_(parameters=self.optimizer.param_groups[0]["params"], max_norm=self.clip_grad_norm)
             self.optimizer.step()
@@ -124,10 +125,11 @@ class DHN:
             if exp_id_+1 > exp_id:
                 exp_id = exp_id_ + 1
         print("Objective function is:\n")
-        import plotext as plt
-        plt.plot(self.obj_record)
-        plt.title("Exp {} Obj ".format(exp_id))
-        plt.show()
+        print([self.obj_record[i] for i in range(0, len(self.obj_record, 100))])
+        #import plotext as plt
+        #plt.plot(self.obj_record)
+        #plt.title("Exp {} Obj ".format(exp_id))
+        #plt.show()
         print("Finished experiment {}.".format(exp_id))
 
 
