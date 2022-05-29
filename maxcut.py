@@ -45,7 +45,7 @@ class DHN:
         self.N = N
         self.T = T
         self.clip_grad_norm = clip_grad_norm
-        
+        self.exp_id = -1
         self.G = G
         self.optimizer = torch.optim.Adam(self.policy.parameters(), self.learning_rate)
         self.replay_buffer = []
@@ -100,32 +100,40 @@ class DHN:
             obj_1 = obj_1 / len(self.replay_buffer)
             obj += obj_1
             '''
+            #print(obj)
             obj = -obj
+            #obj.retain_grad()
             #print(obj.item())
             self.obj_record.append(obj.item())
             self.optimizer.zero_grad()
-            print(obj.grad)
+            #print(obj.grad)
+            #obj.retain_grad()
             obj.backward()
+            #obj.retain_grad()
+            #print(obj.grad)
             clip_grad_norm_(parameters=self.optimizer.param_groups[0]["params"], max_norm=self.clip_grad_norm)
             self.optimizer.step()
     
     def save(self,):
-        
-        #print(self.obj_record)
         import os
-        file_list = os.listdir()
-        if '{}'.format(self.action_dim) not in file_list:
-            os.mkdir('{}'.format(self.action_dim))
-        file_list = os.listdir('./{}/'.format(self.action_dim))
-        
+        #print(self.obj_record)
         exp_id = 0
+        if self.exp_id == -1:
+            
+            file_list = os.listdir()
+            if '{}'.format(self.action_dim) not in file_list:
+                os.mkdir('{}'.format(self.action_dim))
+            file_list = os.listdir('./{}/'.format(self.action_dim))
 
-        for name in file_list:
-            exp_id_ = int(name)
-            if exp_id_+1 > exp_id:
-                exp_id = exp_id_ + 1
+            for name in file_list:
+                exp_id_ = int(name)
+                if exp_id_+1 > exp_id:
+                    exp_id = exp_id_ + 1
+            self.exp_id = exp_id
+            os.mkdir('./{}/{}/'.format(self.action_dim, exp_id))
+        exp_id = self.exp_id
         print("Objective function is:\n")
-        print([self.obj_record[i] for i in range(0, len(self.obj_record, 100))])
+        print([self.obj_record[i] for i in range(0, len(self.obj_record), 100)])
         #import plotext as plt
         #plt.plot(self.obj_record)
         #plt.title("Exp {} Obj ".format(exp_id))
@@ -133,7 +141,7 @@ class DHN:
         print("Finished experiment {}.".format(exp_id))
 
 
-        os.mkdir('./{}/{}/'.format(self.action_dim, exp_id))
+        #os.mkdir('./{}/{}/'.format(self.action_dim, exp_id))
         t = self.action_dim
         path = './{}/{}/policy.pth'.format(self.action_dim, exp_id)
         matrix_file = ''
@@ -173,9 +181,12 @@ def run(seed=1, gpu_id = 0, v_num = 10):
     mat = get_adjacency_matrix(s)
     agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
     try:
-        for i in tqdm(range(100)):
+        for i in tqdm(range(10000)):
             #agent.explore()
             agent.train()
+            
+            if i % 50 == 0:
+                agent.save()
         agent.save()
     except KeyboardInterrupt:
         agent.save()
