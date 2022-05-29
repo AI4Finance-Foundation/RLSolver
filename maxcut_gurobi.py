@@ -78,7 +78,7 @@ def run_using_gurobi_fixed_num_nodes(n: int):
         # else:
         #     result.Recommend_to_increase_max_running_duration = False
         #     # model.getAttr('SolCount') >= 1  # get the SolCount
-
+        write_result_gurobi(model, n)
 
     num_vars = model.getAttr(GRB.Attr.NumVars)
     num_constrs = model.getAttr(GRB.Attr.NumConstrs)
