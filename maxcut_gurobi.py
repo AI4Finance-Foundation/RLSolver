@@ -8,7 +8,7 @@ from config import (
 NUMS_NODES,
 ADJACENCY_MATRIX_DIR,
 RESULT_DIR,
-
+RESULT_GUROBI,
 )
 
 def calc_file(n: int):
@@ -26,6 +26,12 @@ def read_adjacency_matrix(n: int):
     file = calc_file(n)
     adjacency_matrix = np.load(file)
     return adjacency_matrix
+
+def write_result_gurobi(model, n :int):
+    file_name = RESULT_DIR + "/" + RESULT_GUROBI + "/.txt"
+    with open(file_name, 'w', encoding="UTF-8") as file:
+        file.write(f"obj when NUM_NODES={n}: {model.getObjective()}")
+
 
 def run_using_gurobi(nums:list = NUMS_NODES):
     for n in nums:
@@ -73,6 +79,7 @@ def run_using_gurobi_fixed_num_nodes(n: int):
         #     result.Recommend_to_increase_max_running_duration = False
         #     # model.getAttr('SolCount') >= 1  # get the SolCount
 
+
     num_vars = model.getAttr(GRB.Attr.NumVars)
     num_constrs = model.getAttr(GRB.Attr.NumConstrs)
     # result.NumVars2 = model.numVars
@@ -86,6 +93,8 @@ def run_using_gurobi_fixed_num_nodes(n: int):
     if model.getAttr('SolCount') == 0:  # model.getAttr(GRB.Attr.SolCount)
         print("No solution.")
     print("SolCount: ", model.getAttr('SolCount'))
+
+
 
 if __name__ == '__main__':
     # generate_adjacency_matrix()

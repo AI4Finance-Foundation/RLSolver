@@ -6,5 +6,7 @@ ADJACENCY_MATRIX_DIR = "adjacency_matrix"
 
 RESULT_DIR = "result"  # dir of result using gurobi
 
+RESULT_GUROBI = "result_gurobi"
+
 
 
