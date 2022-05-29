@@ -7,9 +7,7 @@ import os
 from config import (
 NUMS_NODES,
 ADJACENCY_MATRIX_DIR,
-ADJACENCY_MATRIX,
 RESULT_DIR,
-
 
 )
 
