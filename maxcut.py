@@ -23,12 +23,9 @@ class Policy(nn.Module):
     def __init__(self, mid_dim: int, num_layer: int, state_dim: int, action_dim: int):
         super().__init__()
         self.net = build_mlp(mid_dim, num_layer, input_dim=state_dim, output_dim=action_dim)
-        self.explore_noise_std = 0.1  # standard deviation of exploration action noise
-        self.log_sqrt_2pi = np.log(np.sqrt(2 * np.pi))
 
     def forward(self, state: Tensor) -> Tensor:
-        return self.net(state).sigmoid()  # action
-
+        return self.net(state).softmax()
    
 
 class DHN:
@@ -157,20 +154,38 @@ class DHN:
         
         return p.detach().cpu().numpy() 
 
-def get_adjacency_matrix(size=10):
+def gen_adjacency_matrix_unweighted(n=10, p=0.5):
     '''generate a binary symmetric matrix'''
-    mat = np.random.randint(0, 2, (size, size))
-    for i in range(size):
-        for j in range(0, i):
-            mat[j,i] = mat[i,j]
-    #mat ^= mat.T
+    mat = np.random.rand(n, n)
+
+    for i in range(n):
+        for j in range(0, i + 1):
+            if mat[i,j] <= p:
+                mat[i, j] = 1
+            else:
+                mat[i, j] = 0
+            
+            mat[j,i] = mat[i,j] # symmetric
+        mat[i, i] = 0
+    return mat
+
+def gen_adjacency_matrix_weighted(n=10, p=0.5):
+    '''generate a weighted symmetric matrix'''
+    mat = np.random.rand(n, n)
+
+    for i in range(n):
+        for j in range(0, i + 1):
+            if mat[i,j] > p:
+                mat[i, j] = 0
+            mat[j,i] = mat[i,j] # symmetric
+        mat[i, i] = 0 
     return mat
 
 def run(seed=1, gpu_id = 0, v_num = 10):
     import time
     np.random.seed(seed + int(time.time()))
     s = v_num
-    mat = get_adjacency_matrix(s)
+    mat = gen_adjacency_matrix_unweighted(s)
     agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
     try:
         for i in tqdm(range(100)):
@@ -183,8 +198,8 @@ def run(seed=1, gpu_id = 0, v_num = 10):
     
     
 if __name__ =='__main__':
-    GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0  # >=0 means GPU ID, -1 means CPU
-    v_num = int(sys.argv[2]) if len(sys.argv) > 2 else 10
-    #ENV_ID = int(sys.argv[3]) if len(sys.argv) > 3 else 1  
-    while True:
-        run(1, GPU_ID, v_num)
+    # GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0  # >=0 means GPU ID, -1 means CPU
+    # v_num = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    # #ENV_ID = int(sys.argv[3]) if len(sys.argv) > 3 else 1  
+    # while True:
+    #     run(1, GPU_ID, v_num)
