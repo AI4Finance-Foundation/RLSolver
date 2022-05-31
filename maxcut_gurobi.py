@@ -10,9 +10,12 @@ ADJACENCY_MATRIX_DIR,
 RESULT_DIR,
 RESULT_GUROBI_DIR,
 )
+EXP_ID = 0
 
 def calc_file(n: int):
-    return ADJACENCY_MATRIX_DIR + "/NUM_NODES=" + str(n) + ".npy"
+    global EXP_ID
+    return ADJACENCY_MATRIX_DIR + "/" + EXP_ID + "/adjacency.npy"
+    #return ADJACENCY_MATRIX_DIR + "/NUM_NODES=" + str(n) + ".npy"
 
 def generate_adjacency_matrix(n: int):
     adjacency_matrix = np.random.randint(0, 2, (n, n))
@@ -28,10 +31,11 @@ def generate_adjacency_matrix(n: int):
 def read_adjacency_matrix(n: int):
     file = calc_file(n)
     adjacency_matrix = np.load(file)
+    adjacency_matrix[adjacency_matrix == 0] = -10000
     return adjacency_matrix
 
 def write_result_gurobi(model, n :int):
-    file_name = RESULT_GUROBI_DIR + "_NUM_NODES=" + str(n) + ".txt"
+    file_name = RESULT_GUROBI_DIR + "_NUM_NODES=" + str(n) + "_" + EXP_ID + ".txt"
     with open(file_name, 'w', encoding="UTF-8") as file:
         file.write(f"obj when NUM_NODES={n}: {model.objVal}")
 
@@ -102,7 +106,8 @@ def run_using_gurobi_fixed_num_nodes(n: int):
 if __name__ == '__main__':
     # generate_adjacency_matrix()
     # adjacency_matrix = read_adjacency_matrix()
-
+    import sys
+    EXP_ID = sys.argv[1]
     run_using_gurobi(NUMS_NODES)
     pass
 

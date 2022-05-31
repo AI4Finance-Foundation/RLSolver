@@ -13,25 +13,36 @@ def build_mlp(mid_dim: int, num_layer: int, input_dim: int, output_dim: int):  #
     if num_layer == 1:
         net_list.extend([nn.Linear(input_dim, output_dim), ])
     else:  # elif num_layer >= 2:
-        net_list.extend([nn.Linear(input_dim, mid_dim), nn.ReLU()])
-        for _ in range(num_layer - 2):
-            net_list.extend([nn.Linear(mid_dim, mid_dim), nn.ReLU()])
-        net_list.extend([nn.Linear(mid_dim, output_dim), ])
+        net_list.extend([nn.Linear(input_dim, 2048 ), nn.ReLU()])
+        #for _ in range(num_layer - 2):
+        net_list.extend([nn.Linear(2048, 512), nn.ReLU()])
+        net_list.extend([nn.Linear(512, output_dim), ])
     return nn.Sequential(*net_list)
+
 
 class Policy(nn.Module):
     def __init__(self, mid_dim: int, num_layer: int, state_dim: int, action_dim: int):
         super().__init__()
         self.net = build_mlp(mid_dim, num_layer, input_dim=state_dim, output_dim=action_dim)
 
-    def forward(self, state: Tensor) -> Tensor:
-        return self.net(state).softmax()
-   
+    def forward(self, state: Tensor, beta):
+        return (self.net(state) * beta).sigmoid()
+
+class Policy_softmax(nn.Module):
+    def __init__(self, mid_dim: int, num_layer: int, state_dim: int, action_dim: int):
+        super().__init__()
+        self.action_dim = action_dim        
+        self.net = build_mlp(mid_dim, num_layer, input_dim=state_dim, output_dim=action_dim * 2)
+        self.softmax = nn.Softmax(dim = 2)
+
+    def forward(self, state: Tensor, beta) -> Tensor:
+        mid = self.net(state).reshape((1, self.action_dim, 2)) * beta
+        return self.softmax(mid)
 
 class DHN:
     def __init__(self, mid_dim=256, num_layer=3, state_dim=10, 
                  action_dim=10, gamma=0.9, gpu_id=0, learning_rate=3e-4,
-                 G=10, N=10, T=10, clip_grad_norm = 3.0, adjacency_mat=None):
+                 G=2, N=3, T=1000, clip_grad_norm = 3.0, adjacency_mat=None):
         self.gamma = gamma
         self.device = torch.device(f"cuda:{gpu_id}" if (torch.cuda.is_available() and (gpu_id >= 0)) else "cpu")
         self.learning_rate = learning_rate
@@ -47,8 +58,9 @@ class DHN:
         self.optimizer = torch.optim.Adam(self.policy.parameters(), self.learning_rate)
         self.replay_buffer = []
         self.obj_record = []
-                
-                
+        self.beta = 0.919375
+        self.explore_rate = 1
+
     def explore(self,):
         traj = []
         for _ in range(self.N):
@@ -78,29 +90,34 @@ class DHN:
             s = torch.as_tensor(self.adjacency_mat, dtype=torch.float32)
             s = torch.flatten(s)
             s = s.reshape([1, self.state_dim * self.state_dim]).to(self.device)
-            p = self.policy(s)
-            #print(p.shape) 
+            p = self.policy(s, self.beta)
+            #p
+            #rint(p.shape) 
             obj = 0
             
+
             for i in range(self.state_dim):
                 for j in range(self.state_dim):
-                    obj += p[0,i] * (1 - p[0,j]) * self.adjacency_mat[i][j]
+                    #obj += p[0,i,0] * p[0,j,1] * self.adjacency_mat[i][j] * 10
+                    obj += p[0, i] * (1 - p[0, j]) * self.adjacency_mat[i][j] * 1000
             '''
             obj_1 = 0
-            l = min(100, len(self.replay_buffer))
+            l = min(3, len(self.replay_buffer))
             l_ = np.random.randint(0, len(self.replay_buffer), [l])
             for j in l_:
                 traj = self.replay_buffer[j]
+                g = 1
                 for i in range(1,len(traj)):
-                    obj_1 += p[0,traj[i - 1]] * (1 - p[0,traj[i]])
-                    obj_1 += (1 - p[0,traj[i - 1]]) * p[0,traj[i]]
-            obj_1 = obj_1 / len(self.replay_buffer)
+                    obj_1 += p[0,traj[i - 1]] * (1 - p[0,traj[i]]) * g
+                    obj_1 += (1 - p[0,traj[i - 1]]) * p[0,traj[i]] * g
+                    g *= self.gamma
+            obj_1 = obj_1 / len(self.replay_buffer) * self.explore_rate * 0.5
             obj += obj_1
             '''
-            #print(obj)
-            obj = -obj
+            print("loss is ",-obj.item())
+            obj = -obj.log() * 100
             #obj.retain_grad()
-            #print(obj.item())
+            print("log loss is ", obj.item())
             self.obj_record.append(obj.item())
             self.optimizer.zero_grad()
             #print(obj.grad)
@@ -108,7 +125,7 @@ class DHN:
             obj.backward()
             #obj.retain_grad()
             #print(obj.grad)
-            clip_grad_norm_(parameters=self.optimizer.param_groups[0]["params"], max_norm=self.clip_grad_norm)
+            #clip_grad_norm_(parameters=self.optimizer.param_groups[0]["params"], max_norm=self.clip_grad_norm)
             self.optimizer.step()
     
     def save(self,):
@@ -129,8 +146,8 @@ class DHN:
             self.exp_id = exp_id
             os.mkdir('./{}/{}/'.format(self.action_dim, exp_id))
         exp_id = self.exp_id
-        print("Objective function is:\n")
-        print([self.obj_record[i] for i in range(0, len(self.obj_record), 100)])
+        #print("Objective function is:\n")
+        #print([self.obj_record[i] for i in range(0, len(self.obj_record), 100)])
         #import plotext as plt
         #plt.plot(self.obj_record)
         #plt.title("Exp {} Obj ".format(exp_id))
@@ -150,15 +167,15 @@ class DHN:
         np.save('./{}/{}/obj.npy'.format(self.action_dim,exp_id), obj_record)
         
 
-    def load(self, path_1, path_2):
-        self.policy.load_state_dict(torch.load(path_1, map_location=torch.device('cpu')))
-        self.adjacency_mat = np.load(path_2)
+    def load(self, n, exp_id):
+        self.policy.load_state_dict(torch.load('./' + str(n) + '/' + str(exp_id) + '/policy.pth', map_location=torch.device(self.device)))
+        self.adjacency_mat = np.load('./' + str(n) + '/' + str(exp_id) + '/adjacency.npy')
         
     def test(self,):
         s = torch.as_tensor(self.adjacency_mat, dtype=torch.float32)
         s = torch.flatten(s)
         s = s.reshape([1, self.state_dim * self.state_dim]).to(self.device)
-        p = self.policy(s)
+        p = self.policy(s, 10.855375)
         
         return p.detach().cpu().numpy() 
 
@@ -189,18 +206,30 @@ def gen_adjacency_matrix_weighted(n=10, p=0.5):
         mat[i, i] = 0 
     return mat
 
+def star(N=10):
+    mat = np.zeros((N,N))
+    for i in range(1,N):
+        mat[0, i] = 1
+        mat[i, 0] = 1
+    return mat
+
 def run(seed=1, gpu_id = 0, v_num = 10):
     import time
     np.random.seed(seed + int(time.time()))
     s = v_num
-    mat = gen_adjacency_matrix_unweighted(s)
+    mat = gen_adjacency_matrix_unweighted(s, 0.2)
+    #mat =[ [0, 1, 1],[1, 0, 0], [1, 0, 0]]
+    mat = star(v_num)
+    print(mat)
     agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
+    #agent.load(100,20)
     try:
         for i in tqdm(range(10000)):
             #agent.explore()
             agent.train()
-            
-            if i % 50 == 0:
+            agent.beta =( i) / 1000.0 + 0.919375
+            agent.explore_rate = 1 - (i * 5 / 1000)
+            if i % 10 == 0:
                 agent.save()
         agent.save()
     except KeyboardInterrupt:
@@ -209,8 +238,8 @@ def run(seed=1, gpu_id = 0, v_num = 10):
     
     
 if __name__ =='__main__':
-    # GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0  # >=0 means GPU ID, -1 means CPU
-    # v_num = int(sys.argv[2]) if len(sys.argv) > 2 else 10
-    # #ENV_ID = int(sys.argv[3]) if len(sys.argv) > 3 else 1  
-    # while True:
-    #     run(1, GPU_ID, v_num)
+    GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0  # >=0 means GPU ID, -1 means CPU
+    v_num = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    #ENV_ID = int(sys.argv[3]) if len(sys.argv) > 3 else 1  
+    while True:
+        run(1, GPU_ID, v_num)
