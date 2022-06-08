@@ -13,10 +13,12 @@ def build_mlp(mid_dim: int, num_layer: int, input_dim: int, output_dim: int):  #
     if num_layer == 1:
         net_list.extend([nn.Linear(input_dim, output_dim), ])
     else:  # elif num_layer >= 2:
-        net_list.extend([nn.Linear(input_dim, 2048 ), nn.ReLU()])
+        net_list.extend([nn.Linear(input_dim, int(input_dim / 4) ), nn.ReLU()])
         #for _ in range(num_layer - 2):
-        net_list.extend([nn.Linear(2048, 512), nn.ReLU()])
-        net_list.extend([nn.Linear(512, output_dim), ])
+        net_list.extend([nn.Linear(int(input_dim / 4), int(input_dim / 10) ), nn.ReLU()])
+        #net_list.extend([nn.Linear(int(input_dim / 4), int(input_dim / 8) ), nn.ReLU()])
+        net_list.extend([nn.Linear(int(input_dim / 10), int(output_dim * 5)), nn.ReLU()])
+        net_list.extend([nn.Linear(int(output_dim * 5), output_dim), ])
     return nn.Sequential(*net_list)
 
 
@@ -41,8 +43,8 @@ class Policy_softmax(nn.Module):
 
 class DHN:
     def __init__(self, mid_dim=256, num_layer=3, state_dim=10, 
-                 action_dim=10, gamma=0.9, gpu_id=0, learning_rate=3e-4,
-                 G=2, N=3, T=1000, clip_grad_norm = 3.0, adjacency_mat=None):
+                 action_dim=10, gamma=0.999, gpu_id=0, learning_rate=3e-4,
+                 G=2, N=1, T=1000, clip_grad_norm = 3.0, adjacency_mat=None):
         self.gamma = gamma
         self.device = torch.device(f"cuda:{gpu_id}" if (torch.cuda.is_available() and (gpu_id >= 0)) else "cpu")
         self.learning_rate = learning_rate
@@ -94,35 +96,48 @@ class DHN:
             #p
             #rint(p.shape) 
             obj = 0
-            
-
+            obj_1 = 0
             for i in range(self.state_dim):
                 for j in range(self.state_dim):
+                    obj += p[0, i] * (1 - p[0, j]) * self.adjacency_mat[i][j]
+
+                # if np.random.rand() < 0.005:
+                #    continue
+                for j in range(self.state_dim):
                     #obj += p[0,i,0] * p[0,j,1] * self.adjacency_mat[i][j] * 10
-                    obj += p[0, i] * (1 - p[0, j]) * self.adjacency_mat[i][j] * 1000
+                    
+                    obj_1 += p[0, i] * (1 - p[0, j]) * self.adjacency_mat[i][j] * 10000 #* self.dist[i] * self.dist[j]
+            
+            #obj_1 = 0
+            print("befor explore loss is ", -obj_1.item())
+            
             '''
-            obj_1 = 0
-            l = min(3, len(self.replay_buffer))
+            l = min(self.N, len(self.replay_buffer))
             l_ = np.random.randint(0, len(self.replay_buffer), [l])
+            
+            obj_2 = 0
             for j in l_:
                 traj = self.replay_buffer[j]
                 g = 1
                 for i in range(1,len(traj)):
-                    obj_1 += p[0,traj[i - 1]] * (1 - p[0,traj[i]]) * g
-                    obj_1 += (1 - p[0,traj[i - 1]]) * p[0,traj[i]] * g
+                    #assert 0
+                    obj_2 += p[0,traj[i - 1]] * (1 - p[0,traj[i]]) * g * self.adjacency_mat[traj[i - 1]][traj[i]] * 10000 * self.dist[traj[i - 1]] * self.dist[traj[i]]
+                    obj_2 += (1 - p[0,traj[i - 1]]) * p[0,traj[i]] * g* self.adjacency_mat[traj[i - 1]][traj[i]] * 10000 * self.dist[traj[i - 1]] * self.dist[traj[i]]
                     g *= self.gamma
-            obj_1 = obj_1 / len(self.replay_buffer) * self.explore_rate * 0.5
-            obj += obj_1
+            #obj_1 = obj_1
+            #obj += obj_1
+            obj_1 += obj_2 * 0.1
             '''
-            print("loss is ",-obj.item())
-            obj = -obj.log() * 100
+            print("After explore dist loss is ",-obj_1.item())
+            print("unif loss is ", -obj.item())
+            obj_1 = -(obj_1) 
             #obj.retain_grad()
-            print("log loss is ", obj.item())
+            #print("loss is ", obj_1.item())
             self.obj_record.append(obj.item())
             self.optimizer.zero_grad()
             #print(obj.grad)
             #obj.retain_grad()
-            obj.backward()
+            obj_1.backward()
             #obj.retain_grad()
             #print(obj.grad)
             #clip_grad_norm_(parameters=self.optimizer.param_groups[0]["params"], max_norm=self.clip_grad_norm)
@@ -168,7 +183,7 @@ class DHN:
         
 
     def load(self, n, exp_id):
-        self.policy.load_state_dict(torch.load('./' + str(n) + '/' + str(exp_id) + '/policy.pth', map_location=torch.device(self.device)))
+        #self.policy.load_state_dict(torch.load('./' + str(n) + '/' + str(exp_id) + '/policy.pth', map_location=torch.device(self.device)))
         self.adjacency_mat = np.load('./' + str(n) + '/' + str(exp_id) + '/adjacency.npy')
         
     def test(self,):
@@ -182,7 +197,7 @@ class DHN:
 def gen_adjacency_matrix_unweighted(n=10, p=0.5):
     '''generate a binary symmetric matrix'''
     mat = np.random.rand(n, n)
-
+    dist = np.zeros(n)
     for i in range(n):
         for j in range(0, i + 1):
             if mat[i,j] <= p:
@@ -192,7 +207,27 @@ def gen_adjacency_matrix_unweighted(n=10, p=0.5):
             
             mat[j,i] = mat[i,j] # symmetric
         mat[i, i] = 0
-    return mat
+
+    E = 0
+    for i in range(n):
+        for j in range(n):
+            dist[i] += mat[i,j]
+            E += mat[i,j]
+    dist = dist / E
+    return mat, dist
+def cal_dist(mat):
+    n = mat.shape[0]
+    dist = np.zeros(n)
+    E = 0
+    for i in range(n):
+        for j in range(n):
+            dist[i] += mat[i,j]
+            E += mat[i,j]
+    dist = dist / E
+    return dist
+
+
+
 
 def gen_adjacency_matrix_weighted(n=10, p=0.5):
     '''generate a weighted symmetric matrix'''
@@ -217,12 +252,13 @@ def run(seed=1, gpu_id = 0, v_num = 10):
     import time
     np.random.seed(seed + int(time.time()))
     s = v_num
-    mat = gen_adjacency_matrix_unweighted(s, 0.2)
+    mat,dist = gen_adjacency_matrix_unweighted(s, 0.05)
     #mat =[ [0, 1, 1],[1, 0, 0], [1, 0, 0]]
-    mat = star(v_num)
-    print(mat)
+    #mat = star(v_num)
+    #print(mat)
     agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
-    #agent.load(100,20)
+    agent.load(100, 20)
+    agent.dist = cal_dist(agent.adjacency_mat)
     try:
         for i in tqdm(range(10000)):
             #agent.explore()
