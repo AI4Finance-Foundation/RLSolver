@@ -51,7 +51,7 @@ class DHN:
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.adjacency_mat = adjacency_mat
-        self.policy = Policy(mid_dim, num_layer, state_dim * state_dim, action_dim).to(self.device)
+        self.policy = Policy(mid_dim, num_layer, state_dim * state_dim, action_dim * 10).to(self.device)
         self.N = N
         self.T = T
         self.clip_grad_norm = clip_grad_norm
