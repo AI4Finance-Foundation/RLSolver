@@ -105,7 +105,7 @@ class DHN:
                 #    continue
                 for j in range(self.state_dim):
                     #obj += p[0,i,0] * p[0,j,1] * self.adjacency_mat[i][j] * 10
-                    
+                    print(p) 
                     obj_1 += p[0, i] * (1 - p[0, j]) * self.adjacency_mat[i][j] * 10000 #* self.dist[i] * self.dist[j]
             
             #obj_1 = 0 
