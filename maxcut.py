@@ -108,7 +108,7 @@ class DHN:
                     
                     obj_1 += p[0, i] * (1 - p[0, j]) * self.adjacency_mat[i][j] * 10000 #* self.dist[i] * self.dist[j]
             
-            #obj_1 = 0
+            #obj_1 = 0 
             print("befor explore loss is ", -obj_1.item())
             
             '''
