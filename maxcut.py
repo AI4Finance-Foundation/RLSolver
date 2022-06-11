@@ -95,6 +95,7 @@ class DHN:
             p = self.policy(s, self.beta)
             #p
             #rint(p.shape) 
+            p = p.reshape(self.action_dim, 10)
             obj = 0
             obj_1 = 0
             for i in range(self.state_dim):
