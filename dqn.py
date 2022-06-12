@@ -52,17 +52,9 @@ class Maxcut:
         next_configure = self.configure
         
         next_configure = (next_configure + action) % 2
-        #next_configure[action] = (a + 1) % 2
-        
-        #print("action: ", action, "current configure: ", self.configure)
-        #next_configure[action] = (a + 1) % 2
-        #print("After flipping: ", next_configure)
-        #time.sleep(0.1)
-        #time.sleep(1)
         H = self.calc_H(next_configure)
         reward = (self.H - H) * 10
         self.H = H
-        #print(self.calc_H(self.configure))
         self.configure = next_configure
         #print(next_configure, reward)
         self.s+=1
