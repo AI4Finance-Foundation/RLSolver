@@ -56,12 +56,8 @@ class Maxcut:
         reward = (self.H - H) * 10
         self.H = H
         self.configure = next_configure
-        #print(next_configure, reward)
         self.s+=1
-        #print(self.configure)
         self.record.append(self.configure)
-        #assert 0
-        #print("Step ", self.s, next_configure, reward)
         if self.H < self.min_H:
             self.min_H = deepcopy(self.H)
             self.min_configuration = deepcopy(self.configure)
