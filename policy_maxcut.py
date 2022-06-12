@@ -2,7 +2,7 @@ import torch as th
 import numpy as np
 class Maxcut:
     def __init__(self, adjacency_matrix):
-        self.adjacency_matrix = adjacency_matrix
+        self.adjacency = adjacency_matrix
         self.N = adjacency_matrix.shape[0]
         self.state = np.random.rand(self.N)
     
