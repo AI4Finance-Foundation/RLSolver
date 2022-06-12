@@ -7,9 +7,11 @@ class Maxcut:
         self.state = np.random.rand(self.n)
     
     def reset(self, ):
-        self.state = np.random.rand(() )
+        self.state = np.random.rand(self.n )
+        return self.state
     
-    def step(self, ):
+    def step(self, action):
+        
         None
     def get_reward(self, tate):
         for i in range()
