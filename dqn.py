@@ -41,15 +41,9 @@ class Maxcut:
         self.min_configuration = np.random.randint(0,2,self.N)
         
     def reset(self,):
-        #print("Reset:")
         self.s = 0
-        #self.configure = self.initial_adjacency#randint(0,2, self.N)
-        #f = open('./617.npy', 'rb')
-        
         self.configure = deepcopy(self.min_configuration)#np.random.randint(0, 2, self.N)#self.initial_adjacency
-        #self.configure = np.array([0, 0, 0])
         self.H = self.calc_H(self.configure)
-        #print(self.configure)
         #assert 0
         self.record.append(self.configure)
         return self.configure
