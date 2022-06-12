@@ -44,14 +44,10 @@ class Maxcut:
         self.s = 0
         self.configure = deepcopy(self.min_configuration)#np.random.randint(0, 2, self.N)#self.initial_adjacency
         self.H = self.calc_H(self.configure)
-        #assert 0
         self.record.append(self.configure)
         return self.configure
             
     def step(self, action=None):
-        #print("#################### step ###############")
-        #print(action)
-        #time.sleep(0.1)
         configure = self.configure
         next_configure = self.configure
         
