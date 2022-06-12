@@ -20,5 +20,5 @@ class Maxcut:
         H = 0
         for i in range(self.N):
             for j in range(self.N):
-                H -= configure[i] * (1 - configure[j]) * self.adjacency[i,j]
+                H += configure[i] * (1 - configure[j]) * self.adjacency[i,j]
         return H
