@@ -1,3 +1,4 @@
+import numpy as np
 def gen_adjacency_matrix_unweighted(n=10, p=0.5):
     '''generate a binary symmetric matrix'''
     mat = np.random.rand(n, n)
