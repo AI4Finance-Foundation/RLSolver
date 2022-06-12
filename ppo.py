@@ -52,25 +52,20 @@ class Maxcut:
             
     def step(self, action=None):
         configure = self.configure
-        next_configure = (self.configure + action)
+        next_configure = ( self.configure + action )
         next_configure[next_configure == 2] = 0
         H_delta = 0
         sigma = configure
         sigma_new = next_configure
+        for i in range(self.N):
+            if action[i] == 0:
+                continue
+            for j in range(self.N):
+                H_delta += sigma[i] * (1 - sigma[j]) * self.adjacency[i, j]
+                H_delta += (1 - sigma[i]) * sigma[j] * self.adjacency[i, j]
         
-        
-        
-        
-        # Below reward = delta_H
-        # for i in range(self.N):
-        #     if action[i] == 0:
-        #         continue
-        #     for j in range(self.N):
-        #         H_delta += sigma[i] * (1 - sigma[j]) * self.adjacency[i, j]
-        #         H_delta += (1 - sigma[i]) * sigma[j] * self.adjacency[i, j]
-        
-        #         H_delta -= sigma_new[i] * (1 - sigma_new[j]) * self.adjacency[i, j]
-        #         H_delta -= (1 - sigma_new[i]) * sigma_new[j] * self.adjacency[i, j]
+                H_delta -= sigma_new[i] * (1 - sigma_new[j]) * self.adjacency[i, j]
+                H_delta -= (1 - sigma_new[i]) * sigma_new[j] * self.adjacency[i, j]
 
  
         H = self.H + H_delta
