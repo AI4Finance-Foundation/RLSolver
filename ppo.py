@@ -12,7 +12,7 @@ import sys
 from elegantrl.train.evaluator import Evaluator
 from elegantrl.train.replay_buffer import ReplayBuffer, ReplayBufferList
 from copy import deepcopy
-from utils import star, gen_adjacency_matrix_weighted
+from utils import star, gen_adjacency_matrix_weighted, gen_adjacency_matrix_unweighted
 import os
 def kwargs_filter(func, kwargs: dict) -> dict:
     import inspect  # Python built-in package
@@ -52,20 +52,25 @@ class Maxcut:
             
     def step(self, action=None):
         configure = self.configure
-        next_configure = ( self.configure + action )
+        next_configure = (self.configure + action)
         next_configure[next_configure == 2] = 0
         H_delta = 0
         sigma = configure
         sigma_new = next_configure
-        for i in range(self.N):
-            if action[i] == 0:
-                continue
-            for j in range(self.N):
-                H_delta += sigma[i] * (1 - sigma[j]) * self.adjacency[i, j]
-                H_delta += (1 - sigma[i]) * sigma[j] * self.adjacency[i, j]
         
-                H_delta -= sigma_new[i] * (1 - sigma_new[j]) * self.adjacency[i, j]
-                H_delta -= (1 - sigma_new[i]) * sigma_new[j] * self.adjacency[i, j]
+        
+        
+        
+        # Below reward = delta_H
+        # for i in range(self.N):
+        #     if action[i] == 0:
+        #         continue
+        #     for j in range(self.N):
+        #         H_delta += sigma[i] * (1 - sigma[j]) * self.adjacency[i, j]
+        #         H_delta += (1 - sigma[i]) * sigma[j] * self.adjacency[i, j]
+        
+        #         H_delta -= sigma_new[i] * (1 - sigma_new[j]) * self.adjacency[i, j]
+        #         H_delta -= (1 - sigma_new[i]) * sigma_new[j] * self.adjacency[i, j]
 
  
         H = self.H + H_delta
@@ -195,13 +200,6 @@ def init_agent(args: Arguments, gpu_id: int, env=None) -> AgentBase:
             assert states.shape == (args.env_num, args.state_dim)
         agent.states = states
     return agent
-
-def star(N=10):
-    mat = np.zeros((N,N))
-    for i in range(1,N):
-        mat[0, i] = 1
-        mat[i, 0] = 1
-    return mat
 
 def run(seed=1, gpu_id = 0, v_num = 100):
     import time
