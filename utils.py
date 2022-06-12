@@ -25,3 +25,10 @@ def gen_adjacency_matrix_weighted(n=10, p=0.5):
             mat[j,i] = mat[i,j] # symmetric
         mat[i, i] = 0 
     return mat
+
+def star(N=10):
+    mat = np.zeros((N,N))
+    for i in range(1,N):
+        mat[0, i] = 1
+        mat[i, 0] = 1
+    return mat

@@ -66,7 +66,7 @@ class Maxcut:
             self.record_.append(self.record)
             self.record = []
             return next_configure, reward, True, {} 
-        #print(next_configure, reward)
+        
         return next_configure, reward, False, {}
 
     def calc_H(self, configure):
@@ -79,7 +79,6 @@ class Maxcut:
 
 def init_args(N, adjacency):
     env_func = Maxcut
-    # env_func = gym.make
     env_args = {
         'N': N,
         'adjacency': adjacency,
@@ -175,12 +174,6 @@ def init_agent(args: Arguments, gpu_id: int, env=None) -> AgentBase:
         agent.states = states
     return agent
 
-def star(N=10):
-    mat = np.zeros((N,N))
-    for i in range(1,N):
-        mat[0, i] = 1
-        mat[i, 0] = 1
-    return mat
 
 def run(seed=1, gpu_id = 0, v_num = 100):
     import time
