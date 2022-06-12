@@ -12,6 +12,7 @@ import sys
 from elegantrl.train.evaluator import Evaluator
 from elegantrl.train.replay_buffer import ReplayBuffer, ReplayBufferList
 from copy import deepcopy
+from utils import gen_adjacency_matrix_unweighted, gen_adjacency_matrix_weighted
 import os
 import time
 def kwargs_filter(func, kwargs: dict) -> dict:
