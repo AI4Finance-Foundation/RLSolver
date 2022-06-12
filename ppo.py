@@ -49,8 +49,30 @@ class Maxcut:
         self.record.append(self.configure)
         
         return self.configure
-            
+
     def step(self, action=None):
+        configure = self.configure
+        next_configure = (self.configure + action).clip(0,1)
+        sigma = configure
+        sigma_new = next_configure
+        
+        self.H = self.calC_H(sigma_new)
+        reward = -self.H
+        
+        self.configure = next_configure
+        self.s+=1
+        self.record.append(self.configure)
+        if self.H < self.min_H:
+            self.min_H = deepcopy(self.H)
+            self.min_configuration = deepcopy(self.configure)
+        if self.s >= self.max_step:
+            self.s = 0
+            self.record_.append(self.record)
+            self.record = []
+            return next_configure, reward, True, {} 
+        return next_configure, reward, False, {}
+    
+    def step_decay(self, action=None):
         configure = self.configure
         next_configure = ( self.configure + action )
         next_configure[next_configure == 2] = 0
@@ -83,7 +105,6 @@ class Maxcut:
             self.record_.append(self.record)
             self.record = []
             return next_configure, reward, True, {} 
-        #print(next_configure, reward)
         return next_configure, reward, False, {}
 
     def calc_H(self, configure):
