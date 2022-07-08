@@ -60,6 +60,127 @@ class QNet(nn.Module):  # `nn.Module` is a PyTorch module for neural network
                 action[index[0].item()] = 1
             return action
 
+import torch as th
+class QNet_mimo(nn.Module):  # `nn.Module` is a PyTorch module for neural network
+    """
+    Critic class for **Q-network**.
+
+    :param mid_dim[int]: the middle dimension of networks
+    :param num_layer[int]: the number of MLP network layer
+    :param state_dim[int]: the dimension of state (the number of state vector)
+    :param action_dim[int]: the dimension of action (the number of discrete action)
+    """
+
+    def __init__(self, mid_dim: int, num_layer: int, state_dim: int, action_dim: int):
+        super().__init__()
+        
+        self.explore_rate = None  # float ∈ [0, 1]
+        self.action_dim = action_dim
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+        self.action_dim2 = action_dim // 2
+        s_c_dim, s_h_dim, s_w_dim = state_dim  # inp_for_cnn.shape == (N, C, H, W)
+
+        self.net1 = nn.Sequential(
+            BiConvNet(mid_dim, state_dim, mid_dim * 4), nn.ReLU(),
+            nn.Linear(mid_dim * 4, mid_dim * 1),
+            DenseNet(mid_dim),
+        )
+
+        net2_inp_dim = (+ mid_dim * 4
+                        + s_c_dim * s_h_dim * s_w_dim)
+        self.net2 = nn.Sequential(
+            nn.Linear(net2_inp_dim, mid_dim * 4), nn.ReLU(),
+            nn.Linear(mid_dim * 4, mid_dim * 2), nn.ReLU(),
+            nn.Linear(mid_dim * 2, action_dim)
+        )
+        layer_norm(self.net2[-1], std=0.1)  # output layer fo
+
+    def forward(self, state: Tensor) -> Tensor:
+        """
+        The forward function for **Dueling Q-network**.
+
+        :param state: [tensor] the input state. state.shape == (batch_size, state_dim)
+        :return: Q values for multiple actions [tensor]. q_values.shape == (batch_size, action_dim)
+        """
+        state = state.type(th.float32).reshape(state.shape[0], 4, 40)
+        state = state.reshape(state.shape[0], 4, 8, 5)
+
+        state_hw = self.net1(state)
+        state_flatten = state.reshape((state.shape[0], -1))
+        action = self.net2(torch.cat((state_hw, state_flatten), dim=1))
+        q_values = action / torch.norm(action, dim=1, keepdim=True)
+        return q_values
+
+    def get_action(self, state: Tensor) -> Tensor:  # return [int], which is the index of discrete action
+        """
+        return the action for exploration with the epsilon-greedy.
+
+        :param state: [tensor] the input state. state.shape == (batch_size, state_dim)
+        :return: action [tensor.int]. action.shape == (batch_size, 1)
+        """
+        #if True:
+        a = self.forward(state).argmax(dim=1, keepdim=True)
+        action = torch.zeros(self.action_dim)
+        action[a[0].item()] = 1
+        if self.explore_rate < rd.rand():
+        
+            #action = self.net(state).argmax(dim=1, keepdim=True)
+            return action
+        else:
+            index = torch.randint(self.action_dim, size=(state.shape[0], 1))
+            action[index[0].item()] = 1
+            if self.explore_rate > rd.rand():
+                index = torch.randint(self.action_dim, size=(state.shape[0], 1))
+                action[index[0].item()] = 1
+            return action
+
+
+
+
+class DenseNet(nn.Module):  # plan to hyper-param: layer_number
+    def __init__(self, lay_dim):
+        super().__init__()
+        self.dense1 = nn.Sequential(nn.Linear(lay_dim * 1, lay_dim * 1), nn.Hardswish())
+        self.dense2 = nn.Sequential(nn.Linear(lay_dim * 2, lay_dim * 2), nn.Hardswish())
+        self.inp_dim = lay_dim
+        self.out_dim = lay_dim * 4
+
+    def forward(self, x1):  # x1.shape==(-1, lay_dim*1)
+        x2 = torch.cat((x1, self.dense1(x1)), dim=1)
+        x3 = torch.cat((x2, self.dense2(x2)), dim=1)
+        return x3  # x2.shape==(-1, lay_dim*4)
+class BiConvNet(nn.Module):
+    def __init__(self, mid_dim, inp_dim, out_dim):
+        super().__init__()
+        i_c_dim, i_h_dim, i_w_dim = inp_dim  # inp_for_cnn.shape == (N, C, H, W)
+
+        self.cnn_h = nn.Sequential(
+            nn.Conv2d(i_c_dim * 1, mid_dim * 4, (1, i_w_dim), bias=True), nn.LeakyReLU(inplace=True),
+            nn.Conv2d(mid_dim * 4, mid_dim * 1, (1, 1), bias=True), nn.ReLU(inplace=True),
+            NnReshape(-1),  # shape=(-1, i_h_dim * mid_dim)
+            nn.Linear(i_h_dim * mid_dim, out_dim),
+        )
+        self.cnn_w = nn.Sequential(
+            nn.Conv2d(i_c_dim * 1, mid_dim * 4, (i_h_dim, 1), bias=True), nn.LeakyReLU(inplace=True),
+            nn.Conv2d(mid_dim * 4, mid_dim * 1, (1, 1), bias=True), nn.ReLU(inplace=True),
+            NnReshape(-1),  # shape=(-1, i_w_dim * mid_dim)
+            nn.Linear(i_w_dim * mid_dim, out_dim),
+        )
+
+    def forward(self, state):
+        xh = self.cnn_h(state)
+        xw = self.cnn_w(state)
+        return xw + xh
+
+class NnReshape(nn.Module):
+    def __init__(self, *args):
+        super().__init__()
+        self.args = args
+
+    def forward(self, x):
+        return x.view((x.size(0),) + self.args)
+
 
 class QNetDuel(nn.Module):  # Dueling DQN
     """
@@ -364,13 +485,7 @@ class ActorPPO(nn.Module):
 
         action = action1.reshape((1, self.action_dim, 2)) * 100 
         action = self.softmax(action) 
-        action = action.argmax(dim = 2)
-        #print("################ Net ##################")
-        #print(action) 
-        
-
-        
-        
+        action = action.argmax(dim = 2)   
         return action, noise, action1
 
     def get_logprob(self, state: Tensor, action: Tensor) -> Tensor:

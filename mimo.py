@@ -12,8 +12,11 @@ import sys
 from elegantrl.train.evaluator import Evaluator
 from elegantrl.train.replay_buffer import ReplayBuffer, ReplayBufferList
 from copy import deepcopy
-from utils import star, gen_adjacency_matrix_weighted, gen_adjacency_matrix_unweighted
+from utils import gen_adjacency_matrix_unweighted, gen_adjacency_matrix_weighted, star
 import os
+from th3 import *
+import time
+scheduled_users = [0,1,3,4,5,6,7,8]
 def kwargs_filter(func, kwargs: dict) -> dict:
     import inspect  # Python built-in package
 
@@ -23,116 +26,61 @@ def kwargs_filter(func, kwargs: dict) -> dict:
     common_args = sign.intersection(kwargs.keys())
     filtered_kwargs = {key: kwargs[key] for key in common_args}
     return filtered_kwargs
-class Maxcut:    
-    def __init__(self, N=10, adjacency=None):
+
+
+class MIMO:    
+    def __init__(self, K=8, N=4, total_power=10,):
+        self.H = None
+        self.W = None
+        self.K = K
         self.N = N
-        self.configure = None
-        self.adjacency = adjacency
-        self.maxstep = self.N
-        self.max_step = self.N
-        
-        self.if_discrete = False
-        self.s = 0
+        self.user_weights_for_regular_WMMSE = np.ones(self.K)
+        self.total_power = total_power
+        self.noise_power = 1
+        self.nr_of_iterations = 10
+        self.maxstep = self.N * 1
+        self.max_step = self.N * 1
+        self.if_discrete = True
+        self.I = np.zeros(self.K)
+        self.wsr = 0
         self.record = []
         self.record_ = []
-        self.min_H = 0
-        self.min_configuration = np.random.rand(self.N)
-
+        self.step = 0
+        
     def reset(self,):
+        self.H = compute_channel(self.N, self.K, self.total_power)
+        self.wsr = 0
+        self.step = 0
+        return self.H
+            
+    def step(self, action_i):
+        self.I += action_i
+        self.W,_,_,wsr= run_WMMSE(epsilon, np.diag(self.I)* self.H, scheduled_users, total_power, noise_power, self.user_weights_for_regular_WMMSE, nr_of_iterations-1, log = False)
+        reward = wsr - self.wsr
+        self.step += 1
+        done = True
+        if self.step == 4:
+            done = False
         
-        self.s = 0
-        self.configure = deepcopy(self.min_configuration)
-        
-        self.H =self.calc_H(self.configure)
-        if self.H < self.min_H:
-            self.min_H = deepcopy(self.H)
-        self.record.append(self.configure)
-        
-        return self.configure
+        return self.H+self.I+self.W, reward, done, {}
 
-    def step(self, action=None):
-        configure = self.configure
-        next_configure = (self.configure + action).clip(0,1)
-        sigma = configure
-        sigma_new = next_configure
-        
-        self.H = self.calC_H(sigma_new)
-        reward = -self.H
-        
-        self.configure = next_configure
-        
-        self.s+=1
-        self.record.append(self.configure)
-        
-        if self.H < self.min_H:
-            self.min_H = deepcopy(self.H)
-            self.min_configuration = deepcopy(self.configure)
-        if self.s >= self.max_step:
-            self.s = 0
-            self.record_.append(self.record)
-            self.record = []
-            return next_configure, reward, True, {} 
-        return next_configure, reward, False, {}
-    
-    def step_decay(self, action=None):
-        configure = self.configure
-        next_configure = ( self.configure + action )
-        next_configure[next_configure == 2] = 0
-        H_delta = 0
-        sigma = configure
-        sigma_new = next_configure
-        for i in range(self.N):
-            if action[i] == 0:
-                continue
-            for j in range(self.N):
-                H_delta += sigma[i] * (1 - sigma[j]) * self.adjacency[i, j]
-                H_delta += (1 - sigma[i]) * sigma[j] * self.adjacency[i, j]
-        
-                H_delta -= sigma_new[i] * (1 - sigma_new[j]) * self.adjacency[i, j]
-                H_delta -= (1 - sigma_new[i]) * sigma_new[j] * self.adjacency[i, j]
-
- 
-        H = self.H + H_delta
-        reward = -H_delta * 10
-        self.H = H
-        
-        self.configure = next_configure
-        self.s+=1
-        self.record.append(self.configure)
-        if self.H < self.min_H:
-            self.min_H = deepcopy(self.H)
-            self.min_configuration = deepcopy(self.configure)
-        if self.s >= self.max_step:
-            self.s = 0
-            self.record_.append(self.record)
-            self.record = []
-            return next_configure, reward, True, {} 
-        return next_configure, reward, False, {}
-
-    def calc_H(self, configure):
-        H = 0
-        for i in range(self.N):
-            for j in range(self.N):
-                H -= configure[i] * (1 - configure[j]) * self.adjacency[i,j]
-        return H
-
-
-def init_args(N, adjacency):
-    env_func = Maxcut
-    # env_func = gym.make
+def init_args(K, N, total_power):
+    env_func = MIMO
     env_args = {
+        'K': K,
         'N': N,
-        'adjacency': adjacency,
+        'total_power': total_power
         
     }
     
-    args = Arguments(AgentPPO, env_func=env_func, env_args=env_args)
+    args = Arguments(AgentDQN, env_func=env_func, env_args=env_args)
     args.env_num = 1
-    args.state_dim = N
-    args.action_dim = N
+    args.N = N
+    args.state_dim = (4, K, N)
+    args.action_dim = K
     args.target_return = 100000000
     args.num_layer = 3
-    args.net_dim = 2 ** 10
+    args.net_dim = 2 ** 8
     args.batch_size = int(args.net_dim)
     
     args.worker_num = 4
@@ -152,14 +100,10 @@ def init_args(N, adjacency):
     '''H-term'''
     args.h_term_sample_rate = 2 ** -2
     args.h_term_drop_rate = 2 ** -3
-    args.h_term_lambda = 2 ** -3
-    args.h_term_k_step = 12
-
-    args.save_gap = 2 ** 3
-    args.eval_gap = 2 ** 8
     args.eval_times = 2 ** 1
     args.if_allow_break = False
     args.break_step = int(2e7)
+    args.if_discrete = True
     return args
 
 def init_buffer(args: Arguments, gpu_id: int) :
@@ -167,7 +111,7 @@ def init_buffer(args: Arguments, gpu_id: int) :
         buffer = ReplayBuffer(gpu_id=gpu_id,
                               max_capacity=args.max_memo,
                               state_dim=args.state_dim,
-                              action_dim=1 if args.if_discrete else args.action_dim, )
+                              action_dim=args.action_dim if args.if_discrete else args.action_dim, )
         buffer.save_or_load_history(args.cwd, if_save=False)
 
     else:
@@ -219,14 +163,12 @@ def init_agent(args: Arguments, gpu_id: int, env=None) -> AgentBase:
         agent.states = states
     return agent
 
+
 def run(seed=1, gpu_id = 0, v_num = 100):
     import time
-    np.random.seed(seed + int(time.time()))
-    s = v_num
-    mat = gen_adjacency_matrix_unweighted(s, 0.8)
-    #with open(f"./{v_num}/{1}/adjacency.npy", 'wb') as f:
-    #    np.save(f, mat)
-    mat = star(v_num)
+    #with open(f"./{v_num}/{1}/adjacency.npy", 'rb') as f:
+    #    mat = np.load(f)
+    #mat = star(v_num)
     #mat = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]])
     #agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
     #agent.load(100,20)
@@ -261,10 +203,10 @@ def run(seed=1, gpu_id = 0, v_num = 100):
         torch.set_grad_enabled(True)
         logging_tuple = agent.update_net(buffer)
         torch.set_grad_enabled(False)
+        print(env.min_H, env.min_configuration)
         
         
         evaluator.eval_env = env
-
         (if_reach_goal, if_save) = evaluator.evaluate_save_and_plot(agent.act, steps, r_exp, logging_tuple)
         dont_break = not if_allow_break
         not_reached_goal = not if_reach_goal
