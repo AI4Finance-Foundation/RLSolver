@@ -158,6 +158,7 @@ class QNet_mimo(nn.Module):  # `nn.Module` is a PyTorch module for neural networ
 
 class QNet_mimo_graph(nn.Module):
     def __init__(self, mid_dim: int, num_layer: int, state_dim: int, action_dim, p, K, T=4):
+        super().__init__()
         self.theta_1 = nn.Linear(1, p, bias=False)
         self.theta_2 = nn.Linear(p, p, bias = False)
         self.theta_3 = nn.Linear(p, p, bias = False)
