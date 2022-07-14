@@ -43,16 +43,18 @@ class Evaluator:
             self.eval_time = time.time()
 
             '''evaluate first time'''
-            rewards_steps_list = [get_cumulative_returns_and_step(self.eval_env, act)
-                                  for _ in range(self.eval_times1)]
+            rewards_steps_list = [get_cumulative_returns_and_step(self.eval_env, act, ii)
+                                  for ii in range(100)]
+            #print(rewards_steps_list)
+            #assert 0
             rewards_steps_ary = np.array(rewards_steps_list, dtype=np.float32)
 
             r_avg, s_avg = rewards_steps_ary.mean(axis=0)  # average of episode return and episode step
 
             '''evaluate second time'''
             if r_avg > self.r_max:
-                rewards_steps_list.extend([get_cumulative_returns_and_step(self.eval_env, act)
-                                           for _ in range(self.eval_times2)])
+                rewards_steps_list.extend([get_cumulative_returns_and_step(self.eval_env, act, ii)
+                                           for ii in range(self.eval_times2)])
                 rewards_steps_ary = np.array(rewards_steps_list, dtype=np.float32)
                 r_avg, s_avg = rewards_steps_ary.mean(axis=0)  # average of episode return and episode step
 
@@ -62,7 +64,7 @@ class Evaluator:
             if_save = r_avg > self.r_max
             if if_save:  # save checkpoint with highest episode return
                 self.r_max = r_avg  # update max reward (episode return)
-                self.cwd = "./ppo"
+                self.cwd = "./dqn"
                 act_path = f"{self.cwd}/actor__{self.total_step:012}_{self.r_max:09.3f}.pth"
                 torch.save(act.state_dict(), act_path)  # save policy network in *.pth
 
@@ -117,7 +119,7 @@ class Evaluator:
 """util"""
 
 
-def get_cumulative_returns_and_step(env, act) -> (float, int):  # [ElegantRL.2022.03.03]
+def get_cumulative_returns_and_step(env, act, i) -> (float, int):  # [ElegantRL.2022.03.03]
     """Usage
     eval_times = 4
     net_dim = 2 ** 7
@@ -135,28 +137,45 @@ def get_cumulative_returns_and_step(env, act) -> (float, int):  # [ElegantRL.202
     if_discrete = env.if_discrete
     device = next(act.parameters()).device  # net.parameters() is a Python generator.
 
-    state = env.reset()
+    env.H = env.eval_H[i]
+    env.reset(env.eval_H[i])
+    state = env.state()
     steps = None
     returns = 0.0  # sum of rewards in an episode
     from tqdm import tqdm 
-    min_H = env.calc_H(state)
-    H_list = []
-    for steps in tqdm(range(env.max_step)):
+    #min_H = env.calc_H(state)
+    #H_list = []
+    import torch as th
+    for steps in range(env.max_step):
         tensor_state = torch.as_tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
-        tensor_action = act(tensor_state).argmax(dim=1) if if_discrete else act(tensor_state)
-        action = tensor_action.detach().cpu().numpy()[0]  # not need detach(), because using torch.no_grad() outside
+        a = act(tensor_state)
+        a = a -  a.abs().max() * 100* th.as_tensor((env.I.flatten())).to(th.device("cuda:0"))
+        a = a.argmax(dim=1) 
+        
+        a = a.detach().cpu().numpy()  # not need detach(), because using torch.no_grad() outside
+        action = np.zeros((env.K))
+        #a = act.get_action_r(tensor_state, env.I).cpu().numpy()
         #print("evaluator: ", action)
-        H_list.append(env.calc_H(state))
+        #if i == 0:
+        #    print(env.I.flatten())
+        #print(a[0].item())
+        #action = a
+        action[a[0].item()] = 1 
+        #H_list.append(env.calc_H(state))
         state, reward, done, _ = env.step(action)
         returns += reward
-        #print(reward)
-        
-        if env.calc_H(state) < min_H:
-            min_H = env.calc_H(state)
+        #print(returns)
+         
+        #if env.calc_H(state) < min_H:
+        #    min_H = env.calc_H(state)
         if done:
+            #    print(env.I.flatten())
             break
-    H_list.append(env.calc_H(state))
-    print("H in the trajectory: " , H_list[:10], H_list[-10:])
+    #returns = env.wsr
+    #print(returns)
+    #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+    #H_list.append(env.calc_H(state))
+    #print("H in the trajectory: " , H_list[:10], H_list[-10:])
     returns = getattr(env, 'cumulative_returns', returns)
     steps += 1
     return returns, steps

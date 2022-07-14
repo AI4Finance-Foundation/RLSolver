@@ -10,6 +10,10 @@ Tensor = torch.Tensor
 '''DQN (Q network)'''
 
 
+def layer_norm(layer, std=1.0, bias_const=1e-6):
+    torch.nn.init.orthogonal_(layer.weight, std)
+    torch.nn.init.constant_(layer.bias,1)
+    torch.nn.init.constant_(layer.weight,1)
 class QNet(nn.Module):  # `nn.Module` is a PyTorch module for neural network
     """
     Critic class for **Q-network**.
@@ -35,7 +39,7 @@ class QNet(nn.Module):  # `nn.Module` is a PyTorch module for neural network
         :return: Q values for multiple actions [tensor]. q_values.shape == (batch_size, action_dim)
         """
         q_values = self.net(state)
-        return q_values
+        return th.softmax(q_values, dim=1)
 
     def get_action(self, state: Tensor) -> Tensor:  # return [int], which is the index of discrete action
         """
@@ -103,16 +107,18 @@ class QNet_mimo(nn.Module):  # `nn.Module` is a PyTorch module for neural networ
         :param state: [tensor] the input state. state.shape == (batch_size, state_dim)
         :return: Q values for multiple actions [tensor]. q_values.shape == (batch_size, action_dim)
         """
-        state = state.type(th.float32).reshape(state.shape[0], 4, 40)
-        state = state.reshape(state.shape[0], 4, 8, 5)
+        state = state.type(th.float32).reshape(state.shape[0], 2, 40)
+        state = state.reshape(state.shape[0], 2, 8, 5)
 
         state_hw = self.net1(state)
         state_flatten = state.reshape((state.shape[0], -1))
         action = self.net2(torch.cat((state_hw, state_flatten), dim=1))
-        q_values = action / torch.norm(action, dim=1, keepdim=True)
+        q_values = action #/ torch.norm(action, dim=1, keepdim=True)
+        #print(q_values)
+        #assert 0
         return q_values
 
-    def get_action(self, state: Tensor) -> Tensor:  # return [int], which is the index of discrete action
+    def get_action(self, state: Tensor, I) -> Tensor:  # return [int], which is the index of discrete action
         """
         return the action for exploration with the epsilon-greedy.
 
@@ -120,23 +126,105 @@ class QNet_mimo(nn.Module):  # `nn.Module` is a PyTorch module for neural networ
         :return: action [tensor.int]. action.shape == (batch_size, 1)
         """
         #if True:
-        a = self.forward(state).argmax(dim=1, keepdim=True)
+        a = self.forward(state)
+        #print(a, I.flatten())
+        a = a - a.abs().max() * 100 * th.as_tensor(( I.flatten())).to(th.device("cuda:0"))
+        #print(a)
+
+        a = a.argmax(dim=1, keepdim=True)
+        #print(a)
+        #assert 0
         action = torch.zeros(self.action_dim)
-        action[a[0].item()] = 1
+        #action[a[0].item()] = 1
         if self.explore_rate < rd.rand():
-        
+            action[a[0].item()] = 1
             #action = self.net(state).argmax(dim=1, keepdim=True)
             return action
         else:
-            index = torch.randint(self.action_dim, size=(state.shape[0], 1))
-            action[index[0].item()] = 1
-            if self.explore_rate > rd.rand():
-                index = torch.randint(self.action_dim, size=(state.shape[0], 1))
-                action[index[0].item()] = 1
+            #print(np.where(I.flatten() == 0))
+            #print(np.random.choice(np.where(I.flatten() == 0)[0], 1))
+            action[np.random.choice(np.where(I.flatten() == 0)[0], 1)] = 1
             return action
 
+    def get_action_r(self, state, I):
+        a = th.rand(1,self.action_dim).to(th.device("cuda:0"))
+        
+        a = a -  a.abs().max() * 100 *  th.as_tensor((I.flatten())).to(th.device("cuda:0"))
+        a = a.argmax(dim=1, keepdim=True)
+        action = torch.zeros(self.action_dim)
+        action[a[0].item()] = 1
+        return action
 
 
+class QNet_mimo_graph(nn.Module):
+    def __init__(self, mid_dim: int, num_layer: int, state_dim: int, action_dim, p, K, T=4):
+        self.theta_1 = nn.Linear(1, p, bias=False)
+        self.theta_2 = nn.Linear(p, p, bias = False)
+        self.theta_3 = nn.Linear(p, p, bias = False)
+        self.theta_4 = nn.Linear(1, p, bias = False)
+        self.K = K
+        self.p = p
+        self.theta_5 = nn.Linear(2 * p,1, bias = False)
+        self.theta_6 = nn.Linear(p, p, bias = False)
+        self.theta_7 = nn.Linear(p, p, bias = False)
+        self.T = T
+        self.device = th.device("cuda:0")
+    def forward(self, x, w):
+        
+        mu = th.zeros((x.shape[0], self.K, self.p)).to(self.device)
+        for t in range(self.T):
+            input_theta_2 = mu.sum(dim=1)
+            input_theta_3 = th.zeros((x.shape[0], self.p)).to(self.device)
+            input_theta_3_ = []
+            for k in range(self.K):
+                t = th.nn.ReLU(self.theta_4(w[:, k]))
+                input_theta_3 += t
+                input_theta_3_.append(t)
+            for k in range(self.K):
+                mu[:, k] = nn.ReLU(self.theta_1(x[:, k]) + self.theta_2(input_theta_2 - mu[:, k]) 
+                                   + self.theta_3(input_theta_3 - input_theta_3_[k]))
+        q_values = th.zeros((x.shape[0], self.K, 1)).to(self.device)
+        for k in range(self.K):
+            q_values[:, k] = self.theta_5(th.concatenate(nn.ReLU(self.theta_6(mu.sum(dim=1))),self.theta_7(mu[:,k]) ))
+        
+        return q_values
+
+    def get_action(self, x, w) -> Tensor:  # return [int], which is the index of discrete action
+        """
+        return the action for exploration with the epsilon-greedy.
+
+        :param state: [tensor] the input state. state.shape == (batch_size, state_dim)
+        :return: action [tensor.int]. action.shape == (batch_size, 1)
+        """
+        #if True:
+        a = self.forward(x, w)
+        #print(a, I.flatten())
+        a = a - a.abs().max() * 100 * th.as_tensor(( I.flatten())).to(th.device("cuda:0"))
+        #print(a)
+
+        a = a.argmax(dim=1, keepdim=True)
+        #print(a)
+        #assert 0
+        action = torch.zeros(self.action_dim)
+        #action[a[0].item()] = 1
+        if self.explore_rate < rd.rand():
+            action[a[0].item()] = 1
+            #action = self.net(state).argmax(dim=1, keepdim=True)
+            return action
+        else:
+            #print(np.where(I.flatten() == 0))
+            #print(np.random.choice(np.where(I.flatten() == 0)[0], 1))
+            action[np.random.choice(np.where(I.flatten() == 0)[0], 1)] = 1
+            return action
+
+    def get_action_r(self, state, I):
+        a = th.rand(1,self.action_dim).to(th.device("cuda:0"))
+        
+        a = a -  a.abs().max() * 100 *  th.as_tensor((I.flatten())).to(th.device("cuda:0"))
+        a = a.argmax(dim=1, keepdim=True)
+        action = torch.zeros(self.action_dim)
+        action[a[0].item()] = 1
+        return action
 
 class DenseNet(nn.Module):  # plan to hyper-param: layer_number
     def __init__(self, lay_dim):

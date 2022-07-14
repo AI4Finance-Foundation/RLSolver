@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 # Set variables 
-nr_of_users = 4
+nr_of_users = 8
 nr_of_BS_antennas = 4
 scheduled_users = [0,1,2,3] # array of scheduled users. Note that we schedule all the users.
 epsilon = 0.0001 # used to end the iterations of the WMMSE algorithm in Shi et al. when the number of iterations is not fixed (note that the stopping criterion has precendence over the fixed number of iterations)
@@ -22,7 +22,7 @@ nr_of_batches_training = 100 # used for training
 nr_of_batches_test = 1#1000 # used for testing
 nr_of_samples_per_batch = 1024
 nr_of_iterations = 5 # for WMMSE algorithm in Shi et al. 
-nr_of_iterations_nn = 5 # for the deep unfolded WMMSE in our paper
+nr_of_iterations_nn = 1 # for the deep unfolded WMMSE in our paper
 
 # User weights in the weighted sum rate (denoted by alpha in our paper)
 user_weights = np.reshape(np.ones(nr_of_users*nr_of_samples_per_batch),(nr_of_samples_per_batch,nr_of_users,1))
@@ -34,7 +34,9 @@ user_weights_for_regular_WMMSE = np.ones(nr_of_users)
 def compute_P(Phi_diag_elements, Sigma_diag_elements, mu):
   nr_of_BS_antennas = Phi_diag_elements.size
   mu_array = mu*np.ones(Phi_diag_elements.size)
-  result = np.divide(Phi_diag_elements,(Sigma_diag_elements + mu_array)**2)
+  #print(Phi_diag_elements, Sigma_diag_elements, mu_array)
+  
+  result = np.divide(Phi_diag_elements,(Sigma_diag_elements + mu_array + 5e-10)**2)
   result = np.sum(result)
   return result
 
@@ -98,7 +100,30 @@ def compute_weighted_sum_rate(user_weights, channel, precoder, noise_power, sele
        user_sinr = compute_sinr(channel, precoder, noise_power, user_index, selected_users)
        result = result + user_weights[user_index]*np.log2(1 + user_sinr)
    return result
-
+def MMSE(channel, total_power, noise_power):
+  
+  K = np.size(channel,0)
+  N = np.size(channel,1)
+  effective_channel = channel.conj().T
+  #print("######################")
+  #print(channel)
+  #print(np.matmul(effective_channel,channel))
+  denominator = np.linalg.inv(np.eye(N) / total_power * K + np.matmul(effective_channel,channel))
+  wslnr_max = np.zeros((N, K), dtype=complex)
+  
+  for i in range(K):
+    wslnr_max[:, i] =  np.matmul(denominator, effective_channel[:, i])
+    wslnr_max[:, i] = wslnr_max[:,i] / np.linalg.norm(wslnr_max[:, i])
+  powerAllocationwSLNRMAX_sumrate = np.ones((1,K))*total_power/K
+  t = np.kron(np.sqrt(powerAllocationwSLNRMAX_sumrate),np.ones((N,1)))
+  W = np.multiply(np.kron(np.sqrt(powerAllocationwSLNRMAX_sumrate),np.ones((N,1))), wslnr_max)
+  
+  channelGains = abs(np.matmul(channel,W))**2
+  signalGains = np.diag(channelGains)
+  interferenceGains = channelGains.sum(axis=1)-signalGains
+  rates = np.log2(1+signalGains/(interferenceGains+1))
+  #print(np.matmul(W.T, W.conj()))
+  return W.T, rates.sum()
 
 def compute_sinr_nn(channel, precoder, noise_power, user_id, nr_of_users):
 
@@ -199,6 +224,7 @@ def run_WMMSE(epsilon, channel, selected_users, total_power, noise_power, user_w
     
   nr_of_users = np.size(channel,0)
   nr_of_BS_antennas = np.size(channel,1)
+  #print(channel.shape)
   WSR=[] # to check if the WSR (our cost function) increases at each iteration of the WMMSE
   break_condition = epsilon + 1 # break condition to stop the WMMSE iterations and exit the while
   receiver_precoder = np.zeros(nr_of_users) + 1j*np.zeros(nr_of_users) # receiver_precoder is "u" in the paper of Shi et al. (it's a an array of complex scalars)
@@ -267,7 +293,7 @@ def run_WMMSE(epsilon, channel, selected_users, total_power, noise_power, user_w
         # hh should be an hermitian matrix of size (nr_of_BS_antennas X nr_of_BS_antennas)
         hh = np.matmul(np.reshape(channel[user_index,:],(nr_of_BS_antennas,1)),np.conj(np.transpose(np.reshape(channel[user_index,:],(nr_of_BS_antennas,1)))))
         A = A + (new_mse_weights[user_index]*user_weights[user_index]*(np.absolute(new_receiver_precoder[user_index]))**2)*hh
-
+    #print(channel,A)
     Sigma_diag_elements_true, U = np.linalg.eigh(A)
     Sigma_diag_elements = copy.deepcopy(np.real(Sigma_diag_elements_true))
     Lambda = np.zeros((nr_of_BS_antennas,nr_of_BS_antennas)) + 1j*np.zeros((nr_of_BS_antennas,nr_of_BS_antennas))

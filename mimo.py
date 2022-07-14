@@ -1,12 +1,13 @@
 import numpy as np
+
 import torch.nn as nn
 import torch
 from torch import Tensor
 from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
-from elegantrl.agents.AgentPPO import AgentPPO
+#from elegantrl.agents.AgentPPO import AgentPPO
 from elegantrl.agents.AgentBase import AgentBase
-from elegantrl.agents.AgentDQN import AgentDQN
+from elegantrl.agents.AgentDQN import AgentDQN,AgentDQN_mimo
 from elegantrl.train.config import Arguments
 import sys
 from elegantrl.train.evaluator import Evaluator
@@ -16,7 +17,7 @@ from utils import gen_adjacency_matrix_unweighted, gen_adjacency_matrix_weighted
 import os
 from th3 import *
 import time
-scheduled_users = [0,1,3,4,5,6,7,8]
+scheduled_users = [0,1,2, 3,4,5,6,7,8]
 def kwargs_filter(func, kwargs: dict) -> dict:
     import inspect  # Python built-in package
 
@@ -31,38 +32,117 @@ def kwargs_filter(func, kwargs: dict) -> dict:
 class MIMO:    
     def __init__(self, K=8, N=4, total_power=10,):
         self.H = None
-        self.W = None
+        self.W = np.zeros((K, N), dtype=complex)
         self.K = K
         self.N = N
         self.user_weights_for_regular_WMMSE = np.ones(self.K)
         self.total_power = total_power
         self.noise_power = 1
         self.nr_of_iterations = 10
-        self.maxstep = self.N * 1
-        self.max_step = self.N * 1
+        self.maxstep = self.K
+        self.max_step = self.K * 1
         self.if_discrete = True
-        self.I = np.zeros(self.K)
+        self.I = np.zeros((self.K,1))
         self.wsr = 0
         self.record = []
         self.record_ = []
-        self.step = 0
+        self.step_ = 0
+        self.scheduled_users = [0,1,2, 3,4,5,6,7,8]      
+        self.user_weights_for_regular_WMMSE = np.ones(self.K)
+        self.epsilon = 0.0001
+
+    def state(self,):
+        H_r = np.concatenate((self.H_0.real, self.I), axis = 1)
+        H_i = np.concatenate((self.H_0.imag, self.I), axis = 1)
+        W_r = np.concatenate((self.W.real, self.I), axis = 1)
+        W_i = np.concatenate((self.W.imag, self.I), axis = 1)
+        return np.concatenate((H_r, H_i), axis=0).reshape(2, self.K, self.N+1)
+        #return np.concatenate((H_r, H_i, W_r, W_i), axis=0).reshape(4, self.K, self.N+1)
+    def reset(self,eval_H=np.ones((2,2))):
         
-    def reset(self,):
-        self.H = compute_channel(self.N, self.K, self.total_power)
+        
+        _,_,self.H,_ = compute_channel(self.N, self.K, self.total_power, np.array([[1]]))
+        self.H_0 = deepcopy(self.H)
+        if eval_H.shape[0]!=2 or eval_H.shape[1] !=2:
+            self.H_0 = eval_H
+            #print(self.H_0)
+        #print("reset!")
+        #W,_,_,wsr= run_WMMSE(self.epsilon, self.H_0, self.scheduled_users, self.total_power, self.noise_power, self.user_weights_for_regular_WMMSE, nr_of_iterations-1, log = False)
+        #W, wsr = MMSE(self.H, self.total_power, self.noise_power )
+        wsr = 0
+        self.wsr_all = wsr
+        self.step_ = 0
+        self.W = np.zeros((self.K, self.N), dtype=complex)
+        self.I = np.zeros((self.K, 1))
+        wsr_max = 0
+        for i in range(self.K):
+            I = np.zeros((self.K, 1))
+            I[i][0] = 1
+            #W, _, _, wsr = run_WMMSE(self.epsilon, self.H[np.where(self.I.flatten() >= 1)], self.scheduled_users, self.total_power, self.noise_power, self.user_weights_for_regular_WMMSE, nr_of_iterations-1, log = False)
+            W = np.zeros((self.K, self.N), dtype=complex)
+            H = np.zeros((self.K, self.N), dtype=complex)
+            W_, wsr = MMSE(self.H_0[np.where(I.flatten() >= 1)], self.total_power, self.noise_power )
+            j = 0
+            for i in range(self.K):
+                if I[i][0] < 1:
+                    W[i] = np.zeros(self.N, dtype=complex)
+                    H[i] = np.zeros(self.N, dtype=complex) + np.random.normal() * 1e-20
+                else:
+                    W[i] = W_[j]
+                    H[i] = self.H_0[i]
+                    j+=1
+ 
+            if wsr > wsr_max:
+                wsr_max = wsr
+                self.I = I
+                self.W = W
         self.wsr = 0
-        self.step = 0
-        return self.H
+        #print("reset")
+        return self.state()
             
     def step(self, action_i):
-        self.I += action_i
-        self.W,_,_,wsr= run_WMMSE(epsilon, np.diag(self.I)* self.H, scheduled_users, total_power, noise_power, self.user_weights_for_regular_WMMSE, nr_of_iterations-1, log = False)
+        #print(action_i.shape, self.I.shape)
+        #print((action_i.reshape(self.K, 1) * self.I).sum(), self.I.flatten(), action_i)
+        if (action_i.reshape(self.K, 1) * self.I).sum() != 0.0:
+            assert 0
+        self.I += action_i.reshape(self.K, 1)
+        #print((action_i,self.I))
+        #W,_,_,wsr= run_WMMSE(self.epsilon, self.H[np.where(self.I.flatten() >= 1)], self.scheduled_users, self.total_power, self.noise_power, self.user_weights_for_regular_WMMSE, nr_of_iterations-1, log = False)
+        #W, wsr = MMSE(self.H_0, self.total_power, self.noise_power )
+        #print("no user selection: ", wsr)
+        #W, wsr = MMSE(self.H, self.total_power, self.noise_power )
+        #print("zero and user selection: ", wsr)
+
+        W, wsr = MMSE(self.H_0[np.where(self.I.flatten() >= 1)], self.total_power, self.noise_power )
+        #print("with user selection: ", wsr)
+
+        j = 0
+        #print(np.where(self.I.flatten() >= 1))
+        for i in range(self.K):
+
+            if self.I[i] < 1:
+                self.W[i] = np.zeros(self.N, dtype=complex)
+                self.H[i] = np.zeros(self.N, dtype=complex) + np.random.normal() * 1e-20
+            else:
+                self.W[i] = W[j]
+                self.H[i] = self.H_0[i]
+                j+=1
         reward = wsr - self.wsr
-        self.step += 1
-        done = True
-        if self.step == 4:
-            done = False
-        
-        return self.H+self.I+self.W, reward, done, {}
+        self.wsr = wsr
+        #print(wsr, reward)
+        self.step_ += 1
+        done = False
+        if self.step_ >= 3:
+            
+            #W,_,_,wsr= run_WMMSE(self.epsilon, self.H, self.scheduled_users, self.total_power, self.noise_power, self.user_weights_for_regular_WMMSE, nr_of_iterations-1, log = False)
+            #self.wsr_all = wsr
+            #print(self.I.flatten())
+            #print(self.I, wsr, self.wsr)
+            done = True
+            
+        #print(self.step_, done) 
+        #time.sleep(0.1)
+        return self.state(), reward, done, {}
 
 def init_args(K, N, total_power):
     env_func = MIMO
@@ -73,15 +153,15 @@ def init_args(K, N, total_power):
         
     }
     
-    args = Arguments(AgentDQN, env_func=env_func, env_args=env_args)
+    args = Arguments(AgentDQN_mimo, env_func=env_func, env_args=env_args)
     args.env_num = 1
     args.N = N
-    args.state_dim = (4, K, N)
+    args.state_dim = (2, K, N + 1)
     args.action_dim = K
     args.target_return = 100000000
     args.num_layer = 3
     args.net_dim = 2 ** 8
-    args.batch_size = int(args.net_dim)
+    args.batch_size = int(args.net_dim) * 8
     
     args.worker_num = 4
     args.target_step = args.batch_size
@@ -151,9 +231,12 @@ def init_agent(args: Arguments, gpu_id: int, env=None) -> AgentBase:
         '''assign `agent.states` for exploration'''
         if args.env_num == 1:
             state = env.reset()
+            
             assert isinstance(state, np.ndarray) or isinstance(state, torch.Tensor)
-            #print(args.state_dim)
-            #assert 0
+            print(args.state_dim)
+            
+            print(state.shape)#assert 0
+           
             assert state.shape in {(args.state_dim,), args.state_dim}
             states = [state, ]
         else:
@@ -172,9 +255,9 @@ def run(seed=1, gpu_id = 0, v_num = 100):
     #mat = np.array([[0, 1, 1], [1, 0, 0], [1, 0, 0]])
     #agent = DHN(adjacency_mat = mat, state_dim=s, action_dim=s, gpu_id=gpu_id)
     #agent.load(100,20)
-    args = init_args(s, mat, )
+    args = init_args(8, 4, 10)
     env = build_env(args.env, args.env_func, args.env_args)
-    env.initial_adjacency = mat
+    #env.initial_adjacency = mat
     #agent = AgentPPO(256, v_num, v_num, gpu_id = gpu_id, args = args)
     agent = init_agent(args, gpu_id, env)
     buffer = init_buffer(args, gpu_id)
@@ -194,19 +277,43 @@ def run(seed=1, gpu_id = 0, v_num = 100):
     del args
 
     if_train = True
+    env.eval_H = []
+    t = []
+    for i in range(0):
+        env.reset()
+        env.eval_H.append(env.H)
+        t.append(env.wsr_all)
+    import pickle
+    with open("8_4_H.obj", "rb") as f:
+        env.eval_H = pickle.load(f)
+    #print(np.array(t).mean())
+    #assert 0
+    #time.sleep(5)
+    evaluator.eval_env = env
+    trajectory = agent.explore_env(env, target_step)
+    #for i in range(len(trajectory)):
+    #    print(trajectory[i].shape)
+    #assert 0
+    steps, r_exp = buffer.update_buffer([trajectory, ])
+
+    (if_reach_goal, if_save) = evaluator.evaluate_save_and_plot(agent.act, steps, r_exp, (0, 0))
     while if_train:
+        
         trajectory = agent.explore_env(env, target_step)
-        print(trajectory[0].shape)
+        #print(trajectory[0].shape)
+        #print(trajectory)
         steps, r_exp = buffer.update_buffer([trajectory, ])
-        with open("configuration_record.npy", 'wb') as f:
-            np.save(f, np.array(env.record_))
+        #with open("configuration_record.npy", 'wb') as f:
+        #    np.save(f, np.array(env.record_))
         torch.set_grad_enabled(True)
         logging_tuple = agent.update_net(buffer)
         torch.set_grad_enabled(False)
-        print(env.min_H, env.min_configuration)
+        #print(env.min_H, env.min_configuration)
         
         
         evaluator.eval_env = env
+        #steps = 0
+        #r_exp = 0
         (if_reach_goal, if_save) = evaluator.evaluate_save_and_plot(agent.act, steps, r_exp, logging_tuple)
         dont_break = not if_allow_break
         not_reached_goal = not if_reach_goal

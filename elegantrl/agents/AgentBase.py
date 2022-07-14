@@ -74,7 +74,8 @@ class AgentBase:
             self.explore_env = self.explore_one_env
         else:
             self.explore_env = self.explore_vec_env
-
+        #assert 0
+        #print(self.explore_env)
         if self.if_use_per:
             self.criterion = torch.nn.SmoothL1Loss(reduction="none")
             self.get_obj_critic = self.get_obj_critic_per
@@ -116,6 +117,9 @@ class AgentBase:
         while i < target_step or not done:
             tensor_state = torch.as_tensor(state, dtype=torch.float32).unsqueeze(0)
             tensor_action = self.act.get_action(tensor_state.to(self.device)).detach().cpu()  # different
+            print(tensor_action)
+            assert 0
+            
             next_state, reward, done, _ = env.step(tensor_action[0].numpy())  # different
 
             traj_list.append((tensor_state, reward, done, tensor_action))  # different
@@ -146,7 +150,8 @@ class AgentBase:
         while i < target_step or not any(dones):
             actions = self.act.get_action(states).detach()  # different
             next_states, rewards, dones, _ = env.step(actions)  # different
-
+            print(actions)
+            assert 0
             traj_list.append((states.clone(), rewards.clone(), dones.clone(), actions))  # different
 
             i += 1
@@ -279,18 +284,26 @@ class AgentBase:
     ) -> List[Tensor]:
         # assert len(buf_items[0]) in {4, 5}
         # assert len(buf_items[0][0]) == self.env_num
+        #print(len(traj_list))
+        #print(traj_list[0][-1])
+        
         traj_list1 = list(map(list, zip(*traj_list)))  # state, reward, done, action, noise
         del traj_list
+        #print(len(traj_list1[3]))
+        #print(traj_list1[3][0])
+        
         # assert len(buf_items[0]) == step
         # assert len(buf_items[0][0]) == self.env_num
 
         '''stack items'''
         traj_state = torch.stack(traj_list1[0])
         traj_action = torch.stack(traj_list1[3])
-
+        #print(traj_action.shape, traj_action[0])
+        
         if len(traj_action.shape) == 2:
-            traj_action = traj_action.unsqueeze(2)
-
+            traj_action = traj_action.unsqueeze(1)
+        #print(traj_action.shape, traj_action[0])
+        
         if self.env_num > 1:
             traj_reward = (torch.stack(traj_list1[1]) * self.reward_scale).unsqueeze(2)
             traj_mask = ((1 - torch.stack(traj_list1[2])) * self.gamma).unsqueeze(2)
@@ -307,6 +320,8 @@ class AgentBase:
 
         '''splice items'''
         traj_list3 = list()
+        #print(traj_list2[3].shape, traj_list2[3][0])
+        
         for j in range(len(traj_list2)):
             cur_item = list()
             buf_item = traj_list2[j]
@@ -328,6 +343,8 @@ class AgentBase:
         # on-policy:  buf_item = [states, rewards, dones, actions, noises]
         # off-policy: buf_item = [states, rewards, dones, actions]
         # buf_items = [buf_item, ...]
+        #print(traj_list3[3].shape, traj_list3[3][0])
+        #assert 0
         return traj_list3
 
     def get_q_sum(self, buf_reward: Tensor, buf_mask: Tensor) -> Tensor:

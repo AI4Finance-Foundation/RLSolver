@@ -144,7 +144,7 @@ class AgentDQN(AgentBase):  # [ElegantRL.2022.04.18]
 
 
 import torch as th
-class AgentDQN_cnn(AgentBase):  # [ElegantRL.2022.04.18]
+class AgentDQN_mimo(AgentBase):  # [ElegantRL.2022.04.18]
     """
     Deep Q-Network algorithm. “Human-Level Control Through Deep Reinforcement Learning”. Mnih V. et al.. 2015.
 
@@ -184,13 +184,14 @@ class AgentDQN_cnn(AgentBase):  # [ElegantRL.2022.04.18]
         get_action = self.act.get_action
         while i < target_step or not done:
             tensor_state = torch.as_tensor(state, dtype=torch.float32).unsqueeze(0)
-            tensor_action = get_action(tensor_state.to(self.device)).detach().cpu()
+            tensor_action = get_action(tensor_state.to(self.device), env.I).detach().cpu()
             #print(tensor_action)
             next_state, reward, done, _ = env.step(tensor_action.numpy())
 
             traj_list.append((tensor_state, reward, done, tensor_action))
 
             i += 1
+            #print(done)
             state = env.reset() if done else next_state
 
         self.states[0] = state
@@ -233,11 +234,12 @@ class AgentDQN_cnn(AgentBase):  # [ElegantRL.2022.04.18]
         """
         obj_critic = q_value = torch.zeros(1)
         update_times = int(buffer.cur_capacity / self.batch_size * self.repeat_times)
-        for i in range(update_times):
+        for i in range(1):
             obj_critic, q_value = self.get_obj_critic(buffer, self.batch_size)
-            self.optimizer_update(self.cri_optimizer, obj_critic)
+            self.optimizer_update(self.cri_optimizer, obj_critic * 1000)
             if self.if_cri_target:
                 self.soft_update(self.cri_target, self.cri, self.soft_update_tau)
+        print(obj_critic.item(), q_value.mean().item())
         return obj_critic.item(), q_value.mean().item()
 
     def get_obj_critic_raw(self, buffer: ReplayBuffer, batch_size: int) -> (Tensor, Tensor):
@@ -250,11 +252,30 @@ class AgentDQN_cnn(AgentBase):  # [ElegantRL.2022.04.18]
         """
         with torch.no_grad():
             reward, mask, action, state, next_s = buffer.sample_batch(batch_size)
-            next_q = self.cri_target(next_s).max(dim=1, keepdim=True)[0]
-            q_label = reward + mask * next_q
+            #print("I.shape", next_s[:, 0,  :, -1].shape)
+            #for i in range(action.shape[0]):
+            #    print(action[i])
+            #print(reward)
+            #assert 0
 
-        q_value = self.cri(state).gather(1, action.long())
+            next_q = self.cri_target(next_s)
+            next_q = next_q * (1 - next_s[:, 0, :, -1])
+            next_q = next_q.max(dim=1, keepdim=True)[0]
+            q_label = reward + mask * next_q
+        	
+        q_value = self.cri(state).gather(1, th.argmax(action, dim=1, keepdim=True))
+        #print((q_value-q_label).sum(), (q_value - q_label).shape)
+        
+        
         obj_critic = self.criterion(q_value, q_label)
+        #print(obj_critic.item())
+        
+        #print(action[0].sum())
+        #print(action[1])
+        #print(action.shape,q_value.shape, q_label.shape)
+        #assert 0
+        
+
         return obj_critic, q_value
 
     def get_obj_critic_per(self, buffer: ReplayBuffer, batch_size: int) -> (Tensor, Tensor):
