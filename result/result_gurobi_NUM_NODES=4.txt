@@ -1,1 +1,0 @@
-obj when NUM_NODES=4: 2.0
