@@ -1,1 +1,3 @@
-# RLSolver: Massively Parallel Gym-Environments for Combinatorial and Nonconvex Optimizations
+# RLSolver: 
+
+Massively Parallel Gym-Environments for Combinatorial and Nonconvex Optimizations
