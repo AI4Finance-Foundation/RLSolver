@@ -28,8 +28,6 @@ RLSolver
 |   |   ├── tsp.py
 |   |   └── mimo_beamforming.py
 |   ├── HPClib
-|   |   ├── linux
-|   |   └── windows
 |   └── utils
 |
 |   
