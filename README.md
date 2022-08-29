@@ -29,8 +29,6 @@ RLSolver
 |   |   └── mimo_beamforming.py
 |   ├── HPClib
 |   └── utils
-|
-|   
 └── README.md
 
 ```
