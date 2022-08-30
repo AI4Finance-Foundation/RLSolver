@@ -1,8 +1,12 @@
-# RLSolver: 
+# RLSolver: High-performance RL solvers for combinatorial and nonconvex optimizations
 
-We apply [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) to support combinatorial and nonconvex optimizations.
+It is based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
-The key technology is: Massively parallel simulations of gym-Environments
+The key technologes are: 
+
+1). massively parallel simulations of gym-Environments on GPUs;
+
+2). Podracer on a GPU cloud.
 
 
 ## Outline
