@@ -14,16 +14,11 @@ def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, num_users=4
             vec_H = generate_batch_channel(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, curriculum_base_vectors).to(device)
         else:
             vec_H = th.randn(batch_size, fullspace_dim, dtype=th.cfloat).to(device)
-            
         mat_H = (vec_H[:, :num_users * num_antennas] + vec_H[:, num_users * num_antennas:] * 1.j).reshape(-1, num_users, num_antennas)
         mat_W = policy_net_mimo.calc_mmse(mat_H).to(device)
-        vec_W= th.cat((mat_W.real.reshape(-1, num_users * num_antennas), mat_W.imag.reshape(-1, num_users * num_antennas)), 1)
         loss = 0
         for _ in range(episode_length):
-            mat_HW = th.bmm(mat_H, mat_W.transpose(1,2).conj())
-            vec_HW = th.cat((mat_HW.real.reshape(-1, num_users * num_antennas), mat_HW.imag.reshape(-1, num_users * num_antennas)), 1)
-            vec_W = policy_net_mimo(th.cat((vec_H, vec_W, vec_HW), 1), mat_HW, mat_H)
-            mat_W = (vec_W[:, :num_users * num_antennas] + vec_W[:, num_users * num_antennas:] * 1.j).reshape(-1, num_users, num_antennas)
+            mat_W = policy_net_mimo(mat_H, mat_W)
             loss -= policy_net_mimo.calc_sum_rate(mat_H, mat_W).sum()
         
         optimizer.zero_grad()
@@ -33,7 +28,7 @@ def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, num_users=4
         if epoch % num_save_model_gap == 0:
             th.save(policy_net_mimo.state_dict(), save_path+f"{epoch}.pth")
 
-def generate_batch_channel(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, base_vectors):
+def generate_channel_batch(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, base_vectors):
     coordinates = th.randn(batch_size, cur_subspace, 1)
     vec_channel = th.bmm(base_vectors[:cur_subspace].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim), coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / cur_subspace) ** 0.5)
     return  (num_antennas * num_users) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
