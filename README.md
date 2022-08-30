@@ -1,6 +1,10 @@
 # RLSolver: 
 
-Massively Parallel Gym-Environments for Combinatorial and Nonconvex Optimizations
+We apply [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) to support combinatorial and nonconvex optimizations.
+
+The key technology is: Massively parallel simulations of gym-Environments
+
+
 ## Outline
 
 - [File Structure](#File Structure)
