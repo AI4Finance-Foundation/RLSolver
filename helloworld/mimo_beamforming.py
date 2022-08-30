@@ -49,7 +49,7 @@ def get_experiment_path(file_name):
     for exp_id in file_list:
         if int(exp_id) + 1 > max_exp_id:
             max_exp_id = int(exp_id) + 1
-    os.mkdir('./{}/{}/'.format(file_name, exp_id))
+    os.mkdir('./{}/{}/'.format(file_name, max_exp_id))
     return f"./{file_name}/{max_exp_id}/"
 
 if __name__  == "__main__":
