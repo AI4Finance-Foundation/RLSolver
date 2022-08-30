@@ -4,11 +4,12 @@ from envs.mimo_beamforming.env_net_mimo import Policy_Net_MIMO
 from envs.mimo_beamforming.env_mimo import generate_channel_batch
 
 def train_curriculum_learning( policy_net_mimo, optimizer, save_path, K=4, N=4, total_power=10, noise_power=1, num_training_epochs=40000,
-                num_subspace_update_gap=400, num_save_model_gap=1000, episode_length=5, subspace_dim=1, batch_size=4, 
-                device=th.device("cuda:0" if th.cuda.is_available() else "cpu")):
+                num_subspace_update_gap=400, num_save_model_gap=1000, device=th.device("cuda:0" if th.cuda.is_available() else "cpu")):
     # generate basis vectors of an N x K space, using QR decomposition
     basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
-    
+    subspace_dim=1
+    batch_size=4096
+    episode_length=5, 
     for epoch in range(num_training_epochs):
         if (epoch + 1) % num_subspace_update_gap == 0 and subspace_dim < 2 * K * N:
             subspace_dim +=1
