@@ -10,7 +10,7 @@ def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, num_users=4
     for epoch in range(num_training_epochs):
         if (epoch + 1) % num_subspace_update_gap == 0 and subspace_dim < fullspace_dim:
             subspace_dim +=1
-            vec_H = generate_batch_channel(num_antennas, num_users, fullspace_dim, batch_size, subspace_dim, curriculum_base_vectors).to(device)
+            vec_H = generate_channel_batch(num_antennas, num_users, fullspace_dim, batch_size, subspace_dim, curriculum_base_vectors).to(device)
         else:
             vec_H = th.randn(batch_size, fullspace_dim, dtype=th.cfloat).to(device)
         mat_H = (vec_H[:, :num_users * num_antennas] + vec_H[:, num_users * num_antennas:] * 1.j).reshape(-1, num_users, num_antennas)
@@ -29,7 +29,8 @@ def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, num_users=4
 
 def generate_channel_batch(num_antennas, num_users, fullspace_dim, batch_size, subspace_dim, base_vectors):
     coordinates = th.randn(batch_size, subspace_dim, 1)
-    vec_channel = th.bmm(base_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim), coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / subspace_dim) ** 0.5)
+    base_vectors_batch = base_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim)
+    vec_channel = th.bmm(, coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / subspace_dim) ** 0.5)
     return  (num_antennas * num_users) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
 
 def get_experiment_path(file_name):
