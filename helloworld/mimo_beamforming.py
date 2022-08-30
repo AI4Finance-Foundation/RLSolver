@@ -1,43 +1,42 @@
-import pickle as pkl
+from net import Policy_Net_MIMO
 import torch as th
 import time
 import os
-from net import Net_MIMO
 
-def train_mimo( net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_antennas=4, total_power=10, noise_power=1, num_training_epochs=40000,
-                num_subspace_update_gap=400, num_save_model_gap=1000, episode_length=5, fullspace_dim=32, cur_subspace=1, batch_size=8192, 
+
+def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_antennas=4, total_power=10, noise_power=1, num_training_epochs=40000,
+                num_subspace_update_gap=400, num_save_model_gap=1000, episode_length=5, fullspace_dim=32, cur_subspace=1, batch_size=4096, 
                 device=th.device("cuda:0" if th.cuda.is_available() else "cpu")):
     
     for epoch in range(num_training_epochs):
         if (epoch + 1) % num_subspace_update_gap == 0 and cur_subspace < 32:
             cur_subspace +=1
-            channel = generate_channel(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, curriculum_base_vectors).to(device)
+            vec_H = generate_batch_channel(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, curriculum_base_vectors).to(device)
         else:
-            channel = th.randn(batch_size, num_antennas, num_users, dtype=th.cfloat).to(device)
-        
-        net_input = th.cat((th.as_tensor(channel.real).reshape(-1, num_users * num_antennas), th.as_tensor(channel.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
-        input_w_unflatten = net_mimo.calc_mmse(channel).to(device)
-        input_w= th.cat((th.as_tensor(input_w_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_w_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
+            vec_H = th.randn(batch_size, fullspace_dim, dtype=th.cfloat).to(device)
+            
+        mat_H = (vec_H[:, :num_users * num_antennas] + vec_H[:, num_users * num_antennas:] * 1.j).reshape(-1, num_users, num_antennas)
+        mat_W = policy_net_mimo.calc_mmse(mat_H).to(device)
+        vec_W= th.cat((mat_W.real.reshape(-1, num_users * num_antennas), mat_W.imag.reshape(-1, num_users * num_antennas)), 1)
         loss = 0
         for _ in range(episode_length):
-            input_hw_unflatten = th.bmm(channel, input_w_unflatten.transpose(1,2).conj())
-            input_hw = th.cat((th.as_tensor(input_hw_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_hw_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
-            net_output = net_mimo(th.cat((net_input, input_w, input_hw), 1), input_hw_unflatten, channel)
-            output_w = (net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 0] + net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 1] * 1j).reshape(-1, num_users, num_antennas)
-            loss -= net_mimo.calc_sum_rate(channel, output_w).sum()
+            mat_HW = th.bmm(mat_H, mat_W.transpose(1,2).conj())
+            vec_HW = th.cat((mat_HW.real.reshape(-1, num_users * num_antennas), mat_HW.imag.reshape(-1, num_users * num_antennas)), 1)
+            vec_W = policy_net_mimo(th.cat((vec_H, vec_W, vec_HW), 1), mat_HW, mat_H)
+            mat_W = (vec_W[:, :num_users * num_antennas] + vec_W[:, num_users * num_antennas:] * 1.j).reshape(-1, num_users, num_antennas)
+            loss -= policy_net_mimo.calc_sum_rate(mat_H, mat_W).sum()
         
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         if epoch % num_save_model_gap == 0:
-            th.save(net_mimo.state_dict(), save_path+f"{epoch}.pth")
+            th.save(policy_net_mimo.state_dict(), save_path+f"{epoch}.pth")
 
-def generate_channel(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, base_vectors):
+def generate_batch_channel(num_antennas, num_users, fullspace_dim, batch_size, cur_subspace, base_vectors):
     coordinates = th.randn(batch_size, cur_subspace, 1)
-    channel = th.bmm(base_vectors[:cur_subspace].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim), coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / cur_subspace) ** 0.5) * (num_antennas * num_users) ** 0.5
-    channel = (channel / channel.norm(dim=1, keepdim = True)).reshape(-1, 2, num_users, num_antennas)
-    return (channel[:, 0] + channel[:, 1] * 1.j).reshape(-1, num_users, num_antennas)
+    vec_channel = th.bmm(base_vectors[:cur_subspace].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim), coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / cur_subspace) ** 0.5)
+    return  (num_antennas * num_users) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
 
 def get_experiment_path(file_name):
     file_list = os.listdir()
@@ -61,12 +60,12 @@ if __name__  == "__main__":
     learning_rate=5e-5
     file_name = "mimo_beamforming"
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
-    net_mimo = Net_MIMO(mid_dim).to(device)
-    optimizer = th.optim.Adam(net_mimo.parameters(), lr=learning_rate)
+    policy_net_mimo = Policy_Net_MIMO(mid_dim).to(device)
+    optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
     save_path = get_experiment_path(file_name)
     try:
-        train_mimo(net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, num_users=num_users, num_antennas=num_antennas, fullspace_dim=fullspace_dim)
+        train_mimo(policy_net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, num_users=num_users, num_antennas=num_antennas, fullspace_dim=fullspace_dim)
     except KeyboardInterrupt:
-        th.save(net_mimo.state_dict(), save_path+"0.pth")
+        th.save(policy_net_mimo.state_dict(), save_path+"0.pth")
         exit()
-    th.save(net_mimo.state_dict(), save_path+"0.pth")
+    th.save(policy_net_mimo.state_dict(), save_path+"0.pth")

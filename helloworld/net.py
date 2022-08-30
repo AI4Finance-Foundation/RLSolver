@@ -2,9 +2,9 @@ import torch as th
 import numpy as np
 import torch.nn as nn
 
-class Net_MIMO(nn.Module):
+class Policy_Net_MIMO(nn.Module):
     def __init__(self, mid_dim=256, K=4, N=4, total_power=10, encode_dim=512, gnn_loop=4):
-        super(Net_MIMO, self).__init__()
+        super(Policy_Net_MIMO, self).__init__()
         self.encode_dim = encode_dim
         self.total_power = total_power
         self.K = K
