@@ -11,7 +11,7 @@ def train_mimo(net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_an
     for i in range(num_training_epochs):
         if current_step % num_subspace_update_gap == 0 and cur_subspace < 32:
             cur_subspace +=1
-            channel = compute_channel(num_antennas, num_users, fullspace_dim, batch_size, total_power,current_step, cur_subspace, curriculum_base_vectors).to(device)
+            channel = generate_channel(num_antennas, num_users, fullspace_dim, batch_size, total_power,current_step, cur_subspace, curriculum_base_vectors).to(device)
         else:
             channel = th.randn(batch_size, num_antennas, num_users, dtype=th.cfloat).to(device)
         
@@ -35,7 +35,7 @@ def train_mimo(net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_an
             th.save(net_mimo.state_dict(), save_path+f"{current_step}.pth")
         current_step += 1
 
-def compute_channel(num_antennas, num_users, fullspace_dim, batch_size , cur_subspace, base_vectors):
+def generate_channel(num_antennas, num_users, fullspace_dim, batch_size , cur_subspace, base_vectors):
     coordinates = th.randn(batch_size, cur_subspace, 1)
     channel = th.bmm(base_vectors[:cur_subspace].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim), coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / cur_subspace) ** 0.5) * (num_antennas * num_users) ** 0.5
     channel = (channel / channel.norm(dim=1, keepdim = True)).reshape(-1, 2, num_users, num_antennas)
