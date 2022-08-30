@@ -66,7 +66,7 @@ if __name__  == "__main__":
     optimizer = th.optim.Adam(net_mimo.parameters(), lr=learning_rate)
     save_path = get_experiment_path(file_name)
     try:
-        train(net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, num_users=num_users, num_antennas=num_antennas, fullspace_dim=fullspace_dim)
+        train_mimo(net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, num_users=num_users, num_antennas=num_antennas, fullspace_dim=fullspace_dim)
     except KeyboardInterrupt:
         th.save(net_mimo.state_dict(), save_path+"0.pth")
         exit()
