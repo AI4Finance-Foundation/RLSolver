@@ -44,10 +44,9 @@ def get_experiment_path(env_name):
     return f"./{env_name}/{max_exp_id}/"
 
 if __name__  == "__main__":
-    
     K = 4   # number of users
     N = 4   # number of antennas
-    mid_dim = 512
+    mid_dim = 512  
     learning_rate = 5e-5
     
     env_name = "mimo_beamforming"
