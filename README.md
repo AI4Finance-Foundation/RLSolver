@@ -4,9 +4,9 @@ It is based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) a
 
 The key technologes are: 
 
-1). massively parallel simulations of gym-Environments on GPUs;
+- **Massively parallel simuations** of gym-Environments on GPUs;
 
-2). Podracer on a GPU cloud.
+- **Podracer scheduling** on a GPU cloud.
 
 
 ## Outline
