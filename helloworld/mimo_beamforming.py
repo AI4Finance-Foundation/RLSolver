@@ -63,7 +63,7 @@ if __name__  == "__main__":
     file_name = "mimo_beamforming"
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
     net_mimo = Net_MIMO(mid_dim).to(device)
-    optimizer = th.optim.Adam(mmse_net.parameters(), lr=learning_rate)
+    optimizer = th.optim.Adam(net_mimo.parameters(), lr=learning_rate)
     save_path = get_experiment_path(file_name)
     try:
         train(net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, num_users=num_users, num_antennas=num_antennas, fullspace_dim=fullspace_dim)
