@@ -47,13 +47,12 @@ if __name__  == "__main__":
     
     K = 4   # number of users
     N = 4   # number of antennas
-    mid_dim = 512
     learning_rate = 5e-5
     
     env_name = "mimo_beamforming"
     save_path = get_experiment_path(env_name) # folder to save the trained policy net
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
-    policy_net_mimo = Policy_Net_MIMO(mid_dim).to(device)
+    policy_net_mimo = Policy_Net_MIMO().to(device)
     optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
     
     try:
