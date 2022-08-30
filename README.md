@@ -16,7 +16,7 @@ RLSolver
     |   ├── maxcut.py
     |   ├── tsp.py
     |   ├── milp.py
-    |   ├── potfolio.py
+    |   ├── portfolio.py
     |   (nonconvex optimizations)
     |   ├── mimo_beamforming.py
     |   ├── mimo_beamforming_relay.py
