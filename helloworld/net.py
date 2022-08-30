@@ -2,63 +2,65 @@ import torch as th
 import torch 
 import numpy as np
 import torch.nn as nn
+
 class Net_MIMO(nn.Module):
     def __init__(self, mid_dim=256, K=4, N=4, total_power=10, encode_dim=512, gnn_loop=4):
         super(Net_MIMO, self).__init__()
-        state_dim = (6,K,N)
-        action_dim = 2 * K * N
         self.encode_dim = encode_dim
         self.total_power = total_power
         self.K = K
         self.N = N
+        self.state_dim = (6,K,N)
+        self.action_dim = 2 * K * N
         self.loop = gnn_loop
         self.theta_0 = nn.Linear(self.K * 2, self.encode_dim)
         self.if_gnn = False
-        if self.if_gnn:
-            self.theta_1 = nn.ModuleList([nn.Linear(8, self.encode_dim)])
-            self.theta_2 = nn.ModuleList([nn.Linear(self.encode_dim, self.encode_dim)])
-            self.theta_3 = nn.ModuleList([nn.Linear(self.encode_dim, self.encode_dim)])
-            self.theta_4 = nn.ModuleList([nn.Linear(1, self.encode_dim)])
-            self.theta_5 = nn.Linear(2 * self.encode_dim, self.N * 2)
-            self.theta_6 = nn.Linear(self.encode_dim, self.encode_dim)
-            self.theta_7 = nn.Linear(self.encode_dim, self.encode_dim)
-            self.theta_8  = nn.ModuleList([nn.Linear(self.encode_dim, self.encode_dim)])
-            self.theta_9 = nn.Linear(self.encode_dim * 4, self.encode_dim)
-            self.mid = nn.ReLU()
         self.device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
         self.sigmoid = nn.Sigmoid()
         self.net = nn.Sequential(
-            BiConvNet(mid_dim, state_dim, mid_dim * 4), nn.ReLU(),
+            BiConvNet(mid_dim, self.state_dim, mid_dim * 4), nn.ReLU(),
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.ReLU(),
             nn.Linear(mid_dim * 2, mid_dim * 1),
             DenseNet(mid_dim * 1), nn.ReLU(),
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.Hardswish(),
-            nn.Linear(mid_dim * 2, action_dim),
-        ) 
+            nn.Linear(mid_dim * 2, self.action_dim),
+        )
+        if self.if_gnn:
+            self.gnn_weight = nn.ModuleList([ nn.Linear(self.K * 2, self.encode_dim), 
+                                        nn.Linear(8, self.encode_dim), 
+                                        nn.Linear(self.encode_dim, self.encode_dim), 
+                                        nn.Linear(self.encode_dim, self.encode_dim),
+                                        nn.Linear(1, self.encode_dim),
+                                        nn.Linear(2 * self.encode_dim, self.N * 2),
+                                        nn.Linear(self.encode_dim, self.encode_dim), 
+                                        nn.Linear(self.encode_dim, self.encode_dim), 
+                                        nn.Linear(self.encode_dim, self.encode_dim),
+                                        nn.Linear(self.encode_dim * 4, self.encode_dim)])
+            self.mid = nn.ReLU()
 
     def forward(self, channel, state, configure):
         state = th.cat((state.real, state.imag), dim=-1)
         channel = channel.type(th.float32).reshape(channel.shape[0], 6, 16)
         if self.if_gnn:
-            mu = [self.theta_0(th.cat((configure.real, configure.imag), dim=-1)) for _ in range(self.loop + 1)]
+            mu = [self.gnn_weight[0](th.cat((configure.real, configure.imag), dim=-1)) for _ in range(self.loop + 1)]
             configure = th.cat((configure.real, configure.imag), dim=-1)
             for j in range(self.loop):
-                x4 = self.mid(self.theta_4[j](state.reshape(-1, 1)).reshape(state.shape[0], state.shape[1], state.shape[2], -1))
+                x4 = self.mid(self.gnn_weight[4](state.reshape(-1, 1)).reshape(state.shape[0], state.shape[1], state.shape[2], -1))
                 for i in range(state.shape[1]):
-                    x1 = self.theta_1[j](configure[:, i])
-                    x2 = self.theta_2[j](mu[j].sum(dim = 1) - mu[j][:, i, :])
+                    x1 = self.gnn_weight[1](configure[:, i])
+                    x2 = self.gnn_weight[2](mu[j].sum(dim = 1) - mu[j][:, i, :])
                     x4_ = x4[:, i, i] / ((x4.sum(dim = 2)[:, i] - x4[:, i, i] ) + 0.0001)
-                    x8 = self.theta_8[j](mu[j][:, i])
-                    x3 = self.theta_3[j](x4_)
+                    x8 = self.gnn_weight[8](mu[j][:, i])
+                    x3 = self.gnn_weight[3](x4_)
                     t = th.cat((x1, x2, x3, x8), dim=1)
-                    mu[j + 1][:, i] = self.mid(self.theta_9(t))
+                    mu[j + 1][:, i] = self.mid(self.gnn_weight[9](t))
             w = th.zeros(state.shape[0],self.K, self.N * 2 ).to(self.device)
             for i in range(state.shape[1]):
-                x6 = self.theta_6(mu[-1].sum(dim=1))
-                x7 = self.theta_7(mu[-1][:, i])
+                x6 = self.gnn_weight[6](mu[-1].sum(dim=1))
+                x7 = self.gnn_weight[7](mu[-1][:, i])
                 t = th.cat((x6, x7), dim=1)
                 t = self.mid(t)
-                w[:, i] = self.theta_5(t)
+                w[:, i] = self.gnn_weight[5](t)
             w = w.reshape(state.shape[0], state.shape[1], 2, -1)
             w = w[:,:,  0] + 1.j * w[:,:, 1]
             w = w / th.norm(w, dim=1, keepdim=True)
@@ -71,8 +73,6 @@ class Net_MIMO(nn.Module):
         return t / torch.norm(t, dim=1, keepdim=True) * np.sqrt(self.total_power)
 
     def calc_mmse(self, channel):
-        K = self.K
-        N = self.N
         lambda_ = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * self.total_power / self.K
         p = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * np.sqrt(self.total_power / self.K)
         effective_channel = channel.conj().transpose(1,2).to(th.cfloat).to(self.device)
@@ -82,7 +82,7 @@ class Net_MIMO(nn.Module):
         lambda_ = th.diag_embed(lambda_)
         channel = th.bmm(lambda_.to(th.cfloat), channel.type(th.cfloat))
         denominator = th.inverse(eye_N + th.bmm(effective_channel,channel))
-        wslnr_max = th.zeros((lambda_.shape[0], N, K), dtype=th.cfloat).to(self.device)
+        wslnr_max = th.zeros((lambda_.shape[0], self.N, self.K), dtype=th.cfloat).to(self.device)
         wslnr_max = th.bmm(denominator, effective_channel)
         wslnr_max = wslnr_max.transpose(1,2)
         wslnr_max = wslnr_max / wslnr_max.norm(dim=2, keepdim=True)
