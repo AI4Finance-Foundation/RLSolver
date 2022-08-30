@@ -2,7 +2,7 @@ import pickle as pkl
 import torch as th
 import time
 import os
-from net820 import MMSE_Net
+from net import Net_MIMO
 from tqdm import tqdm
 
 num_users = 4
@@ -25,14 +25,11 @@ subspace = 1
 total_steps = 1
 file_name = f"lr_{learning_rate}_bs_{batch_size}_middim_{mid_dim}"
 device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
-
 def compute_channel(num_antennas, num_users, fullspace_dim, batch_size , subspace, base_vectors):
-  
   coordinates = th.randn(batch_size, subspace, 1)
   channel = th.bmm(base_vectors[:subspace].T.repeat(batch_size, 1).reshape(batch_size, base_vectors.shape[1], fullspace_dim), coordinates).reshape(-1 ,2 * num_users * num_antennas) * (( 32 / subspace) ** 0.5) * (num_antennas * num_users) ** 0.5
   channel = (channel / channel.norm(dim=1, keepdim = True)).reshape(-1, 2, num_users, num_antennas)
-  return (channel[:, 0] + channel[:, 1] * 1.j).reshape(-1, 4, 4)
-
+  return (channel[:, 0] + channel[:, 1] * 1.j).reshape(-1, num_users, num_antennas)
 def save(file_name):
   file_list = os.listdir()
   if file_name not in file_list:
@@ -46,7 +43,7 @@ def save(file_name):
   return f"./{file_name}/{max_exp_id}/"
 
 if __name__  == "__main__":
-  mmse_net = MMSE_Net(mid_dim).to(device)
+  mmse_net = Net_MIMO(mid_dim).to(device)
   optimizer = th.optim.Adam(mmse_net.parameters(), lr=learning_rate)
   save_path = save(file_name)
   print("start of session")
@@ -66,14 +63,14 @@ if __name__  == "__main__":
         channel = th.randn(batch_size, num_antennas, num_users, dtype=th.cfloat).to(device)
       total_steps += 1
       for batch_i in range(int(4096 / batch_size)):
-        net_input = th.cat((th.as_tensor(channel.real).reshape(-1, 16), th.as_tensor(channel.imag).reshape(-1, 16)), 1).to(device)
+        net_input = th.cat((th.as_tensor(channel.real).reshape(-1, num_users * num_antennas), th.as_tensor(channel.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
         input_w_unflatten = mmse_net.calc_mmse(channel).to(device)
-        input_w= th.cat((th.as_tensor(input_w_unflatten.real).reshape(-1, 16), th.as_tensor(input_w_unflatten.imag).reshape(-1, 16)), 1).to(device)
+        input_w= th.cat((th.as_tensor(input_w_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_w_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
         for _ in range(num_loop):
           input_hw_unflatten = th.bmm(channel, input_w_unflatten.transpose(1,2).conj())
-          input_hw = th.cat((th.as_tensor(input_hw_unflatten.real).reshape(-1, 16), th.as_tensor(input_hw_unflatten.imag).reshape(-1, 16)), 1).to(device)
+          input_hw = th.cat((th.as_tensor(input_hw_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_hw_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
           net_output = mmse_net(th.cat((net_input, input_w, input_hw), 1), input_hw_unflatten, channel)
-          output_w = (net_output.reshape(batch_size, 2, 16)[:, 0] + net_output.reshape(batch_size, 2, 16)[:, 1] * 1j).reshape(-1, 4, 4)
+          output_w = (net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 0] + net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 1] * 1j).reshape(-1, num_users, num_antennas)
           obj -= mmse_net.calc_wsr(channel, output_w, noise_power).sum()
       optimizer.zero_grad()
       obj.backward()
