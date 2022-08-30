@@ -34,30 +34,35 @@ def generate_channel_batch(N, K, batch_size, subspace_dim, base_vectors):
     vec_channel = th.bmm(base_vectors_batch, coordinates).reshape(-1 ,2 * K * N) * (( 2 * K * N / subspace_dim) ** 0.5)
     return  (N * K) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
 
-def get_experiment_path(file_name):
+def get_experiment_path(env_name):
     file_list = os.listdir()
-    if file_name not in file_list:
-        os.mkdir(file_name)
-    file_list = os.listdir('./{}/'.format(file_name))
+    if env_name not in file_list:
+        os.mkdir(env_name)
+    file_list = os.listdir('./{}/'.format(env_name))
     max_exp_id = 0
     for exp_id in file_list:
         if int(exp_id) + 1 > max_exp_id:
             max_exp_id = int(exp_id) + 1
-    os.mkdir('./{}/{}/'.format(file_name, max_exp_id))
-    return f"./{file_name}/{max_exp_id}/"
+    os.mkdir('./{}/{}/'.format(env_name, max_exp_id))
+    return f"./{env_name}/{max_exp_id}/"
 
 if __name__  == "__main__":
     
-    K = 4
-    N = 4
-    curriculum_base_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
+    K = 4   # number of users
+    N = 4   # number of antennas
     mid_dim = 512
-    learning_rate=5e-5
-    file_name = "mimo_beamforming"
+    learning_rate = 5e-5
+    
+    # generate basis vectors of a N x K space, using QR decomposition
+    basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
+
+    env_name = "mimo_beamforming"
+    save_path = get_experiment_path(env_name)
+    
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
     policy_net_mimo = Policy_Net_MIMO(mid_dim).to(device)
     optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
-    save_path = get_experiment_path(file_name)
+
     try:
         train_mimo(policy_net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, K=K, N=N)
     except KeyboardInterrupt:
