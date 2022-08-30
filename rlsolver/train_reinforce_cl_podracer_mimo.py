@@ -1,19 +1,13 @@
-# Import libraries
-
 import torch as th
 import numpy as np
 import copy
 from copy import deepcopy
 import time
-#import matplotlib.pyplot as plt
 import wandb
 
 # Set variables 
 nr_of_users = 4
 nr_of_BS_antennas = 4
-scheduled_users = [0,1,2,3] # array of scheduled users. Note that we schedule all the users.
-scheduled_users = [[0,1,2,3], [0,1,2], [0,1,3], [0,2,3], [1,2,3], [0,1], [0,2], [0,3], [1,2], [1,3], [2,3], [0], [1], [2], [3]]
-
 
 epsilon = 0.0001 # used to end the iterations of the WMMSE algorithm in Shi et al. when the number of iterations is not fixed (note that the stopping criterion has precendence over the fixed number of iterations)
 power_tolerance = 0.0001 # used to end the bisection search in the WMMSE algorithm in Shi et al.
@@ -38,15 +32,7 @@ q, _ = th.linalg.qr(Q)
 M = th.rand(32, 32, dtype=th.float)
 q_, _ = th.linalg.qr(M)
 print(q.sum(dim=1))
-#Q = th.eye(32, dtype=th.float) + th.randn(32, 32, dtype=th.float) * 0.00001
-#q, _ = th.linalg.qr(Q)
 
-#print(q.sum(dim = 1))
-#assert 0
-#print(q[0])
-#assert 0
-#q = q.reshape(32,2,16)
-#print(q.shape, th.matmul( q[0],q[1]))
 subspace = 1
 total_steps = 0
 
