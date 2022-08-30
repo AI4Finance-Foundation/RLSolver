@@ -1,5 +1,5 @@
-import torch as th
 import os
+import torch as th
 from net import Policy_Net_MIMO
 
 def train_curriculum_learning( policy_net_mimo, optimizer, save_path, K=4, N=4, total_power=10, noise_power=1, num_training_epochs=40000,
