@@ -11,10 +11,17 @@ Massively Parallel Gym-Environments for Combinatorial and Nonconvex Optimization
 RLSolver
 ├── rlsolver (main folder)
     ├── envs
+    |   (combinatorial optimiations)
     |   ├── base.py
     |   ├── maxcut.py
     |   ├── tsp.py
-    |   └── mimo_beamforming.py
+    |   ├── milp.py
+    |   ├── portfolio.py
+    |   (nonconvex optimizations)
+    |   ├── mimo_beamforming.py
+    |   ├── mimo_beamforming_relay.py
+    |   └── 
+    ├── helloworld
     └── utils
 
 
