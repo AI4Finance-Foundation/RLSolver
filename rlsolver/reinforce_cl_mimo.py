@@ -9,7 +9,7 @@ def train_curriculum_learning( policy_net_mimo, optimizer, save_path, K=4, N=4, 
     basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
     subspace_dim=1
     batch_size=4096
-    episode_length=5, 
+    episode_length=6
     for epoch in range(num_training_epochs):
         if (epoch + 1) % num_subspace_update_gap == 0 and subspace_dim < 2 * K * N:
             subspace_dim +=1
