@@ -60,7 +60,7 @@ if __name__  == "__main__":
     curriculum_base_vectors, _ = th.linalg.qr(th.rand(fullspace_dim, fullspace_dim, dtype=th.float))
     mid_dim = 512
     learning_rate=5e-5
-    file_name = f"lr_{learning_rate}_bs_{batch_size}_middim_{mid_dim}"
+    file_name = "mimo_beamforming"
     net_mimo = Net_MIMO(mid_dim).to(device)
     optimizer = th.optim.Adam(mmse_net.parameters(), lr=learning_rate)
     save_path = get_experiment_path(file_name)
