@@ -53,19 +53,19 @@ if __name__  == "__main__":
     mid_dim = 512
     learning_rate = 5e-5
     
-    # generate basis vectors of a N x K space, using QR decomposition
-    basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
-
     env_name = "mimo_beamforming"
-    save_path = get_experiment_path(env_name)
+    save_path = get_experiment_path(env_name) # folder to save the trained policy net
     
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
     policy_net_mimo = Policy_Net_MIMO(mid_dim).to(device)
     optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
+    
+    # generate basis vectors of an N x K space, using QR decomposition
+    basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
 
     try:
-        train_mimo(policy_net_mimo, optimizer, curriculum_base_vectors=curriculum_base_vectors, K=K, N=N)
+        train_mimo(policy_net_mimo, optimizer, basis_vectors=basis_vectors, K=K, N=N)
+        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")
     except KeyboardInterrupt:
-        th.save(policy_net_mimo.state_dict(), save_path+"0.pth")
+        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
         exit()
-    th.save(policy_net_mimo.state_dict(), save_path+"0.pth")
