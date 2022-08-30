@@ -29,7 +29,6 @@ def train_mimo( net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_a
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
         print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         if epoch % num_save_model_gap == 0:
             th.save(net_mimo.state_dict(), save_path+f"{epoch}.pth")
