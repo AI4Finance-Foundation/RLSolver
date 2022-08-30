@@ -27,7 +27,6 @@ class Net_MIMO(nn.Module):
             self.mid = nn.ReLU()
         self.device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
         self.sigmoid = nn.Sigmoid()
-        
         self.net = nn.Sequential(
             BiConvNet(mid_dim, state_dim, mid_dim * 4), nn.ReLU(),
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.ReLU(),
@@ -36,6 +35,7 @@ class Net_MIMO(nn.Module):
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.Hardswish(),
             nn.Linear(mid_dim * 2, action_dim),
         ) 
+
     def forward(self, channel, state, configure):
         state = th.cat((state.real, state.imag), dim=-1)
         channel = channel.type(th.float32).reshape(channel.shape[0], 6, 16)
@@ -98,7 +98,8 @@ class Net_MIMO(nn.Module):
         N = 1
         SINR = S/(I+N)
         return torch.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
-class DenseNet(nn.Module):  # plan to hyper-param: layer_number
+    
+class DenseNet(nn.Module):
     def __init__(self, lay_dim):
         super().__init__()
         self.dense1 = nn.Sequential(nn.Linear(lay_dim * 1, lay_dim * 1), nn.Hardswish())
@@ -110,30 +111,23 @@ class DenseNet(nn.Module):  # plan to hyper-param: layer_number
         x2 = torch.cat((x1, self.dense1(x1)), dim=1)
         x3 = torch.cat((x2, self.dense2(x2)), dim=1)
         return x3
+
 class BiConvNet(nn.Module):
     def __init__(self, mid_dim, inp_dim, out_dim):
         super().__init__()
         i_c_dim, i_h_dim, i_w_dim = inp_dim 
         self.cnn_h = nn.Sequential(
             nn.Conv2d(i_c_dim * 1, mid_dim * 2, (1, i_w_dim), bias=True), nn.LeakyReLU(inplace=True),
-            nn.Conv2d(mid_dim * 2, mid_dim * 1, (1, 1), bias=True), nn.ReLU(inplace=True),
-            NnReshape(-1), 
-            nn.Linear(i_h_dim * mid_dim, out_dim),
-        )
+            nn.Conv2d(mid_dim * 2, mid_dim * 1, (1, 1), bias=True), nn.ReLU(inplace=True),)
+        self.linear_h = nn.Linear(i_h_dim * mid_dim, out_dim)
         self.cnn_w = nn.Sequential(
             nn.Conv2d(i_c_dim * 1, mid_dim * 2, (i_h_dim, 1), bias=True), nn.LeakyReLU(inplace=True),
-            nn.Conv2d(mid_dim * 2, mid_dim * 1, (1, 1), bias=True), nn.ReLU(inplace=True),
-            NnReshape(-1),
-            nn.Linear(i_w_dim * mid_dim, out_dim),
-        )
+            nn.Conv2d(mid_dim * 2, mid_dim * 1, (1, 1), bias=True), nn.ReLU(inplace=True),)
+        self.linear_w = nn.Linear(i_w_dim * mid_dim, out_dim)
 
     def forward(self, state):
-        xh = self.cnn_h(state)
-        xw = self.cnn_w(state)
+        ch = self.cnn_h(state)
+        xh = self.linear_h(ch.reshape(ch.shape[0], -1))
+        cw = self.cnn_w(state)
+        xw = self.linear_w(cw.reshape(cw.shape[0], -1))
         return xw + xh
-class NnReshape(nn.Module):
-    def __init__(self, *args):
-        super().__init__()
-        self.args = args
-    def forward(self, x):
-        return x.view((x.size(0),) + self.args)
