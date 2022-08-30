@@ -7,6 +7,7 @@ from net import Net_MIMO
 def train_mimo(net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_antennas=4, total_power=10, noise_power=1, num_training_epochs=40000,
                num_subspace_update_gap=400, num_save_model_gap = 1000, episode_length=5, fullspace_dim=32, cur_subspace=1, learning_rate=5e-5,
                batch_size=8192, mid_dim=512, current_step=1, device=th.device("cuda:0" if th.cuda.is_available() else "cpu")):
+    
     for i in range(num_training_epochs):
         print(f" training_loss: { obj.item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         obj = 0
