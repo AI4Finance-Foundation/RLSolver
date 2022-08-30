@@ -9,30 +9,33 @@ def train_mimo(net_mimo, optimizer, curriculum_base_vectors, num_users=4, num_an
                batch_size=8192, mid_dim=512, current_step=1, device=th.device("cuda:0" if th.cuda.is_available() else "cpu")):
     
     for i in range(num_training_epochs):
-        print(f" training_loss: { obj.item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         obj = 0
-        if current_step % num_save_model_gap == 0:
-            th.save(net_mimo.state_dict(), save_path+f"{current_step}.pth")
+        
         if current_step % num_subspace_update_gap == 0 and cur_subspace < 32:
             cur_subspace +=1
             channel = compute_channel(num_antennas, num_users, fullspace_dim, batch_size, total_power,current_step, cur_subspace, curriculum_base_vectors).to(device)
         else:
             channel = th.randn(batch_size, num_antennas, num_users, dtype=th.cfloat).to(device)
-        current_step += 1
-        for batch_i in range(int(4096 / batch_size)):
-            net_input = th.cat((th.as_tensor(channel.real).reshape(-1, num_users * num_antennas), th.as_tensor(channel.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
-            input_w_unflatten = net_mimo.calc_mmse(channel).to(device)
-            input_w= th.cat((th.as_tensor(input_w_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_w_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
-            for _ in range(episode_length):
-                input_hw_unflatten = th.bmm(channel, input_w_unflatten.transpose(1,2).conj())
-                input_hw = th.cat((th.as_tensor(input_hw_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_hw_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
-                net_output = net_mimo(th.cat((net_input, input_w, input_hw), 1), input_hw_unflatten, channel)
-                output_w = (net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 0] + net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 1] * 1j).reshape(-1, num_users, num_antennas)
-                obj -= net_mimo.calc_wsr(channel, output_w, noise_power).sum()
+        net_input = th.cat((th.as_tensor(channel.real).reshape(-1, num_users * num_antennas), th.as_tensor(channel.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
+        input_w_unflatten = net_mimo.calc_mmse(channel).to(device)
+        input_w= th.cat((th.as_tensor(input_w_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_w_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
+        
+        for _ in range(episode_length):
+            input_hw_unflatten = th.bmm(channel, input_w_unflatten.transpose(1,2).conj())
+            input_hw = th.cat((th.as_tensor(input_hw_unflatten.real).reshape(-1, num_users * num_antennas), th.as_tensor(input_hw_unflatten.imag).reshape(-1, num_users * num_antennas)), 1).to(device)
+            net_output = net_mimo(th.cat((net_input, input_w, input_hw), 1), input_hw_unflatten, channel)
+            output_w = (net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 0] + net_output.reshape(batch_size, 2, num_users * num_antennas)[:, 1] * 1j).reshape(-1, num_users, num_antennas)
+            obj -= net_mimo.calc_wsr(channel, output_w, noise_power).sum()
         
         optimizer.zero_grad()
         obj.backward()
         optimizer.step()
+        
+        print(f" training_loss: { obj.item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
+        if current_step % num_save_model_gap == 0:
+            th.save(net_mimo.state_dict(), save_path+f"{current_step}.pth")
+            
+        current_step += 1
 
 def compute_channel(num_antennas, num_users, fullspace_dim, batch_size , cur_subspace, base_vectors):
     coordinates = th.randn(batch_size, cur_subspace, 1)
