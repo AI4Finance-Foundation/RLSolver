@@ -37,39 +37,17 @@ class Policy_Net_MIMO(nn.Module):
                                         nn.Linear(self.encode_dim * 4, self.encode_dim)])
             self.mid = nn.ReLU()
 
-    def forward(self, channel, state, configure):
-        state = th.cat((state.real, state.imag), dim=-1)
-        channel = channel.type(th.float32).reshape(channel.shape[0], 6, 16)
-        if self.if_gnn:
-            mu = [self.gnn_weight[0](th.cat((configure.real, configure.imag), dim=-1)) for _ in range(self.loop + 1)]
-            configure = th.cat((configure.real, configure.imag), dim=-1)
-            for j in range(self.loop):
-                x4 = self.mid(self.gnn_weight[4](state.reshape(-1, 1)).reshape(state.shape[0], state.shape[1], state.shape[2], -1))
-                for i in range(state.shape[1]):
-                    x1 = self.gnn_weight[1](configure[:, i])
-                    x2 = self.gnn_weight[2](mu[j].sum(dim = 1) - mu[j][:, i, :])
-                    x4_ = x4[:, i, i] / ((x4.sum(dim = 2)[:, i] - x4[:, i, i] ) + 0.0001)
-                    x8 = self.gnn_weight[8](mu[j][:, i])
-                    x3 = self.gnn_weight[3](x4_)
-                    t = th.cat((x1, x2, x3, x8), dim=1)
-                    mu[j + 1][:, i] = self.mid(self.gnn_weight[9](t))
-            w = th.zeros(state.shape[0],self.K, self.N * 2 ).to(self.device)
-            for i in range(state.shape[1]):
-                x6 = self.gnn_weight[6](mu[-1].sum(dim=1))
-                x7 = self.gnn_weight[7](mu[-1][:, i])
-                t = th.cat((x6, x7), dim=1)
-                t = self.mid(t)
-                w[:, i] = self.gnn_weight[5](t)
-            w = w.reshape(state.shape[0], state.shape[1], 2, -1)
-            w = w[:,:,  0] + 1.j * w[:,:, 1]
-            w = w / th.norm(w, dim=1, keepdim=True)
-            w = w.reshape(-1, self.K*self.N)
-            w = th.cat((w.real, w.imag), dim=1)
-            w = w.reshape(-1, 2, self.K*self.N)
-            channel = th.cat((channel, w), dim=1)
-        channel = channel.reshape(channel.shape[0], 6 + self.if_gnn * 2, self.K, self.N)
-        t = (self.sigmoid(self.net(channel)) - 0.5) * 2
-        return t / th.norm(t, dim=1, keepdim=True) * np.sqrt(self.total_power)
+    def forward(self, mat_H, mat_W):
+        vec_H = th.cat((mat_H.real.reshape(-1, self.K * self.N), mat_H.imag.reshape(-1, self.K * self.N)), 1)
+        vec_W = th.cat((mat_W.real.reshape(-1, self.K * self.N), mat_W.imag.reshape(-1, self.K * self.N)), 1)
+        mat_HW = th.bmm(mat_H, mat_W.transpose(1,2).conj())
+        vec_HW = th.cat((mat_HW.real.reshape(-1, self.K * self.N), mat_HW.imag.reshape(-1, self.K * self.N)), 1)
+        net_input = th.cat((vec_H, vec_W, vec_HW), 1).reshape(-1, 6, self.K * self.N)
+        net_input = net_input.reshape(-1, 6, self.K, self.N)
+        vec_W_new = (self.sigmoid(self.net(net_input)) - 0.5) * 2
+        vec_W_new = vec_W_new / th.norm(vec_W_new, dim=1, keepdim=True) * np.sqrt(self.total_power)
+        mat_W_new = (vec_W_new[:, :self.K * self.N] + vec_W_new[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
+        return mat_W_new
 
     def calc_mmse(self, channel):
         channel = channel.to(self.device)
