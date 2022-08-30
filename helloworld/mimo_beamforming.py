@@ -39,7 +39,7 @@ def compute_channel(num_antennas, num_users, fullspace_dim, batch_size , cur_sub
     channel = (channel / channel.norm(dim=1, keepdim = True)).reshape(-1, 2, num_users, num_antennas)
     return (channel[:, 0] + channel[:, 1] * 1.j).reshape(-1, num_users, num_antennas)
 
-def get_experiment_id(file_name):
+def get_experiment_path(file_name):
     file_list = os.listdir()
     if file_name not in file_list:
         os.mkdir(file_name)
@@ -72,7 +72,8 @@ if __name__  == "__main__":
     device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
     net_mimo = Net_MIMO(mid_dim).to(device)
     optimizer = th.optim.Adam(mmse_net.parameters(), lr=learning_rate)
-    save_path = get_experiment_id(file_name)
+    save_path = get_experiment_path(file_name)
+    
     print("start of session")
     start_of_time = time.time()
     
