@@ -3,7 +3,7 @@ import torch as th
 from envs.mimo_beamforming.env_net_mimo import Policy_Net_MIMO
 from envs.mimo_beamforming.env_mimo import generate_channel_batch
 
-def train_curriculum_learning( policy_net_mimo, optimizer, save_path, device, K=4, N=4, total_power=10, noise_power=1, num_training_epochs=40000,
+def train_curriculum_learning( policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_training_epochs=40000,
                 num_subspace_update_gap=400, num_save_model_gap=1000):
     # generate basis vectors of an N x K space, using QR decomposition
     basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
@@ -44,9 +44,11 @@ def get_experiment_path(env_name):
     return f"./{env_name}/{max_exp_id}/"
 
 if __name__  == "__main__":
-    
-    K = 4   # number of users
     N = 4   # number of antennas
+    K = 4   # number of users
+    P = 10 # power constraint
+    noise_power = 1
+    
     learning_rate = 5e-5
     
     env_name = "mimo_beamforming"
@@ -56,7 +58,7 @@ if __name__  == "__main__":
     optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
     
     try:
-        train_curriculum_learning(policy_net_mimo, optimizer, K=K, N=N, save_path=save_path, device=device)
+        train_curriculum_learning(policy_net_mimo, optimizer, K=K, N=N, save_path=save_path, device=device, P=P, noise_power=noise_power)
         th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
     except KeyboardInterrupt:
         th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
