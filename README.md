@@ -1,12 +1,14 @@
-# RLSolver: High-performance RL solvers for combinatorial and nonconvex optimizations
+# RLSolver: High-performance RL solvers 
+
+Combinatorial optimizations and nonconvex optimizations
 
 It is based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
 The key technologes are: 
 
-- **Massively parallel simuations** of gym-Environments on GPUs;
+- **Massively parallel simuations** of gym-environments on GPU, using thousands of CUDA cores and tensor cores.
 
-- **Podracer scheduling** on a GPU cloud.
+- **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
 
 
 ## Outline
