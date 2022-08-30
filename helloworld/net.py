@@ -1,5 +1,4 @@
 import torch as th
-import torch 
 import numpy as np
 import torch.nn as nn
 
@@ -27,7 +26,7 @@ class Net_MIMO(nn.Module):
         )
         if self.if_gnn:
             self.gnn_weight = nn.ModuleList([ nn.Linear(self.K * 2, self.encode_dim), 
-                                        nn.Linear(8, self.encode_dim), 
+                                        nn.Linear(self.K * 2, self.encode_dim), 
                                         nn.Linear(self.encode_dim, self.encode_dim), 
                                         nn.Linear(self.encode_dim, self.encode_dim),
                                         nn.Linear(1, self.encode_dim),
@@ -70,13 +69,13 @@ class Net_MIMO(nn.Module):
             channel = th.cat((channel, w), dim=1)
         channel = channel.reshape(channel.shape[0], 6 + self.if_gnn * 2, self.K, self.N)
         t = (self.sigmoid(self.net(channel)) - 0.5) * 2
-        return t / torch.norm(t, dim=1, keepdim=True) * np.sqrt(self.total_power)
+        return t / th.norm(t, dim=1, keepdim=True) * np.sqrt(self.total_power)
 
     def calc_mmse(self, channel):
-        lambda_ = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * self.total_power / self.K
+        channel = channel.to(self.device)
+        lambda_ = th.ones(self.K).repeat((channel.shape[0], 1)) * self.total_power / self.K
         p = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * np.sqrt(self.total_power / self.K)
         effective_channel = channel.conj().transpose(1,2).to(th.cfloat).to(self.device)
-        channel = channel.to(self.device)
         eye_N = (th.zeros(lambda_.shape[0], self.N) + 1).to(self.device)
         eye_N = th.diag_embed(eye_N)
         lambda_ = th.diag_embed(lambda_)
@@ -92,12 +91,12 @@ class Net_MIMO(nn.Module):
 
     def calc_sum_rate(self,channel, precoder):
         HTF = channel
-        HTFGW = torch.bmm(HTF.to(th.cfloat), precoder.to(th.cfloat).transpose(-1, -2))
-        S = torch.abs(torch.diagonal(HTFGW, dim1=-2, dim2=-1))**2
-        I = torch.sum(torch.abs(HTFGW)**2, dim=-1) - torch.abs(torch.diagonal(HTFGW, dim1=-2, dim2=-1))**2
+        HTFGW = th.bmm(HTF.to(th.cfloat), precoder.to(th.cfloat).transpose(-1, -2))
+        S = th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
+        I = th.sum(th.abs(HTFGW)**2, dim=-1) - th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
         N = 1
         SINR = S/(I+N)
-        return torch.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
+        return th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
     
 class DenseNet(nn.Module):
     def __init__(self, lay_dim):
@@ -108,8 +107,8 @@ class DenseNet(nn.Module):
         self.out_dim = lay_dim * 4
 
     def forward(self, x1):
-        x2 = torch.cat((x1, self.dense1(x1)), dim=1)
-        x3 = torch.cat((x2, self.dense2(x2)), dim=1)
+        x2 = th.cat((x1, self.dense1(x1)), dim=1)
+        x3 = th.cat((x2, self.dense2(x2)), dim=1)
         return x3
 
 class BiConvNet(nn.Module):
