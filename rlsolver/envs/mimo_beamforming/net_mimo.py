@@ -24,6 +24,7 @@ class Policy_Net_MIMO(nn.Module):
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.Hardswish(),
             nn.Linear(mid_dim * 2, self.action_dim),
         )
+        
         if self.if_gnn:
             self.gnn_weight = nn.ModuleList([ nn.Linear(self.K * 2, self.encode_dim), 
                                         nn.Linear(self.K * 2, self.encode_dim), 
