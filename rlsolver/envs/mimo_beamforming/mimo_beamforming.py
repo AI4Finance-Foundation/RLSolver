@@ -1,17 +1,18 @@
-from net import Policy_Net_MIMO
 import torch as th
-import time
 import os
+from net import Policy_Net_MIMO
 
-def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, K=4, N=4, total_power=10, noise_power=1, num_training_epochs=40000,
-                num_subspace_update_gap=400, num_save_model_gap=1000, episode_length=5, subspace_dim=1, batch_size=4, 
+def train_curriculum_learning( policy_net_mimo, optimizer, save_path, K=4, N=4, total_power=10, noise_power=1, num_training_epochs=40000,
+                num_subspace_update_gap=400, num_save_model_gap=1000, episode_length=5, subspace_dim=1, batch_size=4096, 
                 device=th.device("cuda:0" if th.cuda.is_available() else "cpu")):
+    # generate basis vectors of an N x K space, using QR decomposition
+    basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
     
     for epoch in range(num_training_epochs):
         if (epoch + 1) % num_subspace_update_gap == 0 and subspace_dim < 2 * K * N:
             subspace_dim +=1
         if subspace_dim < 2 * K * N:
-            vec_H = generate_channel_batch(N, K, batch_size, subspace_dim, curriculum_base_vectors).to(device)
+            vec_H = generate_channel_batch(N, K, batch_size, subspace_dim, basis_vectors).to(device)
         else:
             vec_H = th.randn(batch_size, 2 * K * N, dtype=th.cfloat).to(device)
         mat_H = (vec_H[:, :K * N] + vec_H[:, K * N:] * 1.j).reshape(-1, K, N)
@@ -26,12 +27,12 @@ def train_mimo( policy_net_mimo, optimizer, curriculum_base_vectors, K=4, N=4, t
         optimizer.step()
         print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         if epoch % num_save_model_gap == 0:
-            th.save(policy_net_mimo.state_dict(), save_path+f"{epoch}.pth")
+            th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")
 
-def generate_channel_batch(N, K, batch_size, subspace_dim, base_vectors):
+def generate_channel_batch(N, K, batch_size, subspace_dim, basis_vectors):
     coordinates = th.randn(batch_size, subspace_dim, 1)
-    base_vectors_batch = base_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(-1, 2 * K * N, subspace_dim)
-    vec_channel = th.bmm(base_vectors_batch, coordinates).reshape(-1 ,2 * K * N) * (( 2 * K * N / subspace_dim) ** 0.5)
+    basis_vectors_batch = basis_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(-1, 2 * K * N, subspace_dim)
+    vec_channel = th.bmm(basis_vectors_batch, coordinates).reshape(-1 ,2 * K * N) * (( 2 * K * N / subspace_dim) ** 0.5)
     return  (N * K) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
 
 def get_experiment_path(env_name):
@@ -55,17 +56,13 @@ if __name__  == "__main__":
     
     env_name = "mimo_beamforming"
     save_path = get_experiment_path(env_name) # folder to save the trained policy net
-    
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
     policy_net_mimo = Policy_Net_MIMO(mid_dim).to(device)
     optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
     
-    # generate basis vectors of an N x K space, using QR decomposition
-    basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
-
     try:
-        train_mimo(policy_net_mimo, optimizer, basis_vectors=basis_vectors, K=K, N=N)
-        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")
+        train_curriculum_learning(policy_net_mimo, optimizer, K=K, N=N, save_path=save_path)
+        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
     except KeyboardInterrupt:
         th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
         exit()
