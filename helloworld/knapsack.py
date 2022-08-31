@@ -11,8 +11,6 @@ class BinaryKnapsack():
         self.item_weights = np.array([1, 12, 2, 1, 4]) # np.random.randint(1, 5, size=self.N)
         self.item_values = np.array([2, 4, 2, 1, 10]) # np.random.randint(0, 100, size=self.N)
         self.randomize_params_on_reset = False
-        self.item_weights = np.random.randint(1, 100, size=self.N)
-        self.item_values = np.random.randint(0, 100, size=self.N)
         self.state_dim = 3 * (self.N + 1)
         self.action_dim = self.N
 
