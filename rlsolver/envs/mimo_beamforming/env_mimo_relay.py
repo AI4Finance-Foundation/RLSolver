@@ -29,7 +29,7 @@ class MIMO_Relay():
         self.mat_G = (self.vec_G[:, :self.M * self.N] + self.vec_G[:, self.M * self.N:] * 1.j).reshape(-1, self.M, self.N).to(self.device)
         self.mat_F = self.mat_F0
         self.mat_HFG = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G).to(self.device)
-        self.mat_W = self.calc_mmse(self.mat_HFG, self.mat_F).to(self.device)
+        self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.num_steps = 0
         return (self.mat_HFG, self.mat_F)
 
