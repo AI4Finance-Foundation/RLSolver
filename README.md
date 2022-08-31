@@ -4,7 +4,7 @@ Combinatorial optimizations and nonconvex optimizations
 
 It is based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
-The key technologes are: 
+The following two key technologes are under active development: 
 
 - **Massively parallel simuations** of gym-environments on GPU, using thousands of CUDA cores and tensor cores.
 
