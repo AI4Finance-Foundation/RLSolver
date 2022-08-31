@@ -1,11 +1,12 @@
 import numpy as np
+
+
 class BinaryKnapsack():
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.N = 5
         self.max_weight = 15
         self.current_weight = 0
-        self._max_reward = 10000
         self.item_numbers = np.arange(self.N)
         self.item_weights = np.array([1, 12, 2, 1, 4]) # np.random.randint(1, 5, size=self.N)
         self.item_values = np.array([2, 4, 2, 1, 10]) # np.random.randint(0, 100, size=self.N)
