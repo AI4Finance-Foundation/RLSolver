@@ -7,8 +7,8 @@ class MIMO_Relay():
         self.K = K # #users
         self.P = P # power
         self.noise_power = noise_power
-        self.basis_vectors_G, _ = th.linalg.qr(th.rand(2 * self.M * self.N, 2 * self.M * self.N, dtype=th.float)).to(self.device)
-        self.basis_vectors_H, _ = th.linalg.qr(th.rand(2 * self.K * self.M, 2 * self.K * self.M, dtype=th.float)).to(self.device)
+        self.basis_vectors_G = th.linalg.qr(th.rand(2 * self.M * self.N, 2 * self.M * self.N, dtype=th.float))[0].to(self.device)
+        self.basis_vectors_H = th.linalg.qr(th.rand(2 * self.K * self.M, 2 * self.K * self.M, dtype=th.float))[0].to(self.device)
         self.subspace_dim_H = 1
         self.subspace_dim_G = 1
         self.num_env = num_env
