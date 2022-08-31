@@ -38,7 +38,8 @@ class Policy_Net_MIMO(nn.Module):
                                         nn.Linear(self.encode_dim * 4, self.encode_dim)])
             self.mid = nn.ReLU()
 
-    def forward(self, mat_H, mat_W):
+    def forward(self, state):
+        mat_H, mat_W = state
         vec_H = th.cat((mat_H.real.reshape(-1, self.K * self.N), mat_H.imag.reshape(-1, self.K * self.N)), 1)
         vec_W = th.cat((mat_W.real.reshape(-1, self.K * self.N), mat_W.imag.reshape(-1, self.K * self.N)), 1)
         mat_HW = th.bmm(mat_H, mat_W.transpose(1,2).conj())
@@ -49,33 +50,6 @@ class Policy_Net_MIMO(nn.Module):
         vec_W_new = vec_W_new / th.norm(vec_W_new, dim=1, keepdim=True) * np.sqrt(self.total_power)
         mat_W_new = (vec_W_new[:, :self.K * self.N] + vec_W_new[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
         return mat_W_new
-
-    def calc_mmse(self, channel):
-        channel = channel.to(self.device)
-        lambda_ = th.ones(self.K).repeat((channel.shape[0], 1)) * self.total_power / self.K
-        p = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * np.sqrt(self.total_power / self.K)
-        effective_channel = channel.conj().transpose(1,2).to(th.cfloat).to(self.device)
-        eye_N = (th.zeros(lambda_.shape[0], self.N) + 1).to(self.device)
-        eye_N = th.diag_embed(eye_N)
-        lambda_ = th.diag_embed(lambda_)
-        channel = th.bmm(lambda_.to(th.cfloat), channel.type(th.cfloat))
-        denominator = th.inverse(eye_N + th.bmm(effective_channel,channel))
-        wslnr_max = th.zeros((lambda_.shape[0], self.N, self.K), dtype=th.cfloat).to(self.device)
-        wslnr_max = th.bmm(denominator, effective_channel)
-        wslnr_max = wslnr_max.transpose(1,2)
-        wslnr_max = wslnr_max / wslnr_max.norm(dim=2, keepdim=True)
-        p = th.diag_embed(p)
-        W = th.bmm(p.to(th.cfloat), wslnr_max)
-        return W
-
-    def calc_sum_rate(self,channel, precoder):
-        HTF = channel
-        HTFGW = th.bmm(HTF.to(th.cfloat), precoder.to(th.cfloat).transpose(-1, -2))
-        S = th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
-        I = th.sum(th.abs(HTFGW)**2, dim=-1) - th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
-        N = 1
-        SINR = S/(I+N)
-        return th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
     
 class DenseNet(nn.Module):
     def __init__(self, lay_dim):

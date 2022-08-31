@@ -1,28 +1,21 @@
 import os
 import torch as th
-from envs.mimo_beamforming.net_mimo import Policy_Net_MIMO
-from envs.mimo_beamforming.env_mimo import generate_channel_batch
+from rlsolver.envs.mimo_beamforming.net_mimo import Policy_Net_MIMO
+from rlsolver.envs.mimo_beamforming.env_mimo import MIMO
 
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=40000,
                 num_epochs_per_subspace=400, num_epochs_to_save_model=1000):
-    subspace_dim = 1
-    batch_size = 4096
-    episode_length = 6
-    
-    # using QR decomposition to generate basis vectors of an N x K space, 
-    basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
+    env_mimo = MIMO(K=K, N=N, P=P, noise_power=noise_power, device=device)
     for epoch in range(num_epochs):
-        if subspace_dim <= 2 * K * N:
-            vec_H = generate_channel_batch(N, K, batch_size, subspace_dim, basis_vectors).to(device)
-        else:
-            vec_H = th.randn(batch_size, 2 * K * N, dtype=th.cfloat).to(device)
-        mat_H = (vec_H[:, :K * N] + vec_H[:, K * N:] * 1.j).reshape(-1, K, N)
-        mat_W = policy_net_mimo.calc_mmse(mat_H).to(device)
+        state = env_mimo.reset()
         loss = 0
-        for _ in range(episode_length):
-            mat_W = policy_net_mimo(mat_H, mat_W)
-            loss -= policy_net_mimo.calc_sum_rate(mat_H, mat_W).sum()
-        
+        while(1):
+            action = policy_net_mimo(state)
+            next_state, reward, done = env_mimo.step(action)
+            loss -= reward.mean()
+            state = next_state
+            if done:
+                break
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
