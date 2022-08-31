@@ -2,10 +2,10 @@ import torch as th
 import numpy as np
 class MIMO_Relay():
     def __init__(self, K=2, N=2, M=2, P=10, noise_power=1, episode_length=6, num_env=4, device=th.device("cuda:0")):
-        self.N = N
-        self.K = K
-        self.M = M
-        self.P = P
+        self.N = N # #antennas base stations
+        self.M = M # #antennas relay
+        self.K = K # #users
+        self.P = P # power
         self.noise_power = noise_power
         self.basis_vectors_H, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float))
         self.basis_vectors_G, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float))
