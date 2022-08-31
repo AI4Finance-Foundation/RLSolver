@@ -9,7 +9,7 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
     for epoch in range(num_epochs):
         state = env_mimo.reset()
         loss = 0
-        while(1):
+        while(True):
             action = policy_net_mimo(state)
             next_state, reward, done = env_mimo.step(action)
             loss -= reward.mean()
