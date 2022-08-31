@@ -1,25 +1,21 @@
-
-class BinaryKnapsackEnv(KnapsackEnv):
+import numpy as np
+class BinaryKnapsack():
     def __init__(self, *args, **kwargs):
         super().__init__()
+        self.N = 5
+        self.max_weight = 15
+        self.current_weight = 0
+        self._max_reward = 10000
+        self.item_numbers = np.arange(self.N)
+        self.item_weights = np.array([1, 12, 2, 1, 4]) # np.random.randint(1, 5, size=self.N)
+        self.item_values = np.array([2, 4, 2, 1, 10]) # np.random.randint(0, 100, size=self.N)
+        self.randomize_params_on_reset = False
         self.item_weights = np.random.randint(1, 100, size=self.N)
         self.item_values = np.random.randint(0, 100, size=self.N)
-        assign_env_config(self, kwargs)
+        self.state_dim = 3 * (self.N + 1)
+        self.action_dim = self.N
 
-        obs_space = spaces.Box(
-            0, self.max_weight, shape=(3, self.N + 1), dtype=np.int32)
-        if self.mask:
-            self.observation_space = spaces.Dict({
-                "action_mask": spaces.Box(0, 1, shape=(len(self.item_limits),)),
-                "avail_actions": spaces.Box(0, 1, shape=(len(self.item_limits),)),
-                "state": obs_space
-            })
-        else:
-            self.observation_space = obs_space
-
-        self.reset()
-
-    def _STEP(self, item):
+    def step(self, item):
         # Check item limit
         if self.item_limits[item] > 0:
             # Check that item will fit
@@ -38,42 +34,17 @@ class BinaryKnapsackEnv(KnapsackEnv):
         else:
             # End if item is unavailable
             reward = 0
-            done = True
-            
+            done = True          
         return self.state, reward, done, {}
 
-    def _update_state(self, item=None):
+    def get_state(self, item=None):
         if item is not None:
             self.item_limits[item] -= 1
-        state_items = np.vstack([
-            self.item_weights,
-            self.item_values,
-            self.item_limits
-        ])
-        state = np.hstack([
-            state_items, 
-            np.array([[self.max_weight],
-                      [self.current_weight], 
-                      [0] # Serves as place holder
-                ])
-        ])
-        if self.mask:
-            mask = np.where(self.current_weight + self.item_weights > self.max_weight,
-                0, 1)
-            mask = np.where(self.item_limits > 0, mask, 0)
-            self.state = {
-                "action_mask": mask,
-                "avail_actions": np.ones(self.N),
-                "state": state
-            }
-        else:
-            self.state = state.copy()
-        
-    def sample_action(self):
-        return np.random.choice(
-            self.item_numbers[np.where(self.item_limits!=0)])
+        state_items = np.vstack([self.item_weights, self.item_values, self.item_limits])
+        state = np.hstack([state_items, np.array([[self.max_weight], [self.current_weight], [0]])])
+        self.state = state
     
-    def _RESET(self):
+    def reset(self):
         if self.randomize_params_on_reset:
             self.item_weights = np.random.randint(1, 100, size=self.N)
             self.item_values = np.random.randint(0, 100, size=self.N)
