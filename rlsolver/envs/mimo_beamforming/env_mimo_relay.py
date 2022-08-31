@@ -35,7 +35,7 @@ class MIMO_Relay():
 
     def step(self, action):
         self.mat_F = action.detach()
-        self.mat_HFH = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G)
+        self.mat_HFG = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G)
         self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.reward = self.calc_sum_rate(self.mat_H, action, self.mat_G, self.mat_W)
         self.num_steps += 1
@@ -43,7 +43,7 @@ class MIMO_Relay():
         return self.get_state(), self.reward, self.done
     
     def get_state(self,):
-        return (self.mat_H, self.mat_F)
+        return (self.mat_HFG, self.mat_F)
 
     def generate_channel_batch(self, dim1, dim2, batch_size, subspace_dim, basis_vectors):
         coordinates = th.randn(batch_size, subspace_dim, 1).to(self.device)
