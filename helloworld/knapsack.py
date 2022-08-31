@@ -17,7 +17,7 @@ class BinaryKnapsack():
 
     def step(self, item):
         # Check item limit
-        if self.item_limits[item] > 0:
+        if self.item_indicator[item] > 0:
             # Check that item will fit
             if self.item_weights[item] + self.current_weight <= self.max_weight:
                 self.current_weight += self.item_weights[item]
@@ -39,8 +39,8 @@ class BinaryKnapsack():
 
     def get_state(self, item=None):
         if item is not None:
-            self.item_limits[item] -= 1
-        state_items = np.vstack([self.item_weights, self.item_values, self.item_limits])
+            self.item_indicator[item] -= 1
+        state_items = np.vstack([self.item_weights, self.item_values, self.item_indicator])
         state = np.hstack([state_items, np.array([[self.max_weight], [self.current_weight], [0]])])
         self.state = state
     
@@ -49,6 +49,6 @@ class BinaryKnapsack():
             self.item_weights = np.random.randint(1, 100, size=self.N)
             self.item_values = np.random.randint(0, 100, size=self.N)
         self.current_weight = 0
-        self.item_limits = np.ones(self.N)
+        self.item_indicator = np.ones(self.N)
         self._update_state()
         return self.state
