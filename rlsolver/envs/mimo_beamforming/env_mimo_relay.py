@@ -36,7 +36,7 @@ class MIMO_Relay():
     def step(self, action):
         self.mat_F = action.detach()
         self.mat_HFH = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G)
-        self.mat_W = self.calc_mmse(self.mat_HFG, self.mat_F).to(self.device)
+        self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.reward = self.calc_sum_rate(self.mat_H, action, self.mat_G, self.mat_W)
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
@@ -51,7 +51,7 @@ class MIMO_Relay():
         vec_channel = th.bmm(basis_vectors_batch, coordinates).reshape(-1 ,2 * K * N) * (( 2 * K * N / subspace_dim) ** 0.5)
         return  (N * K) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
     
-    def calc_mmse(self, channel, mat_F):
+    def compute_mmse_beamformer(self, channel, mat_F):
         channel = channel.to(self.device)
         lambda_ = th.ones(self.K).repeat((channel.shape[0], 1)) * self.P / self.K
         p = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * np.sqrt(self.P / self.K)
