@@ -1,6 +1,6 @@
 import os
 import torch as th
-from envs.mimo_beamforming.env_net_mimo import Policy_Net_MIMO
+from envs.mimo_beamforming.net_mimo import Policy_Net_MIMO
 from envs.mimo_beamforming.env_mimo import generate_channel_batch
 
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=40000,
