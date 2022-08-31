@@ -27,9 +27,9 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
         loss.backward()
         optimizer.step()
         print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
-        if epoch % num_save_model_gap == 0:
+        if epoch % num_epochs_to_save_model == 0:
             th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")    
-        if (epoch + 1) % num_epoches_per_subspace == 0 and subspace_dim <= 2 * K * N:
+        if (epoch + 1) % num_epochs_per_subspace == 0 and subspace_dim <= 2 * K * N:
             subspace_dim +=1
             
 def get_cwd(env_name):
