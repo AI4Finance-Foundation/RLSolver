@@ -7,19 +7,18 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
                 num_epochs_per_subspace=400, num_epochs_to_save_model=1000):
     env_mimo = MIMO(K=K, N=N, P=P, noise_power=noise_power, device=device)
     for epoch in range(num_epochs):
-        state = env_mimo.reset()
-        loss = 0
+        obj_value = 0
         while(True):
             action = policy_net_mimo(state)
             next_state, reward, done = env_mimo.step(action)
-            loss -= reward.mean()
+            obj_value -= reward.mean()
             state = next_state
             if done:
                 break
         optimizer.zero_grad()
-        loss.backward()
+        obj_value.backward()
         optimizer.step()
-        print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
+        print(f" training_loss: {obj_value.item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         if epoch % num_epochs_to_save_model == 0:
             th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")    
         if (epoch + 1) % num_epochs_per_subspace == 0 and subspace_dim <= 2 * K * N:
