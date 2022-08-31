@@ -25,7 +25,7 @@ class BinaryKnapsack():
                     done = True
                 else:
                     done = False
-                self._update_state(item)
+                self.get_state(item)
             else:
                 # End if over weight
                 reward = 0
