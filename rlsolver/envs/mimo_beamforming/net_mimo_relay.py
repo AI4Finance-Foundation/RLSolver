@@ -42,14 +42,14 @@ class Policy_Net_MIMO(nn.Module):
         mat_H, mat_W = state
         vec_H = th.cat((mat_H.real.reshape(-1, self.K * self.N), mat_H.imag.reshape(-1, self.K * self.N)), 1)
         vec_W = th.cat((mat_W.real.reshape(-1, self.K * self.N), mat_W.imag.reshape(-1, self.K * self.N)), 1)
-        mat_HW = th.bmm(mat_H, mat_W.transpose(1,2).conj())
-        vec_HW = th.cat((mat_HW.real.reshape(-1, self.K * self.N), mat_HW.imag.reshape(-1, self.K * self.N)), 1)
-        net_input = th.cat((vec_H, vec_W, vec_HW), 1).reshape(-1, 6, self.K * self.N)
+        mat_HF = th.bmm(mat_H, mat_W.transpose(1,2).conj())
+        vec_HF = th.cat((mat_HF.real.reshape(-1, self.K * self.N), mat_HF.imag.reshape(-1, self.K * self.N)), 1)
+        net_input = th.cat((vec_H, vec_W, vec_HF), 1).reshape(-1, 6, self.K * self.N)
         net_input = net_input.reshape(-1, 6, self.K, self.N)
-        vec_W_new = (self.sigmoid(self.net(net_input)) - 0.5) * 2
-        vec_W_new = vec_W_new / th.norm(vec_W_new, dim=1, keepdim=True) * np.sqrt(self.total_power)
-        mat_W_new = (vec_W_new[:, :self.K * self.N] + vec_W_new[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
-        return mat_W_new
+        vec_F_new = (self.sigmoid(self.net(net_input)) - 0.5) * 2
+        vec_F_new = vec_F_new / th.norm(vec_F_new, dim=1, keepdim=True)
+        mat_F_new = (vec_F_new[:, :self.K * self.N] + vec_F_new[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
+        return mat_F_new
     
 class DenseNet(nn.Module):
     def __init__(self, lay_dim):
