@@ -11,7 +11,7 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
     
     # using QR decomposition to generate basis vectors of an N x K space, 
     basis_vectors, _ = th.linalg.qr(th.rand(2 * K * N, 2 * K * N, dtype=th.float))
-    for epoch in range(num_epoches):
+    for epoch in range(num_epochs):
         if subspace_dim <= 2 * K * N:
             vec_H = generate_channel_batch(N, K, batch_size, subspace_dim, basis_vectors).to(device)
         else:
