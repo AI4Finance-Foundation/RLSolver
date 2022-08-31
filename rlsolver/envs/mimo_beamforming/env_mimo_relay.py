@@ -31,7 +31,7 @@ class MIMO_Relay():
         self.mat_HFG = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G)
         self.mat_W = self.calc_mmse(self.mat_HFG, self.mat_F).to(self.device)
         self.num_steps = 0
-        return (self.mat_H, self.mat_W)
+        return (self.mat_HFG, self.mat_F)
 
     def step(self, action):
         self.mat_F = action.detach()
