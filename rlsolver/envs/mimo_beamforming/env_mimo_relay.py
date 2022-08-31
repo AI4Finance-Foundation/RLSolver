@@ -7,8 +7,8 @@ class MIMO_Relay():
         self.K = K # #users
         self.P = P # power
         self.noise_power = noise_power
-        self.basis_vectors_H, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float))
-        self.basis_vectors_G, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float))
+        self.basis_vectors_G, _ = th.linalg.qr(th.rand(2 * self.M * self.N, 2 * self.M * self.N, dtype=th.float))
+        self.basis_vectors_H, _ = th.linalg.qr(th.rand(2 * self.N * self.K, 2 * self.N * self.K, dtype=th.float))
         self.subspace_dim = 1
         self.num_env = num_env
         self.device = device
@@ -16,14 +16,16 @@ class MIMO_Relay():
         self.mat_F0 = th.diag_embed(th.ones(self.num_env, self.M, dtype=th.cfloat))
         
     def reset(self,):
-        if self.subspace_dim <= 2 * self.K * self.N:
+        if self.subspace_dim_H <= 2 * self.N * self.K:
             self.vec_H = self.generate_channel_batch(self.N, self.K, self.num_env, self.subspace_dim, self.basis_vectors_H).to(self.device)
-            self.vec_G = self.generate_channel_batch(self.N, self.K, self.num_env, self.subspace_dim, self.basis_vectors_G).to(self.device)
         else:
-            self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat).to(self.device)
-            self.vec_G = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat).to(self.device)
-        self.mat_H = (self.vec_H[:, :self.K * self.N] + self.vec_H[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
-        self.mat_G = (self.vec_G[:, :self.K * self.N] + self.vec_G[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
+            self.vec_H = th.randn(self.num_env, 2 * self.N * self.K, dtype=th.cfloat).to(self.device)
+        if self.subspace_dim_G <= 2 * self.M * self.N:
+            self.vec_G = self.generate_channel_batch(self.M, self.N, self.num_env, self.subspace_dim, self.basis_vectors_G).to(self.device)
+        else:
+            self.vec_G = th.randn(self.num_env, 2 * self.M * self.N, dtype=th.cfloat).to(self.device)
+        self.mat_H = (self.vec_H[:, :self.N * self.K] + self.vec_H[:, self.N * self.K:] * 1.j).reshape(-1, self.N, self.K)
+        self.mat_G = (self.vec_G[:, :self.M * self.N] + self.vec_G[:, self.M * self.N:] * 1.j).reshape(-1, self.M, self.N)
         self.mat_F = self.mat_F0
         print(self.mat_H.shape, self.mat_F.shape, self.mat_G.shape)
         self.mat_HFG = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G)
