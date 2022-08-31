@@ -3,7 +3,6 @@ class KnapsackEnv(gym.Env):
     _collected_items = []
     
     def __init__(self, *args, **kwargs):
-        # Generate data with consistent random seed to ensure reproducibility
         self.N = 5
         self.max_weight = 15
         self.current_weight = 0
@@ -11,17 +10,15 @@ class KnapsackEnv(gym.Env):
         self.mask = False
         self.seed = 0
         self.item_numbers = np.arange(self.N)
-        self.item_weights = np.array([1, 12, 2, 1, 4])#np.random.randint(1, 5, size=self.N)
-        self.item_values = np.array([2, 4, 2, 1, 10])#np.random.randint(0, 100, size=self.N)
+        self.item_weights = np.array([1, 12, 2, 1, 4]) # np.random.randint(1, 5, size=self.N)
+        self.item_values = np.array([2, 4, 2, 1, 10])  # np.random.randint(0, 100, size=self.N)
         self.over_packed_penalty = 0
         self.randomize_params_on_reset = False
         self._collected_items.clear()
-        # Add env_config, if any
         assign_env_config(self, kwargs)
         self.set_seed()
 
-        obs_space = spaces.Box(
-            0, self.max_weight, shape=(2*self.N + 1,), dtype=np.int32)
+        obs_space = spaces.Box(0, self.max_weight, shape=(2*self.N + 1,), dtype=np.int32)
         self.action_space = spaces.Discrete(self.N)
         if self.mask:
             self.observation_space = spaces.Dict({
@@ -58,8 +55,7 @@ class KnapsackEnv(gym.Env):
     
     def _update_state(self):
         if self.mask:
-            mask = np.where(self.current_weight + self.item_weights > self.max_weight,
-            0, 1)
+            mask = np.where(self.current_weight + self.item_weights > self.max_weight, 0, 1)
             state = np.hstack([
                 self.item_weights,
                 self.item_values,
@@ -114,5 +110,4 @@ class KnapsackEnv(gym.Env):
                 total_weight += self.item_weights[i]
         print(self._collected_items, total_value, total_weight)
         
-        # RlLib requirement: Make sure you either return a uint8/w x h x 3 (RGB) image or handle rendering in a window and then return `True`.
         return True
