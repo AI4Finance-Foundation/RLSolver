@@ -32,9 +32,9 @@ RLSolver
 |   |   ├── learn2optimize
 |   |   └── mimo_beamforming
 |   |   (combinatorial optimizations)
-|   |   ├── portolio_management
+|   |   ├── portfolio_management
 |   |   ├── quantum_circuits
-|   |   ├── public_vehicles
+|   |   ├── vehicle_routing
 |   |   ├── virtual_machine_placement
 |   |   └── chip_design
 |   |── rlsolver_learn2optimize
