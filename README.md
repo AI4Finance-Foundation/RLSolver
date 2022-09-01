@@ -27,21 +27,21 @@ RLSolver
 |   ├──tsp
 |   └──graph_maxcut
 ├── rlsolver (main folder)
-    ├── envs
-    |   (nonconvex optimiations)
-    |   ├── learn2optimize
-    |   └── mimo_beamforming
-    |   (combinatorial optimizations)
-    |   ├── portolio_management
-    |   ├── quantum_circuits
-    |   ├── public_vehicles
-    |   ├── virtual_machine_placement
-    |   └── chip_design
-    ├── rlsolver_learn2optimize
-    ├── rlsolver_mimo_beamforming
-    ├── rlsolver_portfolio_management
-    ├── rlsolver_quantum_circuits
-    └── utils
+|   ├── envs
+|   |   (nonconvex optimiations)
+|   |   ├── learn2optimize
+|   |   └── mimo_beamforming
+|   |   (combinatorial optimizations)
+|   |   ├── portolio_management
+|   |   ├── quantum_circuits
+|   |   ├── public_vehicles
+|   |   ├── virtual_machine_placement
+|   |   └── chip_design
+|   |── rlsolver_learn2optimize
+|   |── rlsolver_mimo_beamforming
+|   |── rlsolver_portfolio_management
+|   |── rlsolver_quantum_circuits
+└── └── utils
 
 
 ```
