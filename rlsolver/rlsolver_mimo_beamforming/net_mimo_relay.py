@@ -3,14 +3,15 @@ import numpy as np
 import torch.nn as nn
 
 class Policy_Net_MIMO_Relay(nn.Module):
-    def __init__(self, mid_dim=256, K=4, N=4, total_power=10, encode_dim=512, gnn_loop=4):
-        super(Policy_Net_MIMO, self).__init__()
+    def __init__(self, mid_dim=256, K=4, N=4, M=4, total_power=10, encode_dim=512, gnn_loop=4):
+        super(Policy_Net_MIMO_Relay, self).__init__()
         self.encode_dim = encode_dim
         self.total_power = total_power
         self.K = K
         self.N = N
-        self.state_dim = (6,K,N)
-        self.action_dim = 2 * K * N
+        self.M = M
+        self.state_dim = (6, K, M)
+        self.action_dim = 2 * M * M
         self.loop = gnn_loop
         self.theta_0 = nn.Linear(self.K * 2, self.encode_dim)
         self.if_gnn = False
