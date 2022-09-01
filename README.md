@@ -1,10 +1,12 @@
-# RLSolver: High-performance RL solvers 
+# RLSolver: High-performance RL solvers
 
-Combinatorial optimizations and nonconvex optimizations.
+For Combinatorial optimizations and nonconvex optimizations.
 
-For combinatorial optimization problems, we focus on the [Benchmark](http://plato.asu.edu/bench.html).
+For combinatorial optimization problems, we compare with [Benchmark](http://plato.asu.edu/bench.html).
 
-It is based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
+For nonconvex optimization problems, we aim to find high-quality local minimum, even global minimum.
+
+This project is built on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
 The following two key technologes are under active development: 
 
