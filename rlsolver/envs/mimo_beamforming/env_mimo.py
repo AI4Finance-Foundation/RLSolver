@@ -27,15 +27,13 @@ class MIMOEnv():
         return (self.mat_H, self.mat_W)
 
     def step(self, action):
-        self.reward = self.calc_sum_rate(self.mat_H, action)
-        self.mat_W = action.detach()
+        self.mat_W = action
+        self.reward = self.calc_sum_rate(self.mat_H, self.mat_W)
+        self.mat_W = self.mat_W.detach()
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
-        return self.get_state(), self.reward, self.done
+        return (self.mat_H, self.mat_W), self.reward, self.done
     
-    def get_state(self,):
-        return (self.mat_H, self.mat_W)
-
     def generate_channel_batch(self, N, K, batch_size, subspace_dim, basis_vectors):
         coordinates = th.randn(batch_size, subspace_dim, 1)
         basis_vectors_batch = basis_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(-1, 2 * K * N, subspace_dim)
