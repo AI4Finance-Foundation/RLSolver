@@ -1,10 +1,12 @@
 import torch as th
 import numpy as np
-class MIMO():
+
+
+class MIMOEnv():
     def __init__(self, K=4, N=4, P=10, noise_power=1, episode_length=6, num_env=4, device=th.device("cuda:0")):
-        self.N = N
-        self.K = K
-        self.P = P
+        self.N = N  # #antennas
+        self.K = K  # #users
+        self.P = P  # Power
         self.noise_power = noise_power
         self.basis_vectors, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float))
         self.subspace_dim = 1
