@@ -1,3 +1,4 @@
+from tkinter import W
 import torch as th
 import numpy as np
 
@@ -22,6 +23,7 @@ class MIMOEnv():
         self.mat_H = (self.vec_H[:, :self.K * self.N] + self.vec_H[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
         self.mat_W = self.calc_mmse(self.mat_H).to(self.device)
         self.num_steps = 0
+        self.done = False
         return (self.mat_H, self.mat_W)
 
     def step(self, action):
