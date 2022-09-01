@@ -9,7 +9,7 @@ class MIMO_Relay():
         self.noise_power = noise_power
         self.device = device
         self.basis_vectors_G = th.linalg.qr(th.rand(2 * self.M * self.N, 2 * self.M * self.N, dtype=th.float))[0].to(self.device)
-        self.basis_vectors_H = th.linalg.qr(th.rand(2 * self.K * self.M, 2 * self.K * self.M, dtype=th.float))[0].to(self.device)
+        self.basis_vectors_H = th.linalg.qr(th.rand(2 * self.M * self.K, 2 * self.K * self.M, dtype=th.float))[0].to(self.device)
         self.subspace_dim_H = 1
         self.subspace_dim_G = 1
         self.num_env = num_env
@@ -20,22 +20,22 @@ class MIMO_Relay():
         if self.subspace_dim_H <= 2 * self.M * self.K:
             self.vec_H = self.generate_channel_batch(self.M, self.K, self.num_env, self.subspace_dim_H, self.basis_vectors_H).to(self.device)
         else:
-            self.vec_H = th.randn(self.num_env, 2 * self.M * self.K, dtype=th.cfloat).to(self.device)
+            self.vec_H = th.randn(self.num_env, 2 * self.M * self.K, dtype=th.float).to(self.device)
         if self.subspace_dim_G <= 2 * self.M * self.N:
             self.vec_G = self.generate_channel_batch(self.M, self.N, self.num_env, self.subspace_dim_G, self.basis_vectors_G).to(self.device)
         else:
-            self.vec_G = th.randn(self.num_env, 2 * self.M * self.N, dtype=th.cfloat).to(self.device)
-        self.mat_H = (self.vec_H[:, :self.K * self.M] + self.vec_H[:, self.K * self.M:] * 1.j).reshape(-1, self.K, self.M).to(self.device)
+            self.vec_G = th.randn(self.num_env, 2 * self.M * self.N, dtype=th.float).to(self.device)
+        self.mat_H = (self.vec_H[:, :self.K * self.M] + self.vec_H[:, self.K * self.M:] * 1.j).reshape(-1, self.M, self.K).to(self.device)
         self.mat_G = (self.vec_G[:, :self.M * self.N] + self.vec_G[:, self.M * self.N:] * 1.j).reshape(-1, self.M, self.N).to(self.device)
         self.mat_F = self.mat_F0
-        self.mat_HFG = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G).to(self.device)
+        self.mat_HFG = th.bmm(th.bmm(self.mat_H.T.conj(), self.mat_F), self.mat_G).to(self.device)
         self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.num_steps = 0
         return (self.mat_HFG, self.mat_F)
 
     def step(self, action):
         self.mat_F = action.detach()
-        self.mat_HFG = th.bmm(th.bmm(self.mat_H, self.mat_F), self.mat_G)
+        self.mat_HFG = th.bmm(th.bmm(self.mat_H.T.conj(), self.mat_F), self.mat_G)
         self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.reward = self.calc_sum_rate(self.mat_H, action, self.mat_G, self.mat_W)
         self.num_steps += 1
@@ -71,7 +71,7 @@ class MIMO_Relay():
         return W
 
     def calc_sum_rate(self, H, F, G, W):
-        HF = th.bmm(H, F)
+        HF = th.bmm(H.T.conj(), F)
         HFGW = th.bmm(th.bmm(HF.to(th.cfloat), G), W.to(th.cfloat).transpose(-1, -2))
         S = th.abs(th.diagonal(HFGW, dim1=-2, dim2=-1))**2
         I = th.sum(th.abs(HFGW)**2, dim=-1) - th.abs(th.diagonal(HFGW, dim1=-2, dim2=-1))**2
