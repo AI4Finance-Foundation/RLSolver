@@ -1,5 +1,7 @@
 import torch as th
 import numpy as np
+
+
 def compute_mmse_beamformer(mat_H, K=4, N=4, P=10, device=th.device("cuda:0")):
     mat_H = mat_H.to(device)
     lambda_ = th.ones(K).repeat((mat_H.shape[0], 1)) * P / K
