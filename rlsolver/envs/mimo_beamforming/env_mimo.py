@@ -21,7 +21,7 @@ class MIMOEnv():
         else:
             self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat).to(self.device)
         self.mat_H = (self.vec_H[:, :self.K * self.N] + self.vec_H[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
-        self.mat_W = self.calc_mmse(self.mat_H).to(self.device)
+        self.mat_W = self.compute_mmse_beamformer(self.mat_H).to(self.device)
         self.num_steps = 0
         self.done = False
         return (self.mat_H, self.mat_W)
@@ -40,7 +40,7 @@ class MIMOEnv():
         vec_channel = th.bmm(basis_vectors_batch, coordinates).reshape(-1 ,2 * K * N) * (( 2 * K * N / subspace_dim) ** 0.5)
         return  (N * K) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
     
-    def calc_mmse(self, channel):
+    def compute_mmse_beamformer(self, channel):
         channel = channel.to(self.device)
         lambda_ = th.ones(self.K).repeat((channel.shape[0], 1)) * self.P / self.K
         p = th.ones(self.K).repeat((channel.shape[0], 1)).to(self.device) * np.sqrt(self.P / self.K)
