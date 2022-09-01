@@ -41,7 +41,7 @@ RLSolver
 |   |── rlsolver_mimo_beamforming
 |   |── rlsolver_portfolio_management
 |   |── rlsolver_quantum_circuits
-└── └── utils
+    └── utils
 
 
 ```
