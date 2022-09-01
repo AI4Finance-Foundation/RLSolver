@@ -47,39 +47,8 @@ class TSPEnv():
             
         return self.state, reward, done, {}
         
-    def update_state(self):
-        node_connections = self.adjacency_matrix.copy()
-        visited = np.array([bool(min(v, 1))
-            for v in self.visit_log.values()])
-        node_connections[:, visited] = -1
-        node_connections[np.where(self.adjacency_matrix==0)] = 0
+    def generate_adjacency_matrix_batch(self, ):
+        pass
 
-        connections = node_connections.flatten().astype(int)
-        obs = np.hstack([self.current_node, connections])
-        state = obs.copy()
-        return state
-        
-    def generate_connections(self):
-        node_dict = {}
-        for n in range(self.N):
-            connections = np.random.randint(2, self.N - 1)
-            node_dict[n] = np.sort(
-               np.random.choice(self.nodes[np.where(self.nodes!=n)],
-                                 size=connections, replace=False))
-        # Get unique, bi-directional connections
-        for k, v in node_dict.items():
-            for k1, v1 in node_dict.items():
-                if k == k1:
-                    continue
-                if k in v1 and k1 not in v:
-                    v = np.append(v, k1)
-
-            node_dict[k] = np.sort(v.copy())
-        self.node_dict = deepcopy(node_dict)
-        self.generate_adjacency_matrix()
-    
-    def generate_adjacency_matrix(self):
-        self.adjacency_matrix = np.zeros((self.N, self.N))
-        for k, v in self.node_dict.items():
-            self.adjacency_matrix[k][v] += 1
-        self.adjacency_matrix.astype(int)
+    def generate_node_location_batch(self, ):
+        pass

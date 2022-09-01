@@ -59,10 +59,10 @@ class MIMOEnv():
         return W
 
     def calc_sum_rate(self,channel, precoder):
-        HTF = channel
-        HTFGW = th.bmm(HTF.to(th.cfloat), precoder.to(th.cfloat).transpose(-1, -2))
-        S = th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
-        I = th.sum(th.abs(HTFGW)**2, dim=-1) - th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
+        H = channel
+        HW = th.bmm(H.to(th.cfloat), precoder.to(th.cfloat).transpose(-1, -2))
+        S = th.abs(th.diagonal(HW, dim1=-2, dim2=-1))**2
+        I = th.sum(th.abs(HW)**2, dim=-1) - th.abs(th.diagonal(HW, dim1=-2, dim2=-1))**2
         N = 1
         SINR = S/(I+N)
         return th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
