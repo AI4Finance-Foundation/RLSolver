@@ -28,14 +28,14 @@ class MIMO_Relay():
         self.mat_H = (self.vec_H[:, :self.K * self.M] + self.vec_H[:, self.K * self.M:] * 1.j).reshape(-1, self.M, self.K).to(self.device)
         self.mat_G = (self.vec_G[:, :self.M * self.N] + self.vec_G[:, self.M * self.N:] * 1.j).reshape(-1, self.M, self.N).to(self.device)
         self.mat_F = self.mat_F0
-        self.mat_HFG = th.bmm(th.bmm(self.mat_H.T.conj(), self.mat_F), self.mat_G).to(self.device)
+        self.mat_HFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G).to(self.device)
         self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.num_steps = 0
         return (self.mat_HFG, self.mat_F)
 
     def step(self, action):
         self.mat_F = action.detach()
-        self.mat_HFG = th.bmm(th.bmm(self.mat_H.T.conj(), self.mat_F), self.mat_G)
+        self.mat_HFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G)
         self.mat_W = self.compute_mmse_beamformer(self.mat_HFG, self.mat_F).to(self.device)
         self.reward = self.calc_sum_rate(self.mat_H, action, self.mat_G, self.mat_W)
         self.num_steps += 1
@@ -71,7 +71,7 @@ class MIMO_Relay():
         return W
 
     def calc_sum_rate(self, H, F, G, W):
-        HF = th.bmm(H.T.conj(), F)
+        HF = th.bmm(H.conj().transpose(-1,-2), F)
         HFGW = th.bmm(th.bmm(HF.to(th.cfloat), G), W.to(th.cfloat).transpose(-1, -2))
         S = th.abs(th.diagonal(HFGW, dim1=-2, dim2=-1))**2
         I = th.sum(th.abs(HFGW)**2, dim=-1) - th.abs(th.diagonal(HFGW, dim1=-2, dim2=-1))**2
