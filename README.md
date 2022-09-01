@@ -12,6 +12,16 @@ The following two key technologes are under active development:
 
 - **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
 
+Several key references:
+
+- Mazyavkina, Nina, et al. "Reinforcement learning for combinatorial optimization: A survey." Computers & Operations Research 134 (2021): 105400.
+
+- Bengio, Yoshua, Andrea Lodi, and Antoine Prouvost. "Machine learning for combinatorial optimization: a methodological tour d’horizon." European Journal of Operational Research 290.2 (2021): 405-421.
+
+- Makoviychuk, Viktor, et al. "Isaac Gym: High Performance GPU Based Physics Simulation For Robot Learning." Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2). 2021.
+
+- Nair, Vinod, et al. "Solving mixed integer programs using neural networks." arXiv preprint arXiv:2012.13349 (2020).
+
 
 ## Outline
 
