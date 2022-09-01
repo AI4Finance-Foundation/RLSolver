@@ -1,6 +1,8 @@
 import torch as th
 import numpy as np
-class MIMO_Relay():
+
+
+class MIMORelayEnv():
     def __init__(self, K=2, N=2, M=2, P=10, noise_power=1, episode_length=6, num_env=4096, device=th.device("cuda:0")):
         self.N = N # #antennas base stations
         self.M = M # #antennas relay
