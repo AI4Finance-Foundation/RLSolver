@@ -4,11 +4,11 @@ For combinatorial optimizations and nonconvex optimizations.
 
 For combinatorial optimization problems, we compare with [Benchmark](http://plato.asu.edu/bench.html).
 
-For nonconvex optimization problems, we aim to find high-quality local minimum, even global minimum.
+For nonconvex optimization problems, we aim to find high-quality local optimum, even global optimum.
 
-This project is built on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
+This project is built based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
-The following two key technologes are under active development: 
+The following two key technologies are under active development: 
 
 - **Massively parallel simuations** of gym-environments on GPU, using thousands of CUDA cores and tensor cores.
 
@@ -42,7 +42,7 @@ RLSolver
 |   └──graph_maxcut
 ├── rlsolver (main folder)
 |   ├── envs
-|   |   (nonconvex optimiations)
+|   |   (nonconvex optimizations)
 |   |   ├── learn2optimize
 |   |   └── mimo_beamforming
 |   |   (combinatorial optimizations)
