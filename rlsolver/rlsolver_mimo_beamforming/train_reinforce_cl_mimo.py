@@ -1,11 +1,12 @@
 import os
 import torch as th
-from rlsolver.envs.mimo_beamforming.net_mimo import Policy_Net_MIMO
-from rlsolver.envs.mimo_beamforming.env_mimo import MIMO
+from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
+from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
+from rlsolver.rlsolver_mimo_beamforming.test_mimo import test
 
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=40000,
-                num_epochs_per_subspace=400, num_epochs_to_save_model=1000):
-    env_mimo = MIMO(K=K, N=N, P=P, noise_power=noise_power, device=device)
+                num_epochs_per_subspace=400, num_epochs_to_save_model=1000, num_epochs_to_test=100):
+    env_mimo = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device)
     for epoch in range(num_epochs):
         obj_value = 0
         while(True):
@@ -21,8 +22,10 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
         print(f" training_loss: {obj_value.item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
         if epoch % num_epochs_to_save_model == 0:
             th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")    
-        if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimosubspace_dim <= 2 * K * N:
+        if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimo.subspace_dim <= 2 * K * N:
             env_mimo.subspace_dim +=1
+        if (epoch + 1) % num_epochs_to_test == 0:
+            test(policy_net_mimo, device, K=K, N=N, P=P)
             
 def get_cwd(env_name):
     file_list = os.listdir()

@@ -1,12 +1,12 @@
 import os
 import torch as th
-from tqdm import tqdm
-from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMO_Relay
+from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMORelayEnv
 from rlsolver.rlsolver_mimo_beamforming.net_mimo_relay import Policy_Net_MIMO_Relay
+from rlsolver.rlsolver_mimo_beamforming.test_mimo_relay import test_relay
 
-def train_curriculum_learning(policy_net_mimo_relay, optimizer, device, save_path=None, K=4, N=4, M=4, P=10, noise_power=1, num_epochs=400000,
+def train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, device, save_path=None, K=4, N=4, M=4, P=10, noise_power=1, num_epochs=400000,
                 num_epochs_per_subspace=1000, num_epochs_to_save_model=1000, num_epochs_to_test=100):
-    env_mimo = MIMO_Relay(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=4096)
+    env_mimo = MIMORelayEnv(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=4096)
     for epoch in range(num_epochs):
         state = env_mimo.reset()
         loss = 0
@@ -28,7 +28,7 @@ def train_curriculum_learning(policy_net_mimo_relay, optimizer, device, save_pat
         if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimo.subspace_dim_G <= 2 * N * M:
             env_mimo.subspace_dim_G += 1
         if (epoch + 1) % num_epochs_to_test == 0:
-            test(policy_net_mimo_relay, device, K=K, N=N, M=M, P=P)
+            test_relay(policy_net_mimo_relay, device, K=K, N=N, M=M, P=P)
             
 def get_cwd(env_name):
     file_list = os.listdir()
@@ -41,20 +41,6 @@ def get_cwd(env_name):
             max_exp_id = int(exp_id) + 1
     os.mkdir('./{}/{}/'.format(env_name, max_exp_id))
     return f"./{env_name}/{max_exp_id}/"
-
-def test(policy_net_mimo_relay, device, K=4, N=4, M=4, P=10, noise_power=1):
-    env_mimo = MIMO_Relay(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=1000)
-    state = env_mimo.reset(test=True)
-    sum_rate = th.zeros(state[0].shape[0], env_mimo.episode_length, 1)
-    while(1):
-        action = policy_net_mimo_relay(state)
-        next_state, reward, done = env_mimo.step(action)
-        sum_rate[:, env_mimo.num_steps-1] = reward
-        state = next_state
-        if done:
-            break
-    print(f"test_sum_rate: {sum_rate.max(dim=1)[0].mean().item()}")
-
 
 if __name__  == "__main__":
     N = 4   # number of antennas
@@ -71,7 +57,7 @@ if __name__  == "__main__":
     optimizer = th.optim.Adam(policy_net_mimo_relay.parameters(), lr=learning_rate)
     
     try:
-        train_curriculum_learning(policy_net_mimo_relay, optimizer, K=K, N=N, M=M,  device=device, P=P, noise_power=noise_power)
+        train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, K=K, N=N, M=M,  device=device, P=P, noise_power=noise_power)
         th.save(policy_net_mimo_relay.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
     except KeyboardInterrupt:
         th.save(policy_net_mimo_relay.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net

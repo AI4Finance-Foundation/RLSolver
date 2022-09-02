@@ -18,7 +18,7 @@ class MIMORelayEnv():
         self.episode_length = episode_length
         self.mat_F0 = th.diag_embed(th.ones(self.num_env, self.M, dtype=th.cfloat)).to(self.device)
         
-    def reset(self,):
+    def reset(self, if_test=False, test_H=None, test_G=None):
         if self.subspace_dim_H <= 2 * self.M * self.K:
             self.vec_H = self.generate_channel_batch(self.M, self.K, self.num_env, self.subspace_dim_H, self.basis_vectors_H).to(self.device)
         else:
@@ -29,6 +29,9 @@ class MIMORelayEnv():
             self.vec_G = th.randn(self.num_env, 2 * self.M * self.N, dtype=th.float).to(self.device)
         self.mat_H = (self.vec_H[:, :self.K * self.M] + self.vec_H[:, self.K * self.M:] * 1.j).reshape(-1, self.M, self.K).to(self.device)
         self.mat_G = (self.vec_G[:, :self.M * self.N] + self.vec_G[:, self.M * self.N:] * 1.j).reshape(-1, self.M, self.N).to(self.device)
+        if if_test:
+                self.mat_H = test_H
+                self.mat_G = test_G
         self.mat_F = self.mat_F0
         self.mat_HTFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G).to(self.device)
         self.mat_W, _ = self.compute_mmse_beamformer(self.mat_HTFG, self.mat_F).to(self.device)

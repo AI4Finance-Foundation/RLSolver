@@ -14,12 +14,14 @@ class MIMOEnv():
         self.device = device
         self.episode_length = episode_length
         
-    def reset(self, test=False):
+    def reset(self, if_test=False, test_H=None):
         if self.subspace_dim <= 2 * self.K * self.N:
             self.vec_H = self.generate_channel_batch(self.N, self.K, self.num_env, self.subspace_dim, self.basis_vectors).to(self.device)
         else:
             self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat).to(self.device)
         self.mat_W, _ = compute_mmse_beamformer(self.mat_H).to(self.device)
+        if if_test:
+                self.mat_H = test_H
         self.num_steps = 0
         self.done = False
         return (self.mat_H, self.mat_W)

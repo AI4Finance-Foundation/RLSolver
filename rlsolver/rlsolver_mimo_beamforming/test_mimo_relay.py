@@ -1,0 +1,21 @@
+import torch as th
+from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMORelayEnv
+
+
+def test_relay(policy_net_mimo_relay, K=4, N=4, M=4, P=10, noise_power=1, test_H_path="H_K4N4M4.pkl", test_G_path="G_K4N4M4.pkl", device=th.device("cpu")):
+    env_mimo = MIMORelayEnv(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=1000)
+    import pickle as pkl
+    with open(test_H_path, 'rb') as f:
+        test_H = th.as_tensor(pkl.load(f), dtype=th.cfloat).to(device) 
+    with open(test_G_path, 'rb') as f:
+        test_G = th.as_tensor(pkl.load(f), dtype=th.cfloat).to(device)
+    state = env_mimo.reset(if_test=True, test_H=test_H, test_G=test_G)
+    sum_rate = th.zeros(state[0].shape[0], env_mimo.episode_length, 1)
+    while(1):
+        action = policy_net_mimo_relay(state)
+        next_state, reward, done = env_mimo.step(action)
+        sum_rate[:, env_mimo.num_steps-1] = reward
+        state = next_state
+        if done:
+            break
+    print(f"test_sum_rate: {sum_rate.max(dim=1)[0].mean().item()}")
