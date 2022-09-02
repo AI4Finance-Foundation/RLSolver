@@ -62,4 +62,4 @@ RLSolver
 
 ## Progress
 
-- [ ] mimo_beamforming
+- [x] mimo_beamforming
