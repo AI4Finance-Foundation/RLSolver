@@ -39,12 +39,12 @@ RLSolver
 ├── helloworld
 |   ├──milp
 |   ├──tsp
-|   └──[ ] graph_maxcut
+|   └──graph_maxcut
 ├── rlsolver (main folder)
 |   ├── envs
 |   |   (nonconvex optimizations)
-|   |   ├── [x] learn2optimize
-|   |   └── [ ] mimo_beamforming 
+|   |   ├── learn2optimize
+|   |   └── mimo_beamforming 
 |   |   (combinatorial optimizations)
 |   |   ├── portfolio_management
 |   |   ├── quantum_circuits
@@ -59,3 +59,7 @@ RLSolver
 
 
 ```
+
+## Progress
+
+- [ ] mimo_beamforming
