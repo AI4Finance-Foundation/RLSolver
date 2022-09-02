@@ -1,19 +1,21 @@
+import torch as th
 import numpy as np
 from copy import deepcopy
 
 
 class TSPEnv():
-    def __init__(self, N=50, ):
+    def __init__(self, N=50, env_num=4096, ):
         self.N = N
         self.move_cost = -1
         self.invalid_action_penalty = -100
-        self.nodes = np.arange(self.N)
+        self.env_num = env_num
         self.step_limit = 2 * self.N
         self.state_dim = self.N ** 2    # (self.N ** 2 + 1) - > (self.N ** 2), done
         self.action_dim = self.N
         self.reset()
     
     def reset(self):
+        self.path = th.randperm(self.N)
         self.step_count = 0
         self.generate_connections() # ER & power Law, Curriculum Learning (dimension)
         self.current_node = np.random.choice(self.nodes) # indicator vector
