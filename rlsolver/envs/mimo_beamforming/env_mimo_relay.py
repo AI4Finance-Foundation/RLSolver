@@ -31,27 +31,17 @@ class MIMORelayEnv():
         self.mat_G = (self.vec_G[:, :self.M * self.N] + self.vec_G[:, self.M * self.N:] * 1.j).reshape(-1, self.M, self.N).to(self.device)
         self.mat_F = self.mat_F0
         self.mat_HTFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G).to(self.device)
-        self.mat_W = self.compute_mmse_beamformer(self.mat_HTFG, self.mat_F).to(self.device)
+        self.mat_W, _ = self.compute_mmse_beamformer(self.mat_HTFG, self.mat_F).to(self.device)
         self.num_steps = 0
         return (self.mat_HTFG, self.mat_F)
 
     def step(self, action):
         self.mat_F = action.detach()
         self.mat_HTFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G)
-        self.mat_W = compute_mmse_beamformer_relay(self.mat_HTFG, self.mat_F).to(self.device)
-        HTF = th.bmm(self.mat_H.conj().transpose(-1,-2), self.mat_F)
-        HTFGW = th.bmm(th.bmm(HTF.to(th.cfloat), self.mat_G), self.mat_W.to(th.cfloat).transpose(-1, -2))
-        S = th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
-        I = th.sum(th.abs(HTFGW)**2, dim=-1) - th.abs(th.diagonal(HTFGW, dim1=-2, dim2=-1))**2
-        N = th.norm(HTF, dim=-1)**2 * 1 + self.noise_power
-        SINR = S/(I+N)
-        self.reward = th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
+        self.mat_W, self.reward = compute_mmse_beamformer_relay(self.mat_HTFG, self.mat_H, self.mat_F, K=self.K, N=self.N, P=self.P, noise_power=self.noise_power, device=self.device)
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
-        return self.get_state(), self.reward, self.done
-    
-    def get_state(self,):
-        return (self.mat_HTFG, self.mat_F)
+        return (self.mat_HTFG, self.mat_F), self.reward, self.done
 
     def generate_channel_batch(self, dim1, dim2, batch_size, subspace_dim, basis_vectors):
         coordinates = th.randn(batch_size, subspace_dim, 1).to(self.device)
