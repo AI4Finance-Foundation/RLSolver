@@ -1,6 +1,6 @@
 # RLSolver: High-performance RL solvers
 
-For Combinatorial optimizations and nonconvex optimizations.
+For combinatorial optimizations and nonconvex optimizations.
 
 For combinatorial optimization problems, we compare with [Benchmark](http://plato.asu.edu/bench.html).
 
