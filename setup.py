@@ -28,7 +28,7 @@ setup(
     packages=find_packages(),
     install_requires=REQUIRES
     + [
-        "elegantrl @ git+https://github.com/AI4Finance-Foundation/ElegantRL.git#egg=elegantrl"
+        
     ],
     # install_requires=REQUIRES,
     description="RLSolver: High-performance RL solvers.",
