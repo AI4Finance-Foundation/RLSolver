@@ -2,7 +2,7 @@ import torch as th
 import numpy as np
 
 
-def compute_mmse_beamformer(mat_H, K=4, N=4, P=10, noise_power=1, device=th.device("cuda:0")):
+def compute_mmse_beamformer(mat_H, K=4, N=4, P=10, noise_power=1, device=th.device("cpu")):
     eye_N = th.diag_embed((th.zeros(mat_H.shape[0], N) + noise_power)).to(device)
     denominator = th.inverse(eye_N + th.bmm(mat_H.conj().transpose(1,2), P / K * mat_H))
     wslnr_max = th.bmm(denominator, mat_H.conj().transpose(1,2)).transpose(1,2)
