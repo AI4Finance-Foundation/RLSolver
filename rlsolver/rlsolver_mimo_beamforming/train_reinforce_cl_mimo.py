@@ -9,6 +9,7 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
     env_mimo = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device)
     for epoch in range(num_epochs):
         obj_value = 0
+        state = env_mimo.reset()
         while(True):
             action = policy_net_mimo(state)
             next_state, reward, done = env_mimo.step(action)
