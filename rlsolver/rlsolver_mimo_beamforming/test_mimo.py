@@ -2,7 +2,7 @@ import torch as th
 from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
 from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
 
-def test(policy_net_mimo_relay, K=4, N=4, M=4, P=10, noise_power=1, test_H_path="./Channel_K=4_N=4_P=10_Samples=120_Optimal=9.9.pkl", device=th.device("cpu")):
+def test(policy_net_mimo, K=4, N=4, M=4, P=10, noise_power=1, test_H_path="./Channel_K=4_N=4_P=10_Samples=120_Optimal=9.9.pkl", device=th.device("cpu")):
     env_mimo = MIMOEnv(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=1000)
     import pickle as pkl
     with open(test_H_path, 'rb') as f:
@@ -10,7 +10,7 @@ def test(policy_net_mimo_relay, K=4, N=4, M=4, P=10, noise_power=1, test_H_path=
     state = env_mimo.reset(if_test=True, test_H=test_H)
     sum_rate = th.zeros(state[0].shape[0], env_mimo.episode_length, 1)
     while(1):
-        action = policy_net_mimo_relay(state)
+        action = policy_net_mimo(state)
         next_state, reward, done = env_mimo.step(action)
         sum_rate[:, env_mimo.num_steps-1] = reward
         state = next_state

@@ -66,37 +66,23 @@ def run_using_gurobi_fixed_num_nodes(n: int):
             model.addConstr(y[(i, j)] + x[i] + x[j] <= 2, name='C0b_' + str(i) + '_' + str(j))
 
     model.optimize()
-    # model.optimize(mycallback)
 
     if model.status == GRB.INFEASIBLE:
         model.computeIIS()
         infeasibleConstrName = [c.getAttr('ConstrName') for c in model.getConstrs() if c.getAttr(GRB.Attr.IISConstr) > 0]
         print('infeasibleConstrName: {}'.format(infeasibleConstrName))
         model.write(RESULT_DIR + '/model.ilp')
-        # model.write("model" + const.File_name_simplified + '.ilp')
-        # presolved_model.write(const.Path_of_result + '/model.ilp')
-        # running_duration = time.time() - start_time
-        # print('running_duration: {:.4f} minutes'.format(running_duration / 60))
         sys.exit()
+        
     elif model.getAttr('SolCount') >= 1:  # get the SolCount:
         model.write(RESULT_DIR + '/model.sol')
-        # if model.getAttr('MIPGap') >= const.Gap_if_recommending_to_increase_max_running_duration:
-        #     result.Recommend_to_increase_max_running_duration = True
-        # else:
-        #     result.Recommend_to_increase_max_running_duration = False
-        #     # model.getAttr('SolCount') >= 1  # get the SolCount
         write_result_gurobi(model, n)
 
     num_vars = model.getAttr(GRB.Attr.NumVars)
     num_constrs = model.getAttr(GRB.Attr.NumConstrs)
-    # result.NumVars2 = model.numVars
-    # result.NumConstrs2 = model.numConstrs
-
     print('numVars in model: {}'.format(num_vars))
     print('numConstrs in model: {}'.format(num_constrs))
-    # print('numVars2 in model: {}'.format(result.NumVars2))
-    # print('numConstrs2 in model: {}'.format(result.NumConstrs2))
-
+    
     if model.getAttr('SolCount') == 0:  # model.getAttr(GRB.Attr.SolCount)
         print("No solution.")
     print("SolCount: ", model.getAttr('SolCount'))
@@ -104,8 +90,6 @@ def run_using_gurobi_fixed_num_nodes(n: int):
 
 
 if __name__ == '__main__':
-    # generate_adjacency_matrix()
-    # adjacency_matrix = read_adjacency_matrix()
     import sys
     EXP_ID = sys.argv[1]
     run_using_gurobi(NUMS_NODES)
