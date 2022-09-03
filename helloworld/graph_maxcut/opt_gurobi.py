@@ -1,3 +1,5 @@
+# problem formulation: TEAMS OF GLOBAL EQUILIBRIUM SEARCH ALGORITHMS FOR SOLVING WEIGHTED MAXIMUM CUT PROBLEM IN PARALLEL
+
 import numpy as np
 from gurobipy import *
 
