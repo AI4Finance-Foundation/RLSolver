@@ -34,15 +34,16 @@ class MIMORelayEnv():
                 self.mat_G = test_G
         self.mat_F = self.mat_F0
         self.mat_HTFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G).to(self.device)
-        self.mat_W, _ = self.compute_mmse_beamformer(self.mat_HTFG, self.mat_F).to(self.device)
+        self.mat_W = compute_mmse_beamformer_relay(self.mat_HTFG,  self.mat_H, self.mat_F)[0].to(self.device)
         self.num_steps = 0
         return (self.mat_HTFG, self.mat_F)
 
     def step(self, action):
-        self.mat_F = action.detach()
+        self.mat_F = action
         self.mat_HTFG = th.bmm(th.bmm(self.mat_H.transpose(-1, -2).conj(), self.mat_F), self.mat_G)
         self.mat_W, self.reward = compute_mmse_beamformer_relay(self.mat_HTFG, self.mat_H, self.mat_F, K=self.K, N=self.N, P=self.P, noise_power=self.noise_power, device=self.device)
         self.num_steps += 1
+        self.mat_F = self.mat_F.detach()
         self.done = True if self.num_steps >= self.episode_length else False
         return (self.mat_HTFG, self.mat_F), self.reward, self.done
 

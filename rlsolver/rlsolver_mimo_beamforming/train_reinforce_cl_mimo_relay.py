@@ -21,7 +21,7 @@ def train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, device, sa
         loss.backward()
         optimizer.step()
         print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
-        if epoch % num_epochs_to_save_model == 0:
+        if (epoch + 1) % num_epochs_to_save_model == 0:
             th.save(policy_net_mimo_relay.state_dict(), save_path + f"{epoch}.pth")    
         if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimo.subspace_dim_H <= 2 * K * M:
             env_mimo.subspace_dim_H +=1
