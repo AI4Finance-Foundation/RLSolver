@@ -33,6 +33,3 @@ class PortfolioOptEnv():
         self.num_steps += 1
         self.state = th.cat((self.cash, self.asset_prices[self.num_steps], self.holdings), dim=1)
         return self.state, self.reward, self.done
-            
-        
-        
