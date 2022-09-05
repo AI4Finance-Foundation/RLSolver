@@ -1,16 +1,16 @@
 import torch as th
-import numpy as np
 import torch.nn as nn
+
 
 class Policy_Net_Maxcut(nn.Module):
     def __init__(self, mid_dim=256, N=4, encode_dim=512, gnn_loop=4):
         super(Policy_Net_Maxcut, self).__init__()
         self.encode_dim = encode_dim
         self.N = N
-        self.state_dim = (6, (N + 1),N)
+        self.state_dim = (1, (N + 1),N)
         self.action_dim = N
         self.loop = gnn_loop
-        self.theta_0 = nn.Linear(self.K * 2, self.encode_dim)
+        self.theta_0 = nn.Linear(self.N * 2, self.encode_dim)
         self.if_gnn = False
         self.device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
         self.sigmoid = nn.Sigmoid()
@@ -24,8 +24,8 @@ class Policy_Net_Maxcut(nn.Module):
         )
         
         if self.if_gnn:
-            self.gnn_weight = nn.ModuleList([ nn.Linear(self.K * 2, self.encode_dim), 
-                                        nn.Linear(self.K * 2, self.encode_dim), 
+            self.gnn_weight = nn.ModuleList([ nn.Linear(self.N * 2, self.encode_dim), 
+                                        nn.Linear(self.N * 2, self.encode_dim), 
                                         nn.Linear(self.encode_dim, self.encode_dim), 
                                         nn.Linear(self.encode_dim, self.encode_dim),
                                         nn.Linear(1, self.encode_dim),
@@ -39,8 +39,8 @@ class Policy_Net_Maxcut(nn.Module):
     def forward(self, state):
         mat_adjacency, vec_configuration = state
         vec_H = mat_adjacency.reshape(-1, self.N * self.N)
-        net_input = th.cat((vec_H, vec_configuration), 1).reshape(-1, (self.N + 1) * self.N)
-        net_input = net_input.reshape(-1, (self.N + 1), self.N)
+        net_input = th.cat((vec_H, vec_configuration), 1).reshape(-1, (self.N + 1) * self.N).to(self.device)
+        net_input = net_input.reshape(-1,1, (self.N + 1), self.N)
         vec_configuration_new = self.sigmoid(self.net(net_input))
         return vec_configuration_new
     
