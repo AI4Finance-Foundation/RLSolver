@@ -63,3 +63,5 @@ RLSolver
 ## Progress
 
 - [x] mimo_beamforming
+- [ ] graph_maxcut
+- [ ] portfolio_management
