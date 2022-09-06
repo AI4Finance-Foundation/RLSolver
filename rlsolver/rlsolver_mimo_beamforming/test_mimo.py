@@ -33,8 +33,8 @@ def test_curriculum_learning(policy_net_mimo, test_path, device, K=4, N=4, P=10,
     print(f" test sum_rate on 120 samples: {sum_rate.reshape(-1, episode_length).max(dim=1)[0].mean():.3f}")
 
 if __name__  == "__main__":
-    N = 4   # number of antennas
-    K = 4   # number of users
+    N = 4   #   #antennas
+    K = 4   #   #users
     P = 10  # power constraint
     noise_power = 1
     
