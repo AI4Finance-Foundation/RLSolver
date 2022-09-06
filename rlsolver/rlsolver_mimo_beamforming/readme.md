@@ -15,6 +15,8 @@ Over 100 random samples,MMSE's sum rate is about 8.3.
 
 The Branch-reduction-and-bound algorithm computes the optimal sum rate, which is 9.8.
 
-The REINFORCEMENT learning algorithm gets 9.756. The bar graph shows our result.
+The REINFORCEMENT learning algorithm gets 9.756. 
+
+The following bar figure shows our results.
 
 <img src="figs/25_out_of_100_Samples_(1).png"  width="700" >
