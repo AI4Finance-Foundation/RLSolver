@@ -2,7 +2,7 @@ import torch as th
 from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
 from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
 
-def test(policy_net_mimo, K=4, N=4, M=4, P=10, noise_power=1, test_H_path="./Channel_K=4_N=4_P=10_Samples=120_Optimal=9.9.pkl", device=th.device("cpu")):
+def evaluator(policy_net_mimo, K=4, N=4, M=4, P=10, noise_power=1, test_H_path="./Channel_K=4_N=4_P=10_Samples=120_Optimal=9.9.pkl", device=th.device("cpu")):
     env_mimo = MIMOEnv(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=1000)
     import pickle as pkl
     with open(test_H_path, 'rb') as f:
