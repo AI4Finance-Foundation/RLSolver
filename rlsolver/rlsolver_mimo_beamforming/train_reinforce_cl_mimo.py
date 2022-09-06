@@ -26,7 +26,7 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
         if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimo.subspace_dim <= 2 * K * N:
             env_mimo.subspace_dim +=1
         if (epoch + 1) % num_epochs_to_test == 0:
-            test(policy_net_mimo, device, K=K, N=N, P=P)
+            evaluator(policy_net_mimo, device, K=K, N=N, P=P)
             
 def get_cwd(env_name):
     file_list = os.listdir()
