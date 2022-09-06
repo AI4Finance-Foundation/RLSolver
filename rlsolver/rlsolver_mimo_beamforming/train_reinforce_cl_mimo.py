@@ -41,9 +41,9 @@ def get_cwd(env_name):
     return f"./{env_name}/{max_exp_id}/"
 
 if __name__  == "__main__":
-    N = 4   # number of antennas
-    K = 4   # number of users
-    P = 10  # power constraint
+    N = 4   #  #antennas
+    K = 4   #  #users
+    P = 10  #  power
     noise_power = 1
     learning_rate = 5e-5
     
