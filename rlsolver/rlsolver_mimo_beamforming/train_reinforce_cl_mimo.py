@@ -55,7 +55,7 @@ if __name__  == "__main__":
     
     try:
         train_curriculum_learning(policy_net_mimo, optimizer, K=K, N=N, save_path=save_path, device=device, P=P, noise_power=noise_power)
-        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
+        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # label your result policy net
     except KeyboardInterrupt:
-        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
+        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # label your result policy net
         exit()
