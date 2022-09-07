@@ -2,10 +2,10 @@ import os
 import torch as th
 from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMORelayEnv
 from rlsolver.rlsolver_mimo_beamforming.net_mimo_relay import Policy_Net_MIMO_Relay
-from rlsolver.rlsolver_mimo_beamforming.test_mimo_relay import test_relay
+from rlsolver.rlsolver_mimo_beamforming.evaluator_mimo_relay import evaluator_relay
 
 def train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, device, save_path=None, K=4, N=4, M=4, P=10, noise_power=1, num_epochs=400000,
-                num_epochs_per_subspace=1000, num_epochs_to_save_model=1000, num_epochs_to_test=100):
+                num_epochs_per_subspace=1000, num_epochs_to_save_model=1000, num_epochs_to_evaluate=100):
     env_mimo = MIMORelayEnv(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=4096)
     for epoch in range(num_epochs):
         state = env_mimo.reset()
@@ -27,8 +27,8 @@ def train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, device, sa
             env_mimo.subspace_dim_H +=1
         if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimo.subspace_dim_G <= 2 * N * M:
             env_mimo.subspace_dim_G += 1
-        if (epoch + 1) % num_epochs_to_test == 0:
-            test_relay(policy_net_mimo_relay, device, K=K, N=N, M=M, P=P)
+        if (epoch + 1) % num_epochs_evaluate == 0:
+            evaluator_relay(policy_net_mimo_relay, device, K=K, N=N, M=M, P=P)
             
 def get_cwd(env_name):
     file_list = os.listdir()

@@ -2,10 +2,10 @@ import os
 import torch as th
 from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
 from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
-from rlsolver.rlsolver_mimo_beamforming.test_mimo import evaluator
+from rlsolver.rlsolver_mimo_beamforming.evaluator_mimo import evaluator
 
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=40000,
-                num_epochs_per_subspace=400, num_epochs_to_save_model=1000, num_epochs_to_test=100):
+                num_epochs_per_subspace=400, num_epochs_to_save_model=1000, num_epochs_to_evaluate=100):
     env_mimo = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device)
     for epoch in range(num_epochs):
         obj_value = 0
@@ -25,7 +25,7 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
             th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")    
         if (epoch + 1) % num_epochs_per_subspace == 0 and env_mimo.subspace_dim <= 2 * K * N:
             env_mimo.subspace_dim +=1
-        if (epoch + 1) % num_epochs_to_test == 0:
+        if (epoch + 1) % num_epochs_to_evaluate == 0:
             evaluator(policy_net_mimo, device, K=K, N=N, P=P)
             
 def get_cwd(env_name):
