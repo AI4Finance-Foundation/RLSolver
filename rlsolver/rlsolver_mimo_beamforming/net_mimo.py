@@ -19,8 +19,7 @@ class Policy_Net_MIMO(nn.Module):
         self.net = nn.Sequential(
             BiConvNet(mid_dim, self.state_dim, mid_dim * 4), nn.ReLU(),
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.ReLU(),
-            nn.Linear(mid_dim * 2, mid_dim * 1),
-            DenseNet(mid_dim * 1), nn.ReLU(),
+            nn.Linear(mid_dim * 2, mid_dim * 4),
             nn.Linear(mid_dim * 4, mid_dim * 2), nn.Hardswish(),
             nn.Linear(mid_dim * 2, self.action_dim),
         )
@@ -50,20 +49,6 @@ class Policy_Net_MIMO(nn.Module):
         vec_W_new = vec_W_new / th.norm(vec_W_new, dim=1, keepdim=True) * np.sqrt(self.total_power)
         mat_W_new = (vec_W_new[:, :self.K * self.N] + vec_W_new[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
         return mat_W_new
-    
-class DenseNet(nn.Module):
-    def __init__(self, lay_dim):
-        super().__init__()
-        self.dense1 = nn.Sequential(nn.Linear(lay_dim * 1, lay_dim * 1), nn.Hardswish())
-        self.dense2 = nn.Sequential(nn.Linear(lay_dim * 2, lay_dim * 2), nn.Hardswish())
-        self.inp_dim = lay_dim
-        self.out_dim = lay_dim * 4
-
-    def forward(self, x1):
-        x2 = th.cat((x1, self.dense1(x1)), dim=1)
-        x3 = th.cat((x2, self.dense2(x2)), dim=1)
-        return x3
-
 class BiConvNet(nn.Module):
     def __init__(self, mid_dim, inp_dim, out_dim):
         super().__init__()
