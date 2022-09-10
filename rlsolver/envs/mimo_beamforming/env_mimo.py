@@ -20,7 +20,7 @@ class MIMOEnv():
         else:
             self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat).to(self.device)
         if if_test:
-                self.mat_H = test_H
+            self.mat_H = test_H
         else:
             self.mat_H = (self.vec_H[:, :self.K * self.N] + self.vec_H[:, self.K * self.N:] * 1.j).reshape(-1, self.N, self.K).to(self.device)
         self.mat_W = compute_mmse_beamformer(self.mat_H)[0].to(self.device)
@@ -35,7 +35,7 @@ class MIMOEnv():
         S = th.abs(th.diagonal(HW, dim1=-2, dim2=-1))**2
         I = th.sum(th.abs(HW)**2, dim=-1) - th.abs(th.diagonal(HW, dim1=-2, dim2=-1))**2
         SINR = S/(I+self.noise_power)
-        self.reward=  th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
+        self.reward =  th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
         return (self.mat_H, self.mat_W), self.reward, self.done
