@@ -4,7 +4,7 @@ from net_maxcut import Policy_Net_Maxcut
 from env_maxcut import MaxcutEnv
 
 
-def test(policy_net_maxcut, N=4, device=th.device("cuda:0")):
+def evaluator(policy_net_maxcut, N=4, device=th.device("cuda:0")):
     env_maxcut = MaxcutEnv( N=N, device=device, num_env=1)
     import pickle as pkl
     with open ("s2v_dqn_benchmark/gtype-erdos_renyi-nrange-15-n_graph-164-p-0.15-m-0-w-float-0-1-cnctd-0-seed-2.pkl", 'rb') as f:
@@ -29,4 +29,4 @@ if __name__  == "__main__":
     device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
     policy_net_maxcut = Policy_Net_Maxcut(N=N).to(device)
     
-    test(policy_net_maxcut, N=N, device=device)
+    evaluator(policy_net_maxcut, N=N, device=device)
