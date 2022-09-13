@@ -2,13 +2,13 @@ import os
 import torch as th
 from env_maxcut import MaxcutEnv
 from net_maxcut import Policy_Net_Maxcut
-from test_maxcut import test
+from evaluate_maxcut import evaluator
 
 
 def train_curriculum_learning(policy_net_maxcut, optimizer, save_path, device, N=4, num_epochs=400000,
-                num_epochs_per_subspace=400, num_epochs_to_save_model=1000, num_epochs_to_test=5):
+                num_epochs_per_subspace=400, num_epochs_to_save_model=1000, num_epochs_to_evaluate=5):
     env_maxcut = MaxcutEnv(N=N, device=device)
-    test_cut_value = 0
+    evaluate_cut_value = 0
     for epoch in range(num_epochs):
         obj_value = 0
         state = env_maxcut.reset()
@@ -25,9 +25,9 @@ def train_curriculum_learning(policy_net_maxcut, optimizer, save_path, device, N
         if (epoch + 1) % num_epochs_per_subspace == 0 and env_maxcut.subspace_dim <= N * N and env_maxcut.sparsity <= 0.145:
             env_maxcut.subspace_dim +=1
             env_maxcut.sparsity += 0.005
-        if (epoch + 1) % num_epochs_to_test == 0:
-            test_cut_value = test(policy_net_maxcut, device=device, N=N)
-        print(f" training_loss: {obj_value.item() / env_maxcut.episode_length:.3f} | test_cut_value: {test_cut_value} |gpu memory: {th.cuda.memory_allocated():3d}")
+        if (epoch + 1) % num_epochs_to_evaluate == 0:
+            evaluate_cut_value = evaluator(policy_net_maxcut, device=device, N=N)
+        print(f" training_loss: {obj_value.item() / env_maxcut.episode_length:.3f} | evaluate_cut_value: {evaluate_cut_value} |gpu memory: {th.cuda.memory_allocated():3d}")
 def get_cwd(env_name):
     file_list = os.listdir()
     if env_name not in file_list:
