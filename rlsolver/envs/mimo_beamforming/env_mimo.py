@@ -13,6 +13,7 @@ class MIMOEnv():
         self.num_env = num_env
         self.device = device
         self.episode_length = episode_length
+        self.get_vec_reward = vmap(self.get_reward, in_dims = (0, 0), out_dims = (0))
         
     def reset(self, if_test=False, test_H=None):
         if self.subspace_dim <= 2 * self.K * self.N:
@@ -21,9 +22,14 @@ class MIMOEnv():
             self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat).to(self.device)
         if if_test:
             self.mat_H = test_H
+            self.P = th.diag_embed(th.ones(self.mat_H.shape[0], 1, device=self.device).repeat(1, self.K)).to(th.cfloat)
         else:
             self.mat_H = (self.vec_H[:, :self.K * self.N] + self.vec_H[:, self.K * self.N:] * 1.j).reshape(-1, self.N, self.K).to(self.device)
-        self.mat_W = compute_mmse_beamformer(self.mat_H)[0].to(self.device)
+            self.mat_H[:self.mat_H.shape[0] // 2] *= np.sqrt(10)
+            self.mat_H[self.mat_H.shape[0] // 2:] *= np.sqrt(15)
+            self.P = th.diag_embed(th.ones(self.mat_H.shape[0], 1, device=self.device).repeat(1, self.K)).to(th.cfloat)
+         self.mat_W, _ = compute_mmse_beamformer(self.mat_H, K=4, N=4, P=self.P, noise_power=1, device=self.device).to(self.device)
+
         
         self.num_steps = 0
         self.done = False
@@ -31,11 +37,7 @@ class MIMOEnv():
 
     def step(self, action):
         self.mat_W = action
-        HW = th.bmm(self.mat_H, self.mat_W.transpose(-1, -2))
-        S = th.abs(th.diagonal(HW, dim1=-2, dim2=-1))**2
-        I = th.sum(th.abs(HW)**2, dim=-1) - th.abs(th.diagonal(HW, dim1=-2, dim2=-1))**2
-        SINR = S/(I+self.noise_power)
-        self.reward =  th.log2(1+SINR).sum(dim=-1).unsqueeze(-1)
+        self.reward = self.get_vec_reward(self.mat_H, self.mat_W)
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
         return (self.mat_H, self.mat_W), self.reward, self.done
@@ -45,3 +47,12 @@ class MIMOEnv():
         basis_vectors_batch = basis_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(-1, 2 * K * N, subspace_dim)
         vec_channel = th.bmm(basis_vectors_batch, coordinates).reshape(-1 ,2 * K * N) * (( 2 * K * N / subspace_dim) ** 0.5)
         return  (N * K) ** 0.5 * (vec_channel / vec_channel.norm(dim=1, keepdim = True))
+    
+    def get_reward(self, H, W):
+        HW = th.matmul(H, W.T)
+        S = th.abs(HW.diag()) ** 2
+        I = th.sum(th.abs(HW)**2, dim=-1) - th.abs(HW.diag()) ** 2
+        N = 1
+        SINR = S / (I + N)
+        reward = th.log2(1 + SINR).sum(dim=-1)
+        return reward
