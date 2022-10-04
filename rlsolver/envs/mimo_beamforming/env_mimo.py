@@ -28,9 +28,7 @@ class MIMOEnv():
             self.mat_H[:self.mat_H.shape[0] // 2] *= np.sqrt(10)
             self.mat_H[self.mat_H.shape[0] // 2:] *= np.sqrt(15)
             self.P = th.diag_embed(th.ones(self.mat_H.shape[0], 1, device=self.device).repeat(1, self.K)).to(th.cfloat)
-         self.mat_W, _ = compute_mmse_beamformer(self.mat_H, K=4, N=4, P=self.P, noise_power=1, device=self.device).to(self.device)
-
-        
+        self.mat_W, _ = compute_mmse_beamformer(self.mat_H, K=4, N=4, P=self.P, noise_power=1, device=self.device).to(self.device)
         self.num_steps = 0
         self.done = False
         return (self.mat_H, self.mat_W)
