@@ -64,4 +64,5 @@ RLSolver
 
 - [x] mimo_beamforming
 - [ ] graph_maxcut
+- [ ] traveling salesman problem
 - [ ] portfolio_management
