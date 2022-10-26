@@ -4,7 +4,7 @@
 ```
 python generate_data.py --problem tsp --name test
 ```
-## Get optimal tours with Gurobi
+## Obtain tours by Gurobi
 * Requirements: Please install Gurobi and gurobipy
 * Run the following command to obtain optimal tours on the TSP instances *tsp20_test_seed1234.pkl*:
 ```
