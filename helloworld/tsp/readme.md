@@ -1,4 +1,11 @@
 # Traveling Salesman Problem (TSP)
+## Baseline: 
+  - SOTA algorithms: Christofides Algorithm
+  - Commercial solver: Gurobi 10.0
+## Performance Metrics:
+  - Approximation Ratio" [1, $+\infty$ )
+  - Training time
+  - Average time cost
 ## Generate problem instances
 * Run the following command to generate problem instances:
 ```
