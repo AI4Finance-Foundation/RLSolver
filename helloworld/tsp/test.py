@@ -17,7 +17,7 @@ def get_cwd():
         with open(os.path.join(env_name, file_list[2 * i]), 'r') as f:
             for a in f:
                 if k >= 6:
-                    x[i,k-6] = int(a.split()[1]) #/ 1e6
+                    x[i,k-6] = int(a.split()[1]) #/ 1e6 
                     y[i,k-6] = int(a.split()[1]) #/ 1e6
                 k += 1
         k = 0
