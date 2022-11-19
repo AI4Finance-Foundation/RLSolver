@@ -17,3 +17,13 @@ python generate_data.py --problem tsp --name test
 ```
 python tsp_baseline.py gurobi data/tsp/tsp20_test_seed1234.pkl -f
 ```
++ Implementation details:
+```python
+def solve_euclidian_tsp(points, threads=0, timeout=None, gap=None):
+    """
+    Solves the Euclidan TSP problem to optimality using the MIP formulation 
+    with lazy subtour elimination constraint generation.
+    :param points: list of (x, y) coordinates 
+    :return: m.objVal, tour: tour length of solution, tour solution
+    """
+```

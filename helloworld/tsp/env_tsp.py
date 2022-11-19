@@ -23,11 +23,12 @@ class TSPEnv():
                 self.mat_H = th.as_tensor(pkl.load(f), dtype=th.float).to(self.device)
             self.shape_holder = self.zeros(self.mat_H.shape[0], 1)
         else:
+            self.shape_holder = self.zeros(self.num_env, 1)
             if self.subspace_dim <= self.N:
                 self.mat_H = self.generate_graph_cl_vec(self.shape_holder)
             else:
                 self.mat_H = self.generate_graph_rand_vec(self.shape_holder)
-            self.shape_holder = self.zeros(self.num_env, 1)
+            
         self.mat_W = self.generate_W_rand_vec(self.shape_holder)
         self.num_steps = 0
         self.done = False
