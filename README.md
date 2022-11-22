@@ -1,10 +1,8 @@
 # RLSolver: High-performance RL solvers
 
-For combinatorial optimizations (discrete) and nonconvex optimizations (continuous).
+For combinatorial optimizations (discrete variables) and nonconvex optimizations (continuous variables), we aim to find high-quality local optimum, or even global optimum.
 
 For combinatorial optimization problems, we compare with [Benchmark](http://plato.asu.edu/bench.html).
-
-For nonconvex optimization problems, we aim to find high-quality local optimum, even global optimum.
 
 This project is built based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
