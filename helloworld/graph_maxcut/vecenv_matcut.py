@@ -1,4 +1,4 @@
-import torch as th
+import torch
 import functorch
 import numpy as np
 
@@ -7,8 +7,7 @@ class MaxcutEnv():
     def __init__(self, N = 20, num_env=4096, device=th.device("cuda:0"), episode_length=6):
         self.N = N
         self.state_dim = self.N * self.N + self.N # adjacency mat + configuration
-        #self.adjacency_matrix
-        self.basis_vectors, _ = th.linalg.qr(th.randn(self.N * self.N, self.N * self.N, dtype=th.float))
+        self.basis_vectors, _ = th.linalg.qr(th.randn(self.N * self.N, self.N * self.N, dtype=torch.float))
         self.num_env = num_env
         self.device = device
         self.sparsity = 0.005
