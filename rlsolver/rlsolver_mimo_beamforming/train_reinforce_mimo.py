@@ -1,5 +1,5 @@
 import os
-import torch as th
+import torch
 from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
 from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
 from rlsolver.rlsolver_mimo_beamforming.evaluator_mimo import evaluator
@@ -20,9 +20,9 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
         optimizer.zero_grad()
         obj_value.backward()
         optimizer.step()
-        print(f" training_loss: {obj_value.item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
+        print(f" training_loss: {obj_value.item():.3f} | gpu memory: {torch.cuda.memory_allocated():3d}")
         if epoch % num_epochs_to_save_model == 0:
-            th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")
+            torch.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")
         if (epoch + 1) % num_epochs_to_evaluate == 0:
             evaluator(policy_net_mimo, device, K=K, N=N, P=P)
             
@@ -47,13 +47,13 @@ if __name__  == "__main__":
     
     env_name = "mimo_beamforming"
     save_path = get_cwd(env_name) # cwd (current work directory): folder to save the trained policy net
-    device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
+    device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net_mimo = Policy_Net_MIMO().to(device)
-    optimizer = th.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(policy_net_mimo.parameters(), lr=learning_rate)
     
     try:
         train_curriculum_learning(policy_net_mimo, optimizer, K=K, N=N, save_path=save_path, device=device, P=P, noise_power=noise_power)
-        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # label your result policy net
+        torch.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # label your result policy net
     except KeyboardInterrupt:
-        th.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # label your result policy net
+        torch.save(policy_net_mimo.state_dict(), save_path + "policy_net_mimo_1.pth")  # label your result policy net
         exit()

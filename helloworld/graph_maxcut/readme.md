@@ -4,6 +4,6 @@
 ## Parallel Simulation (vmap)
 # Solver
 ## Optimal (Gurobi)
-## REINFORCE
-## H-term
-## Curriculum Learning
+## REINFORCE + H-term
+
+# Performance Metric

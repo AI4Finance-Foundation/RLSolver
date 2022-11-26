@@ -1,4 +1,4 @@
-import torch as th
+import torch
 import numpy as np
 import torch.nn as nn
 
@@ -10,7 +10,7 @@ class Policy_Net_TSP(nn.Module):
         self.input_shape = 2
         self.state_dim = (self.input_shape, N, N)
         self.action_dim = N * N
-        self.device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.sigmoid = nn.Sigmoid()
         self.net = nn.Sequential(
         BiConvNet(mid_dim, self.state_dim, mid_dim * 4), nn.ReLU(),
@@ -25,10 +25,10 @@ class Policy_Net_TSP(nn.Module):
         mat_H, mat_W = state
         vec_H = mat_H.reshape(-1, self.N * self.N)
         vec_W = mat_W.reshape(-1, self.N * self.N)
-        net_input = th.cat((vec_H, vec_W), 1).reshape(-1, self.input_shape, self.N * self.N)
+        net_input = torch.cat((vec_H, vec_W), 1).reshape(-1, self.input_shape, self.N * self.N)
         net_input = net_input.reshape(-1, self.input_shape, self.N, self.N)
         vec_W_new = (self.sigmoid(self.net(net_input)) - 0.5) * 2
-        vec_W_new = vec_W_new / th.norm(vec_W_new, dim=1, keepdim=True)
+        vec_W_new = vec_W_new / torch.norm(vec_W_new, dim=1, keepdim=True)
         mat_W_new =  vec_W_new.reshape(-1, self.N, self.N)
         mat_W = mat_W.softmax(dim=1)
         mat_W = mat_W.softmax(dim=2)
@@ -43,8 +43,8 @@ class DenseNet(nn.Module):
         self.out_dim = lay_dim * 4
 
     def forward(self, x1):
-        x2 = th.cat((x1, self.dense1(x1)), dim=1)
-        x3 = th.cat((x2, self.dense2(x2)), dim=1)
+        x2 = torch.cat((x1, self.dense1(x1)), dim=1)
+        x3 = torch.cat((x2, self.dense2(x2)), dim=1)
         return x3
 
 class BiConvNet(nn.Module):

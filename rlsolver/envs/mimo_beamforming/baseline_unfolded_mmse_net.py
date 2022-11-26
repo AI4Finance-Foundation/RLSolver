@@ -1,6 +1,6 @@
 # Import libraries
 
-import torch as th
+import torch
 import numpy as np
 import copy
 from copy import deepcopy
@@ -26,7 +26,7 @@ nr_of_iterations_nn = 5 # for the deep unfolded WMMSE in our paper
 
 # User weights in the weighted sum rate (denoted by alpha in our paper)
 user_weights = np.reshape(np.ones(nr_of_users*nr_of_samples_per_batch),(nr_of_samples_per_batch,nr_of_users,1))
-user_weights = th.as_tensor(user_weights)
+user_weights = torch.as_tensor(user_weights)
 user_weights_for_regular_WMMSE = np.ones(nr_of_users)
 
 # Compute power for bisection search in the optimization of the transmitter precoder 
@@ -47,12 +47,12 @@ def compute_norm_of_complex_array(x):
 def compute_sinr_th(channel, precoder, noise_power, user_id, selected_users):
     nr_of_users = np.size(channel,0)
     #print(type(precoder))
-    numerator = (th.absolute(th.matmul(th.conj(th.as_tensor(channel[user_id,:], dtype=th.complex64)),th.as_tensor(precoder[user_id,:], dtype=th.complex64))))**2
+    numerator = (torch.absolute(torch.matmul(torch.conj(torch.as_tensor(channel[user_id,:], dtype=torch.complex64)),torch.as_tensor(precoder[user_id,:], dtype=torch.complex64))))**2
     #print(type(precoder))
     inter_user_interference = 0
     for user_index in range(nr_of_users):
       if user_index != user_id and user_index in selected_users:
-        inter_user_interference = inter_user_interference + (th.absolute(th.matmul(th.conj(th.as_tensor(channel[user_id,:], dtype=th.complex64)),th.as_tensor(precoder[user_index,:], dtype=th.complex64))))**2
+        inter_user_interference = inter_user_interference + (torch.absolute(torch.matmul(torch.conj(torch.as_tensor(channel[user_id,:], dtype=torch.complex64)),torch.as_tensor(precoder[user_index,:], dtype=torch.complex64))))**2
     denominator = noise_power + inter_user_interference
 
     result = numerator/denominator
@@ -86,7 +86,7 @@ def compute_weighted_sum_rate_th(user_weights, channel, precoder, noise_power, s
    for user_index in range(nr_of_users):
      if user_index in selected_users:
        user_sinr = compute_sinr_th(channel, precoder, noise_power, user_index, selected_users)
-       result = result + user_weights[user_index]*th.log(1 + user_sinr)
+       result = result + user_weights[user_index]*torch.log(1 + user_sinr)
    return result
 def compute_weighted_sum_rate(user_weights, channel, precoder, noise_power, selected_users):
    result = 0
@@ -102,11 +102,11 @@ def compute_weighted_sum_rate(user_weights, channel, precoder, noise_power, sele
 
 def compute_sinr_nn(channel, precoder, noise_power, user_id, nr_of_users):
 
-    numerator = th.sum((th.matmul(th.t(channel[user_id]),precoder[user_id]))**2)
+    numerator = torch.sum((torch.matmul(torch.t(channel[user_id]),precoder[user_id]))**2)
     inter_user_interference = 0
     for user_index in range(nr_of_users):
       if user_index != user_id:
-        inter_user_interference = inter_user_interference +  th.sum((th.matmul(th.t(channel[user_id]),precoder[user_index]))**2)
+        inter_user_interference = inter_user_interference +  torch.sum((torch.matmul(torch.t(channel[user_id]),precoder[user_index]))**2)
     denominator = noise_power + inter_user_interference
 
     result = numerator/denominator
@@ -124,7 +124,7 @@ def compute_WSR_nn(user_weights, channel, precoder, noise_power, nr_of_users):
     for user_index in range(nr_of_users):
         user_sinr = compute_sinr_nn(channel[batch_index], precoder[batch_index], noise_power, user_index,nr_of_users)
         
-        t = t + user_weights[batch_index][user_index]*(th.log(1 + user_sinr)/np.log(2.0))
+        t = t + user_weights[batch_index][user_index]*(torch.log(1 + user_sinr)/np.log(2.0))
     result_arr.append(t.item())
     result += t
     #print("id: ", batch_index, "WSR: ", t.item())
@@ -356,7 +356,7 @@ def run_WMMSE(epsilon, channel, selected_users, total_power, noise_power, user_w
 
 def calc_wsr(channel_input, initial_tp, step_size):
   user_weights = np.reshape(np.ones(nr_of_users*channel_input.shape[0]),(channel_input.shape[0],nr_of_users,1))
-  user_weights = th.as_tensor(user_weights)
+  user_weights = torch.as_tensor(user_weights)
   user_weights_for_regular_WMMSE = np.ones(nr_of_users)
 
   initial_transmitter_precoder = initial_tp
@@ -372,20 +372,20 @@ def calc_wsr(channel_input, initial_tp, step_size):
       for i in range(nr_of_users):
         temp = 0.0
         for j in range(nr_of_users):
-          temp = temp + th.sum((th.matmul(th.t(th.as_tensor(channel_input[batch_index, i,:,:])),initial_transmitter_precoder[batch_index,j,:,:]))**2)
+          temp = temp + torch.sum((torch.matmul(torch.t(torch.as_tensor(channel_input[batch_index, i,:,:])),initial_transmitter_precoder[batch_index,j,:,:]))**2)
         user_interference_single.append(temp + noise_power)
-      user_interference2.append(th.as_tensor(user_interference_single).unsqueeze(0))
-    user_interference2 = th.cat(user_interference2)
+      user_interference2.append(torch.as_tensor(user_interference_single).unsqueeze(0))
+    user_interference2 = torch.cat(user_interference2)
 
-    user_interference_exp2 = th.tile(th.unsqueeze(th.tile(th.unsqueeze(user_interference2,-1),(1,1,2)),-1),(1,1,1,1))
-    receiver_precoder_temp = (th.matmul(channel_input.permute(0,1,3,2),initial_transmitter_precoder))
+    user_interference_exp2 = torch.tile(torch.unsqueeze(torch.tile(torch.unsqueeze(user_interference2,-1),(1,1,2)),-1),(1,1,1,1))
+    receiver_precoder_temp = (torch.matmul(channel_input.permute(0,1,3,2),initial_transmitter_precoder))
     # Optimize the receiver precoder 
     #print(receiver_precoder_temp.shape, user_interference_exp2.shape)
 
-    receiver_precoder = th.divide(receiver_precoder_temp,user_interference_exp2)
+    receiver_precoder = torch.divide(receiver_precoder_temp,user_interference_exp2)
 
     # Optimize the mmse weights 
-    self_interference = th.sum((th.matmul(channel_input.permute(0,1,3,2),initial_transmitter_precoder))**2, 2)
+    self_interference = torch.sum((torch.matmul(channel_input.permute(0,1,3,2),initial_transmitter_precoder))**2, 2)
 
     inter_user_interference_total = []
 
@@ -397,28 +397,28 @@ def calc_wsr(channel_input, initial_tp, step_size):
         temp = 0.0
         for j in range(nr_of_users):
           if j != i:
-            temp = temp + th.sum((th.matmul(th.t(channel_input[batch_index, i,:,:]),initial_transmitter_precoder[batch_index,j,:,:]))**2)
+            temp = temp + torch.sum((torch.matmul(torch.t(channel_input[batch_index, i,:,:]),initial_transmitter_precoder[batch_index,j,:,:]))**2)
         inter_user_interference_temp.append(temp + noise_power) # $sum{|(h_i)*H,v_i}|**2 + noise_power$
-      inter_user_interference = th.as_tensor(inter_user_interference_temp).unsqueeze(0).reshape((1,nr_of_users,1)) # Nx1 $sum{|(h_i)*H,v_i}|**2 + noise_power$
+      inter_user_interference = torch.as_tensor(inter_user_interference_temp).unsqueeze(0).reshape((1,nr_of_users,1)) # Nx1 $sum{|(h_i)*H,v_i}|**2 + noise_power$
       inter_user_interference_total.append(inter_user_interference)
-    inter_user_interference_total = th.cat(inter_user_interference_total)
+    inter_user_interference_total = torch.cat(inter_user_interference_total)
         
-    mse_weights = (th.divide(self_interference,inter_user_interference_total)) + 1.0
+    mse_weights = (torch.divide(self_interference,inter_user_interference_total)) + 1.0
     for step_i in range(step_size.shape[0]):
       channel = channel_input
       # First iteration
-      a1_exp = th.tile(th.unsqueeze(mse_weights[:,0,:],-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
-      a2_exp = th.tile(th.unsqueeze(user_weights[:,0,:],-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
-      a3_exp = th.tile(th.unsqueeze(th.sum((receiver_precoder[:,0,:,:])**2,1),-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))    
+      a1_exp = torch.tile(torch.unsqueeze(mse_weights[:,0,:],-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
+      a2_exp = torch.tile(torch.unsqueeze(user_weights[:,0,:],-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
+      a3_exp = torch.tile(torch.unsqueeze(torch.sum((receiver_precoder[:,0,:,:])**2,1),-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))    
       #print(a3_exp.shape,a2_exp.shape,  a1_exp.shape, channel[:, 0,:, :].shape)
-      temp = a1_exp*a2_exp*a3_exp*th.matmul(channel[:,0,:,:],channel[:,0,:,:].permute(0,2,1))
+      temp = a1_exp*a2_exp*a3_exp*torch.matmul(channel[:,0,:,:],channel[:,0,:,:].permute(0,2,1))
     
       # Next iterations
       for i in range(1, nr_of_users):
-          a1_exp = th.tile(th.unsqueeze(mse_weights[:,i,:],-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
-          a2_exp = th.tile(th.unsqueeze(user_weights[:,i,:],-1),[1,2*nr_of_BS_antennas,2*nr_of_BS_antennas])
-          a3_exp = th.tile(th.unsqueeze(th.sum((receiver_precoder[:,i,:,:])**2, 1),-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
-          temp = temp + a1_exp*a2_exp*a3_exp*th.matmul(channel[:,i,:,:],channel[:,i,:,:].permute(0,2,1))
+          a1_exp = torch.tile(torch.unsqueeze(mse_weights[:,i,:],-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
+          a2_exp = torch.tile(torch.unsqueeze(user_weights[:,i,:],-1),[1,2*nr_of_BS_antennas,2*nr_of_BS_antennas])
+          a3_exp = torch.tile(torch.unsqueeze(torch.sum((receiver_precoder[:,i,:,:])**2, 1),-1),(1,2*nr_of_BS_antennas,2*nr_of_BS_antennas))
+          temp = temp + a1_exp*a2_exp*a3_exp*torch.matmul(channel[:,i,:,:],channel[:,i,:,:].permute(0,2,1))
 
       sum_gradient = temp 
 
@@ -426,24 +426,24 @@ def calc_wsr(channel_input, initial_tp, step_size):
 
       # Gradient computation
       for i in range(nr_of_users):
-        a1_exp = th.tile(th.unsqueeze(mse_weights[:,i,:],-1),(1,2*nr_of_BS_antennas,1)).float()
-        a2_exp = th.tile(th.unsqueeze(user_weights[:,i,:],-1),[1,2*nr_of_BS_antennas,1]).float()
+        a1_exp = torch.tile(torch.unsqueeze(mse_weights[:,i,:],-1),(1,2*nr_of_BS_antennas,1)).float()
+        a2_exp = torch.tile(torch.unsqueeze(user_weights[:,i,:],-1),[1,2*nr_of_BS_antennas,1]).float()
         
-        gradient.append(step_size[step_i] * (-2.0*a1_exp*a2_exp*th.matmul(channel[:,i,:,:].float(),receiver_precoder[:,i,:,:].float())+ 2*th.matmul(sum_gradient.float(),initial_transmitter_precoder[:,i,:,:].float()))) 
+        gradient.append(step_size[step_i] * (-2.0*a1_exp*a2_exp*torch.matmul(channel[:,i,:,:].float(),receiver_precoder[:,i,:,:].float())+ 2*torch.matmul(sum_gradient.float(),initial_transmitter_precoder[:,i,:,:].float()))) 
       
-      th.stack(gradient)
-      gradient = th.stack(gradient).permute(1,0,2,3)
+      torch.stack(gradient)
+      gradient = torch.stack(gradient).permute(1,0,2,3)
       output_temp = initial_transmitter_precoder - gradient
 
       output = []
       nr_of_samples_per_batch = channel_input.shape[0]
       for i in range(nr_of_samples_per_batch):
-        if th.linalg.norm(output_temp[i])**2 < total_power:
+        if torch.linalg.norm(output_temp[i])**2 < total_power:
           output.append(output_temp[i])  
         else:
-          output.append(np.sqrt(total_power)*output_temp[i]/th.linalg.norm(output_temp[i]))
+          output.append(np.sqrt(total_power)*output_temp[i]/torch.linalg.norm(output_temp[i]))
 
-      initial_transmitter_precoder = th.stack(output)
+      initial_transmitter_precoder = torch.stack(output)
 
     # The WSR achieved with the transmitter precoder obtaiined at the current iteration is appended
     
@@ -451,7 +451,7 @@ def calc_wsr(channel_input, initial_tp, step_size):
 
 
   final_precoder = initial_transmitter_precoder # this is the last transmitter precoder, i.e. the one that will be actually used for transmission
-  WSR = th.sum(th.stack(profit)) # this is the cost function to maximize, i.e. the WSR obtained if we use the transmitter precoder that we have at each round of the loop 
+  WSR = torch.sum(torch.stack(profit)) # this is the cost function to maximize, i.e. the WSR obtained if we use the transmitter precoder that we have at each round of the loop 
   WSR_final = compute_WSR_nn(user_weights, channel_input, final_precoder, noise_power,nr_of_users)/nr_of_samples_per_batch # this is the WSR computed using the "final_precoder"
 
   return WSR, WSR_final
@@ -469,7 +469,7 @@ if __name__  == "__main__":
   from net import MMSE_Net
   net = Net([1.0 for i in range(4)])
   #mmse_net = MMSE_Net()
-  optimizer = th.optim.Adam(net.parameters(), lr=0.005)
+  optimizer = torch.optim.Adam(net.parameters(), lr=0.005)
   print("start of session")
   start_of_time = time.time()
   all_step = []
@@ -496,13 +496,13 @@ if __name__  == "__main__":
         #print(np.array(init_transmitter_precoder.shape, init_transmitter_precoder)
         #assert 0
       # Training
-      channel_input = th.as_tensor(np.array(batch_for_training), dtype=th.float32)
-      initial_tp = th.as_tensor(np.array(initial_transmitter_precoder_batch), dtype=th.float32)       
+      channel_input = torch.as_tensor(np.array(batch_for_training), dtype=torch.float32)
+      initial_tp = torch.as_tensor(np.array(initial_transmitter_precoder_batch), dtype=torch.float32)       
       #assert 0
       step  =net()
       
       step = step[0].float()
-      #step = th.as_tensor(step, dtype=th.float32)
+      #step = torch.as_tensor(step, dtype=torch.float32)
       step_size_1, step_size_2, step_size_3, step_size_4 = step[0], step[1], step[2], step[3]
       all_step.append([step_size_1, step_size_2, step_size_3, step_size_4])
       all_step.append([step_size_1, step_size_2, step_size_3, step_size_4])
@@ -520,7 +520,7 @@ if __name__  == "__main__":
     exit()
   path = './net_3.pth'
   matrix_file = ''
-  th.save(net.state_dict(), path)#exit()
+  torch.save(net.state_dict(), path)#exit()
 
   print("step size", all_step)
   print("Training took:", time.time()-start_of_time)
@@ -563,9 +563,9 @@ if __name__  == "__main__":
       initial_transmitter_precoder_batch.append(init_transmitter_precoder)
     #print("begin test!") 
     #Testing
-    channel_input = th.as_tensor(batch_for_testing)
-    initial_tp = th.as_tensor(initial_transmitter_precoder_batch)
-    #net.load_state_dict(th.load('./net_1.pth', map_location=th.device("cuda:0")))
+    channel_input = torch.as_tensor(batch_for_testing)
+    initial_tp = torch.as_tensor(initial_transmitter_precoder_batch)
+    #net.load_state_dict(torch.load('./net_1.pth', map_location=torch.device("cuda:0")))
     
     step = net()
     step = step[0]
@@ -587,7 +587,7 @@ if __name__  == "__main__":
 
   #path = './net_3.pth'
   #matrix_file = ''
-  #th.save(net.state_dict(), path)
+  #torch.save(net.state_dict(), path)
 
 
   #plt.figure()

@@ -50,7 +50,7 @@ def run_using_gurobi_fixed_num_nodes(n: int):
     model = Model("maxcut")
     file = calc_file(n)
     node_indices = list(range(n))
-    if os.path.exists(file):
+    if os.patorch.exists(file):
         adjacency_matrix = read_adjacency_matrix(n)
     else:
         generate_adjacency_matrix(n)

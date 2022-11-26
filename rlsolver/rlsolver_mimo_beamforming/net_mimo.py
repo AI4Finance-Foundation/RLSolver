@@ -1,4 +1,4 @@
-import torch as th
+import torch
 import numpy as np
 import torch.nn as nn
 
@@ -14,7 +14,7 @@ class Policy_Net_MIMO(nn.Module):
         self.loop = gnn_loop
         self.theta_0 = nn.Linear(self.K * 2, self.encode_dim)
         self.if_gnn = False
-        self.device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.sigmoid = nn.Sigmoid()
         self.net = nn.Sequential(
             BiConvNet(mid_dim, self.state_dim, mid_dim * 4), nn.ReLU(),
@@ -37,17 +37,19 @@ class Policy_Net_MIMO(nn.Module):
                                         nn.Linear(self.encode_dim * 4, self.encode_dim)])
             self.mid = nn.ReLU()
 
-    def forward(self, state):
+    def forward(self, state, selected):
         mat_H, mat_W = state
-        vec_H = th.cat((mat_H.real.reshape(-1, self.K * self.N), mat_H.imag.reshape(-1, self.K * self.N)), 1)
-        vec_W = th.cat((mat_W.real.reshape(-1, self.K * self.N), mat_W.imag.reshape(-1, self.K * self.N)), 1)
-        mat_HW = th.bmm(mat_H, mat_W.transpose(1,2).conj())
-        vec_HW = th.cat((mat_HW.real.reshape(-1, self.K * self.N), mat_HW.imag.reshape(-1, self.K * self.N)), 1)
-        net_input = th.cat((vec_H, vec_W, vec_HW), 1).reshape(-1, 6, self.K * self.N)
-        net_input = net_input.reshape(-1, 6, self.K, self.N)
-        vec_W_new = (self.sigmoid(self.net(net_input)) - 0.5) * 2
-        vec_W_new = vec_W_new / th.norm(vec_W_new, dim=1, keepdim=True) * np.sqrt(self.total_power)
-        mat_W_new = (vec_W_new[:, :self.K * self.N] + vec_W_new[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N)
+        vec_H = torch.cat((mat_H.real.reshape(-1, self.K * self.N), mat_H.imag.reshape(-1, self.K * self.N)), 1)
+        vec_W = torch.cat((mat_W.real.reshape(-1, self.K * self.N), mat_W.imag.reshape(-1, self.K * self.N)), 1)
+        mat_HW = torch.bmm(mat_H, mat_W.transpose(1,2).conj())
+        vec_HW = torch.cat((mat_HW.real.reshape(-1, self.K * self.N), mat_HW.imag.reshape(-1, self.K * self.N)), 1)
+        mat_H
+        mu = self.theta_0()
+        
+        for i in range(selected):
+            
+            for j in range(selected):
+        
         return mat_W_new
 class BiConvNet(nn.Module):
     def __init__(self, mid_dim, inp_dim, out_dim):

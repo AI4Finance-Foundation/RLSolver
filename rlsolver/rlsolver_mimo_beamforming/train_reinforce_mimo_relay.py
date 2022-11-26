@@ -1,5 +1,5 @@
 import os
-import torch as th
+import torch
 from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMORelayEnv
 from rlsolver.rlsolver_mimo_beamforming.net_mimo_relay import Policy_Net_MIMO_Relay
 from rlsolver.rlsolver_mimo_beamforming.evaluator_mimo_relay import evaluator_relay
@@ -20,9 +20,9 @@ def train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, device, sa
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
+        print(f" training_loss: {loss.mean().item():.3f} | gpu memory: {torch.cuda.memory_allocated():3d}")
         if (epoch + 1) % num_epochs_to_save_model == 0:
-            th.save(policy_net_mimo_relay.state_dict(), save_path + f"{epoch}.pth")    
+            torch.save(policy_net_mimo_relay.state_dict(), save_path + f"{epoch}.pth")    
         if (epoch + 1) % num_epochs_evaluate == 0:
             evaluator_relay(policy_net_mimo_relay, device, K=K, N=N, M=M, P=P)
             
@@ -48,14 +48,14 @@ if __name__  == "__main__":
     
     env_name = "mimo_beamforming_relay"
     save_path = get_cwd(env_name) # cwd (current work directory): folder to save the trained policy net
-    device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
+    device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net_mimo_relay = Policy_Net_MIMO_Relay(K=K, N=N, M=M).to(device)
-    optimizer = th.optim.Adam(policy_net_mimo_relay.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(policy_net_mimo_relay.parameters(), lr=learning_rate)
     
     try:
         train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, K=K, N=N, M=M,  device=device, P=P, noise_power=noise_power)
-        th.save(policy_net_mimo_relay.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
+        torch.save(policy_net_mimo_relay.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
     except KeyboardInterrupt:
-        th.save(policy_net_mimo_relay.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
+        torch.save(policy_net_mimo_relay.state_dict(), save_path + "policy_net_mimo_1.pth")  # number your result policy net
         exit()
 

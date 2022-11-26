@@ -1,4 +1,4 @@
-import torch as th
+import torch
 import torch.nn as nn
 
 
@@ -12,7 +12,7 @@ class Policy_Net_Maxcut(nn.Module):
         self.loop = gnn_loop
         self.theta_0 = nn.Linear(self.N * 2, self.encode_dim)
         self.if_gnn = False
-        self.device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.sigmoid = nn.Sigmoid()
         self.net = nn.Sequential(
             BiConvNet(mid_dim, self.state_dim, mid_dim * 4), nn.ReLU(),
@@ -39,7 +39,7 @@ class Policy_Net_Maxcut(nn.Module):
     def forward(self, state):
         mat_adjacency, vec_configuration = state
         vec_H = mat_adjacency.reshape(-1, self.N * self.N)
-        net_input = th.cat((vec_H, vec_configuration), 1).reshape(-1, (self.N + 1) * self.N).to(self.device)
+        net_input = torch.cat((vec_H, vec_configuration), 1).reshape(-1, (self.N + 1) * self.N).to(self.device)
         net_input = net_input.reshape(-1,1, (self.N + 1), self.N)
         vec_configuration_new = self.sigmoid(self.net(net_input))
         return vec_configuration_new
@@ -53,8 +53,8 @@ class DenseNet(nn.Module):
         self.out_dim = lay_dim * 4
 
     def forward(self, x1):
-        x2 = th.cat((x1, self.dense1(x1)), dim=1)
-        x3 = th.cat((x2, self.dense2(x2)), dim=1)
+        x2 = torch.cat((x1, self.dense1(x1)), dim=1)
+        x3 = torch.cat((x2, self.dense2(x2)), dim=1)
         return x3
 
 class BiConvNet(nn.Module):

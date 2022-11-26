@@ -42,18 +42,18 @@ if __name__ == "__main__":
         for distribution in distributions or [None]:
             for graph_size in opts.graph_sizes:
 
-                datadir = os.path.join(opts.data_dir, problem)
+                datadir = os.patorch.join(opts.data_dir, problem)
                 os.makedirs(datadir, exist_ok=True)
 
                 if opts.filename is None:
-                    filename = os.path.join(datadir, "{}{}{}_{}_seed{}.pkl".format(
+                    filename = os.patorch.join(datadir, "{}{}{}_{}_seed{}.pkl".format(
                         problem,
                         "_{}".format(distribution) if distribution is not None else "",
                         graph_size, opts.name, opts.seed))
                 else:
                     filename = check_extension(opts.filename)
 
-                assert opts.f or not os.path.isfile(check_extension(filename)), \
+                assert opts.f or not os.patorch.isfile(check_extension(filename)), \
                     "File already exists! Try running with -f option to overwrite."
 
                 np.random.seed(opts.seed)

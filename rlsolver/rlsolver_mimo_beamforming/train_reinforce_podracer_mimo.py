@@ -1,4 +1,4 @@
-import torch as th
+import torch
 import numpy as np
 import copy
 from copy import deepcopy
@@ -23,14 +23,14 @@ nr_of_iterations_nn = 1 # for the deep unfolded WMMSE in our paper
 
 # User weights in the weighted sum rate (denoted by alpha in our paper)
 user_weights = np.reshape(np.ones(nr_of_users*nr_of_samples_per_batch),(nr_of_samples_per_batch,nr_of_users,1))
-user_weights = th.as_tensor(user_weights)
+user_weights = torch.as_tensor(user_weights)
 user_weights_for_regular_WMMSE = np.ones(nr_of_users)
-#Q = th.randn(32,32,dtype=th.float)
-Q = th.rand(32,32,dtype=th.float)
-q, _ = th.linalg.qr(Q)
-#M = th.randn(32, 32, dtype=th.float)
-M = th.rand(32, 32, dtype=th.float)
-q_, _ = th.linalg.qr(M)
+#Q = torch.randn(32,32,dtype=torch.float)
+Q = torch.rand(32,32,dtype=torch.float)
+q, _ = torch.linalg.qr(Q)
+#M = torch.randn(32, 32, dtype=torch.float)
+M = torch.rand(32, 32, dtype=torch.float)
+q_, _ = torch.linalg.qr(M)
 print(q.sum(dim=1))
 
 subspace = 1
@@ -68,17 +68,17 @@ if wandb_:
  
 def compute_channel(num_antennas, num_users, batch_size , total_power,total_steps, subspace, q, q_, path_loss_option = False, path_loss_range = [-5,5], std=1.0, test=False):
   
-  h_ = th.randn(batch_size, subspace, 1) + 1e-9
+  h_ = torch.randn(batch_size, subspace, 1) + 1e-9
   #h_ = h_ / (2)**0.5
-  H_CL_ = th.bmm(q[:subspace].T.repeat(batch_size, 1).reshape(batch_size, q.shape[1], subspace), h_)#.reshape(-1, 2,4,4)
-  H_CL_ = th.bmm(q_.T.repeat(batch_size, 1).reshape(batch_size, 32, 32), H_CL_).reshape(-1 ,2, 4, 4)
+  H_CL_ = torch.bmm(q[:subspace].T.repeat(batch_size, 1).reshape(batch_size, q.shape[1], subspace), h_)#.reshape(-1, 2,4,4)
+  H_CL_ = torch.bmm(q_.T.repeat(batch_size, 1).reshape(batch_size, 32, 32), H_CL_).reshape(-1 ,2, 4, 4)
   H_CL = H_CL_[:, 0] + H_CL_[:, 1] * 1.j
-  #print(th.isnan(H_CL))
+  #print(torch.isnan(H_CL))
   H_CL = (H_CL * ( 32 / subspace) ** 0.5).reshape(-1, 4 * 4)
   #print(H_CL.shape)
-  #print(th.isnan(H_CL))
+  #print(torch.isnan(H_CL))
   H_CL = ((num_antennas * num_users) ** 0.5) * (H_CL / H_CL.norm(dim=1, keepdim=True))
-  #print(th.isnan(H_CL))
+  #print(torch.isnan(H_CL))
   #print(H_CL.shape) 
   #assert 0
   return H_CL.reshape(-1, 4, 4)
@@ -102,7 +102,7 @@ def save(net):
 
   os.mkdir('./{}/{}/'.format(folder_name, exp_id))
   path = './{}/{}/net.pth'.format(folder_name, exp_id)
-  th.save(net.state_dict(), path)
+  torch.save(net.state_dict(), path)
 
 if __name__  == "__main__":
   WSR_WMMSE =[] # to store the WSR attained by the WMMSE
@@ -116,32 +116,32 @@ if __name__  == "__main__":
   agent_num = 10
   from net825 import MMSE_Net
   from net825 import weights_init_uniform
-  device = th.device("cuda:0" if th.cuda.is_available() else "cpu")
+  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   
   #net_target = net.MMSE_Net(mid_dim)
   #net_target.to(device)
-  #net_target.load_state_dict(th.load('./net.pth', map_location=th.device("cuda:0")))
-  mmse_net_list = [MMSE_Net(mid_dim).to(device) for _ in range(agent_num)]#.to( th.device('cuda:0'))
-  optimizer_list = [th.optim.Adam(mmse_net_list[i].parameters(), lr=learning_rate) for i in range(agent_num)]
-  #scheduler_list = [th.optim.lr_scheduler.StepLR(optimizer_list[i], step_size=100, gamma=gamma) for i in range(agent_num)]
+  #net_target.load_state_dict(torch.load('./net.pth', map_location=torch.device("cuda:0")))
+  mmse_net_list = [MMSE_Net(mid_dim).to(device) for _ in range(agent_num)]#.to( torch.device('cuda:0'))
+  optimizer_list = [torch.optim.Adam(mmse_net_list[i].parameters(), lr=learning_rate) for i in range(agent_num)]
+  #scheduler_list = [torch.optim.lr_scheduler.StepLR(optimizer_list[i], step_size=100, gamma=gamma) for i in range(agent_num)]
   print("start of session")
   start_of_time = time.time()
   all_step = []
   import pickle as pkl
   
   with open("./Channel_K=4_N=4_P=10_Samples=120_Optimal=9.9.pkl", 'rb') as f:
-    H = th.as_tensor(pkl.load(f)).to(device)
+    H = torch.as_tensor(pkl.load(f)).to(device)
   try:
     from tqdm import tqdm
     #for i in tqdm(range(1)):
-    WSR_last = th.zeros(10).to(device)
-    WSR_mean = th.zeros(10).to(device)
-    WSR_max = th.zeros(10).to(device)
-    WSR_loss = th.zeros(10).to(device)
+    WSR_last = torch.zeros(10).to(device)
+    WSR_mean = torch.zeros(10).to(device)
+    WSR_max = torch.zeros(10).to(device)
+    WSR_loss = torch.zeros(10).to(device)
     pbar = tqdm(range(nr_of_batches_training))
     #print("traing_loss  wsr: ", WSR_loss.mean().item() / batch_size, " 120 samples: ",WSR_last.max().item(), WSR_max.max().item(), WSR_mean.max().item())
     for i in pbar:
-      pbar.set_description(f" training_loss: { WSR_loss.mean().item() / batch_size:.3f} | last: {WSR_last.max().item():.3f} | max: {WSR_max.max().item():.3f} | mean: { WSR_mean.max().item():.3f} | gpu memory: {th.cuda.memory_allocated():3d}")
+      pbar.set_description(f" training_loss: { WSR_loss.mean().item() / batch_size:.3f} | last: {WSR_last.max().item():.3f} | max: {WSR_max.max().item():.3f} | mean: { WSR_mean.max().item():.3f} | gpu memory: {torch.cuda.memory_allocated():3d}")
       batch_for_training = []
       initial_transmitter_precoder_batch = []
       mmse_net_input = []
@@ -170,43 +170,43 @@ if __name__  == "__main__":
         del mmse_net_2
         del optim_1
         del optim_2
-        WSR_last = th.zeros(10).to(device)
-        WSR_mean = th.zeros(10).to(device)
-        WSR_max = th.zeros(10).to(device)
-        WSR_loss = th.zeros(10).to(device)
+        WSR_last = torch.zeros(10).to(device)
+        WSR_mean = torch.zeros(10).to(device)
+        WSR_max = torch.zeros(10).to(device)
+        WSR_loss = torch.zeros(10).to(device)
 
 
       total_steps += 1
       for agent_id in range(agent_num):
         if subspace == 32:
-          mmse_net_input = (th.randn(batch_size, nr_of_BS_antennas, nr_of_users, dtype=th.cfloat)).to(device)
+          mmse_net_input = (torch.randn(batch_size, nr_of_BS_antennas, nr_of_users, dtype=torch.cfloat)).to(device)
         else:
           mmse_net_input = compute_channel(nr_of_BS_antennas, nr_of_users, batch_size, total_power,total_steps, subspace, q, q_, path_loss_option, path_loss_range, std = 1.0, test=False)
         W = mmse_net_input
         
-        mmse_net_input = th.as_tensor(mmse_net_input).to(device)
+        mmse_net_input = torch.as_tensor(mmse_net_input).to(device)
         
         mmse_net_target = mmse_net_list[agent_id].calc_mmse(mmse_net_input)
-        mmse_net_target = th.as_tensor(mmse_net_target).to(device)
-        #mmse_net_target = th.randn(batch_size, 4, 4, dtype=th.cfloat, device = device)
-        tmp = mmse_net_input.to(th.cfloat)
-        mmse_net_target = mmse_net_target.to(th.cfloat)
+        mmse_net_target = torch.as_tensor(mmse_net_target).to(device)
+        #mmse_net_target = torch.randn(batch_size, 4, 4, dtype=torch.cfloat, device = device)
+        tmp = mmse_net_input.to(torch.cfloat)
+        mmse_net_target = mmse_net_target.to(torch.cfloat)
         mmse_net_target_ = mmse_net_target 
-        mmse_net_input= th.cat((th.as_tensor(mmse_net_input.real).reshape(-1, 16), th.as_tensor(mmse_net_input.imag).reshape(-1, 16)), 1)
-        mmse_net_input = th.as_tensor(mmse_net_input, dtype=th.float32).to(device)
-        initial_tp = th.as_tensor(np.array(initial_transmitter_precoder_batch), dtype=th.float32)
+        mmse_net_input= torch.cat((torch.as_tensor(mmse_net_input.real).reshape(-1, 16), torch.as_tensor(mmse_net_input.imag).reshape(-1, 16)), 1)
+        mmse_net_input = torch.as_tensor(mmse_net_input, dtype=torch.float32).to(device)
+        initial_tp = torch.as_tensor(np.array(initial_transmitter_precoder_batch), dtype=torch.float32)
         t_0 = mmse_net_target[0].cpu().numpy()
-        h_w_input = th.bmm(tmp, mmse_net_target.transpose(1,2).conj())
+        h_w_input = torch.bmm(tmp, mmse_net_target.transpose(1,2).conj())
         h = h_w_input
-        mmse_net_target= th.cat((th.as_tensor(mmse_net_target.real).reshape(-1, 16), th.as_tensor(mmse_net_target.imag).reshape(-1, 16)), 1)
-        mmse_net_target = th.as_tensor(mmse_net_target, dtype=th.float32).to(device)
-        h_w_input= th.cat((th.as_tensor(h_w_input.real).reshape(-1, 16), th.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
-        h_w_input = th.as_tensor(h_w_input, dtype=th.float32).to(device)
-        mmse_net_output = mmse_net_list[agent_id](th.cat((mmse_net_input, mmse_net_target, h_w_input), 1), h, tmp)
+        mmse_net_target= torch.cat((torch.as_tensor(mmse_net_target.real).reshape(-1, 16), torch.as_tensor(mmse_net_target.imag).reshape(-1, 16)), 1)
+        mmse_net_target = torch.as_tensor(mmse_net_target, dtype=torch.float32).to(device)
+        h_w_input= torch.cat((torch.as_tensor(h_w_input.real).reshape(-1, 16), torch.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
+        h_w_input = torch.as_tensor(h_w_input, dtype=torch.float32).to(device)
+        mmse_net_output = mmse_net_list[agent_id](torch.cat((mmse_net_input, mmse_net_target, h_w_input), 1), h, tmp)
         
         obj = 0
         obj_mse = 0
-        MSE_LOSS = th.nn.MSELoss()
+        MSE_LOSS = torch.nn.MSELoss()
         if i < 0:
             obj_mse += MSE_LOSS(mmse_net_output, mmse_net_target) * 1000
         precoder = mmse_net_output.reshape(batch_size, 2, 16)
@@ -216,23 +216,23 @@ if __name__  == "__main__":
         precoder = (precoder.reshape(-1, 16) / (1e-9 + precoder.reshape(-1, 16).norm(dim=1, keepdim=True))).reshape(-1, 4, 4) * np.sqrt(10)
         #print(W)
         #assert 0
-        obj -= mmse_net_list[agent_id].calc_wsr(user_weights_for_regular_WMMSE, th.as_tensor(W).to(device), precoder, noise_power, scheduled_users[0])
+        obj -= mmse_net_list[agent_id].calc_wsr(user_weights_for_regular_WMMSE, torch.as_tensor(W).to(device), precoder, noise_power, scheduled_users[0])
         #weight = 0.00001 / 15
         #for iu in range(len(scheduled_users)): 
-        #  obj -= weight * mmse_net.calc_wsr(user_weights_for_regular_WMMSE, th.as_tensor(np.array(W)).to(device), precoder, noise_power, scheduled_users[iu])
+        #  obj -= weight * mmse_net.calc_wsr(user_weights_for_regular_WMMSE, torch.as_tensor(np.array(W)).to(device), precoder, noise_power, scheduled_users[iu])
           #weight = 0.0001 / 15
         weight = 1
         for _ in range(unfold_loop):
-          mmse_net_output = mmse_net_list[agent_id](th.cat((mmse_net_input, mmse_net_output.detach(), h_w_input.detach()), 1), h, tmp)
+          mmse_net_output = mmse_net_list[agent_id](torch.cat((mmse_net_input, mmse_net_output.detach(), h_w_input.detach()), 1), h, tmp)
           precoder_ = mmse_net_output.reshape(batch_size, 2, 16)
           precoder_ = precoder[:, 0] + precoder[:, 1] * 1j
           precoder_ = precoder.reshape(-1, 4,4)
           precoder = precoder_ #+ precoder
-          h_w_input = th.bmm(tmp, precoder.transpose(1,2).conj())
+          h_w_input = torch.bmm(tmp, precoder.transpose(1,2).conj())
           h = h_w_input
-          h_w_input= th.cat((th.as_tensor(h_w_input.real).reshape(-1, 16), th.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
-          h_w_input = th.as_tensor(h_w_input, dtype=th.float32).to(device)
-          obj -= weight * mmse_net_list[agent_id].calc_wsr(user_weights_for_regular_WMMSE, th.as_tensor(W).to(device), precoder, noise_power, scheduled_users[0])
+          h_w_input= torch.cat((torch.as_tensor(h_w_input.real).reshape(-1, 16), torch.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
+          h_w_input = torch.as_tensor(h_w_input, dtype=torch.float32).to(device)
+          obj -= weight * mmse_net_list[agent_id].calc_wsr(user_weights_for_regular_WMMSE, torch.as_tensor(W).to(device), precoder, noise_power, scheduled_users[0])
         optimizer_list[agent_id].zero_grad()
         WSR_loss[agent_id] = obj.sum().detach().cpu().item() / 6
         obj_weight = 1
@@ -241,41 +241,41 @@ if __name__  == "__main__":
         print(f"epoch: {i} id: {agent_id} loss: {obj.sum().detach().cpu().item() / batch_size}")
         if i % 5 == 0:
           # Building a batch for testing
-          with th.no_grad(): 
+          with torch.no_grad(): 
             batch_for_testing = [] 
             mmse_net_target = mmse_net_list[agent_id].calc_mmse(H)
-            mmse_net_input = th.as_tensor(H).to(device)
-            mmse_net_target = th.as_tensor(mmse_net_target).to(device)
-            tmp = mmse_net_input.to(th.cfloat)
+            mmse_net_input = torch.as_tensor(H).to(device)
+            mmse_net_target = torch.as_tensor(mmse_net_target).to(device)
+            tmp = mmse_net_input.to(torch.cfloat)
             
-            mmse_net_target = mmse_net_target.to(th.cfloat)
-            mmse_net_input= th.cat((th.as_tensor(mmse_net_input.real).reshape(-1, 16), th.as_tensor(mmse_net_input.imag).reshape(-1, 16)), 1)
-            mmse_net_input = th.as_tensor(mmse_net_input, dtype=th.float32).to(device)
-            h_w_input = th.bmm(tmp, mmse_net_target.transpose(1,2).conj())
+            mmse_net_target = mmse_net_target.to(torch.cfloat)
+            mmse_net_input= torch.cat((torch.as_tensor(mmse_net_input.real).reshape(-1, 16), torch.as_tensor(mmse_net_input.imag).reshape(-1, 16)), 1)
+            mmse_net_input = torch.as_tensor(mmse_net_input, dtype=torch.float32).to(device)
+            h_w_input = torch.bmm(tmp, mmse_net_target.transpose(1,2).conj())
             
             h = h_w_input
-            h_w_input= th.cat((th.as_tensor(h_w_input.real).reshape(-1, 16), th.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
-            h_w_input = th.as_tensor(h_w_input, dtype=th.float32).to(device)
+            h_w_input= torch.cat((torch.as_tensor(h_w_input.real).reshape(-1, 16), torch.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
+            h_w_input = torch.as_tensor(h_w_input, dtype=torch.float32).to(device)
             mmse_net_target_ = mmse_net_target
-            mmse_net_target= th.cat((th.as_tensor(mmse_net_target.real).reshape(-1, 16), th.as_tensor(mmse_net_target.imag).reshape(-1, 16)), 1)
-            mmse_net_target = th.as_tensor(mmse_net_target, dtype=th.float32).to(device)
-            output = mmse_net_list[agent_id](th.cat((mmse_net_input, mmse_net_target, h_w_input), 1), h, tmp)
+            mmse_net_target= torch.cat((torch.as_tensor(mmse_net_target.real).reshape(-1, 16), torch.as_tensor(mmse_net_target.imag).reshape(-1, 16)), 1)
+            mmse_net_target = torch.as_tensor(mmse_net_target, dtype=torch.float32).to(device)
+            output = mmse_net_list[agent_id](torch.cat((mmse_net_input, mmse_net_target, h_w_input), 1), h, tmp)
             precoder = output.detach().reshape(-1, 2, 16)
             precoder = precoder[:, 0] + precoder[:, 1] * 1j
             precoder = precoder.reshape(-1, 4,4)
-            wsr = th.zeros(H.shape[0], unfold_loop + 1, 1)
+            wsr = torch.zeros(H.shape[0], unfold_loop + 1, 1)
             precoder = (precoder.reshape(-1, 16) / precoder.reshape(-1, 16).norm(dim=1, keepdim=True)).reshape(-1,  4, 4) * np.sqrt(10)
             wsr[:, 0] = mmse_net_list[agent_id].calc_wsr(user_weights_for_regular_WMMSE, H.to(device), precoder, noise_power, scheduled_users[0])
             for _ in range(unfold_loop):
-              output = mmse_net_list[agent_id](th.cat((mmse_net_input, output.detach(), h_w_input.detach()), 1), h, tmp)
+              output = mmse_net_list[agent_id](torch.cat((mmse_net_input, output.detach(), h_w_input.detach()), 1), h, tmp)
               precoder_ = output.reshape(-1, 2, 16)
               precoder_ = precoder_[:, 0] + precoder_[:, 1] * 1j
               precoder_ = precoder_.reshape(-1, 4,4)
               precoder = precoder_ #+ precoder
-              h_w_input = th.bmm(tmp, precoder.transpose(1,2).conj())
+              h_w_input = torch.bmm(tmp, precoder.transpose(1,2).conj())
               h = h_w_input
-              h_w_input= th.cat((th.as_tensor(h_w_input.real).reshape(-1, 16), th.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
-              h_w_input = th.as_tensor(h_w_input, dtype=th.float32).to(device)
+              h_w_input= torch.cat((torch.as_tensor(h_w_input.real).reshape(-1, 16), torch.as_tensor(h_w_input.imag).reshape(-1, 16)), 1)
+              h_w_input = torch.as_tensor(h_w_input, dtype=torch.float32).to(device)
               wsr[:, _ + 1] = mmse_net_list[agent_id].calc_wsr(user_weights_for_regular_WMMSE, H.to(device), precoder, noise_power, scheduled_users[0])
             
             #print(agent_id, wsr.shape)

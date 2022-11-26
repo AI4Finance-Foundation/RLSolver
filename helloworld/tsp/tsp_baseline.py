@@ -39,16 +39,16 @@ def run_all_in_pool(func, directory, dataset, opts, use_multiprocessing=True):
     return results, num_cpus
 
 def check_extension(filename):
-    if os.path.splitext(filename)[1] != ".pkl":
+    if os.patorch.splitext(filename)[1] != ".pkl":
         return filename + ".pkl"
     return filename
 
 
 def save_dataset(dataset, filename):
 
-    filedir = os.path.split(filename)[0]
+    filedir = os.patorch.split(filename)[0]
 
-    if not os.path.isdir(filedir):
+    if not os.patorch.isdir(filedir):
         os.makedirs(filedir)
 
     with open(check_extension(filename), 'wb') as f:
@@ -63,10 +63,10 @@ def solve_gurobi(directory, name, loc, disable_cache=False, timeout=None, gap=No
     
 
     try:
-        problem_filename = os.path.join(directory, "{}.gurobi{}{}.pkl".format(
+        problem_filename = os.patorch.join(directory, "{}.gurobi{}{}.pkl".format(
             name, "" if timeout is None else "t{}".format(timeout), "" if gap is None else "gap{}".format(gap)))
 
-        if os.path.isfile(problem_filename) and not disable_cache:
+        if os.patorch.isfile(problem_filename) and not disable_cache:
             (cost, tour, duration) = load_dataset(problem_filename)
         else:
             # 0 = start, 1 = end so add depot twice
@@ -119,15 +119,15 @@ if __name__ == "__main__":
 
     for dataset_path in opts.datasets:
         
-        assert os.path.isfile(check_extension(dataset_path)), "File does not exist!"
+        assert os.patorch.isfile(check_extension(dataset_path)), "File does not exist!"
 
-        dataset_basename, ext = os.path.splitext(os.path.split(dataset_path)[-1])
+        dataset_basename, ext = os.patorch.splitext(os.patorch.split(dataset_path)[-1])
 
         if opts.o is None:
-            results_dir = os.path.join(opts.results_dir, "tsp", dataset_basename)
+            results_dir = os.patorch.join(opts.results_dir, "tsp", dataset_basename)
             os.makedirs(results_dir, exist_ok=True)
 
-            out_file = os.path.join(results_dir, "{}{}{}-{}{}".format(
+            out_file = os.patorch.join(results_dir, "{}{}{}-{}{}".format(
                 dataset_basename,
                 "offs{}".format(opts.offset) if opts.offset is not None else "",
                 "n{}".format(opts.n) if opts.n is not None else "",
@@ -136,7 +136,7 @@ if __name__ == "__main__":
         else:
             out_file = opts.o
 
-        assert opts.f or not os.path.isfile(
+        assert opts.f or not os.patorch.isfile(
             out_file), "File already exists! Try running with -f option to overwrite."
 
         match = re.match(r'^([a-z_]+)(\d*)$', opts.method)
@@ -145,14 +145,14 @@ if __name__ == "__main__":
         runs = 1 if match[2] == '' else int(match[2])
 
 
-        target_dir = os.path.join(results_dir, "{}-{}".format(
+        target_dir = os.patorch.join(results_dir, "{}-{}".format(
             dataset_basename,
             opts.method
         ))
-        assert opts.f or not os.path.isdir(target_dir), \
+        assert opts.f or not os.patorch.isdir(target_dir), \
             "Target dir already exists! Try running with -f option to overwrite."
 
-        if not os.path.isdir(target_dir):
+        if not os.patorch.isdir(target_dir):
             os.makedirs(target_dir)
         
         # TSP contains single loc array rather than tuple

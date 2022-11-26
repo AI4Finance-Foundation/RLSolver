@@ -1,5 +1,5 @@
 import os
-import torch as th
+import torch
 from env_maxcut import MaxcutEnv
 from net_maxcut import Policy_Net_Maxcut
 from evaluate_maxcut import evaluator
@@ -27,7 +27,7 @@ def train_curriculum_learning(policy_net_maxcut, optimizer, save_path, device, N
             env_maxcut.sparsity += 0.005
         if (epoch + 1) % num_epochs_to_evaluate == 0:
             evaluate_cut_value = evaluator(policy_net_maxcut, device=device, N=N)
-        print(f" training_loss: {obj_value.item() / env_maxcut.episode_length:.3f} | evaluate_cut_value: {evaluate_cut_value} |gpu memory: {th.cuda.memory_allocated():3d}")
+        print(f" training_loss: {obj_value.item() / env_maxcut.episode_length:.3f} | evaluate_cut_value: {evaluate_cut_value} |gpu memory: {torch.cuda.memory_allocated():3d}")
 def get_cwd(env_name):
     file_list = os.listdir()
     if env_name not in file_list:
@@ -47,8 +47,8 @@ if __name__  == "__main__":
     env_name = "maxcut"
     save_path = get_cwd(env_name) # cwd (current work directory): folder to save the trained policy net
     save_path = None
-    device=th.device("cuda:0" if th.cuda.is_available() else "cpu")
+    device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net_maxcut = Policy_Net_Maxcut(N=N).to(device)
-    optimizer = th.optim.Adam(policy_net_maxcut.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(policy_net_maxcut.parameters(), lr=learning_rate)
     
     train_curriculum_learning(policy_net_maxcut, optimizer, N=N, save_path=save_path, device=device)
