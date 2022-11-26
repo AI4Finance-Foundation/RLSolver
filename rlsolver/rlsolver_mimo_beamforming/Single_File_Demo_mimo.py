@@ -4,7 +4,7 @@ import numpy as np
 from functorch import vmap
 
 class MIMOEnv():
-    def __init__(self, K=4, N=4, P=10, noise_power=1, episode_length=6, num_env=4096, device=torch.device("cuda:0"), reward_mode='sl', snr = 10):
+    def __init__(self, K=4, N=4, P=10, noise_power=1, episode_length=6, num_env=4096, device=torch.device("cuda:0"), snr = 10):
         self.N = N  
         self.K = K  
         self.P = P  
@@ -122,7 +122,7 @@ class ConvNet(nn.Module):
         return xw + xh
 
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=100000000, num_env=512):
-    env_mimo_relay = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device, num_env=num_env, reward_mode=reward_mode[int(sys.argv[1])], episode_length=1)
+    env_mimo_relay = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device, num_env=num_env, episode_length=1)
     for epoch in range(num_epochs):
         state = env_mimo_relay.reset()
         policy_net_mimo.previous = torch.randn(1, num_env, policy_net_mimo.mid_dim * 2, device=device)
