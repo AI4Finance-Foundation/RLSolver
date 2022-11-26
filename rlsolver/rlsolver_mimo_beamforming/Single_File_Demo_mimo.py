@@ -12,8 +12,6 @@ class MIMOEnv():
         self.P = P  # Power
         self.noise_power = noise_power
         self.device = device
-        self.basis_vectors, _ = torch.linalg.qr(torch.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=torch.float, device=self.device))
-        self.subspace_dim = 2 + 2 * K * N // 4
         self.num_env = num_env
         self.episode_length = episode_length
         self.get_vec_sum_rate = vmap(self.get_sum_rate, in_dims = (0, 0), out_dims = (0, 0))
@@ -44,10 +42,8 @@ class MIMOEnv():
         self.done = True if self.num_steps >= self.episode_length else False
         return (self.mat_H, self.mat_W, self.P, HW.detach()), self.reward, self.done, sum_rate.detach()
 
-    def generate_channel_batch(self, N, K, batch_size, subspace_dim, basis_vectors):
-        coordinates = torch.randn(batch_size, subspace_dim, 1, device=self.device)
-        basis_vectors_batch = basis_vectors[:subspace_dim].T.repeat(batch_size, 1).reshape(-1, 2 * K * N, subspace_dim)
-        vec_channel = torch.bmm(basis_vectors_batch, coordinates).reshape(-1, 2 * K * N)
+    def generate_channel_batch(self, N, K, batch_size):
+        vec_channel = torch.randn(2 * batch_size * N * K, device=self.device)
         return vec_channel / np.sqrt(2)
     def get_sum_rate(self, H, W):
         HW = torch.matmul(H, W.T)
