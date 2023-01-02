@@ -1,8 +1,8 @@
 ## Code contributions:
 
-+ Ming Zhu: TSP, 3SAT
++ Ming Zhu: TSP, 3SAT, MILP
 
 + Shixun Wu: Graph Maxcut, Knapsack
 
-+ Zeliang Zhang: vehicle routing, vertex cover 
++ Zeliang Zhang: Vehicle routing, Vertex cover 
 
