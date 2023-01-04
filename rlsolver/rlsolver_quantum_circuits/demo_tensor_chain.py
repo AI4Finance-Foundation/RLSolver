@@ -115,7 +115,7 @@ if __name__  == "__main__":
 
     mid_dim = 256
     learning_rate = 5e-5
-
+ 
     device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net = Policy_Net(mid_dim= mid_dim, N=N).to(device)
     optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
