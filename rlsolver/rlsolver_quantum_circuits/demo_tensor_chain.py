@@ -13,12 +13,14 @@ class Env():
         self.epsilon = 1
         self.test_state = torch.randint(0,9, (self.num_env, self.N + 2, self.N + 2), device=self.device).to(torch.float32)
         self.mask = th.zeros(self.N + 2, self.N + 2).to(self.device)
-        self.mask[0, 0] = 1
-        for i in range(1, self.N + 2):
+        self.mask[1, 1] = 1
+        for i in range(2, self.N + 1):
             self.mask[i, i-1] = 1
             self.mask[i, i] = 1
         self.mask = self.mask.reshape(-1).repeat(1, self.num_env).reshape(self.num_env, self.N + 2, self.N + 2).to(self.device)
-        self.test_state = th.mul(self.test_state, self.mask)
+        with open("test.pkl", 'rb') as f:
+            import pickle as pkl
+            self.test_state = pkl.load(f)
         self.permute_base = th.as_tensor([i for i in range(self.N - 1)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device)
         self.start =  th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device)
         self.end =  th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device)
