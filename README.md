@@ -22,6 +22,8 @@ Several key references:
 
 - Nair, Vinod, et al. "Solving mixed integer programs using neural networks." arXiv preprint arXiv:2012.13349 (2020).
 
+## News
+- We are currently developing operations research (OR) environments that utilizes massive parallel simulation on GPU, the first version of which will be available at the end of January 2023. We welcome any suggestions or feedback!"
 
 ## Outline
 
