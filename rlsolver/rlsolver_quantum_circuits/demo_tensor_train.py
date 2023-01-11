@@ -7,7 +7,7 @@ from copy import deepcopy
 
 
 class Env():
-    def __init__(self, N=6, episode_length=6, num_env=4096, max_dim=2, epsilon=0.5, device=torch.device("cuda:0")):
+    def __init__(self, N=10, episode_length=6, num_env=4096, max_dim=2, epsilon=0.5, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -97,7 +97,7 @@ class Env():
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=6, ):
+    def __init__(self, mid_dim=1024, N=10, ):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N - 1
@@ -117,7 +117,7 @@ class Policy_Net(nn.Module):
         return action
 
 
-def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100000000, num_env=128, gamma=0.9, if_wandb=False):
+def train_curriculum_learning(policy_net, optimizer, device, N=10, num_epochs=100000000, num_env=128, gamma=0.9, best_reward = 500, if_wandb=False):
     env = Env(N=N, device=device, num_env=num_env, episode_length=N-1)
     for epoch in range(num_epochs):
         test = False
@@ -125,7 +125,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100
             test = True
         state = env.reset(test)
         loss = 0
-        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 200))
+        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 300))
         while (1):
             action = policy_net(state)
             next_state, reward, done = env.step(action)
@@ -144,19 +144,15 @@ def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100
                 optimizer.step()
                 break
             if done and test == True:
-                print(env.reward.sum().item() / env.num_env, env.reward_no_prob.sum().item() / env.num_env, epoch, env.num_env)
-                if env.reward_no_prob.sum().item() / env.num_env < 34.45:
-                    print(env.reward_no_prob)
-                    with open("N6_reward.pkl", 'wb') as f:
-                        import pickle as pkl
-                        pkl.dump(env.reward_no_prob, f)
+                best_reward = min(best_reward, env.reward_no_prob.sum().item() / env.num_env)
+                print(env.reward.sum().item() / env.num_env, env.reward_no_prob.sum().item() / env.num_env, best_reward, epoch)
                 if if_wandb:
                     wandb.log({"flops": env.reward, "flops_no_prob": env.reward_no_prob})
                 break
 
 
 if __name__ == "__main__":
-    N = 6
+    N = 10
 
     mid_dim = 256
     learning_rate = 5e-5
