@@ -3,18 +3,19 @@ import torch as th
 from copy import deepcopy
 device = th.device("cuda:0")
 reward = 0
-N = 4
+N = 10
 
 with open(f"test_data_tensor_train_N={N}.pkl", 'rb') as f:
     a = pkl.load(f).detach().cpu()
 num_env = a.shape[0]
-num_samples = 100
+num_samples = 10000
 start_ =  th.as_tensor([i for i in range(N)]).repeat(1, num_env).reshape(num_env, -1).to(device)
 end_ =  th.as_tensor([i for i in range(N)]).repeat(1, num_env).reshape(num_env, -1).to(device)
 reward = th.zeros(num_env, num_samples)
-permute_record = th.zeros(num_env, num_samples)
+permute_record = th.zeros(num_env, num_samples, N - 1)
 
 for k in range(num_env):
+    best_reward = 9999
     for permute_i in range(num_samples):
         permute= th.randperm(N - 1)
         r = 0
@@ -36,8 +37,11 @@ for k in range(num_env):
 
             r += tmp
         reward[k, permute_i] = r
+        # print(permute, permute_i)
         permute_record[k, permute_i] = permute
-    print(reward[k], permute_record[reward[k].min(dim=-1)[1]])
+        best_reward = min(best_reward, reward[k])
+    # print(reward[k], permute_record[reward[k].min(dim=-1)[1]], best_reward)
+    print(best_reward)
 print(reward.min(dim=-1)[0].mean())
 with open("record_r_baseline_random.pkl", "wb") as f:
     import pickle as pkl
