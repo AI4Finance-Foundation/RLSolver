@@ -1,7 +1,7 @@
 import torch as th
 import torch
 device = th.device("cuda:0")
-N = 6
+N = 10
 num_env = 100
 max_dim = 2
 test_state = torch.randint(0,max_dim, (num_env, N + 2, N + 2), device=device).to(torch.float32)
