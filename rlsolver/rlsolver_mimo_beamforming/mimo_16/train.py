@@ -9,7 +9,7 @@ import wandb
 import time
 reward_mode = ['empirical', 'analytical', 'supervised_mmse', 'rl', 'supervised_mmse_curriculum']
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=1000000,
-                    num_epochs_per_subspace=1200, num_epochs_to_save_model=1000, num_env=512):
+                    num_epochs_per_subspace=1200, num_epochs_to_save_model=1000, num_env=512, epoch_end_switch=20000):
     env_mimo_relay = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device, num_env=num_env, reward_mode=reward_mode[int(sys.argv[1])], episode_length=1)
     pbar = tqdm(range(num_epochs))
     sum_rate = th.zeros(100, env_mimo_relay.episode_length, 2)
@@ -18,7 +18,6 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
     start_time = time.time()
     for epoch in pbar:
         state = env_mimo_relay.reset()
-        policy_net_mimo.previous = th.randn(1, num_env, policy_net_mimo.mid_dim * 2, device=device)
         loss = 0
         sr = 0
         while(1):
@@ -37,10 +36,10 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
                 optimizer.step()
                 break
         if epoch % 20 == 0 and env_mimo_relay.reward_mode == 'supervised_mmse_curriculum':
-            env_mimo_relay.epsilon = min(1, (epoch/ 2000))
+            env_mimo_relay.epsilon = min(1, (epoch / epoch_end_switch))
         if os.path.isfile(os.path.join(save_path, "change_to_sr")):
             env_mimo_relay.reward_mode = "rl"
-        if epoch == 10000:
+        if epoch == epoch_end_switch:
             env_mimo_relay.reward_mode = "rl"
         if (epoch+1) % num_epochs_to_save_model == 0 and if_save:
             th.save(policy_net_mimo.state_dict(), save_path + f"{epoch}.pth")
@@ -50,7 +49,6 @@ def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4
             with th.no_grad():
                 for i_p in range(2):
                     state = env_mimo_relay.reset(test=True, test_P = test_P[i_p])
-                    policy_net_mimo.previous = th.rand(1, state[0].shape[0], policy_net_mimo.mid_dim * 2, device=device)
                     while(1):
                         action = policy_net_mimo(state)
                         next_state, _, done, reward = env_mimo_relay.step(action)
@@ -82,13 +80,12 @@ def get_cwd(env_name):
 
 if __name__  == "__main__":
 
-    N = 16   # number of antennas
-    K = 16   # number of users
+    N = K = 16 
     SNR = 10
     P = 10 ** (SNR / 10)
-    mid_dim = 2048
+    mid_dim = 1024
     noise_power = 1
-    learning_rate = 5e-7
+    learning_rate = 5e-5
     cwd = f"{reward_mode[int(sys.argv[1])]}_H_CL_REINFORCE_N{N}K{K}SNR{SNR}"
     env_name = f"RANDOM_N{N}K{K}SNR{SNR}_mimo_beamforming"
     save_path = None
@@ -110,7 +107,7 @@ if __name__  == "__main__":
         'mid_dim': mid_dim,
         'num_subspace_dim_update': 2,
         'path': save_path,
-        'num_env': 4096
+        'num_env': 1024
     }
     if_wandb = True
     if if_wandb:
