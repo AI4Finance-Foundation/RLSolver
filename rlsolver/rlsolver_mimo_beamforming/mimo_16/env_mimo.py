@@ -40,7 +40,7 @@ class MIMOEnv():
         if self.subspace_dim <= 2 * self.K * self.N:
             self.vec_H = self.generate_channel_batch(self.N, self.K, self.num_env, self.subspace_dim, self.basis_vectors)
         else:
-            self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat, device=self.device)
+            self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat, device=self.device) / np.sqrt(2)
         if test:
             self.test = True
             self.mat_H = self.test_H * np.sqrt(test_P)
