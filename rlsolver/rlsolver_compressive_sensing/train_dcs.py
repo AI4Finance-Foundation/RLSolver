@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
+from file_utils import *
 
 class Generator(nn.Module):
     def __init__(self, in_dim=500, out_dim=28**2, mid_dim = 512):
@@ -20,7 +21,7 @@ class Generator(nn.Module):
         return self.net(input)
 
 class Metric(nn.Module):
-    def __init__(self, in_dim=28**2, out_dim=25, mid_dim=500, bs=32, device=torch.device("cuda:0")):
+    def __init__(self, in_dim=28**2, out_dim=25, mid_dim=500, bs=64, device=torch.device("cuda:0")):
         super(Metric, self).__init__()
         self.device = device
         self.in_dim = in_dim
@@ -52,8 +53,10 @@ def load_data(batch_size):
     return train_loader
 
 
-def train_dcs(latent_dim=500, batch_size=32, num_training_epoch=100, lr=5e-5, initial_step_size=0.01, num_grad_iters=3, device=torch.device("cuda:0")):
+def train_dcs(latent_dim=500, batch_size=64, num_training_epoch=100, lr=5e-4, initial_step_size=0.01, num_grad_iters=3, device=torch.device("cuda:0")):
+    file_exporter = FileExporter('./image', )
     training_data = load_data(batch_size)
+
     gen = Generator().to(device)
     measurement = Metric().to(device)
     optimizer = torch.optim.Adam(gen.parameters(), lr=lr)
@@ -61,14 +64,17 @@ def train_dcs(latent_dim=500, batch_size=32, num_training_epoch=100, lr=5e-5, in
     step_size = nn.Parameter(torch.as_tensor([initial_step_size])).to(device)
     for epoch in range(num_training_epoch):
         for i, (images, labels) in enumerate(training_data):
-            images = images.reshape(batch_size, -1)
-            original_data = images.to(device)
+            if (images.shape[0] == 32):
+                continue
+            original_data = images.reshape(batch_size, -1).to(device)
+            original_data = (original_data) * 2 - 1
             z_initial = torch.randn(batch_size, latent_dim, device=device, requires_grad=True)
             measurement_original_data = measurement(original_data)
             z = [z_initial for _ in range(num_grad_iters)]
             for itr in range(1, num_grad_iters):
                 z[itr - 1].requires_grad_()
                 t = measurement(gen(z[itr - 1]))
+
                 MSELoss(t, measurement_original_data).backward()
                 z[itr] = z[itr - 1] - step_size * z[itr - 1].grad
                 z[itr] = (z[itr] / z[itr].norm(keepdim=True)).detach()
@@ -86,11 +92,13 @@ def train_dcs(latent_dim=500, batch_size=32, num_training_epoch=100, lr=5e-5, in
             RIP_loss += MSELoss((measurement_generated_data_optimized - measurement_generated_data_initial).norm(), \
                                 (generated_data_optimized - generated_data_initial).norm())
             loss = generated_loss + RIP_loss / 3
-
+            if  i % 50 ==  0:
+                print(loss.item())
+                file_exporter.save((original_data.detach().reshape(batch_size, 28, 28, 1).cpu().numpy() + 1) / 2, 'origin')
+                file_exporter.save((generated_data_optimized.detach().reshape(batch_size, 28, 28, 1).cpu().numpy() + 1) / 2, 'reconstruction')
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
 if __name__ == "__main__":
-    print(train_dcs)
     train_dcs()
