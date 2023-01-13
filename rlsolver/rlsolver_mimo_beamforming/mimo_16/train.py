@@ -80,7 +80,7 @@ def get_cwd(env_name):
 
 if __name__  == "__main__":
 
-    N = K = 16 
+    N = K = int(sys.argv[2])
     SNR = 10
     P = 10 ** (SNR / 10)
     mid_dim = 1024
