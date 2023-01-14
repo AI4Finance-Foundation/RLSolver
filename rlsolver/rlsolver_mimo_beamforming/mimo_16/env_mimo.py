@@ -11,7 +11,10 @@ class MIMOEnv():
         self.noise_power = noise_power
         self.device = device
         self.basis_vectors, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float, device=self.device))
-        self.subspace_dim =  2 * K * N
+        if self.reward_mode =='rl':
+            self.subspace_dim =  1# 2 * K * N
+        else:
+            self.subspace_dim =  2 * K * N
         self.num_env = num_env
         self.episode_length = episode_length
         self.get_vec_sum_rate = vmap(self.get_sum_rate, in_dims = (0, 0), out_dims = (0, 0))
@@ -29,8 +32,6 @@ class MIMOEnv():
             self.get_vec_reward = vmap(self.get_reward_supervised_mmse, in_dims = (0, 0, 0), out_dims = (0, 0))
         with open(f"./K{self.K}N{self.N}Samples=100.pkl", 'rb') as f:
             self.test_H = th.as_tensor(pkl.load(f), dtype=th.cfloat, device=self.device)
-            if self.K != 4:
-                self.test_H = self.test_H / np.sqrt(2)
 
 
 
@@ -83,8 +84,6 @@ class MIMOEnv():
                 self.reward = (-obj) * (1 - self.epsilon) / obj.norm(keepdim=True) + sum_rate * self.epsilon / sum_rate.norm(keepdim=True)
             else:
                 self.reward=  -obj
-            self.mat_H = (self.vec_H[:, :self.K * self.N] + self.vec_H[:, self.K * self.N:] * 1.j).reshape(-1, self.K, self.N) * np.sqrt(self.P / 2)
-            self.mat_H = self.mat_H
 
         else:
 
