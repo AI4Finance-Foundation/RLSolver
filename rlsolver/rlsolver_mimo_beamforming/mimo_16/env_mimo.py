@@ -57,7 +57,7 @@ class MIMOEnv():
         if self.reward_mode != 'rl':
             self.mat_W = th.zeros_like(self.mat_H, device=self.device) # self.mat_H.conj().transpose(-1, -2)
         else:
-            vec_W = th.randn((self.mat_H.shape[0], self.K* self.K), dtype=th.cfloat, device=self.device)
+            vec_W = th.randn((self.mat_H.shape[0], self.K* self.N), dtype=th.cfloat, device=self.device)
             vec_W = vec_W / th.norm(vec_W, dim=1, keepdim=True)
             self.mat_W = vec_W.reshape(-1, self.K, self.N)
 
