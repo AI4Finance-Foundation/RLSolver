@@ -11,6 +11,7 @@ class MIMOEnv():
         self.noise_power = noise_power
         self.device = device
         self.basis_vectors, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float, device=self.device))
+        self.reward_mode = reward_mode
         if self.reward_mode =='rl':
             self.subspace_dim =  1# 2 * K * N
         else:
@@ -21,7 +22,6 @@ class MIMOEnv():
         self.num_x = 1000
         self.epsilon = 1
         self.snr = snr
-        self.reward_mode = reward_mode
         self.test = False
         print(self.reward_mode)
         if self.reward_mode == 'empirical':
