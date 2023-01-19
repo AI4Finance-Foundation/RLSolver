@@ -4,9 +4,11 @@ import torchvision
 import torchvision.transforms as transforms
 from file_utils import *
 from copy import deepcopy
-
+from tqdm import tqdm
+import sys
+from torch.autograd import Variable, grad
 class Generator(nn.Module):
-    def __init__(self, in_dim=2, out_dim=28**2, mid_dim = 512):
+    def __init__(self, in_dim=100, out_dim=28**2, mid_dim = 512):
         super(Generator, self).__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
@@ -37,10 +39,19 @@ class Metric(nn.Module):
         )
 
     def forward(self, input):
-        #return torch.bmm(self.measure, input.unsqueeze(dim=-1))
+        #return torch.bmm(self.measure, input.unsqueeze(dim=-1)).reshape(self.bs, -1)
         return self.net(input)
 
+class Step_size(nn.Module):
+    def __init__(self, initial_step_size=np.log(0.01)):
+        #self.s = nn.Parameter(torch.tensor(0.01))
+        # Other necessary setup
+        super(Step_size, self).__init__()
+        self.s = nn.Parameter(torch.tensor(initial_step_size))
 
+    def forward(self, ):
+        # Necessary forward computations
+        return 1
 def load_data(batch_size):
     train_dataset = torchvision.datasets.MNIST(root='./data',
                                                train=True,
@@ -54,69 +65,80 @@ def load_data(batch_size):
     return train_loader
 
 
-def train_dcs(latent_dim=2, batch_size=64, num_training_epoch=100, lr=1e-4, initial_step_size=0.01, num_grad_iters=4, device=torch.device("cuda:0")):
+def train_dcs(latent_dim=100, batch_size=64, num_training_epoch=100000, lr=1e-4, initial_step_size=0.01, num_grad_iters=4, device=torch.device("cuda:0")):
     file_exporter = FileExporter('./image', )
     training_data = load_data(batch_size)
 
     gen = Generator().to(device)
     measurement = Metric().to(device)
-    optimizer = torch.optim.Adam(gen.parameters(), lr=lr)
-    optimizer_m = torch.optim.Adam(measurement.parameters(), lr=lr)
+    step_size = Step_size().to(device) #torch.nn.Parameter(torch.ones(1) * np.log(initial_step_size)).to(device) #* np.log(initial_step_size)
+    optimizer = torch.optim.Adam(list(gen.parameters()) + list(measurement.parameters()) + list( step_size.parameters()), lr=lr)
     MSELoss = nn.MSELoss()
-    step_size = torch.ones(1).to(device) * np.log(initial_step_size)
-    print(step_size)
-    optimizer_s = torch.optim.Adam([step_size], lr=lr)
-    step_size.requires_grad_()
-    for epoch in range(num_training_epoch):
+    pbar = tqdm(range(num_training_epoch))
+    n_batch = 0
+    z_0 = torch.randn(batch_size, latent_dim, device=device, requires_grad=False)
+    for epoch in pbar:
         for i, (images, labels) in enumerate(training_data):
             if (images.shape[0] == 32):
                 continue
             original_data = images.reshape(batch_size, -1).to(device)
-            #$assert 0
             original_data = (original_data) * 2 - 1
-            z_initial = torch.randn(batch_size, latent_dim, device=device, requires_grad=False)
-            z_initial = z_initial / z_initial.norm(keepdim=True, dim=-1).detach()
-            measurement_original_data = measurement(original_data).detach()
-            z = [z_initial for _ in range(num_grad_iters)]
-            z_ = [z_initial for _ in range(num_grad_iters)]
-            z__ = []
-            s = deepcopy(step_size.exp().detach())
+            z_initial = torch.randn(batch_size, latent_dim, device=device, requires_grad=True)
+            #z_initial = z_initial / z_initial.norm(keepdim=True, dim=-1)
+            measurement_original_data = measurement(original_data)
+            z = torch.clone(z_initial)
+            z = z / z.norm(keepdim=True, dim=-1)
             for itr in range(1, num_grad_iters):
-                z_[itr-1].requires_grad_()
-                t = measurement(gen(z_[itr-1]))
-
-                MSELoss(t, measurement_original_data).backward()
-                z__.append(z_[itr-1].grad.detach())
-                z[itr] = z[itr - 1] - step_size.exp() * z_[itr-1].grad
-                z[itr] = (z[itr] / z[itr].norm(keepdim=True, dim=-1))
-                z_[itr] = z_[itr-1] - s * z_[itr-1].grad
-                z_[itr] = (z_[itr] / z_[itr].norm(keepdim=True, dim=-1)).detach()
-            z_optimized = z_initial - step_size.exp() * (z__[0] + z__[1] + z__[2])
+                t = measurement(gen(z))
+                l = (t - measurement_original_data).square().sum(dim=-1)
+                g = grad(outputs=l, inputs=z,grad_outputs=torch.ones(64, device=device))[0]
+                z = z - step_size.s.exp() * g
+                z = z / z.norm(dim=-1, keepdim=True)
+            z_optimized = z
             generated_data_initial = gen(z_initial)
             generated_data_optimized = gen(z_optimized)
-            measurement_original_data.requires_grad_()
             measurement_generated_data_initial = measurement(generated_data_initial)
             measurement_generated_data_optimized = measurement(generated_data_optimized)
-            generated_loss = MSELoss(measurement_generated_data_optimized, measurement_original_data)#.norm(dim=-1).square().mean()
-            RIP_loss = MSELoss((measurement_generated_data_initial - measurement_original_data).reshape(-1, 25).norm(dim=-1), \
-                                (generated_data_initial - original_data).norm(dim=-1))#.square().mean()
-            RIP_loss += MSELoss((measurement_generated_data_optimized - measurement_original_data).reshape(-1, 25).norm(dim=-1), \
-                                (generated_data_optimized - original_data).norm(dim=-1))#.square().mean()
-            RIP_loss += MSELoss((measurement_generated_data_optimized - measurement_generated_data_initial).reshape(-1, 25).norm(dim=-1), \
-                                (generated_data_optimized - generated_data_initial).norm(dim=-1))#.square().mean()
-            loss = generated_loss + RIP_loss / 3
+            generated_loss = (measurement_generated_data_optimized- measurement_original_data).square().sum(dim=-1).mean()
+            RIP_loss = ((measurement_generated_data_initial - measurement_original_data).reshape(-1, 25).norm(dim=-1)- \
+                                (generated_data_initial - original_data).norm(dim=-1)).square() + \
+                ((measurement_generated_data_optimized - measurement_original_data).reshape(-1, 25).norm(dim=-1)- \
+                                (generated_data_optimized - original_data).norm(dim=-1)).square() + \
+                 ((measurement_generated_data_optimized - measurement_generated_data_initial).reshape(-1, 25).norm(dim=-1)- \
+                                (generated_data_optimized - generated_data_initial).norm(dim=-1)).square()#.mean()
+            loss = generated_loss + RIP_loss.mean() / 3
             if  i % 50 ==  0:
-                print(loss.item())
-                #print((generated_data_optimized[0] - generated_data_optimized[1] ) / 2 * 255)
-                file_exporter.save((original_data.detach().reshape(batch_size, 28, 28, 1).cpu().numpy() + 1) / 2, 'origin')
-                file_exporter.save((generated_data_optimized.detach().reshape(batch_size, 28, 28, 1).cpu().numpy() + 1) / 2, 'reconstruction')
+                torch.save(gen.state_dict(), "gen.pth")
+                torch.save(measurement.state_dict(), "measurement.pth")
+                torch.save(step_size.state_dict(), "step_size.pth")
+                RECON_LOSS = (generated_data_optimized-original_data).norm(dim=-1).mean()
+                desc = f"nbatch: {n_batch} | RIP_LOSS: {(RIP_loss.mean() / 3):.2f} | GEN_LOSS: {generated_loss:.2f} | RECON_LOSS: {RECON_LOSS:.2f} | step_size: {step_size.s.exp().item():.5f} | optim_cost: {(z_optimized - z_initial).square().sum(dim=-1).mean():.2f} | z_mean:{z_initial.norm(dim=-1).mean():.2f}|z_opt.mean: {z_optimized.norm(dim=-1).mean():.2f}"
+                pbar.set_description(desc)
+                wandb.log({"rip_loss": (RIP_loss.mean() / 3).item(), f"recons_loss:|x-z|_2": RECON_LOSS.item(), "z_step_size": step_size.s.exp().item(), f"gen_loss": generated_loss.item(), f"opt_loss":  (z_optimized - z_initial).square().sum(dim=-1).mean().item()})
+               #file_exporter.save((original_data.detach().reshape(batch_size, 28, 28, 1).cpu().numpy() + 1) / 2, 'origin2')
+                file_exporter.save((generated_data_optimized.detach().reshape(batch_size, 28, 28, 1).cpu().numpy() + 1) / 2, f'reconstruction{sys.argv[1]}')
+
             optimizer.zero_grad()
-            optimizer_s.zero_grad()
-            optimizer_m.zero_grad()
             loss.backward()
             optimizer.step()
-            optimizer_s.step()
-            optimizer_m.step()
+
+            n_batch += 1
 
 if __name__ == "__main__":
+    import wandb
+    config = {
+        'method': 'cs',
+	'backend': 'pytorch',
+	'dataset': 'MNIST',
+        'latent_dim': 100,
+    }
+    wandb.init(
+            project=f'compressive_sensing',
+            entity="beamforming",
+            sync_tensorboard=True,
+            config=config,
+            name='compressive_sensing',
+            monitor_gym=True,
+            save_code=True,
+        )
     train_dcs()
