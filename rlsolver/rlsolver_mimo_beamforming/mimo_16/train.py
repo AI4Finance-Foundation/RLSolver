@@ -10,7 +10,7 @@ import time
 reward_mode = ['empirical', 'analytical', 'supervised_mmse', 'rl', 'supervised_mmse_curriculum']
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=1000000,
                     num_epochs_per_subspace=1200, num_epochs_to_save_model=1000, num_env=512, epoch_end_switch=20000):
-    env_mimo_relay = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device, num_env=num_env, reward_mode=reward_mode[int(sys.argv[1])], episode_length=1)
+    env_mimo_relay = MIMOEnv(K=K, N=N, P=P, noise_power=noise_power, device=device, num_env=num_env, reward_mode=reward_mode[int(sys.argv[1])], episode_length=6)
     pbar = tqdm(range(num_epochs))
     sum_rate = th.zeros(100, env_mimo_relay.episode_length, 2)
     sum_rate_train = th.zeros(num_env, env_mimo_relay.episode_length, 1)

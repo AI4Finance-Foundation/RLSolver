@@ -11,6 +11,7 @@ class MIMOEnv():
         self.noise_power = noise_power
         self.device = device
         self.basis_vectors, _ = th.linalg.qr(th.rand(2 * self.K * self.N, 2 * self.K * self.N, dtype=th.float, device=self.device))
+        self.reward_mode = reward_mode
         if self.reward_mode =='rl':
             self.subspace_dim =  1# 2 * K * N
         else:
@@ -21,7 +22,6 @@ class MIMOEnv():
         self.num_x = 1000
         self.epsilon = 1
         self.snr = snr
-        self.reward_mode = reward_mode
         self.test = False
         print(self.reward_mode)
         if self.reward_mode == 'empirical':
@@ -40,7 +40,7 @@ class MIMOEnv():
         if self.subspace_dim <= 2 * self.K * self.N:
             self.vec_H = self.generate_channel_batch(self.N, self.K, self.num_env, self.subspace_dim, self.basis_vectors)
         else:
-            self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat, device=self.device)
+            self.vec_H = th.randn(self.num_env, 2 * self.K * self.N, dtype=th.cfloat, device=self.device) / np.sqrt(2)
         if test:
             self.test = True
             self.mat_H = self.test_H * np.sqrt(test_P)
@@ -57,7 +57,7 @@ class MIMOEnv():
         if self.reward_mode != 'rl':
             self.mat_W = th.zeros_like(self.mat_H, device=self.device) # self.mat_H.conj().transpose(-1, -2)
         else:
-            vec_W = th.randn((self.mat_H.shape[0], self.K* self.K), dtype=th.cfloat, device=self.device)
+            vec_W = th.randn((self.mat_H.shape[0], self.K* self.N), dtype=th.cfloat, device=self.device)
             vec_W = vec_W / th.norm(vec_W, dim=1, keepdim=True)
             self.mat_W = vec_W.reshape(-1, self.K, self.N)
 

@@ -13,10 +13,8 @@ class MIMOEnv():
         self.num_env = num_env
         self.episode_length = episode_length
         self.get_vec_sum_rate = vmap(self.get_sum_rate, in_dims = (0, 0), out_dims = (0, 0))
-        self.num_x = 1000
-        self.epsilon = 1
+        self.epsilon = 1    
         self.snr = snr
-        self.reward_mode = reward_mode
         self.test = False
 
     def reset(self,):
