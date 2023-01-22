@@ -1,10 +1,10 @@
 # Compressive Sensing
 
-## Reconstruction Error for MNIST
+## Reconstruction Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 - Ours: 4.78
 - DCS: 3.4
 
-## Reconstruction Demo
+## Reconstruction Demo for MNIST
 
 |Origin image| 0 steps|3 steps | 5 steps|
 | ----------- | -----|------ |-----|
