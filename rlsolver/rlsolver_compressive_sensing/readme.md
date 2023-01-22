@@ -4,7 +4,7 @@
 - Ours: 4.78
 - DCS: 3.4
 
-## Reconstruction Demo for MNIST
+## Reconstruction Demo (Ours) for MNIST
 
 |Origin image| 0 steps|3 steps | 5 steps|
 | ----------- | -----|------ |-----|
