@@ -10,7 +10,7 @@ Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." Intern
 - Ours: 4.78
 - DCS: 3.4
 
-## Reconstruction Demo for MNIST (Formular (7) is trained as a deep neural network)
+## Reconstruction Demo for MNIST (Formula (7) is trained as a deep neural network)
 
 |Origin image| 0 steps|3 steps | 5 steps|
 | ----------- | -----|------ |-----|
