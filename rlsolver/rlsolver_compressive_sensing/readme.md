@@ -1,5 +1,9 @@
 # Compressive Sensing
 
+A close reference: 
+
+Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning. PMLR, 2019.
+
 **The meansurement matrix F is reparameterized as a deep neural network.**
 
 ## Reconstruction Error $\lVert x-\hat{x}\rVert_2$ for MNIST
