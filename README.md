@@ -1,4 +1,4 @@
-# RLSolver: High-performance RL solvers
+# ElegantRL_Solver: High-performance RL solvers
 
 For combinatorial optimizations (discrete variables) and nonconvex optimizations (continuous variables), we aim to find high-quality local optimum, or even global optimum.
 
