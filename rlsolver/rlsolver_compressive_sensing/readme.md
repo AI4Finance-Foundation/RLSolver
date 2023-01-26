@@ -19,6 +19,11 @@ Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." Intern
 |grad + Linear $F$ (L)|13.44|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_linear_F_optim.png)|![alt_text](./fig/reconstruction_3_linear_F_optim.png)|![alt_text](./fig/reconstruction_5_linear_F_optim.png)|
 |grad + Linear $F$|37.46|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_linear_F.png)|![alt_text](./fig/reconstruction_3_linear_F.png)|![alt_text](./fig/reconstruction_5_linear_F.png)|
 
-
+## Reconstruction with LASSO on MNIST test dataset
+|LASSO|$\alpha$ = 1|$\alpha$ = 0.1| $\alpha$ =0.01|
+|-------| ----|------- | -----|
+|M=25|![alt_text](./fig/lasso/lasso_reconstruction_25_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.01_last.png)|
+|M=100|![alt_text](./fig/lasso/lasso_reconstruction_100_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.01_last.png)|
+|M=500|![alt_text](./fig/lasso/lasso_reconstruction_500_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01_last.png)|
 ## Training Curve
 ![alt_text](./fig/training_curve.png)
