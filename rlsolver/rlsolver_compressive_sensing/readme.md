@@ -21,7 +21,7 @@ Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." Intern
 
 ## Reconstruction with LASSO on MNIST test dataset
 $$minimize \frac{1}{2M} \lVert y-Ax \rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
-|LASSO|$\alpha$ = 1|$\alpha$ = 0.1| $\alpha$ =0.01|
+|N=28 $\times$ 28 = 784|$\alpha$ = 1|$\alpha$ = 0.1| $\alpha$ =0.01|
 |-------| ----|------- | -----|
 |M=25|![alt_text](./fig/lasso/lasso_reconstruction_25_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.01_last.png)|
 |M=100|![alt_text](./fig/lasso/lasso_reconstruction_100_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.01_last.png)|
