@@ -21,10 +21,14 @@ Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." Intern
 
 ## Reconstruction with LASSO on MNIST test dataset
 $$minimize \frac{1}{2M} \lVert y-Ax \rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
-|N=28 $\times$ 28 = 784|$\alpha$ = 1|$\alpha$ = 0.1| $\alpha$ =0.01|
-|-------| ----|------- | -----|
-|M=25|![alt_text](./fig/lasso/lasso_reconstruction_25_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.01_last.png)|
-|M=100|![alt_text](./fig/lasso/lasso_reconstruction_100_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.01_last.png)|
-|M=500|![alt_text](./fig/lasso/lasso_reconstruction_500_1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.1_last.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01_last.png)|
+|N=28 $\times$ 28 = 784|$\alpha$ = 1|$\alpha$ = 0.1| $\alpha$ =0.01|Original|
+|-------| ----|------- | -----|---|
+|M=25|![alt_text](./fig/lasso/lasso_reconstruction_25_1.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.1.png)|![alt_text](./fig/lasso/lasso_reconstruction_25_0.01.png)|![alt_text](./fig/origin.png)|
+|M=100|![alt_text](./fig/lasso/lasso_reconstruction_100_1.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.1.png)|![alt_text](./fig/lasso/lasso_reconstruction_100_0.01.png)|![alt_text](./fig/origin.png)|
+|M=500|![alt_text](./fig/lasso/lasso_reconstruction_500_1.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.1.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01.png)|![alt_text](./fig/origin.png)|
+
+|N=28 $\times$ 28 = 784|$iters$ = 100|$iters$ = 200| $iters$ = 500|$iters$ = 1000|Original|
+|-------| ----|------- | -----|---|----|
+|M=500, alpha=0.01|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01_100.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01_200.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01_500.png)|![alt_text](./fig/lasso/lasso_reconstruction_500_0.01_1000.png)|![alt_text](./fig/origin.png)|
 ## Training Curve
 ![alt_text](./fig/training_curve.png)
