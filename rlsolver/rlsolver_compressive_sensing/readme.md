@@ -1,8 +1,7 @@
-# Compressive Sensing
+# Compressive Sensing using Generative Models
 
-A close reference: 
-
-Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning. PMLR, 2019.
+Reference: 
+ [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning. PMLR, 2019.
 
 **The meansurement matrix F is reparameterized as a deep neural network.**
 
@@ -10,7 +9,7 @@ Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." Intern
 - Ours: 4.78
 - DCS: 3.4
 
-## Reconstruction on MNIST test dataset (Formula (7) is trained as a deep neural network)
+## Reconstruction on the MNIST dataset (Formula (7) is trained as a deep neural network)
 
 |Method|RECON_LOSS|Origin image| 1 steps|3 steps | 5 steps|
 |-------| ----|------- | -----|------ |-----|
@@ -41,7 +40,7 @@ $$\min_x \frac{1}{2M} \lVert y-Ax \rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^
 |$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/lasso/lasso_reconstruction_M=300_alpha=0.001_iter=500.png)|![alt_text](./fig/lasso/lasso_reconstruction_M=300_alpha=0.001_iter=1000.png)|![alt_text](./fig/lasso/lasso_reconstruction_M=300_alpha=0.001_iter=2000.png)|
 
 
-## Reconstruction with SLEP on MNIST test dataset
+## Reconstruction with SLEP on the MNIST dataset
 - Installation Link: http://www.yelabs.net/software/SLEP/
 - Run the following command to use SLEP:
 ```
