@@ -55,18 +55,19 @@ $$\min_x \sum_{i=1}^M \omega_i \log (1+exp(-y_i(x^T a_i+c)))+\frac{\rho}{2}\lVer
 ### M=100
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
 |-------| ----|------- | -----|---|
-|$\alpha=0.01$|||||
-|$\alpha=0.001$|||||
+|$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.01_iter=2000.png)|
+|$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.001_iter=2000.png)|
 
 ### M=200
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
 |-------| ----|------- | -----|---|
-|$\alpha=0.01$|||||
-|$\alpha=0.001$|||||
+|$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.01_iter=2000.png)|
+|$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.001_iter=2000.png)|
 ### M=300
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
 |-------| ----|------- | -----|---|
-|$\alpha=0.01$|||||
-|$\alpha=0.001$|||||
+|$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.01_iter=2000.png)|
+|$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.001_iter=2000.png)|
+
 ## Training Curve
 ![alt_text](./fig/training_curve.png)
