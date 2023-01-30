@@ -47,26 +47,48 @@ $$\min_x \frac{1}{2M} \lVert y-Ax \rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^
 mexC;
 addpath(genpath([root ’/SLEP’]));
 ```
+
+### LogisticR
 - [x, c, funVal]=LogisticR(A, y, λ, opts)
 $$\min_x \sum_{i=1}^M \omega_i \log (1+exp(-y_i(x^T a_i+c)))+\frac{\rho}{2}\lVert x\rVert_2^2 + \lambda \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
-- Todo: Write a matlab code to loop over test dataset.
-- Todo: Use argument `opts` to control $\lambda$, $\rho$, and number of iterations.
-### M=100
+
+#### M=100
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
 |-------| ----|------- | -----|---|
 |$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.01_iter=2000.png)|
 |$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=100_alpha=0.001_iter=2000.png)|
 
-### M=200
+#### M=200
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
 |-------| ----|------- | -----|---|
 |$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.01_iter=2000.png)|
 |$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=200_alpha=0.001_iter=2000.png)|
-### M=300
+#### M=300
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
 |-------| ----|------- | -----|---|
 |$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.01_iter=2000.png)|
 |$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LogisticR_M=300_alpha=0.001_iter=2000.png)|
 
+
+### LeastR
+- [x, funVal]=LeastR(A, y, λ, opts)
+$$\min_x \frac{1}{2} \lVert Ax -y \rVert_2^2 + \frac{\rho}{2}\lVert x\rVert_2^2 + \lambda \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
+
+#### M=100
+|N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
+|-------| ----|------- | -----|---|
+|$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LeastR_M=100_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LeastR_M=100_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LeastR_M=100_alpha=0.01_iter=2000.png)|
+|$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LeastR_M=100_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LeastR_M=100_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LeastR_M=100_alpha=0.001_iter=2000.png)|
+
+#### M=200
+|N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
+|-------| ----|------- | -----|---|
+|$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LeastR_M=200_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LeastR_M=200_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LeastR_M=200_alpha=0.01_iter=2000.png)|
+|$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LeastR_M=200_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LeastR_M=200_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LeastR_M=200_alpha=0.001_iter=2000.png)|
+#### M=300
+|N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
+|-------| ----|------- | -----|---|
+|$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LeastR_M=300_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/LeastR_M=300_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/LeastR_M=300_alpha=0.01_iter=2000.png)|
+|$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/LeastR_M=300_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/LeastR_M=300_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/LeastR_M=300_alpha=0.001_iter=2000.png)|
 ## Training Curve
 ![alt_text](./fig/training_curve.png)
