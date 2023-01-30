@@ -50,7 +50,7 @@ addpath(genpath([root ’/SLEP’]));
 
 ### LogisticR
 - [x, c, funVal]=LogisticR(A, y, λ, opts)
-$$\min_x \sum_{i=1}^M \omega_i \log (1+exp(-y_i(x^T a_i+c)))+\frac{\rho}{2}\lVert x\rVert_2^2 + \lambda \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
+$$\min_x \sum_{i=1}^M \omega_i \log (1+exp(-y_i(x^T a_i+c)))+\frac{\rho}{2}\lVert x\rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
 
 #### M=100
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
@@ -72,7 +72,7 @@ $$\min_x \sum_{i=1}^M \omega_i \log (1+exp(-y_i(x^T a_i+c)))+\frac{\rho}{2}\lVer
 
 ### LeastR
 - [x, funVal]=LeastR(A, y, λ, opts)
-$$\min_x \frac{1}{2} \lVert Ax -y \rVert_2^2 + \frac{\rho}{2}\lVert x\rVert_2^2 + \lambda \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
+$$\min_x \frac{1}{2} \lVert Ax -y \rVert_2^2 + \frac{\rho}{2}\lVert x\rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
 
 #### M=100
 |N=28 $\times$ 28 = 784|Original|$iters$ = 500|$iters$ = 1000|$iters$ = 2000|
