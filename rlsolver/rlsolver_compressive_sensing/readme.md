@@ -112,5 +112,18 @@ $$\min_x \frac{1}{2} \lVert Ax -y \rVert_2^2 + \frac{\rho}{2}\lVert x\rVert_2^2 
 |$\alpha=0.01$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/dct_LeastR_M=300_alpha=0.01_iter=500.png)|![alt_text](./fig/SLEP_image/dct_LeastR_M=300_alpha=0.01_iter=1000.png)|![alt_text](./fig/SLEP_image/dct_LeastR_M=300_alpha=0.01_iter=2000.png)|
 |$\alpha=0.001$|![alt_text](./fig/origin.png)|![alt_text](./fig/SLEP_image/dct_LeastR_M=300_alpha=0.001_iter=500.png)|![alt_text](./fig/SLEP_image/dct_LeastR_M=300_alpha=0.001_iter=1000.png)|![alt_text](./fig/SLEP_image/dct_LeastR_M=300_alpha=0.001_iter=2000.png)|
 
+## SLEP LASSO on synthetic data
+### Experiment Settings
+| N | Sparsity | $\lambda$ | convergence $\epsilon$ | maxIter |
+|---|----------|-----------|------------|---------|
+|100|  0.05    |     0.001 | 1e-6       |  5000       | 
+
+### LeastR
+| M | numIter | $\lVert X_{origin} - \Phi\theta\rVert_2$ |  $\lVert \Phi\theta\rVert_2$|$\lVert X_{origin}\rVert_2$ |
+|---|----------|-----------|------------|---------|
+|30|  154   |     1.056 | 0.656       |  1.241       |
+|60|  336    |     0.782 | 0.970      |  1.242       | 
+|90|  628    |     0.365 | 1.179       |  1.242       | 
+
 ## Training Curve
 ![alt_text](./fig/training_curve.png)
