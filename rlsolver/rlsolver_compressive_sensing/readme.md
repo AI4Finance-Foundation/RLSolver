@@ -2,8 +2,10 @@
 
 Reference: 
  [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning. PMLR, 2019.
+ 
+ Linear measurment process: $\bm{y} = \bm{F} \bm{x}$, where the true signal $\bm{x} \in \mathbb{R}^n$, $\bm{F} \in \mathbb{R}^{m \times n}$, and $\bm{y} \in \mathbb{R}^m $, $m \ll n$.
 
-**The meansurement matrix F is reparameterized as a deep neural network.**
+ $F_\phi$: $\bm{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
 ## Reconstruction Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 - Ours: 4.78
@@ -15,8 +17,8 @@ Reference:
 |-------| ----|------- | -----|------ |-----|
 |$F_\phi$ (L) + grad|4.78|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0.png)|![alt_text](./fig/reconstruction_3.png)|![alt_text](./fig/reconstruction_5.png)|
 |$F_\phi$ (L) + NN|10.20|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_nn.png)|![alt_text](./fig/reconstruction_3_nn.png)|![alt_text](./fig/reconstruction_5_nn.png)|
-|Linear $F$ (M=100) + grad|6.97|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_4_last.png)|![alt_text](./fig/reconstruction_3_4_last.png)|![alt_text](./fig/reconstruction_5_4_last.png)|
-|Linear $F$ (M=300) + grad|4.50|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_3_last.png)|![alt_text](./fig/reconstruction_3_3_last.png)|![alt_text](./fig/reconstruction_5_3_last.png)|
+|Fix measurement matrix $F$ (m =100) + grad|6.97|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_4_last.png)|![alt_text](./fig/reconstruction_3_4_last.png)|![alt_text](./fig/reconstruction_5_4_last.png)|
+|Fix measurement matrix $F$ (m =300) + grad|4.50|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_3_last.png)|![alt_text](./fig/reconstruction_3_3_last.png)|![alt_text](./fig/reconstruction_5_3_last.png)|
 
 <!-- ## Reconstruction with LASSO on MNIST test dataset
 $$\min_x \frac{1}{2M} \lVert y-Ax \rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
