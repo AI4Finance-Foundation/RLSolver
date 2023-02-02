@@ -122,7 +122,7 @@ $$\min_x \frac{1}{2} \lVert Ax -y \rVert_2^2 + \frac{\rho}{2}\lVert x\rVert_2^2 
 ### LeastR
 | M | numIter | $\lVert X_{origin} - \Phi\theta\rVert_2$ |  $\lVert \Phi\theta\rVert_2$|$\lVert X_{origin}\rVert_2$ |
 |---|----------|-----------|------------|---------|
-|30|  154   |     1.056 | 0.656       |  1.241       |
+|30|  154   |     1.056 | 0.656       |  1.242       |
 |60|  336    |     0.782 | 0.970      |  1.242       | 
 |90|  628    |     0.365 | 1.179       |  1.242       | 
 
