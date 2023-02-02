@@ -5,7 +5,7 @@ Reference:
  
  Linear measurment process: $\textbf{y} = \\textbf{F} \\textbf{x}$, where the true signal $\\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
 
- $F_\phi$: $\bm{F}$ is reparameterized as a deep neural network with parameter $\phi$.
+ $\textbf{F}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
 ## Reconstruction Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 - Ours: 4.78
