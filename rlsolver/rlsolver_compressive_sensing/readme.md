@@ -5,13 +5,14 @@ Reference:
  
  Linear measurment process: $\textbf{y} = \\textbf{F} \\textbf{x}$, where the true signal $\\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
 
- $\textbf{F}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
-
 ## Reconstruction Error $\lVert x-\hat{x}\rVert_2$ for MNIST
+$G_\theta$: $G$ is a pretrained generative model with parameter $\theta$.
 - Ours: 4.78
 - DCS: 3.4
 
 ## Reconstruction on the MNIST dataset (Formula (7) is trained as a deep neural network)
+
+ $\textbf{F}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
 |Method|RECON_LOSS|Origin image| 1 steps|3 steps | 5 steps|
 |-------| ----|------- | -----|------ |-----|
