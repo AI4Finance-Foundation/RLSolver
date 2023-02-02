@@ -1,29 +1,30 @@
 # Compressive Sensing using Generative Models
-
-Reference: 
- [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning. PMLR, 2019.
  
- Linear measurment process: $\textbf{y} = \\textbf{F} \\textbf{x}$, where the true signal $\\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
+ [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning, 2019.
+ 
+ First case, linear measurment process: $\textbf{y} = \\textbf{F} \\textbf{x}$, where the true signal $\\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
 
-## Reconstruction Error $\lVert x-\hat{x}\rVert_2$ for MNIST
+## Recovery Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 
 A pretrained model $G_\theta$: $G$ is a neural network with parameter $\theta$.
 
 - Ours: 4.78
 - DCS: 3.4
 
-## Reconstruction on the MNIST dataset (Formula (7) is trained as a deep neural network)
+Ours: Formula (7) is trained as a deep neural network.
+
+## Recovery on the MNIST dataset
 
  $\textbf{F}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
-|Method|RECON_LOSS|Origin image| 1 steps|3 steps | 5 steps|
+|Method|LOSS|Origin image| 1 steps|3 steps | 5 steps|
 |-------| ----|------- | -----|------ |-----|
 |$\textbf{F}_\phi$ (L) + grad|4.78|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0.png)|![alt_text](./fig/reconstruction_3.png)|![alt_text](./fig/reconstruction_5.png)|
 |$\textbf{F}_\phi$ (L) + NN|10.20|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_nn.png)|![alt_text](./fig/reconstruction_3_nn.png)|![alt_text](./fig/reconstruction_5_nn.png)|
 |Fix $\textbf{F}$ + grad steps          (m = 100) |6.97|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_4_last.png)|![alt_text](./fig/reconstruction_3_4_last.png)|![alt_text](./fig/reconstruction_5_4_last.png)|
 |Fix $\textbf{F}$ + grad steps          (m = 300)|4.50|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_3_last.png)|![alt_text](./fig/reconstruction_3_3_last.png)|![alt_text](./fig/reconstruction_5_3_last.png)|
 
-<!-- ## Reconstruction with LASSO on MNIST test dataset
+<!-- ## Recovery with LASSO on MNIST test dataset
 $$\min_x \frac{1}{2M} \lVert y-Ax \rVert_2^2 + \alpha \lVert x\rVert_1, A \in R^{M \times N}, y \in R^M, x \in R^N$$
 
 ### M=100
