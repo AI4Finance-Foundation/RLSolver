@@ -3,7 +3,7 @@
 Reference: 
  [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning. PMLR, 2019.
  
- Linear measurment process: $\textbf{y} = \bm{F} \bm{x}$, where the true signal $\bm{x} \in \mathbb{R}^n$, $\bm{F} \in \mathbb{R}^{m \times n}$, and $\bm{y} \in \mathbb{R}^m $, $m \ll n$.
+ Linear measurment process: $\textbf{y} = \\textbf{F} \\textbf{x}$, where the true signal $\\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
 
  $F_\phi$: $\bm{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
