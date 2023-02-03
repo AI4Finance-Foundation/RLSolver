@@ -6,8 +6,13 @@ from functorch import vmap
 from copy import deepcopy
 
 
+# 取消科学计数法
+np.set_printoptions(suppress=True)
+
+
+
 class Env():
-    def __init__(self, N=10, episode_length=6, num_env=4096, max_dim=2, epsilon=0.5, device=torch.device("cuda:0")):
+    def __init__(self, N=100, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:4")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -56,8 +61,8 @@ class Env():
         mask = deepcopy(self.mask)
         action_mask = th.mul(mask, action)
         action_mask = action_mask / action_mask.sum(dim=-1, keepdim=True)
-        if self.if_test:
-            print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(), self.epsilon)
+        #if self.if_test:
+            # print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(), self.epsilon)
         for k in range(action.shape[0]):
             r = 0
             r_no_prob = 0
@@ -92,16 +97,16 @@ class Env():
         self.done = True if self.num_steps >= self.episode_length else False
         if self.done and self.if_test:
             action_mask_ = th.mul(self.mask, action)
-            print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
+            # print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
         return (self.state, self.start, self.end, self.mask, action.detach()), reward, self.done
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=10, ):
+    def __init__(self, mid_dim=1024, N=100, ):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N - 1
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
         self.mid_dim = mid_dim
         self.net = nn.Sequential(
             nn.Linear((N + 2) * (N + 2) + N + N + (N - 1), mid_dim * 2),
@@ -117,7 +122,7 @@ class Policy_Net(nn.Module):
         return action
 
 
-def train_curriculum_learning(policy_net, optimizer, device, N=10, num_epochs=100000000, num_env=128, gamma=0.9, best_reward = 500, if_wandb=False):
+def train_curriculum_learning(policy_net, optimizer, device, N=100, num_epochs=100000000, num_env=128, gamma=0.9, best_reward = 4e+31, if_wandb=False):
     env = Env(N=N, device=device, num_env=num_env, episode_length=N-1)
     for epoch in range(num_epochs):
         test = False
@@ -125,7 +130,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=10, num_epochs=10
             test = True
         state = env.reset(test)
         loss = 0
-        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 300))
+        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 500))
         while (1):
             action = policy_net(state)
             next_state, reward, done = env.step(action)
@@ -146,18 +151,19 @@ def train_curriculum_learning(policy_net, optimizer, device, N=10, num_epochs=10
             if done and test == True:
                 best_reward = min(best_reward, env.reward_no_prob.sum().item() / env.num_env)
                 print(env.reward.sum().item() / env.num_env, env.reward_no_prob.sum().item() / env.num_env, best_reward, epoch)
+                # print(best_reward, epoch)
                 if if_wandb:
                     wandb.log({"flops": env.reward, "flops_no_prob": env.reward_no_prob})
                 break
 
 
 if __name__ == "__main__":
-    N = 10
+    N = 100
 
     mid_dim = 256
     learning_rate = 5e-5
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
     policy_net = Policy_Net(mid_dim=mid_dim, N=N).to(device)
     optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
     if_wandb=False
