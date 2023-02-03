@@ -1,4 +1,4 @@
-# 用于生成Tucker类型的邻接矩阵
+# 用于生成Tree_Tensor_Network类型的邻接矩阵
 
 import torch as th
 import torch
