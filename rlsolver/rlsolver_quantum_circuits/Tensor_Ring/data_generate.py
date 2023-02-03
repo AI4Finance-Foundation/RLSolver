@@ -1,4 +1,4 @@
-# 用于生成Tensor-Train类型的邻接矩阵
+# 用于生成Tensor-Ring类型的邻接矩阵
 
 import torch as th
 import torch
