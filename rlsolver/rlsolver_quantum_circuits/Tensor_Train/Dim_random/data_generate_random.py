@@ -1,11 +1,10 @@
-# 用于生成Tensor-Train类型的邻接矩阵
-
+# Generate adjacency matrix for Tensor-Train
 import torch as th
 import torch
 device = th.device("cuda:4")
-# 根据张量网络中张量数量设定
+# Number of tensors
 N = 100
-# Env数量
+# Number of environments
 num_env = 100
 max_dim = 2
 # 每个张量的键值为随机值(1或2）
