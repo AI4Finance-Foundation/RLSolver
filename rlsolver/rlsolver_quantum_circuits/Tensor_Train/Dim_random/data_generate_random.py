@@ -1,13 +1,13 @@
 # Generate adjacency matrix for Tensor-Train
 import torch as th
 import torch
-device = th.device("cuda:4")
+device = th.device("cuda:0")
 # Number of tensors
-N = 100
+N = 10
 # Number of environments
 num_env = 100
-max_dim = 2
-# 每个张量的键值为随机值(1或2）
+max_dim = 20
+# The indices of each tensor have a random number of values from 1 to 20
 test_state = torch.randint(0,max_dim, (num_env, N + 2, N + 2), device=device).to(torch.float32)
 mask = th.zeros(N + 2, N + 2).to(device)
 mask[1, 1] = 1
