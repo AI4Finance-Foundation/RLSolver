@@ -7,7 +7,7 @@ N = 100
 # Number of environments
 num_env = 100
 max_dim = 2
-# 每个张量的键值为随机值(1或2）
+# Each tensor's indices have a random number with a value of 1 or 2
 test_state = torch.randint(0,max_dim, (num_env, N + 2, N + 2), device=device).to(torch.float32)
 mask = th.zeros(N + 2, N + 2).to(device)
 mask[1, 1] = 1
