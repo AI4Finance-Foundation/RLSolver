@@ -35,6 +35,16 @@ for row in range(4):
     ax[row].legend(loc="upper left")
 
 
-fig.savefig(f"recovery_signal_{n_grad}.png", bbox_inches='tight')
+fig, ax = plt.subplots(ncols=1, nrows=4,figsize =(8, 6))
+x_list = [_ for _ in range(784)]
+plt.tight_layout()
+fig.subplots_adjust(hspace=0.2, wspace = 0.08)
+for row in range(4):
+    ax[row].plot(x_list, (lasso[row]), label = 'LASSO')    
+    ax[row].set_ylim(-1,1)
+    ax[row].legend(loc="upper left")
+
+
+fig.savefig(f"recovery_signal_lasso.png", bbox_inches='tight')
 
 

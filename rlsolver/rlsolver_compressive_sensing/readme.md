@@ -34,9 +34,11 @@ Ours: Formula (7) is trained as a deep neural network.
 - N = 784, sparsity = $\frac{10}{784}$
 - $B^{784}$ with $B = (-1,0, 1)$
 ### DCS
-|Number of iterations|Origin|Recovery|
-|----|----|----|
-|3 |![alt_text](./fig/origin_signal_3.png)|![alt_text](./fig/recovery_signal_3.png)|
-|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_11.png)|
+|Method|Number of iterations|Origin|Recovery|
+|---|----|----|----|
+|LASSO|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_lasso.png)|
+|$G_\theta(z)$|3 |![alt_text](./fig/origin_signal_3.png)|![alt_text](./fig/recovery_signal_3.png)|
+|$G_\theta(z)$|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_11.png)|
+
 ### Lasso vs DCS
 ![alt_text](./fig/recovery_signal_lasso_vs_dcs.png)
