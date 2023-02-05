@@ -1,6 +1,6 @@
 # ElegantRL_Solver: High-performance RL solvers
 
-For combinatorial optimizations (discrete variables) and nonconvex optimizations (continuous variables), we aim to find high-quality local optimum, or even global optimum.
+For nonconvex optimizations (continuous variables) and combinatorial optimizations (discrete variables), we aim to find high-quality optimum, or even (nearly) global optimum.
 
 For combinatorial optimization problems, we compare with [Benchmark](http://plato.asu.edu/bench.html).
 
