@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
-fig, ax = plt.subplots(ncols=2, nrows=4,figsize =(16, 6))
+fig, ax = plt.subplots(ncols=1, nrows=4,figsize =(8, 6))
 x_list = [_ for _ in range(784)]
 plt.tight_layout()
 fig.subplots_adjust(hspace=0.2, wspace = 0.08)
 import scipy.io
 
-
+import torch as th
 import pickle as pkl
-n_grad = 20
-with open(f"recove_signal_{n_grad}.pkl", 'rb') as f:
+n_grad = 3
+# with open(f"recove_signal_{n_grad}.pkl", 'rb') as f:
+with open("933.pkl",'rb') as f:
     signal = pkl.load(f)
 
 original_data = signal[:64]
@@ -18,14 +19,15 @@ lasso = scipy.io.loadmat("lasso_recovery.mat")
 lasso = lasso["signal_recons"]
 generated_data_optimized = signal[64:]
 for row in range(4):
-    ax[row, 0].plot(x_list, (original_data[row]), label='original')
-    ax[row, 1].plot(x_list, (generated_data_optimized[row]), label = 'F + grad steps (M=300)')
-    ax[row, 0].set_ylim(0,1)
-    ax[row, 1].set_ylim(0,1)
+    # ax[row].plot(x_list, (original_data[row]), label='original')
+    ax[row].plot(x_list, (generated_data_optimized[row]), label = 'F + grad steps (M=300)')
+    # ax[row].set_ylim(-1,1)
+    ax[row].set_ylim(-1,1)
     
-    ax[row,0].legend(loc="upper left")
-    ax[row,1].legend(loc="upper left")
+    # ax[row].legend(loc="upper left")
+    ax[row].legend(loc="upper left")
 
 
 fig.savefig(f"recovery_signal_{n_grad}.png", bbox_inches='tight')
+# fig.savefig(f"origin_signal_{n_grad}.png", bbox_inches='tight')
 
