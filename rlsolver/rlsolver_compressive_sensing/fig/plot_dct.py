@@ -31,7 +31,7 @@ x_list = [_ for _ in range(N)]
 plt.tight_layout()
 fig.subplots_adjust(hspace=0.2, wspace = 0.08)
 for row in range(4):
-    ax[row].plot(x_list, (generated_data_optimized[row]), label = 'F + grad steps (M=300)')    
+    ax[row].plot(x_list, (generated_data_optimized[row]), label = 'F + grad steps (M=50)')    
     ax[row].set_ylim(-1,1)
     ax[row].legend(loc="upper left")
 fig.savefig(f"recovery_signal_{n_grad}_I.png", bbox_inches='tight')
