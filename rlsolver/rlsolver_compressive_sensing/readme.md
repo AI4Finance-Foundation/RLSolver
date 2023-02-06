@@ -32,7 +32,7 @@ Ours: Formula (7) is trained as a deep neural network.
 - Number of iterations = 20
 - Latent space dimension = 100
 - N = 784, sparsity = $\frac{10}{784}$
-- $B^{784}$ with $B = (0, 1)$
+- $B^{784}$ with $B = (-1,0, 1)$
 ### DCS
 |Method|Number of iterations|Origin|Recovery|
 |---|----|----|----|
