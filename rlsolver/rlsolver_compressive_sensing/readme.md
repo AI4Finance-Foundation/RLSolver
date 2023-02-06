@@ -37,8 +37,15 @@ Ours: Formula (7) is trained as a deep neural network.
 |Method|Number of iterations|Origin|Recovery|
 |---|----|----|----|
 |LASSO|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_lasso.png)|
-|$G_\theta(z)$|3 |![alt_text](./fig/origin_signal_3.png)|![alt_text](./fig/recovery_signal_3.png)|
 |$G_\theta(z)$|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_11.png)|
+
+
+### DCT
+|Method|$\Phi$|Z|$X_{Origin}$|$X_{generated}$|
+|---|----|----|--|----|
+|$G_\theta(z)$|Identity|![alt_text](./fig/origin_signal_20_I.png)|![alt_text](./fig/origin_signal_20_I.png)|![alt_text](./fig/recovery_signal_20_I.png)|
+|$G_\theta(z)$|DCT|![alt_text](./fig/origin_signal_20_I.png)|![alt_text](./fig/origin_signal_20_dct.png)|![alt_text](./fig/recovery_signal_20_dct.png)|
+
 
 ### Lasso vs DCS
 ![alt_text](./fig/recovery_signal_lasso_vs_dcs.png)
