@@ -42,7 +42,7 @@ Ours: Formula (7) is trained as a deep neural network.
 
 ### DCT
 |Method|$\Phi$|$X_{Origin}$|$X_{generated}$|
-|---|----|----|--|----|
+|---|----|----|----|
 |$G_\theta(z)$|Identity|![alt_text](./fig/origin_signal_20_I.png)|![alt_text](./fig/recovery_signal_20_I.png)|
 |$G_\theta(z)$|DCT|![alt_text](./fig/origin_signal_20_dct.png)|![alt_text](./fig/recovery_signal_20_dct.png)|
 
