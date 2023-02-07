@@ -25,8 +25,8 @@ Ours: Formula (7) is trained as a deep neural network.
 |Fix $\textbf{F}$ + grad steps          (m = 300)|4.50|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_3_last.png)|![alt_text](./fig/reconstruction_3_3_last.png)|![alt_text](./fig/reconstruction_5_3_last.png)|
 
 |${\overline{X}}$|$\overline{G_\theta (z_0)}$|
-|---------|----------------------|
-|![alt_text](./fig/origin_average.png)|![alt_text](./fig/recon_average.png)|
+|-----|-----|
+|<img src="./fig/origin_average.png"  width="50%" height="50%">|<img src="./fig/recon_average.png"  width="50%" height="50%">|
 
 ## Recovery on the synthetic sparse signal
 <!-- ### DCS
@@ -37,58 +37,111 @@ Ours: Formula (7) is trained as a deep neural network.
  -->
 
 ### Synthetic Signal
-- Sparse signal $\textbf{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lVert \textbf{z} \rVert_1 = k$, and sparsity $s = \frac{k}{n}$.
-- Representation domain $\boldsymbol{\phi} \in \mathbb{R}^{n\times n}$.
-- Sample signal $\textbf{x} = \boldsymbol{\phi} \textbf{z}$.
+- Sparse signal $\boldsymbol{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lvert \boldsymbol{z}\rvert_1 = k$, and sparsity $s = \frac{k}{n}$.
+- Representation domain $\boldsymbol{\Phi} \in \mathbb{R}^{n\times n}$.
+- Sample signal $\boldsymbol{x} = \boldsymbol{\Phi} \boldsymbol{z}$.
 
     $n=100, k=10$
-    | $\phi$|$\textbf{z}$|$\textbf{x}$|
+    | $\Phi$|$\boldsymbol{z}$|$\boldsymbol{x}$|
     |---|----|----|
     |Identity|fig|fig|
     |DCT|fig|fig|
 
 
 ### Generator $G_\theta(z)$
-- Training samples: $\lbrace (\textbf{z},\textbf{x}=\boldsymbol{\phi} \textbf{z})\rbrace$
+- Training samples: $\lbrace (\boldsymbol{z},\boldsymbol{x}=\boldsymbol{\Phi}\boldsymbol{z})\rbrace$
 - Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
-- Test error = $\lVert\boldsymbol{\phi}\boldsymbol{z}-G_\theta(z)\rVert_2$
-- $G_\theta$
+- Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
-|$\textbf{z}_{test}$|$\boldsymbol{\phi} \textbf{z}_{test}$|$G_\theta(\textbf{z}_{test})$|Test Error|
+|$\textbf{z}$|$\boldsymbol{\Phi} \textbf{z}$|$G_\theta(\textbf{z})$|Test Error|
 |---|----|----|---|
-||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$<1e-3$
+||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$< 0.1$%|
 
 
 ### Lasso (CS)
-- Linear measurment process: $\textbf{y} = \textbf{A} \textbf{x}$ = $\mathbf{A} \boldsymbol{ \phi } \mathbf{z}$ Random measurement $\textbf{A}\in \mathbb{R}^{m\times n}$.
-- $\hat{\boldsymbol{z}} = Lasso(y, \mathbf{A} \boldsymbol{ \phi })$
-- $\hat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \hat{\boldsymbol{z}}$
-- Error = $\lVert \textbf{x} - \hat{\textbf{x}} \lVert_2 $, where $\hat{\textbf{x}} = \boldsymbol{ \phi } \hat{\textbf{z}} $.
+- Linear measurment process: $\boldsymbol{y} = \boldsymbol{A} \boldsymbol{x}$ = $\boldsymbol{A}\boldsymbol{ \Phi } \boldsymbol{z}$, where $\boldsymbol{A}\in \mathbb{R}^{m\times n}$ is a random measurement.
+- $\widehat{\boldsymbol{z}} = Lasso(\boldsymbol{y}, \boldsymbol{A} \boldsymbol{ \Phi })$
+- $\widehat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \widehat{\boldsymbol{z}}$
+- Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = \boldsymbol{ \Phi } \widehat{\boldsymbol{z}} $.
 
-|Number of iterations to converge| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
-|-------|------|------|-----|
+#### $\frac{m}{n} = 0.3 $ 
+
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+#### $\frac{m}{n} = 0.5 $ 
+
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+#### $\frac{m}{n} = 0.7 $ 
+
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
 |n=100||||
 |n=1000||||
 |n=10000||||
 
 ### DCS
-- Given train $G_\theta$, using Eqn. (7) in [1] to recover $\boldsymbol{\hat{z}}$ and $\boldsymbol{\hat{x}}$.
-- $\hat{\boldsymbol{z}}_0 \xrightarrow[\text{hundreds of iterations}]{Eqn. (7)} \hat{\boldsymbol{z}}$
-- Error = $\lVert \textbf{x} - \hat{\textbf{x}} \lVert_2 $, where $\hat{\textbf{x}} = G_\theta( \hat{\textbf{z}}) $.
+- Given train $G_\theta$, using Eqn. (7) in [1] to recover $\boldsymbol{\widehat{z}}$ and $\boldsymbol{\widehat{x}}$.
+- $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{hundreds of iterations}]{Eqn. (7)} \widehat{\boldsymbol{z}}$
+- Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
 
-|Number of iterations to converge| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
-|-------|------|------|-----|
+#### $\frac{m}{n} = 0.3 $ 
+
+|#iterations| $100$ | $200$ |  $300$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+#### $\frac{m}{n} = 0.5 $ 
+
+|#iterations| $100$ | $200$ |  $300$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+#### $\frac{m}{n} = 0.7 $ 
+
+|#iterations| $100$ | $200$ |  $300$|
+|------|------|------|-----|
 |n=100||||
 |n=1000||||
 |n=10000||||
 
 ### Ours
 - Train a neural network (NN) to replace Eqn. (7) in [1].
-- $\hat{\boldsymbol{z}}_0 \xrightarrow[\text{x iterations, x < 10}]{NN} \hat{\boldsymbol{z}}$
-- Error = $\lVert \textbf{x} - \hat{\textbf{x}} \lVert_2 $, where $\hat{\textbf{x}} = G_\theta( \hat{\textbf{z}}) $.
+- $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{x iterations, x < 10}]{NN} \widehat{\boldsymbol{z}}$
+- Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
 
-|Number of iterations to converge| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
-|-------|------|------|-----|
+#### $\frac{m}{n} = 0.3 $ 
+
+|#iterations| $1$ | $3$ |  $5$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+#### $\frac{m}{n} = 0.5 $ 
+
+|#iterations| $1$ | $3$ |  $5$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+#### $\frac{m}{n} = 0.7 $ 
+
+|#iterations| $1$ | $3$ |  $5$|
+|------|------|------|-----|
 |n=100||||
 |n=1000||||
 |n=10000||||
