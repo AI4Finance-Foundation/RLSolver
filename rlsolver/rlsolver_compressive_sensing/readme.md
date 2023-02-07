@@ -53,7 +53,7 @@ Ours: Formula (7) is trained as a deep neural network.
 - Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
-|$\textbf{z}$|$\boldsymbol{\Phi} \textbf{z}$|$G_\theta(\textbf{z})$|Test Error|
+|$\textbf{z}$|$\boldsymbol{\Phi} \textbf{z}$|$G_\theta(\textbf{z})$|Error|
 |---|----|----|---|
 ||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$< 0.1$%|
 
