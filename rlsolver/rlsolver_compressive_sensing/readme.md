@@ -2,7 +2,7 @@
  
  [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning, 2019.
  
- First case, linear measurment process: $\textbf{y} = \\textbf{F} \\textbf{x}$, where the true signal $\\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
+ First case, linear measurment process: $\textbf{y} = \textbf{F} \textbf{x}$, where the true signal $\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
 
 ## Recovery Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 
@@ -28,31 +28,42 @@ Ours: Formula (7) is trained as a deep neural network.
 |---------|----------------------|
 |![alt_text](./fig/origin_average.png)|![alt_text](./fig/recon_average.png)|
 
-## Reconstruction on the synthetic sparse signal (Formula (7) is trained as a deep neural network)
-- Number of iterations = 20
-- Latent space dimension = 100
-- N = 784, sparsity = $\frac{10}{784}$
-- $B^{784}$ with $B = (-1,0, 1)$
-### DCS
+## Recovery on the synthetic sparse signal
+<!-- ### DCS
 |Method|Number of iterations|Origin|Recovery|
 |---|----|----|----|
 |LASSO|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_lasso.png)|
 |$G_\theta(z)$|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_11.png)|
+ -->
+
+### Synthetic Signal
+- Sparse signal $\textbf{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B} = \text{\{}-1,0, 1\text{\}}$, $\lVert \textbf{z} \rVert_1 = k$, and sparsity $s = \frac{k}{n}$.
+- Representation domain $\phi \in \mathbb{R}^{n\times n}$.
+- Sample signal $\textbf{x} = \phi \textbf{z}$.
+
+    $n=100, k=10$
+    | $\phi$|$\textbf{z}$|$\textbf{x}$|
+    |---|----|----|
+    |Identity|fig|fig|
+    |DCT|fig|fig|
 
 
-### DCT
-|Method|$\Phi$|$X_{Origin}$|$X_{generated}$|
-|---|----|----|----|
-|$G_\theta(z)$|Identity|![alt_text](./fig/origin_signal_20_I.png)|![alt_text](./fig/recovery_signal_20_I.png)|
-|$G_\theta(z)$|DCT|![alt_text](./fig/origin_signal_20_dct.png)|![alt_text](./fig/recovery_signal_20_dct.png)|
+### Generator $G_\theta(z)$
+- Training samples: $\text{\{}(\textbf{z},\textbf{x}=\phi \textbf{z})\text{\}}$
+- Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
+- 
+
+|$\textbf{z}_{test}$|$\phi \textbf{z}_{test}$|$G_\theta(\textbf{z}_{test})$|Loss|
+|---|----|----|---|
+||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$<1e-3$
 
 
-### Gen
-|Method|$X_{Origin}$|$X_{generated}$|
-|---|----|----|
-|$Loss = MSE(G_\theta(z) - \Phi z)$|![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|
-|$Loss = MSE(G_\theta(z_{random}) - \Phi z)$|![alt_text](./fig/origin_signal_1.png)|![alt_text](./fig/gen_signal_1.png)|
+### Lasso
+- Random measurement $\textbf{A}\in \mathbb{R}^{m\times n}$.
+- Error = $norm(\textbf{x} - \hat{\textbf{x}})$.
 
-
-### Lasso vs DCS
-![alt_text](./fig/recovery_signal_lasso_vs_dcs.png)
+|Number of iterations of convergence|$\frac{m}{n}<s$|$\frac{m}{n}=s$|$\frac{m}{n}>s$|
+|-------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
