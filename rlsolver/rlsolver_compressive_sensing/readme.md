@@ -38,8 +38,8 @@ Ours: Formula (7) is trained as a deep neural network.
 
 ### Synthetic Signal
 - Sparse signal $\textbf{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lVert \textbf{z} \rVert_1 = k$, and sparsity $s = \frac{k}{n}$.
-- Representation domain $\phi \in \mathbb{R}^{n\times n}$.
-- Sample signal $\textbf{x} = \phi \textbf{z}$.
+- Representation domain $\boldsymbol{\phi} \in \mathbb{R}^{n\times n}$.
+- Sample signal $\textbf{x} = \boldsymbol{\phi} \textbf{z}$.
 
     $n=100, k=10$
     | $\phi$|$\textbf{z}$|$\textbf{x}$|
@@ -49,20 +49,45 @@ Ours: Formula (7) is trained as a deep neural network.
 
 
 ### Generator $G_\theta(z)$
-- Training samples: $\lbrace (\textbf{z},\textbf{x}=\phi \textbf{z})\rbrace$
+- Training samples: $\lbrace (\textbf{z},\textbf{x}=\boldsymbol{\phi} \textbf{z})\rbrace$
 - Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
-- 
+- Test error = $\lVert\boldsymbol{\phi}\boldsymbol{z}-G_\theta(z)\rVert_2$
+- $G_\theta$
 
-|$\textbf{z}_{test}$|$\phi \textbf{z}_{test}$|$G_\theta(\textbf{z}_{test})$|Loss|
+|$\textbf{z}_{test}$|$\boldsymbol{\phi} \textbf{z}_{test}$|$G_\theta(\textbf{z}_{test})$|Test Error|
 |---|----|----|---|
 ||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$<1e-3$
 
 
-### Lasso
-- Random measurement $\textbf{A}\in \mathbb{R}^{m\times n}$.
-- Error = $norm(\textbf{x} - \hat{\textbf{x}})$.
+### Lasso (CS)
+- Linear measurment process: $\textbf{y} = \textbf{A} \textbf{x}$ = $\mathbf{A} \boldsymbol{ \phi } \mathbf{z}$ Random measurement $\textbf{A}\in \mathbb{R}^{m\times n}$.
+- $\hat{\boldsymbol{z}} = Lasso(y, \mathbf{A} \boldsymbol{ \phi })$
+- $\hat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \hat{\boldsymbol{z}}$
+- Error = $\lVert \textbf{x} - \hat{\textbf{x}} \lVert_2 $, where $\hat{\textbf{x}} = \boldsymbol{ \phi } \hat{\textbf{z}} $.
 
-|Number of iterations of convergence| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
+|Number of iterations to converge| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
+|-------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+### DCS
+- Given train $G_\theta$, using Eqn. (7) in [1] to recover $\boldsymbol{\hat{z}}$ and $\boldsymbol{\hat{x}}$.
+- $\hat{\boldsymbol{z}}_0 \xrightarrow[\text{hundreds of iterations}]{Eqn. (7)} \hat{\boldsymbol{z}}$
+- Error = $\lVert \textbf{x} - \hat{\textbf{x}} \lVert_2 $, where $\hat{\textbf{x}} = G_\theta( \hat{\textbf{z}}) $.
+
+|Number of iterations to converge| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
+|-------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+### Ours
+- Train a neural network (NN) to replace Eqn. (7) in [1].
+- $\hat{\boldsymbol{z}}_0 \xrightarrow[\text{x iterations, x < 10}]{NN} \hat{\boldsymbol{z}}$
+- Error = $\lVert \textbf{x} - \hat{\textbf{x}} \lVert_2 $, where $\hat{\textbf{x}} = G_\theta( \hat{\textbf{z}}) $.
+
+|Number of iterations to converge| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
 |-------|------|------|-----|
 |n=100||||
 |n=1000||||
