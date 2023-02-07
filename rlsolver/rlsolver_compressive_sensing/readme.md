@@ -64,7 +64,38 @@ Ours: Formula (7) is trained as a deep neural network.
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = \boldsymbol{ \Phi } \widehat{\boldsymbol{z}} $.
 
-#### $\frac{m}{n} = 0.3 $ 
+<table>
+<tr><th>$\frac{m}{n} = 0.3 $</th><th>$\frac{m}{n} = 0.5 $</th><th>$\frac{m}{n} = 0.7 $</th></tr>
+<tr><td>
+
+ |#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+
+</td><td>
+
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+
+</td><td>
+ 
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+ 
+ </td></tr> </table>
+
+<!-- #### $\frac{m}{n} = 0.3 $ 
 
 |#iterations| $10$ | $20$ |  $30$|
 |------|------|------|-----|
@@ -86,14 +117,45 @@ Ours: Formula (7) is trained as a deep neural network.
 |------|------|------|-----|
 |n=100||||
 |n=1000||||
-|n=10000||||
+|n=10000|||| -->
 
 ### DCS
 - Given train $G_\theta$, using Eqn. (7) in [1] to recover $\boldsymbol{\widehat{z}}$ and $\boldsymbol{\widehat{x}}$.
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{hundreds of iterations}]{Eqn. (7)} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
 
-#### $\frac{m}{n} = 0.3 $ 
+<table>
+<tr><th>$\frac{m}{n} = 0.3 $</th><th>$\frac{m}{n} = 0.5 $</th><th>$\frac{m}{n} = 0.7 $</th></tr>
+<tr><td>
+
+ |#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+
+</td><td>
+
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+
+</td><td>
+ 
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+ 
+ </td></tr> </table>
+
+<!-- #### $\frac{m}{n} = 0.3 $ 
 
 |#iterations| $100$ | $200$ |  $300$|
 |------|------|------|-----|
@@ -116,13 +178,44 @@ Ours: Formula (7) is trained as a deep neural network.
 |n=100||||
 |n=1000||||
 |n=10000||||
-
+ -->
 ### Ours
 - Train a neural network (NN) to replace Eqn. (7) in [1].
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{x iterations, x < 10}]{NN} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
 
-#### $\frac{m}{n} = 0.3 $ 
+<table>
+<tr><th>$\frac{m}{n} = 0.3 $</th><th>$\frac{m}{n} = 0.5 $</th><th>$\frac{m}{n} = 0.7 $</th></tr>
+<tr><td>
+
+ |#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+
+</td><td>
+
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+
+</td><td>
+ 
+|#iterations| $10$ | $20$ |  $30$|
+|------|------|------|-----|
+|n=100||||
+|n=1000||||
+|n=10000||||
+
+ 
+ </td></tr> </table>
+
+<!-- #### $\frac{m}{n} = 0.3 $ 
 
 |#iterations| $1$ | $3$ |  $5$|
 |------|------|------|-----|
@@ -144,4 +237,4 @@ Ours: Formula (7) is trained as a deep neural network.
 |------|------|------|-----|
 |n=100||||
 |n=1000||||
-|n=10000||||
+|n=10000|||| -->
