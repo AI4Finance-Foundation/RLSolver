@@ -47,5 +47,12 @@ Ours: Formula (7) is trained as a deep neural network.
 |$G_\theta(z)$|DCT|![alt_text](./fig/origin_signal_20_dct.png)|![alt_text](./fig/recovery_signal_20_dct.png)|
 
 
+### Gen
+|Method|$X_{Origin}$|$X_{generated}$|
+|---|----|----|
+|$Loss = MSE(G_\theta(z) - \Phi z)$|![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|
+|$Loss = MSE(G_\theta(z_{random}) - \Phi z)$|![alt_text](./fig/origin_signal_1.png)|![alt_text](./fig/gen_signal_1.png)|
+
+
 ### Lasso vs DCS
 ![alt_text](./fig/recovery_signal_lasso_vs_dcs.png)
