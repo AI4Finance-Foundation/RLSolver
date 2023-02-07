@@ -37,7 +37,7 @@ Ours: Formula (7) is trained as a deep neural network.
  -->
 
 ### Synthetic Signal
-- Sparse signal $\textbf{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B} = \text{\{}-1,0, 1\text{\}}$, $\lVert \textbf{z} \rVert_1 = k$, and sparsity $s = \frac{k}{n}$.
+- Sparse signal $\textbf{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lVert \textbf{z} \rVert_1 = k$, and sparsity $s = \frac{k}{n}$.
 - Representation domain $\phi \in \mathbb{R}^{n\times n}$.
 - Sample signal $\textbf{x} = \phi \textbf{z}$.
 
@@ -49,7 +49,7 @@ Ours: Formula (7) is trained as a deep neural network.
 
 
 ### Generator $G_\theta(z)$
-- Training samples: $\text{\{}(\textbf{z},\textbf{x}=\phi \textbf{z})\text{\}}$
+- Training samples: $\lbrace (\textbf{z},\textbf{x}=\phi \textbf{z})\rbrace$
 - Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
 - 
 
@@ -62,7 +62,7 @@ Ours: Formula (7) is trained as a deep neural network.
 - Random measurement $\textbf{A}\in \mathbb{R}^{m\times n}$.
 - Error = $norm(\textbf{x} - \hat{\textbf{x}})$.
 
-|Number of iterations of convergence|$\frac{m}{n}<s$|$\frac{m}{n}=s$|$\frac{m}{n}>s$|
+|Number of iterations of convergence| $\frac{m}{n} = 0.3 $ | $\frac{m}{n} = 0.5 $ |  $\frac{m}{n} = 0.7 $|
 |-------|------|------|-----|
 |n=100||||
 |n=1000||||
