@@ -62,44 +62,13 @@ Ours: Formula (7) is trained as a deep neural network.
 - $\widehat{\boldsymbol{z}} = Lasso(\boldsymbol{y}, \boldsymbol{F} \boldsymbol{ \Phi })$
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = \boldsymbol{ \Phi } \widehat{\boldsymbol{z}} $.
-<!-- 
-<table>
-<tr><th>$\frac{m}{n} = 0.3 $</th><th>$\frac{m}{n} = 0.5 $</th><th>$\frac{m}{n} = 0.7 $</th></tr>
-<tr><td>
 
- |#iterations| $10$ | $20$ |  $30$|
-|------|------|------|-----|
-|$n=100$||||
-|$n=1000$||||
-|$n=10000$||||
-
-
-</td><td>
-
-|#iterations| $10$ | $20$ |  $30$|
-|------|------|------|-----|
-|$n=100$||||
-|$n=1000$||||
-|$n=10000$||||
-
-
-</td><td>
- 
-|#iterations| $10$ | $20$ |  $30$|
-|------|------|------|-----|
-|$n=100$||||
-|$n=1000$||||
-|$n=10000$||||
-
- 
- </td></tr> </table>
- -->
  
 #### $m=50 $ 
 
-|#iterations| $10$ | $20$ |  $30$|
+|#iterations| $5$ | $10$ |  $15$|
 |------|------|------|-----|
-|$n=100$||||
+|$n=100$|86.86%|61.76%|0.000439%|
 
 
 ### DCS
@@ -111,7 +80,7 @@ Ours: Formula (7) is trained as a deep neural network.
 
 |#iterations| $100$ | $200$ |  $300$|
 |------|------|------|-----|
-|$n=100$||||
+|$n=100$|75.14%|74.68%||
 
 
 ### Ours
