@@ -35,9 +35,9 @@ Ours: Formula (7) is trained as a deep neural network.
 |LASSO|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_lasso.png)|
 |$G_\theta(z)$|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_11.png)|
  -->
-
+- The true signal $\boldsymbol{x}$ has the sparse representation $\boldsymbol{z}$ in the domain $\boldsymbol{\Phi}$.
 ### Synthetic Signal
-- Sparse signal $\boldsymbol{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lvert \boldsymbol{z}\rvert_1 = k$, and sparsity $s = \frac{k}{n}$.
+- Sparse signal $\boldsymbol{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lvert \boldsymbol{z}\rvert_1 = k$.
 - Representation domain $\boldsymbol{\Phi} \in \mathbb{R}^{n\times n}$.
 - Sample signal $\boldsymbol{x} = \boldsymbol{\Phi} \boldsymbol{z}$.
 
