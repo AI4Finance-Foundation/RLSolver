@@ -49,7 +49,7 @@ Ours: Formula (7) is trained as a deep neural network.
 
 
 ### Generator $G_\theta(z)$
-- Training samples: $\lbrace (\boldsymbol{z},\boldsymbol{x}=\boldsymbol{\Phi}\boldsymbol{z})\rbrace$
+- Training samples: $\lbrace (\boldsymbol{z},\boldsymbol{x})\rbrace$
 - Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
@@ -59,7 +59,6 @@ Ours: Formula (7) is trained as a deep neural network.
 
 
 ### Lasso (CS)
-- Linear measurment process: $\boldsymbol{y} = \boldsymbol{F} \boldsymbol{x}$ = $\boldsymbol{F}\boldsymbol{ \Phi } \boldsymbol{z}$, where $\boldsymbol{F}\in \mathbb{R}^{m\times n}$ is a random measurement.
 - $\widehat{\boldsymbol{z}} = Lasso(\boldsymbol{y}, \boldsymbol{F} \boldsymbol{ \Phi })$
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = \boldsymbol{ \Phi } \widehat{\boldsymbol{z}} $.
