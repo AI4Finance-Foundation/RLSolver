@@ -2,7 +2,7 @@
  
  [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning, 2019.
  
- First case, linear measurment process: $\boldsymbol{y} = \boldsymbol{A} \boldsymbol{x}$, where the true signal $\boldsymbol{x} \in \mathbb{R}^n$, $\boldsymbol{A} \in \mathbb{R}^{m \times n}$, and $\boldsymbol{y} \in \mathbb{R}^m $, $m \ll n$.
+ First case, linear measurment process: $\boldsymbol{y} = \boldsymbol{F} \boldsymbol{x}$, where the true signal $\boldsymbol{x} \in \mathbb{R}^n$, $\boldsymbol{F} \in \mathbb{R}^{m \times n}$, and $\boldsymbol{y} \in \mathbb{R}^m $, $m \ll n$.
 
 ## Recovery Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 
@@ -15,14 +15,14 @@ Ours: Formula (7) is trained as a deep neural network.
 
 ## Recovery on the MNIST dataset
 
- $\boldsymbol{A}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
+ $\boldsymbol{F}_\phi$: $\boldsymbol{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
 |Method|LOSS|Origin image| 1 steps|3 steps | 5 steps|
 |-------| ----|------- | -----|------ |-----|
-|$\textbf{F}_\phi$ (L) + grad|4.78|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0.png)|![alt_text](./fig/reconstruction_3.png)|![alt_text](./fig/reconstruction_5.png)|
-|$\textbf{F}_\phi$ (L) + NN|10.20|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_nn.png)|![alt_text](./fig/reconstruction_3_nn.png)|![alt_text](./fig/reconstruction_5_nn.png)|
-|Fix $\textbf{F}$ + grad steps          (m = 100) |6.97|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_4_last.png)|![alt_text](./fig/reconstruction_3_4_last.png)|![alt_text](./fig/reconstruction_5_4_last.png)|
-|Fix $\textbf{F}$ + grad steps          (m = 300)|4.50|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_3_last.png)|![alt_text](./fig/reconstruction_3_3_last.png)|![alt_text](./fig/reconstruction_5_3_last.png)|
+|$\boldsymbol{F}_\phi$ (L) + grad|4.78|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0.png)|![alt_text](./fig/reconstruction_3.png)|![alt_text](./fig/reconstruction_5.png)|
+|$\boldsymbol{F}_\phi$ (L) + NN|10.20|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_nn.png)|![alt_text](./fig/reconstruction_3_nn.png)|![alt_text](./fig/reconstruction_5_nn.png)|
+|Fix $\boldsymbol{F}$ + grad steps          (m = 100) |6.97|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_4_last.png)|![alt_text](./fig/reconstruction_3_4_last.png)|![alt_text](./fig/reconstruction_5_4_last.png)|
+|Fix $\boldsymbol{F}$ + grad steps          (m = 300)|4.50|![alt_text](./fig/origin.png)|![alt_text](./fig/reconstruction_0_3_last.png)|![alt_text](./fig/reconstruction_3_3_last.png)|![alt_text](./fig/reconstruction_5_3_last.png)|
 
 |${\overline{X}}$|$\overline{G_\theta (z_0)}$|
 |-----|-----|
@@ -59,8 +59,8 @@ Ours: Formula (7) is trained as a deep neural network.
 
 
 ### Lasso (CS)
-- Linear measurment process: $\boldsymbol{y} = \boldsymbol{A} \boldsymbol{x}$ = $\boldsymbol{A}\boldsymbol{ \Phi } \boldsymbol{z}$, where $\boldsymbol{A}\in \mathbb{R}^{m\times n}$ is a random measurement.
-- $\widehat{\boldsymbol{z}} = Lasso(\boldsymbol{y}, \boldsymbol{A} \boldsymbol{ \Phi })$
+- Linear measurment process: $\boldsymbol{y} = \boldsymbol{F} \boldsymbol{x}$ = $\boldsymbol{F}\boldsymbol{ \Phi } \boldsymbol{z}$, where $\boldsymbol{F}\in \mathbb{R}^{m\times n}$ is a random measurement.
+- $\widehat{\boldsymbol{z}} = Lasso(\boldsymbol{y}, \boldsymbol{F} \boldsymbol{ \Phi })$
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\sim\text{30 iterations}]{Lasso} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = \boldsymbol{ \Phi } \widehat{\boldsymbol{z}} $.
 
