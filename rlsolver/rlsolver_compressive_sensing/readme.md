@@ -35,11 +35,11 @@ Ours: Formula (7) is trained as a deep neural network.
 |LASSO|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_lasso.png)|
 |$G_\theta(z)$|10|![alt_text](./fig/origin_signal_11.png)|![alt_text](./fig/recovery_signal_11.png)|
  -->
-- The true signal $\boldsymbol{x}$ has the sparse representation $\boldsymbol{z}$ in the domain $\boldsymbol{\Phi}$.
+- The true signal $\boldsymbol{x} \in \mathbb{R}^n$  has a sparse representation $\boldsymbol{z}\in \mathbb{R}^n$ in the representation domain $\boldsymbol{\Phi} \in \mathbb{R}^{n \times n}$, where $\lVert \boldsymbol{z} \rVert_0=k$.
 ### Synthetic Signal
-- Sparse signal $\boldsymbol{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$, $\lvert \boldsymbol{z}\rvert_1 = k$.
-- Representation domain $\boldsymbol{\Phi} \in \mathbb{R}^{n\times n}$.
-- Sample signal $\boldsymbol{x} = \boldsymbol{\Phi} \boldsymbol{z}$.
+- Latent representation $\boldsymbol{z}$  $\in \mathbb{B}^{n}$, where $\mathbb{B}$ =  $\lbrace -1,0, 1\rbrace$ and $\lVert \boldsymbol{z}\rVert_0 = k$.
+- Representation domain (Basis) $\boldsymbol{\Phi} \in \mathbb{R}^{n\times n}$.
+- Synthetic signal $\boldsymbol{x} = \boldsymbol{\Phi} \boldsymbol{z}$.
 
     $n=100, k=10$
     | $\Phi$|$\boldsymbol{z}$|$\boldsymbol{x}$|
@@ -50,10 +50,10 @@ Ours: Formula (7) is trained as a deep neural network.
 
 ### Generator $G_\theta(z)$
 - Training samples: $\lbrace (\boldsymbol{z},\boldsymbol{x})\rbrace$
-- Loss function:  $MSE(G_\theta(\textbf{z}), \textbf{x})$
+- Loss function:  $MSE(G_\theta(\boldsymbol{z}), \boldsymbol{x})$
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
-|$\textbf{z}$|$\boldsymbol{\Phi} \textbf{z}$|$G_\theta(\textbf{z})$|Error|
+|$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
 |---|----|----|---|
 ||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$< 0.1$%|
 
