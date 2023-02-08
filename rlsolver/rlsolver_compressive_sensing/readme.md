@@ -2,7 +2,7 @@
  
  [1] Wu, Yan, Mihaela Rosca, and Timothy Lillicrap. "Deep compressed sensing." International Conference on Machine Learning, 2019.
  
- First case, linear measurment process: $\textbf{y} = \textbf{F} \textbf{x}$, where the true signal $\textbf{x} \in \mathbb{R}^n$, $\textbf{F} \in \mathbb{R}^{m \times n}$, and $\textbf{y} \in \mathbb{R}^m $, $m \ll n$.
+ First case, linear measurment process: $\boldsymbol{y} = \boldsymbol{A} \boldsymbol{x}$, where the true signal $\boldsymbol{x} \in \mathbb{R}^n$, $\boldsymbol{A} \in \mathbb{R}^{m \times n}$, and $\boldsymbol{y} \in \mathbb{R}^m $, $m \ll n$.
 
 ## Recovery Error $\lVert x-\hat{x}\rVert_2$ for MNIST
 
@@ -15,7 +15,7 @@ Ours: Formula (7) is trained as a deep neural network.
 
 ## Recovery on the MNIST dataset
 
- $\textbf{F}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
+ $\boldsymbol{A}_\phi$: $\textbf{F}$ is reparameterized as a deep neural network with parameter $\phi$.
 
 |Method|LOSS|Origin image| 1 steps|3 steps | 5 steps|
 |-------| ----|------- | -----|------ |-----|
