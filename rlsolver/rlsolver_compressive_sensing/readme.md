@@ -116,7 +116,7 @@ Ours: Formula (7) is trained as a deep neural network.
 
 ### Ours
 - Train a neural network (NN) to replace Eqn. (7) in [1].
-- $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{x iterations, x < 10}]{NN} \widehat{\boldsymbol{z}}$
+- $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{a iterations, a < 10}]{NN} \widehat{\boldsymbol{z}}$
 - Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
 
 #### $m=50 $ 
