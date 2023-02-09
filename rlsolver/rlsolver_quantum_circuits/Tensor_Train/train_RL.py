@@ -12,7 +12,7 @@ np.set_printoptions(suppress=True)
 
 
 class Env():
-    def __init__(self, N=100, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:4")):
+    def __init__(self, N=100, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -106,7 +106,7 @@ class Policy_Net(nn.Module):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N - 1
-        self.device = torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mid_dim = mid_dim
         self.net = nn.Sequential(
             nn.Linear((N + 2) * (N + 2) + N + N + (N - 1), mid_dim * 2),
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     mid_dim = 256
     learning_rate = 5e-5
 
-    device = torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net = Policy_Net(mid_dim=mid_dim, N=N).to(device)
     optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
     if_wandb=False
