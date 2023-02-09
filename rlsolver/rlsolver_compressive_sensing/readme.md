@@ -94,7 +94,7 @@ Ours: Formula (7) is trained as a deep neural network.
 |------|------|------|-----|
 |$n=100$||||
 
-## Different Initialization
+## Different Initializations
 
 ### MNIST
 
