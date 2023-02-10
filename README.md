@@ -27,7 +27,7 @@ Several key references:
 
 ## Environments
 
-ElegantRL_Solver includes the following environments with the support of massively parallel simulation
+ElegantRL_Solver includes the following environments with the support of massively parallel simulation on GPUs.
 * [MIMO Beamforming in 5G/6G](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_mimo_beamforming).
 * [Classic Simulation of Quantum Circuits](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_quantum_circuits).
 * [Compressive Sensing](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_compressive_sensing).
