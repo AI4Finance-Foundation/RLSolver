@@ -2,23 +2,20 @@
 
 import torch as th
 import torch
-device = th.device("cuda:0")
+device = th.device("cpu")
 # 根据张量网络中张量数量设定
 N = 100
 # Env数量
 num_env = 100
 max_dim = 2
-test_state = torch.ones((num_env, N + 2, N + 2), device=device).to(torch.float32)
-mask = th.zeros(N + 2, N + 2).to(device)
-mask[1, 1] = 1
-for i in range(2, N + 1):
-    mask[i, i-1] = 1
-    mask[i, i] = 1
-
-mask = mask.reshape(-1).repeat(1, num_env).reshape(num_env, N + 2, N + 2).to(device)
-test_state = th.mul(test_state, mask)
-test_state += th.ones_like(test_state)
-test_state[N,1] = 2
-with open(f"test_data_tensor_train_N={N}.pkl", 'wb') as f:
+test_state = th.ones((N+1, N+1), dtype=th.float32, device=device)
+x_index = th.arange(1, N+1, dtype=th.int64, device=device)
+y_index = th.arange(1, N+1, dtype=th.int64, device=device)
+test_state[x_index, y_index] = 2
+x_index = th.arange(2, N+1, dtype=th.int64, device=device)
+y_index = th.arange(1, N, dtype=th.int64, device=device)
+test_state[x_index, y_index] = 2
+test_state = test_state.unsqueeze(0).repeat(num_env, 1, 1)
+with open(f"test_data_tensor_ring_N={N}.pkl", 'wb') as f:
     import pickle as pkl
     pkl.dump(test_state, f)
