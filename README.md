@@ -32,6 +32,7 @@ ElegantRL_Solver includes the following environments with the support of massive
 * [Classic Simulation of Quantum Circuits](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_quantum_circuits).
 * [Compressive Sensing](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_compressive_sensing).
 * [Portfolio Management](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_portfolio_management).
+* [OR-Gym](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/helloworld).
 
 ## Outline
 
