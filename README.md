@@ -25,6 +25,14 @@ Several key references:
 ## News
 - We are currently developing optimization (OPT) environments that utilizes massive parallel simulation on GPU, the first version of which will be available at the end of January 2023. We welcome any suggestions or feedback!"
 
+## Environments
+
+ElegantRL_Solver includes the following environments with the support of massively parallel simulation
+* [MIMO Beamforming in 5G/6G](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_mimo_beamforming).
+* [Classic Simulation of Quantum Circuits](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_quantum_circuits).
+* [Compressive Sensing](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_compressive_sensing).
+* [Portfolio Management](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/rlsolver/rlsolver_portfolio_management).
+
 ## Outline
 
 - [File Structure](#File-Structure)
