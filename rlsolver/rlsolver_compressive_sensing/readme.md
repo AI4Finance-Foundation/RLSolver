@@ -48,13 +48,16 @@ Ours: Formula (7) is trained as a deep neural network.
     |DCT|fig|fig|
 
 
-### Generator $G_\theta(z)$
-
+### Generator $G_\theta(\boldsymbol{z})$
+- The latent dimension of the generator model input, $\boldsymbol{z}$, is larger than $k$ and much less than $n$.
 - Training samples: $\lbrace (\boldsymbol{z},\boldsymbol{x})\rbrace$
 - Loss function:  $MSE(G_\theta(\boldsymbol{z}), \boldsymbol{x})$
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
 #### Verify whether $G_\theta(z)$ approximates a sparse structure.
+- Verify whether $G_\theta(\boldsymbol{z})$ is sparse in the representation domain $\boldsymbol{\Phi}$, namely $\lVert\boldsymbol{\Phi}^{-1}G_\theta(\boldsymbol{z})\rVert_0 \approx k$.
+
+
 #### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
 
 |$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
