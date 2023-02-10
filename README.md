@@ -29,7 +29,7 @@ Several key references:
 
 ElegantRL_Solver includes the following environments with the support of massively parallel simulation on GPUs.
 * MIMO Beamforming in 5G/6G.
-* Classic Simulation of Quantum Circuits.
+* Classical Simulation of Quantum Circuits.
 * Compressive Sensing.
 * Portfolio Management.
 * OR-Gym.
