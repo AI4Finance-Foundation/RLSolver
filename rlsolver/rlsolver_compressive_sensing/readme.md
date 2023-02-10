@@ -49,9 +49,13 @@ Ours: Formula (7) is trained as a deep neural network.
 
 
 ### Generator $G_\theta(z)$
+
 - Training samples: $\lbrace (\boldsymbol{z},\boldsymbol{x})\rbrace$
 - Loss function:  $MSE(G_\theta(\boldsymbol{z}), \boldsymbol{x})$
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
+
+#### Verify whether $G_\theta(z)$ approximates a sparse structure.
+#### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
 
 |$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
 |---|----|----|---|
