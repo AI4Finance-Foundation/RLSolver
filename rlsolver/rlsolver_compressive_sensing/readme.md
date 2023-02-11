@@ -58,7 +58,7 @@ Ours: Formula (7) is trained as a deep neural network.
 ||Lasso|DCS|Ours|
 |-|--|--|--|
 |Intialization|$f(\boldsymbol{F})$|$G_\theta(\boldsymbol{z})$|$G_\theta(\boldsymbol{z})$|
-|Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_0$|$latentDim << N$ |$latentDim << N$|
+|Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_1$|$latentDim << N$ |$latentDim << N$|
 |Iterative Method| Gradient based|Gradient based, Eqn. $(7)$| Forward propagation|
 |\#Iterations (MNIST)|$10\sim30$|$5$|$\textcolor{blue}{<5}$|
 |\#Iterations (Synthetic)|$10\sim30$|$\textcolor{blue}{Undoable}$|$\textcolor{blue}{<5}$|
