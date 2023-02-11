@@ -58,7 +58,7 @@ Ours: Formula (7) is trained as a deep neural network.
 ||Lasso|DCS|Ours|
 |-|--|--|--|
 |Intialization|$f(\boldsymbol{F})$|$G_\theta(\boldsymbol{z})$|$G_\theta(\boldsymbol{z})$|
-|Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_0$|$latent\_dim << N$ |$latent\_dim << N$|
+|Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_0$|$latentDim << N$ |$latentDim << N$|
 |Iterative Method| Gradient based|Gradient based, Eqn. $(7)$| Forward propagation|
 |\#Iterations (MNIST)|$10\sim30$|$5$|$\textcolor{blue}{<5}$|
 |\#Iterations (Synthetic)|$10\sim30$|$\textcolor{blue}{20\sim30}$|$\textcolor{blue}{<5}$|
@@ -69,20 +69,21 @@ sparse structure.
 
 #### Verify Sparse Structure with Auto Encoder: $\widehat{x} = g(f(x))$ 
 
-- $x\in\mathbb{R}^n$ is $k$-sparse in the representation domain, hence $x$ can be represented by a latent vector with lower dimension.
+- True signal $x\in\mathbb{R}^n$ is $k$-sparse in the representation domain, hence $x$ can be represented by a latent vector with lower dimension.
+
 
 
 
 - Network Structure: 
 
-    $x\rightarrow$ $Linear$($N$, $\frac{N + latent\_dim}{2}$) $\xrightarrow[]{ReLU}$ $Linear$( $\frac{N + latent\_dim}{2}$, $latent\_dim$)$\xrightarrow[]{Normalize}Linear$($latent\_dim$, $\frac{N + latent\_dim}{2}$)$\xrightarrow[]{ReLU}Linear$($\frac{N + latent\_dim}{2}$,$N$)$\rightarrow$ $\widehat{x}$
+    $x\rightarrow$ $Linear$( $N$, $\frac{N + latentDim}{2}$) $\xrightarrow[]{ReLU}$ $Linear$( $\frac{N + latentDim}{2}$, $latentDim$) $\xrightarrow[]{Normalize}Linear$( $latentDim$, $\frac{N + latentDim}{2}$) $\xrightarrow[]{ReLU}Linear$( $\frac{N + latentDim}{2}$, $N$) $\rightarrow$ $\widehat{x}$
 
-- Loss: $\frac{1}{N}\sum_{i}^B \lVert x_i-\widehat{x}_i\rVert_2^2 $
+- Loss: $MSE(\boldsymbol{x}, \widehat{\boldsymbol{x}})$
 
     n = 100
-    | |$\text{latent_dim}=100$|$\text{latent_dim}=99$|$\text{latent_dim}=90$ |$\text{latent_dim}=80$ | 
+    | |$latentDim=100$|$latentDim=99$|$latentDim=90$ |$latentDim=80$ | 
     |--|----|----|----|----|
-    | $Error$ |  $0.003\%$  | $4.39\%$   | $24.68\%$   |  $43.97\%$   |
+    | $Error$ |  $0.003$%  | $4.39$%   | $24.68$%   |  $43.97$%   |
 #### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
 
 |$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
