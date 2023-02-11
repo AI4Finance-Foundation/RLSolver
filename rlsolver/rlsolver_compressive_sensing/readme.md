@@ -61,7 +61,7 @@ Ours: Formula (7) is trained as a deep neural network.
 |Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_0$|$latentDim << N$ |$latentDim << N$|
 |Iterative Method| Gradient based|Gradient based, Eqn. $(7)$| Forward propagation|
 |\#Iterations (MNIST)|$10\sim30$|$5$|$\textcolor{blue}{<5}$|
-|\#Iterations (Synthetic)|$10\sim30$|$\textcolor{blue}{20\sim30}$|$\textcolor{blue}{<5}$|
+|\#Iterations (Synthetic)|$10\sim30$|$\textcolor{blue}{Undoable}$|$\textcolor{blue}{<5}$|
 
 #### Verify whether $G_\theta(z)$ approximates a 
 sparse structure.
