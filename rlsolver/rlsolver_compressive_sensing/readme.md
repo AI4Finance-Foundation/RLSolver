@@ -55,7 +55,7 @@ Ours: Formula (7) is trained as a deep neural network.
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
 
-||Lasso|DCS|NN|
+||Lasso|DCS|Ours|
 |-|--|--|--|
 |Intialization|$f(\boldsymbol{F})$|$G_\theta(\boldsymbol{z})$|$G_\theta(\boldsymbol{z})$|
 |Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_0$|$latent\_dim << N$ |$latent\_dim << N$|
