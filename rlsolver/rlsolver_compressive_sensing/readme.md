@@ -80,7 +80,7 @@ sparse structure.
 - Loss: $\frac{1}{N}\sum_{i}^B \lVert x_i-\widehat{x}_i\rVert_2^2 $
 
     n = 100
-    | |$latent\_dim=100$|$latent\_dim=99$|$latent\_dim=90$ |$latent\_dim=80$ | 
+    | |$\text{latent_dim}=100$|$\text{latent_dim}=99$|$\text{latent_dim}=90$ |$\text{latent_dim}=80$ | 
     |--|----|----|----|----|
     | $Error$ |  $0.003\%$  | $4.39\%$   | $24.68\%$   |  $43.97\%$   |
 #### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
