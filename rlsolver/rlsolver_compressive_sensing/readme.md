@@ -54,10 +54,35 @@ Ours: Formula (7) is trained as a deep neural network.
 - Loss function:  $MSE(G_\theta(\boldsymbol{z}), \boldsymbol{x})$
 - Error: $\frac{\lVert\boldsymbol{\Phi}\boldsymbol{z}-G_\theta(\boldsymbol{z})\rVert_2}{\lVert\boldsymbol{\Phi}\boldsymbol{z}\rVert_2}\times 100$%
 
-#### Verify whether $G_\theta(z)$ approximates a sparse structure.
+
+||Lasso|DCS|NN|
+|-|--|--|--|
+|Intialization|$f(\boldsymbol{F})$|$G_\theta(\boldsymbol{z})$|$G_\theta(\boldsymbol{z})$|
+|Sparse Structure|$\min_{\boldsymbol{z}}\lVert \boldsymbol{z}\rVert_0$|$latent\_dim << N$ |$latent\_dim << N$|
+|Iterative Method| Gradient based|Gradient based, Eqn. $(7)$| Forward propagation|
+|\#Iterations (MNIST)|$10\sim30$|$5$|$\textcolor{blue}{<5}$|
+|\#Iterations (Synthetic)|$10\sim30$|$\textcolor{blue}{20\sim30}$|$\textcolor{blue}{<5}$|
+
+#### Verify whether $G_\theta(z)$ approximates a 
+sparse structure.
 - Verify whether $G_\theta(\boldsymbol{z})$ is sparse in the representation domain $\boldsymbol{\Phi}$, namely $\lVert\boldsymbol{\Phi}^{-1}G_\theta(\boldsymbol{z})\rVert_0 \approx k$.
 
+#### Verify Sparse Structure with Auto Encoder: $\widehat{x} = g(f(x))$ 
 
+- $x\in\mathbb{R}^n$ is $k$-sparse in the representation domain, hence $x$ can be represented by a latent vector with lower dimension.
+
+
+
+- Network Structure: 
+
+    $x\rightarrow$ $Linear$($N$, $\frac{N + latent\_dim}{2}$) $\xrightarrow[]{ReLU}$ $Linear$( $\frac{N + latent\_dim}{2}$, $latent\_dim$)$\xrightarrow[]{Normalize}Linear$($latent\_dim$, $\frac{N + latent\_dim}{2}$)$\xrightarrow[]{ReLU}Linear$($\frac{N + latent\_dim}{2}$,$N$)$\rightarrow$ $\widehat{x}$
+
+- Loss: $\frac{1}{N}\sum_{i}^B \lVert x_i-\widehat{x}_i\rVert_2^2 $
+
+    n = 100
+    | |$latent\_dim=100$|$latent\_dim=99$|$latent\_dim=90$ |$latent\_dim=80$ | 
+    |--|----|----|----|----|
+    | $Error$ |  $0.003\%$  | $4.39\%$   | $24.68\%$   |  $43.97\%$   |
 #### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
 
 |$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
