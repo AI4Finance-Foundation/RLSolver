@@ -7,7 +7,9 @@ Roadmap
 - [ ] Baseline methods: greedy, BRB
 - [ ] Dataset
 - [ ] RL achieves optimality and outperforms baselines
+
 ![alt text](./Classical_simulation.png)
+
 ![alt text](./mdp_formulation.png)
 
 ## Data Generation
