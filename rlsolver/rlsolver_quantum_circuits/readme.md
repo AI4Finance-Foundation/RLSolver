@@ -1,14 +1,16 @@
-# Classical Simulation of Quantum Circuits
+# Classical simulation of quantum circuits using tensor networks
+
 Roadmap
-- [x] Formulation of classical simulation of quantum circuits
-- [ ] Massively parallel simulation environment for classical simulation
+- [x] Tensor network representations
+- [ ] Gym-environments
+- [ ] Massively parallel simulation of environment
 - [ ] Baseline methods: greedy, BRB
 - [ ] Dataset
-- [ ] RL achieves optimality and outperforms baselines on single GPU
+- [ ] RL achieves optimality and outperforms baselines
 ![alt text](./Classical_simulation.png)
 ![alt text](./mdp_formulation.png)
 
-## Data Generate
+## Data Generation
 ![image](https://user-images.githubusercontent.com/75991833/217781554-41eba099-15b4-46c1-bcd0-6f2811ae6583.png)
 
 ## Results
