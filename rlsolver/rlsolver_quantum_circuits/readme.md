@@ -10,7 +10,7 @@ Roadmap
 
 ## Data Generation
 
-![image](https://user-images.githubusercontent.com/75991833/217781554-41eba099-15b4-46c1-bcd0-6f2811ae6583.png)
+![image](https://user-images.githubusercontent.com/75991833/218318283-33c5ee67-4523-42e2-bda9-71f63b9ab34a.png)
 
 ## Experimental Results
 
