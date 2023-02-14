@@ -60,8 +60,7 @@ class Env():
         mask = deepcopy(self.mask)
         action_mask = th.mul(mask, action)
         action_mask = action_mask / action_mask.sum(dim=-1, keepdim=True)
-        #if self.if_test:
-            # print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(), self.epsilon)
+
         for k in range(action.shape[0]):
             # r = 0
             # r_no_prob = 0
@@ -74,14 +73,10 @@ class Env():
             self.mask[k, selected_edge_id] = 0
             r = 1
 
-            if (selected_edge_id < N - 1):
-                first_node = selected_edge_id + 2
-            else:
-                first_node = selected_edge_id + 1
-            if (selected_edge_id < N - 1):
-                second_node = selected_edge_id + 1
-            else:
-                second_node = 1
+            # first_node = (selected_edge_id + 1) % self.N
+            # second_node = (selected_edge_id + 2) % self.N
+            # if (first_node == 0):    first_node = N
+            # if (second_node == 0):    second_node = N
 
             if self.start[k, selected_edge_id] == 1 or self.end[k, selected_edge_id] == N:
                 r = r * 2
@@ -92,15 +87,11 @@ class Env():
             #     if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
             #         r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
 
-
             for i in range(N):
                 if (self.start[k, i] == self.start[k, selected_edge_id]):
                     r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, i + 1])
                 elif (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
                     r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, i + 1])
-
-
-            # if (selected_edge_id == N - 1): self.state[k, first_node, second_node] = 1
 
             # for j in range(self.start[k, selected_edge_id], self.end[k, selected_edge_id] + 1):
             #     # r *= 自身*左*下
@@ -109,7 +100,6 @@ class Env():
             #     # r *= 自身 * 左 * 下
             #     r *= (state[j, j] * state[j, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, j])
             # # 去除重用部分
-
             # r /= 2
             # if (tmp_trick == 2):
             #      r /= 2
@@ -119,13 +109,8 @@ class Env():
 
             # start更新，选择edge的小值
             start_new = min(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
-            # start_old = max(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
             # end更新，选择edge的大值
             end_new = max(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
-            # end_old = min(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
-            # for __ in range(start_new, end_new + 1):
-            #     self.start[k, __ - 1] = start_new
-            #     self.end[k, __ - 1] = end_new
             for i in range(N):
                 if self.start[k, i] == start_new or self.end[k, i] == end_new:
                     self.start[k, i] = start_new
@@ -146,12 +131,12 @@ class Env():
         self.done = True if self.num_steps >= self.episode_length else False
         if self.done and self.if_test:
             action_mask_ = th.mul(self.mask, action)
-            print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
+            # print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
         return (self.state, self.start, self.end, self.mask, action.detach()), reward, self.done
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=4):
+    def __init__(self, mid_dim=1024, N=100):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N
@@ -210,7 +195,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
 
 
 if __name__ == "__main__":
-    N = 4
+    N = 100
 
     mid_dim = 256
     learning_rate = 5e-5
