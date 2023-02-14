@@ -2,12 +2,11 @@ import torch
 import torch as th
 import torch.nn as nn
 import numpy as np
-from functorch import vmap
-from copy import deepcopy
+# from functorch import vmap
+# from copy import deepcopy
 from tqdm import tqdm
 # 取消科学计数法
 np.set_printoptions(suppress=True)
-
 
 class Env():
     def __init__(self, N=6, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
@@ -160,6 +159,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100
                     discounted_reward = discounted_reward * gamma
                 loss = loss_.mean()
                 optimizer.zero_grad()
+                loss.requires_grad = True
                 loss.backward()
                 optimizer.step()
                 break
