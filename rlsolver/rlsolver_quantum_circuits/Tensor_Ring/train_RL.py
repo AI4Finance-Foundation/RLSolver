@@ -3,142 +3,179 @@ import torch as th
 import torch.nn as nn
 import numpy as np
 # from functorch import vmap
-# from copy import deepcopy
-from tqdm import tqdm
+from copy import deepcopy
+
 # 取消科学计数法
 np.set_printoptions(suppress=True)
 
 class Env():
-    def __init__(self, N=6, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
+    def __init__(self, N=5, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
         self.episode_length = episode_length
         self.max_dim = max_dim
-        with open(f"test_data_tensor_ring_N={N}.pkl", 'rb') as f:
+        self.mask_state = th.zeros(self.N + 2, self.N + 2).to(self.device)
+        self.mask_state[1, 1] = 1
+        for i in range(2, self.N + 1):
+            self.mask_state[i, i - 1] = 1
+            self.mask_state[i, i] = 1
+        self.mask_state = self.mask_state.reshape(-1).repeat(1, self.num_env).reshape(self.num_env, self.N + 2, self.N + 2).to(self.device)
+        with open(f"test_data_tensor_train_N={N}.pkl", 'rb') as f:
             import pickle as pkl
             self.test_state = pkl.load(f)
-        # self.zero = th.zeros(self.N - 1).to(self.device)
-        self.state = th.zeros(self.num_env, self.N + 1, self.N + 1).to(self.device)
-        x_index = th.arange(1, self.N + 1, dtype=th.int64, device=self.device)
-        self.state[:, x_index, x_index] = 2
-        self.state[:, N, 1] = 2
-        self.mask = th.ones(self.num_env, self.N + 1, self.N + 1).to(self.device)
-        self.indicator = th.ones(self.num_env, self.N).to(self.device)
+        self.permute_base = th.as_tensor([i for i in range(self.N - 1)]).repeat(1, self.num_env).reshape(self.num_env,-1).to(
+            self.device)
+        self.zero = th.zeros(self.N - 1).to(self.device)
         self.epsilon = epsilon
-        self.reward = th.zeros(self.num_env, self.N + 1).to(self.device)
 
+    # 重置环境状态，回到初始环境
     def reset(self, test=False):
-        self.state = th.zeros(self.num_env, self.N + 1, self.N + 1).to(self.device)
-        x_index = th.arange(1, self.N + 1, dtype=th.int64, device=self.device)
-        self.state[:, x_index, x_index] = 2
-        self.state[:, N, 1] = 2
-        self.mask = th.zeros(self.num_env, self.N + 1, self.N + 1).to(self.device)
-        self.mask[:, x_index, x_index] = 1
-        self.reward = th.zeros(self.num_env, self.N+1).to(self.device)
+        if test:
+            self.num_env = self.test_state.shape[0]
+        else:
+            self.num_env = self.permute_base.shape[0]
+        self.state = torch.randint(0, self.max_dim, (self.num_env, self.N + 2, self.N + 2), device=self.device).to(torch.float32)
+        self.state = th.mul(self.state, self.mask_state[:self.num_env])
+        self.state += th.ones_like(self.state)
+        self.reward = th.zeros(self.num_env, self.episode_length).to(self.device)
         self.reward_no_prob = th.zeros(self.num_env, self.episode_length).to(self.device)
+        self.tmp_trick = th.zeros(self.num_env, self.episode_length).to(self.device)
         self.if_test = test
-        self.mask = th.ones(self.num_env, self.N + 1, self.N + 1).to(self.device)
+        self.start = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device) + 1
+        self.end = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device) + 1
+        self.mask = th.ones(self.num_env, self.N).to(self.device)
         if test:
             self.state = self.test_state
         self.num_steps = 0
         self.done = False
         initial_action = th.rand(self.num_env, self.N).to(self.device)
         initial_action /= initial_action.sum(dim=-1, keepdim=True)
-        self.indicator = th.ones(self.num_env, self.N).to(self.device)
-        return (self.state, self.mask, initial_action)
+        return (self.state, self.start, self.end, self.mask, initial_action)
+
 
     def step(self, action):
-        # action: (num_env, N)
-        # mask: [num_env, N+1, N+1]
-        reward_no_prob = 0  # 直接选概率最大的，贪心的reward
-        valid_action = action * self.indicator
-        valid_action = valid_action / valid_action.sum(dim=-1, keepdim=True)
-        selected_edge = torch.argmax(valid_action, dim=-1)
-        for env_i in range(self.num_env):
-            r = 1.
-            edge = selected_edge[env_i]
-            first_node = self.N if ((edge + 1) % self.N == 0) else (edge + 1) % self.N
-            second_node = self.N if ((edge + 2) % self.N == 0) else (edge + 2) % self.N
-            first_node_cluster = [first_node]
-            second_node_cluster = [second_node]
-            for i in range(self.N):
-                current_node = self.N if ((first_node - i) % self.N == 0) else (first_node - i) % self.N
-                if self.mask[env_i, current_node, first_node] == 1:
-                    first_node_cluster.append(current_node)
-                else:
-                    break
-            for i in range(self.N):
-                current_node = self.N if ((second_node - i) % self.N == 0) else (second_node - i) % self.N
-                if self.mask[env_i, current_node, second_node] == 1:
-                    second_node_cluster.append(current_node)
-                else:
-                    break
-            for i in range(self.N):
-                current_node = self.N if ((second_node + i) % self.N == 0) else (second_node + i) % self.N
-                if self.mask[env_i, first_node, current_node] == 1:
-                    second_node_cluster.append(current_node)
-                else:
-                    break
-            for i in range(self.N):
-                current_node = self.N if ((second_node - i) % self.N == 0) else (second_node - i) % self.N
-                if self.mask[env_i, second_node, second_node] == 1:
-                    second_node_cluster.append(current_node)
-                else:
-                    break
-            for node in first_node_cluster:
-                r *= torch.prod(self.state[env_i, node, 1:node])
-                r *= torch.prod(self.state[env_i, node:, node])
-                r *= self.state[env_i, node, node]
-            for node in second_node_cluster:
-                r *= torch.prod(self.state[env_i, node, 1:node])
-                r *= torch.prod(self.state[env_i, node:, node])
-                r *= self.state[env_i, node, node]
-            for node_i in range(len(first_node_cluster)):
-                for node_j in range(len(second_node_cluster)):
-                    r /= self.state[env_i, first_node_cluster[node_i], second_node_cluster[node_j]]
-                    r /= self.state[env_i, second_node_cluster[node_j], first_node_cluster[node_i]]
-                    self.mask[env_i, first_node_cluster[node_i], second_node_cluster[node_j]] = 1
-                    self.mask[env_i, second_node_cluster[node_j], first_node_cluster[node_i]] = 1
+        reward = 0 # 按照概率的reward
+        reward_no_prob = 0 # 直接选概率最大的，贪心的reward
+        tmp_trick = N
+        mask = deepcopy(self.mask)
+        action_mask = th.mul(mask, action)
+        action_mask = action_mask / action_mask.sum(dim=-1, keepdim=True)
+        #if self.if_test:
+            # print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(), self.epsilon)
+        for k in range(action.shape[0]):
+            # r = 0
+            # r_no_prob = 0
+            state = self.state[k]
+            x = th.rand(1).item()
+            if x > self.epsilon or self.if_test:
+                selected_edge_id = th.max(action_mask[k], dim=-1)[1].item()
+            else:
+                selected_edge_id = th.randint(low=0, high=self.N, size=(1,1)).item()
+            self.mask[k, selected_edge_id] = 0
+            r = 1
 
-            reward_no_prob += r
-            self.reward_no_prob[env_i, self.num_steps] = r
-            self.reward[env_i, edge] = r
+            if (selected_edge_id < N - 1):
+                first_node = selected_edge_id + 2
+            else:
+                first_node = selected_edge_id + 1
+            if (selected_edge_id < N - 1):
+                second_node = selected_edge_id + 1
+            else:
+                second_node = 1
 
-            self.indicator[env_i, edge] = 0
-            self.state[env_i, first_node, second_node] = 1
-            self.state[env_i, second_node, first_node] = 1
-        self.done = True if torch.sum(self.indicator) == self.num_env else False
+            if self.start[k, selected_edge_id] == 1 or self.end[k, selected_edge_id] == N:
+                r = r * 2
+            #
+            # for i in range(0, N):
+            #     if (self.start[k, i] == self.start[k, selected_edge_id]):
+            #         r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
+            #     if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
+            #         r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
 
 
-        return (self.state, self.mask, action), self.reward_no_prob, self.done
+            for i in range(N):
+                if (self.start[k, i] == self.start[k, selected_edge_id]):
+                    r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, i + 1])
+                elif (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
+                    r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, i + 1])
+
+
+            # if (selected_edge_id == N - 1): self.state[k, first_node, second_node] = 1
+
+            # for j in range(self.start[k, selected_edge_id], self.end[k, selected_edge_id] + 1):
+            #     # r *= 自身*左*下
+            #     r *= (state[j, j] * state[j, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, j])
+            # for j in range(self.start[k, (selected_edge_id + 1) % N], self.end[k, (selected_edge_id + 1) % N] + 1):
+            #     # r *= 自身 * 左 * 下
+            #     r *= (state[j, j] * state[j, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, j])
+            # # 去除重用部分
+
+            # r /= 2
+            if (tmp_trick == 2): r = r * 2
+            tmp_trick = tmp_trick + 1
+            # state[first_node, second_node] = 1
+
+
+            # start更新，选择edge的小值
+            start_new = min(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
+            # start_old = max(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
+            # end更新，选择edge的大值
+            end_new = max(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
+            # end_old = min(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
+            # for __ in range(start_new, end_new + 1):
+            #     self.start[k, __ - 1] = start_new
+            #     self.end[k, __ - 1] = end_new
+            for i in range(N):
+                if self.start[k, i] == start_new or self.end[k, i] == end_new:
+                    self.start[k, i] = start_new
+                    self.end[k, i] = end_new
+
+
+                    # 贪心的r 就一直是上面的r
+            r_no_prob = r
+            # 按照概率的r 需要乘以相应时候的action_mask
+            r = r * action_mask[k, selected_edge_id]
+            # 概率reward
+            reward = reward + r
+            # 贪心的reward
+            reward_no_prob += r_no_prob
+            self.reward[k, self.num_steps] = r
+            self.tmp_trick[k, self.num_steps] = tmp_trick
+            self.reward_no_prob[k, self.num_steps] = r_no_prob.detach()
+        self.num_steps += 1
+        self.done = True if self.num_steps >= self.episode_length else False
+        if self.done and self.if_test:
+            action_mask_ = th.mul(self.mask, action)
+            print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
+        return (self.state, self.start, self.end, self.mask, action.detach()), reward, self.done
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=6, ):
+    def __init__(self, mid_dim=1024, N=5):
         super(Policy_Net, self).__init__()
-        self.N = N + 1
+        self.N = N + 2
         self.action_dim = N
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mid_dim = mid_dim
         self.net = nn.Sequential(
-            nn.Linear((N + 1) * (N + 1) * 2, mid_dim * 2),
+            nn.Linear((N + 2) * (N + 2) + N + N + (N), mid_dim * 2),
             nn.Linear(mid_dim * 2, mid_dim * 2), nn.ReLU(),
             nn.Linear(mid_dim * 2, mid_dim * 2), nn.ReLU(),
             nn.Linear(mid_dim * 2, self.action_dim),
         )
         self.output_layer = nn.Softmax().to(self.device)
 
+
     def forward(self, state):
-        s, mask, previous_action = state
-        action = self.output_layer(self.net(th.cat((s.reshape(s.shape[0], -1), mask.reshape(s.shape[0], -1)), dim=-1)))
+        s, start, end, mask, previous_action = state
+        action = self.output_layer(self.net(th.cat((s.reshape(s.shape[0], -1), start, end, mask), dim=-1)))
         return action
 
 
-def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100000000, num_env=100, gamma=0.9,
-                              best_reward=4e+31, if_wandb=False):
-    env = Env(N=N, device=device, num_env=num_env, episode_length=N)
-    for epoch in tqdm(range(num_epochs)):
+def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100000000, num_env=100, gamma=0.9, best_reward = None, if_wandb=False):
+    env = Env(N=N, device=device, num_env=num_env, episode_length=N-1)
+    for epoch in range(num_epochs):
         test = False
         if epoch % 10 == 0:
             test = True
@@ -147,26 +184,25 @@ def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100
         env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 500))
         while (1):
             action = policy_net(state)
-            next_state, reward_no_prob, done = env.step(action)
+            next_state, reward, done = env.step(action)
             state = next_state
             if done and test == False:
                 g = 1
                 discounted_reward = th.zeros(num_env).to(device)
-                loss_ = 0.
-                for i in range(N - 1, -1, -1):
+                loss_ = th.zeros(num_env).to(device)
+                for i in range(N-2, -1, -1):
                     discounted_reward = discounted_reward + env.reward_no_prob[:, i]
-                    loss_ = loss_ + env.reward[:, i + 1] / env.reward_no_prob[:, i] * discounted_reward
+                    loss_ = loss_ + env.reward[:, i] / env.reward_no_prob[:, i] * discounted_reward
                     discounted_reward = discounted_reward * gamma
                 loss = loss_.mean()
                 optimizer.zero_grad()
-                loss.requires_grad = True
                 loss.backward()
                 optimizer.step()
                 break
             if done and test == True:
-                best_reward = min(best_reward, env.reward_no_prob.sum().item() / env.num_env)
-                print(env.reward.sum().item() / env.num_env, env.reward_no_prob.sum().item() / env.num_env, best_reward,
-                      epoch)
+                temp_reward = env.reward_no_prob.sum().item() / env.num_env
+                best_reward = min(best_reward, temp_reward) if best_reward is not None else temp_reward
+                print(env.reward.sum().item() / env.num_env, temp_reward, best_reward, epoch)
                 # print(best_reward, epoch)
                 if if_wandb:
                     wandb.log({"flops": env.reward, "flops_no_prob": env.reward_no_prob})
@@ -174,23 +210,19 @@ def train_curriculum_learning(policy_net, optimizer, device, N=6, num_epochs=100
 
 
 if __name__ == "__main__":
-    with th.enable_grad():
-        N = 6
+    N = 5
 
-        mid_dim = 256
-        learning_rate = 5e-5
-
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        policy_net = Policy_Net(mid_dim=mid_dim, N=N).to(device)
-        policy_net.train()
-        optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
-        if_wandb = False
-        if if_wandb:
-            import wandb
-
-            wandb.init(
-                project='classical_simulation',
-                entity="beamforming",
-                sync_tensorboard=True,
-            )
-        train_curriculum_learning(policy_net, optimizer, N=N, device=device, if_wandb=if_wandb)
+    mid_dim = 256
+    learning_rate = 5e-5
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    policy_net = Policy_Net(mid_dim=mid_dim, N=N).to(device)
+    optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
+    if_wandb=False
+    if if_wandb:
+        import wandb
+        wandb.init(
+            project='classical_simulation',
+            entity="beamforming",
+            sync_tensorboard=True,
+        )
+    train_curriculum_learning(policy_net, optimizer, N=N, device=device, if_wandb=if_wandb)
