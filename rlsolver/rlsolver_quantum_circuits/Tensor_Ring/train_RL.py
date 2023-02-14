@@ -40,7 +40,6 @@ class Env():
         self.state += th.ones_like(self.state)
         self.reward = th.zeros(self.num_env, self.episode_length).to(self.device)
         self.reward_no_prob = th.zeros(self.num_env, self.episode_length).to(self.device)
-        self.tmp_trick = th.zeros(self.num_env, self.episode_length).to(self.device)
         self.if_test = test
         self.start = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device) + 1
         self.end = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device) + 1
@@ -112,8 +111,9 @@ class Env():
             # # 去除重用部分
 
             # r /= 2
-            if (tmp_trick == 2): r = r * 2
-            tmp_trick = tmp_trick + 1
+            # if (tmp_trick == 2):
+            #      r /= 2
+            # tmp_trick = tmp_trick - 1
             # state[first_node, second_node] = 1
 
 
@@ -141,7 +141,6 @@ class Env():
             # 贪心的reward
             reward_no_prob += r_no_prob
             self.reward[k, self.num_steps] = r
-            self.tmp_trick[k, self.num_steps] = tmp_trick
             self.reward_no_prob[k, self.num_steps] = r_no_prob.detach()
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
@@ -152,7 +151,7 @@ class Env():
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=5):
+    def __init__(self, mid_dim=1024, N=4):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N
@@ -201,6 +200,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
                 break
             if done and test == True:
                 temp_reward = env.reward_no_prob.sum().item() / env.num_env
+                if (N > 4): temp_reward = temp_reward + (2 ** (N + 1))
                 best_reward = min(best_reward, temp_reward) if best_reward is not None else temp_reward
                 print(env.reward.sum().item() / env.num_env, temp_reward, best_reward, epoch)
                 # print(best_reward, epoch)
@@ -210,7 +210,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
 
 
 if __name__ == "__main__":
-    N = 5
+    N = 4
 
     mid_dim = 256
     learning_rate = 5e-5
