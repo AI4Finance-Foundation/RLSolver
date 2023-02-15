@@ -78,8 +78,16 @@ class Env():
                 selected_edge_id = th.randint(low=0, high=self.N, size=(1, 1)).item()
             self.mask[k, selected_edge_id] = 0
             r = 1
-            first_node = (selected_edge_id + 1) % self.N
-            second_node = (selected_edge_id + 2) % self.N
+
+
+            if (selected_edge_id == N-1):
+                first_node = (selected_edge_id + 1) % self.N
+                second_node = (selected_edge_id + 2) % self.N
+            else:
+                first_node = (selected_edge_id + 2) % self.N
+                second_node = (selected_edge_id + 1) % self.N
+            # first_node = (selected_edge_id + (1 if selected_edge_id == N-1 else 2)) % self.N
+            # second_node = (selected_edge_id + (2 if selected_edge_id == N-1 else 1)) % self.N
             if (first_node == 0):    first_node = N
             if (second_node == 0):    second_node = N
             if self.start[k, selected_edge_id] == 1.0 or self.end[k, selected_edge_id] == N:
@@ -94,9 +102,9 @@ class Env():
 
             for i in range(0, N):
                 if (self.start[k, i] == self.start[k, selected_edge_id]):
-                    r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
+                    r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
                 if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
-                    r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
+                    r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
 
             # for i in range(N):
             #     if (self.start[k, i] == self.start[k, selected_edge_id]):
