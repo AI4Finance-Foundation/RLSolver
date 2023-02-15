@@ -5,7 +5,6 @@ import numpy as np
 # from functorch import vmap
 from copy import deepcopy
 
-# 取消科学计数法
 np.set_printoptions(suppress=True)
 
 class Env():
@@ -29,7 +28,7 @@ class Env():
         self.zero = th.zeros(self.N - 1).to(self.device)
         self.epsilon = epsilon
 
-    # 重置环境状态，回到初始环境
+
     def reset(self, test=False):
         if test:
             self.num_env = self.test_state.shape[0]
@@ -54,16 +53,13 @@ class Env():
 
 
     def step(self, action):
-        reward = 0 # 按照概率的reward
-        reward_no_prob = 0 # 直接选概率最大的，贪心的reward
-        tmp_trick = N
+        reward = 0
+        reward_no_prob = 0
         mask = deepcopy(self.mask)
         action_mask = th.mul(mask, action)
         action_mask = action_mask / action_mask.sum(dim=-1, keepdim=True)
 
         for k in range(action.shape[0]):
-            # r = 0
-            # r_no_prob = 0
             state = self.state[k]
             x = th.rand(1).item()
             if x > self.epsilon or self.if_test:
@@ -73,25 +69,25 @@ class Env():
             self.mask[k, selected_edge_id] = 0
             r = 1
 
-            # first_node = (selected_edge_id + 1) % self.N
-            # second_node = (selected_edge_id + 2) % self.N
-            # if (first_node == 0):    first_node = N
-            # if (second_node == 0):    second_node = N
+            first_node = (selected_edge_id + 1) % self.N
+            second_node = (selected_edge_id + 2) % self.N
+            if (first_node == 0):    first_node = N
+            if (second_node == 0):    second_node = N
 
             if self.start[k, selected_edge_id] == 1 or self.end[k, selected_edge_id] == N:
                 r = r * 2
-            #
-            # for i in range(0, N):
-            #     if (self.start[k, i] == self.start[k, selected_edge_id]):
-            #         r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
-            #     if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
-            #         r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
 
-            for i in range(N):
+            for i in range(0, N):
                 if (self.start[k, i] == self.start[k, selected_edge_id]):
-                    r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, i + 1])
-                elif (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
-                    r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, i + 1])
+                    r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
+                if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
+                    r *= (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
+
+            # for i in range(N):
+            #     if (self.start[k, i] == self.start[k, selected_edge_id]):
+            #         r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, i + 1])
+            #     elif (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
+            #         r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, i + 1])
 
             # for j in range(self.start[k, selected_edge_id], self.end[k, selected_edge_id] + 1):
             #     # r *= 自身*左*下
@@ -99,44 +95,32 @@ class Env():
             # for j in range(self.start[k, (selected_edge_id + 1) % N], self.end[k, (selected_edge_id + 1) % N] + 1):
             #     # r *= 自身 * 左 * 下
             #     r *= (state[j, j] * state[j, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, j])
-            # # 去除重用部分
-            # r /= 2
-            # if (tmp_trick == 2):
-            #      r /= 2
-            # tmp_trick = tmp_trick - 1
-            # state[first_node, second_node] = 1
-
-
-            # start更新，选择edge的小值
+            # 去除重用部分
+            r /= 2
+            if (tmp_trick == 2):
+                 r /= 2
+            tmp_trick = tmp_trick - 1
+            state[first_node, second_node] = 1
             start_new = min(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
-            # end更新，选择edge的大值
             end_new = max(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
             for i in range(N):
                 if self.start[k, i] == start_new or self.end[k, i] == end_new:
                     self.start[k, i] = start_new
                     self.end[k, i] = end_new
-
-
-                    # 贪心的r 就一直是上面的r
             r_no_prob = r
-            # 按照概率的r 需要乘以相应时候的action_mask
             r = r * action_mask[k, selected_edge_id]
-            # 概率reward
             reward = reward + r
-            # 贪心的reward
             reward_no_prob += r_no_prob
             self.reward[k, self.num_steps] = r
             self.reward_no_prob[k, self.num_steps] = r_no_prob.detach()
+
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
-        if self.done and self.if_test:
-            action_mask_ = th.mul(self.mask, action)
-            # print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
         return (self.state, self.start, self.end, self.mask, action.detach()), reward, self.done
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=100):
+    def __init__(self, mid_dim=1024, N=5):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N
@@ -149,7 +133,6 @@ class Policy_Net(nn.Module):
             nn.Linear(mid_dim * 2, self.action_dim),
         )
         self.output_layer = nn.Softmax().to(self.device)
-
 
     def forward(self, state):
         s, start, end, mask, previous_action = state
@@ -164,7 +147,6 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
         if epoch % 10 == 0:
             test = True
         state = env.reset(test)
-        loss = 0
         env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 500))
         while (1):
             action = policy_net(state)
@@ -185,18 +167,18 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
                 break
             if done and test == True:
                 temp_reward = env.reward_no_prob.sum().item() / env.num_env
-                if (N > 4): temp_reward = temp_reward + (2 ** (N + 1))
+                # if (N > 4): temp_reward = temp_reward + (2 ** (N + 1))
                 best_reward = min(best_reward, temp_reward) if best_reward is not None else temp_reward
                 print(env.reward.sum().item() / env.num_env, temp_reward, best_reward, epoch)
                 # print(best_reward, epoch)
+                print(env.reward_no_prob)
                 if if_wandb:
                     wandb.log({"flops": env.reward, "flops_no_prob": env.reward_no_prob})
                 break
 
 
 if __name__ == "__main__":
-    N = 100
-
+    N = 5
     mid_dim = 256
     learning_rate = 5e-5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
