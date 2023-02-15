@@ -7,8 +7,9 @@ from copy import deepcopy
 
 np.set_printoptions(suppress=True)
 
+
 class Env():
-    def __init__(self, N=5, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
+    def __init__(self, N=5, episode_length=6, num_env=1, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -19,38 +20,43 @@ class Env():
         for i in range(2, self.N + 1):
             self.mask_state[i, i - 1] = 1
             self.mask_state[i, i] = 1
-        self.mask_state = self.mask_state.reshape(-1).repeat(1, self.num_env).reshape(self.num_env, self.N + 2, self.N + 2).to(self.device)
+        self.mask_state[N, 1] = 1
+        self.mask_state = self.mask_state.reshape(-1).repeat(1, self.num_env).reshape(self.num_env, self.N + 2,
+                                                                                      self.N + 2).to(self.device)
         with open(f"test_data_tensor_train_N={N}.pkl", 'rb') as f:
             import pickle as pkl
             self.test_state = pkl.load(f)
-        self.permute_base = th.as_tensor([i for i in range(self.N - 1)]).repeat(1, self.num_env).reshape(self.num_env,-1).to(
+        self.permute_base = th.as_tensor([i for i in range(self.N - 1)]).repeat(1, self.num_env).reshape(self.num_env,
+                                                                                                         -1).to(
             self.device)
         self.zero = th.zeros(self.N - 1).to(self.device)
         self.epsilon = epsilon
-
 
     def reset(self, test=False):
         if test:
             self.num_env = self.test_state.shape[0]
         else:
             self.num_env = self.permute_base.shape[0]
-        self.state = torch.randint(0, self.max_dim, (self.num_env, self.N + 2, self.N + 2), device=self.device).to(torch.float32)
+        self.state = torch.randint(0, self.max_dim, (self.num_env, self.N + 2, self.N + 2), device=self.device).to(
+            torch.float32)
         self.state = th.mul(self.state, self.mask_state[:self.num_env])
         self.state += th.ones_like(self.state)
         self.reward = th.zeros(self.num_env, self.episode_length).to(self.device)
         self.reward_no_prob = th.zeros(self.num_env, self.episode_length).to(self.device)
         self.if_test = test
-        self.start = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device) + 1
-        self.end = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(self.device) + 1
+        self.start = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(
+            self.device) + 1
+        self.end = th.as_tensor([i for i in range(self.N)]).repeat(1, self.num_env).reshape(self.num_env, -1).to(
+            self.device) + 1
         self.mask = th.ones(self.num_env, self.N).to(self.device)
         if test:
-            self.state = self.test_state
+            self.state = deepcopy(self.test_state)
+            # print(self.test_state)
         self.num_steps = 0
         self.done = False
         initial_action = th.rand(self.num_env, self.N).to(self.device)
         initial_action /= initial_action.sum(dim=-1, keepdim=True)
         return (self.state, self.start, self.end, self.mask, initial_action)
-
 
     def step(self, action):
         reward = 0
@@ -58,24 +64,33 @@ class Env():
         mask = deepcopy(self.mask)
         action_mask = th.mul(mask, action)
         action_mask = action_mask / action_mask.sum(dim=-1, keepdim=True)
-
+        # if self.if_test:
+        #     print(self.state)
+        if self.if_test:
+            print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(),
+                  self.epsilon)
         for k in range(action.shape[0]):
             state = self.state[k]
             x = th.rand(1).item()
             if x > self.epsilon or self.if_test:
                 selected_edge_id = th.max(action_mask[k], dim=-1)[1].item()
             else:
-                selected_edge_id = th.randint(low=0, high=self.N, size=(1,1)).item()
+                selected_edge_id = th.randint(low=0, high=self.N, size=(1, 1)).item()
             self.mask[k, selected_edge_id] = 0
             r = 1
-
             first_node = (selected_edge_id + 1) % self.N
             second_node = (selected_edge_id + 2) % self.N
             if (first_node == 0):    first_node = N
             if (second_node == 0):    second_node = N
-
-            if self.start[k, selected_edge_id] == 1 or self.end[k, selected_edge_id] == N:
-                r = r * 2
+            if self.start[k, selected_edge_id] == 1.0 or self.end[k, selected_edge_id] == N:
+                r = r * state[N, 1]
+                # if self.if_test:
+                #     print(r, state[N, 1])
+                #     print(state)
+            if self.start[k, (selected_edge_id + 1) % N] == 1.0 or self.end[k, (selected_edge_id + 1) % N] == N:
+                r = r * state[N, 1]
+                # if self.if_test:
+                #     print(r)
 
             for i in range(0, N):
                 if (self.start[k, i] == self.start[k, selected_edge_id]):
@@ -95,16 +110,18 @@ class Env():
             # for j in range(self.start[k, (selected_edge_id + 1) % N], self.end[k, (selected_edge_id + 1) % N] + 1):
             #     # r *= 自身 * 左 * 下
             #     r *= (state[j, j] * state[j, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, j])
+
             # 去除重用部分
+            # print("r1 = ", r)
             r /= 2
-            if (tmp_trick == 2):
-                 r /= 2
-            tmp_trick = tmp_trick - 1
+            if (N - self.num_steps == 1):
+                r *= 2
             state[first_node, second_node] = 1
+
             start_new = min(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
             end_new = max(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
             for i in range(N):
-                if self.start[k, i] == start_new or self.end[k, i] == end_new:
+                if (self.start[k, i] == start_new) or (self.end[k, i] == end_new):
                     self.start[k, i] = start_new
                     self.end[k, i] = end_new
             r_no_prob = r
@@ -116,6 +133,9 @@ class Env():
 
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
+        if self.done and self.if_test:
+            action_mask_ = th.mul(self.mask, action)
+            print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
         return (self.state, self.start, self.end, self.mask, action.detach()), reward, self.done
 
 
@@ -140,14 +160,15 @@ class Policy_Net(nn.Module):
         return action
 
 
-def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100000000, num_env=100, gamma=0.9, best_reward = None, if_wandb=False):
-    env = Env(N=N, device=device, num_env=num_env, episode_length=N-1)
+def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100000000, num_env=1, gamma=0.9,
+                              best_reward=None, if_wandb=False):
+    env = Env(N=N, device=device, num_env=num_env, episode_length=N - 1)
     for epoch in range(num_epochs):
         test = False
         if epoch % 10 == 0:
             test = True
         state = env.reset(test)
-        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 500))
+        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 1000))
         while (1):
             action = policy_net(state)
             next_state, reward, done = env.step(action)
@@ -156,7 +177,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
                 g = 1
                 discounted_reward = th.zeros(num_env).to(device)
                 loss_ = th.zeros(num_env).to(device)
-                for i in range(N-2, -1, -1):
+                for i in range(N - 2, -1, -1):
                     discounted_reward = discounted_reward + env.reward_no_prob[:, i]
                     loss_ = loss_ + env.reward[:, i] / env.reward_no_prob[:, i] * discounted_reward
                     discounted_reward = discounted_reward * gamma
@@ -167,11 +188,9 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
                 break
             if done and test == True:
                 temp_reward = env.reward_no_prob.sum().item() / env.num_env
-                # if (N > 4): temp_reward = temp_reward + (2 ** (N + 1))
                 best_reward = min(best_reward, temp_reward) if best_reward is not None else temp_reward
                 print(env.reward.sum().item() / env.num_env, temp_reward, best_reward, epoch)
                 # print(best_reward, epoch)
-                print(env.reward_no_prob)
                 if if_wandb:
                     wandb.log({"flops": env.reward, "flops_no_prob": env.reward_no_prob})
                 break
@@ -184,9 +203,10 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net = Policy_Net(mid_dim=mid_dim, N=N).to(device)
     optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
-    if_wandb=False
+    if_wandb = False
     if if_wandb:
         import wandb
+
         wandb.init(
             project='classical_simulation',
             entity="beamforming",
