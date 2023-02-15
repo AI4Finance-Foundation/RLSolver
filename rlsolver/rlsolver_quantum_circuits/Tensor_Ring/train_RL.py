@@ -79,7 +79,9 @@ class Env():
             self.mask[k, selected_edge_id] = 0
             r = 1
 
-
+            if self.if_test:
+                print(state)
+                print(self.start, self.end)
             if (selected_edge_id == N-1):
                 first_node = (selected_edge_id + 1) % self.N
                 second_node = (selected_edge_id + 2) % self.N
@@ -93,17 +95,17 @@ class Env():
             if self.start[k, selected_edge_id] == 1.0 or self.end[k, selected_edge_id] == N:
                 r = r * state[N, 1]
                 # if self.if_test:
-                #     print(r, state[N, 1])
+                #     # print(r, state[N, 1])
                 #     print(state)
             if self.start[k, (selected_edge_id + 1) % N] == 1.0 or self.end[k, (selected_edge_id + 1) % N] == N:
                 r = r * state[N, 1]
                 # if self.if_test:
+                #     print(state)
                 #     print(r)
-
+            tmp1 = self.start[k, selected_edge_id]
+            tmp2 = self.start[k, (selected_edge_id + 1) % N]
             for i in range(0, N):
-                if (self.start[k, i] == self.start[k, selected_edge_id]):
-                    r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
-                if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
+                if ((self.start[k, i] == tmp1) or (self.start[k, i] ==tmp2)):
                     r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
 
             # for i in range(N):
@@ -126,12 +128,25 @@ class Env():
                 r *= 2
             state[first_node, second_node] = 1
 
+
             start_new = min(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
             end_new = max(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
             for i in range(N):
-                if (self.start[k, i] == start_new) or (self.end[k, i] == end_new):
+                if (self.start[k, i] == self.start[k, selected_edge_id]):
                     self.start[k, i] = start_new
+                    # if i+1 < N and self.start[k, i] == self.start[k, i+1]:
+                    #     self.start[k, i+1] = start_new
                     self.end[k, i] = end_new
+                if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
+                    self.start[k, i] = start_new
+                    # if i+1 < N and self.start[k, i] == self.start[k, i+1]:
+                    #     self.start[k, i+1] = start_new
+                    self.end[k, i] = end_new
+
+
+
+
+
             r_no_prob = r
             r = r * action_mask[k, selected_edge_id]
             reward = reward + r
