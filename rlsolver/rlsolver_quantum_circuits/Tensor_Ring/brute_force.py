@@ -6,7 +6,7 @@ import numpy as np
 device = th.device("cuda:0")
 reward = 0
 # 根据张量网络中张量数量设定
-N = 4
+N = 6
 with open(f"test_data_tensor_ring_N={N}.pkl", 'rb') as f:
     a = pkl.load(f).detach().cpu()
 num_env = a.shape[0]
@@ -26,9 +26,9 @@ for k in range(num_env):
         state = deepcopy(a[k])
         start = deepcopy(start_[k]) + 1
         end = deepcopy(end_[k]) + 1
-        for i in (permute[:-2]):
+        cnt = N
+        for i in (permute[:-1]):
             r = 1
-            print(state)
             if (i == N-1):
                 first_node = (i + 1) % N
                 second_node = (i + 2) % N
@@ -37,17 +37,19 @@ for k in range(num_env):
                 second_node = (i + 1) % N
             if (first_node == 0):    first_node = N
             if (second_node == 0):    second_node = N
-
             if start[i] == 1 or end[i] == N:
                 r = r * state[N, 1]
             if start[(i + 1) % N] == 1 or end[(i + 1) % N] == N:
                 r = r * state[N, 1]
             tmp1 = start[i]
             tmp2 = start[(i + 1) % N]
-            for i in range(N):
-                if ((start[i] == tmp1) or (start[i] == tmp2)):
-                    r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
+            for j in range(N):
+                if ((start[j] == tmp1) or (start[j] == tmp2)):
+                    r = r * (state[j + 1, j + 1] * state[j + 1, j] * state[j + 2, j + 1])
             r /= 2
+            if (cnt == 2):
+                r /= 2
+            cnt -= 1
             state[first_node, second_node] = 1
             s1 = 0 + start[i]
             s2 = 0 + start[(i + 1) % N]
@@ -57,12 +59,11 @@ for k in range(num_env):
                 if ((start[i] == s1) or (start[i] == s2)):
                     start[i] = start_new
                     end[i] = end_new
-
             rtp += r
         reward[k, permute_i] = rtp
         # print(permute, permute_i)
         permute_record[k, permute_i] = permute
-        best_reward = min(best_reward, rtp - 2 ** (N + 1))
+        best_reward = min(best_reward, rtp)
     min_best = min(best_reward, min_best)
 
     # print(reward[k], permute_record[k, reward[k].min(dim=-1)[1]], best_reward.numpy(), min_best.numpy())
