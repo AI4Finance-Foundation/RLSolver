@@ -9,7 +9,7 @@ np.set_printoptions(suppress=True)
 
 
 class Env():
-    def __init__(self, N=5, episode_length=6, num_env=100, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
+    def __init__(self, N=4, episode_length=6, num_env=100, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -108,21 +108,7 @@ class Env():
                 if ((self.start[k, i] == tmp1) or (self.start[k, i] ==tmp2)):
                     r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
 
-            # for i in range(N):
-            #     if (self.start[k, i] == self.start[k, selected_edge_id]):
-            #         r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, i + 1])
-            #     elif (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
-            #         r *= (state[i + 1, i + 1] * state[i + 1, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, i + 1])
-
-            # for j in range(self.start[k, selected_edge_id], self.end[k, selected_edge_id] + 1):
-            #     # r *= 自身*左*下
-            #     r *= (state[j, j] * state[j, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, j])
-            # for j in range(self.start[k, (selected_edge_id + 1) % N], self.end[k, (selected_edge_id + 1) % N] + 1):
-            #     # r *= 自身 * 左 * 下
-            #     r *= (state[j, j] * state[j, self.start[k, (selected_edge_id + 1) % N] - 1] * state[self.end[k, (selected_edge_id + 1) % N] + 1, j])
-
             # 去除重用部分
-            # print("r1 = ", r)
             r /= 2
             if (N - self.num_steps == 2):
                 r /= 2
@@ -151,7 +137,7 @@ class Env():
 
 
 class Policy_Net(nn.Module):
-    def __init__(self, mid_dim=1024, N=5):
+    def __init__(self, mid_dim=1024, N=6):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N
@@ -171,7 +157,7 @@ class Policy_Net(nn.Module):
         return action
 
 
-def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100000000, num_env=100, gamma=0.9,
+def train_curriculum_learning(policy_net, optimizer, device, N=4, num_epochs=100000000, num_env=100, gamma=0.9,
                               best_reward=None, if_wandb=False):
     env = Env(N=N, device=device, num_env=num_env, episode_length=N - 1)
     for epoch in range(num_epochs):
@@ -208,7 +194,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100
 
 
 if __name__ == "__main__":
-    N = 5
+    N = 6
     mid_dim = 256
     learning_rate = 5e-5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
