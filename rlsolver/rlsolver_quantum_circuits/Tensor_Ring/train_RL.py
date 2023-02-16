@@ -9,7 +9,7 @@ np.set_printoptions(suppress=True)
 
 
 class Env():
-    def __init__(self, N=5, episode_length=6, num_env=1, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
+    def __init__(self, N=5, episode_length=6, num_env=100, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -79,9 +79,9 @@ class Env():
             self.mask[k, selected_edge_id] = 0
             r = 1
 
-            if self.if_test:
-                print(state)
-                print(self.start, self.end)
+            # if self.if_test:
+            #     print(state)
+            #     print(self.start, self.end)
             if (selected_edge_id == N-1):
                 first_node = (selected_edge_id + 1) % self.N
                 second_node = (selected_edge_id + 2) % self.N
@@ -92,12 +92,12 @@ class Env():
             # second_node = (selected_edge_id + (2 if selected_edge_id == N-1 else 1)) % self.N
             if (first_node == 0):    first_node = N
             if (second_node == 0):    second_node = N
-            if self.start[k, selected_edge_id] == 1.0 or self.end[k, selected_edge_id] == N:
+            if self.start[k, selected_edge_id] == 1 or self.end[k, selected_edge_id] == N:
                 r = r * state[N, 1]
                 # if self.if_test:
                 #     # print(r, state[N, 1])
                 #     print(state)
-            if self.start[k, (selected_edge_id + 1) % N] == 1.0 or self.end[k, (selected_edge_id + 1) % N] == N:
+            if self.start[k, (selected_edge_id + 1) % N] == 1 or self.end[k, (selected_edge_id + 1) % N] == N:
                 r = r * state[N, 1]
                 # if self.if_test:
                 #     print(state)
@@ -124,29 +124,17 @@ class Env():
             # 去除重用部分
             # print("r1 = ", r)
             r /= 2
-            if (N - self.num_steps == 1):
-                r *= 2
+            if (N - self.num_steps == 2):
+                r /= 2
             state[first_node, second_node] = 1
-
-
+            s1 = 0+self.start[k, selected_edge_id]
+            s2 = 0+self.start[k, (selected_edge_id + 1) % N]
             start_new = min(self.start[k, selected_edge_id], self.start[k, (selected_edge_id + 1) % N])
             end_new = max(self.end[k, selected_edge_id], self.end[k, (selected_edge_id + 1) % N])
             for i in range(N):
-                if (self.start[k, i] == self.start[k, selected_edge_id]):
+                if ((self.start[k, i] == s1) or (self.start[k, i] == s2)):
                     self.start[k, i] = start_new
-                    # if i+1 < N and self.start[k, i] == self.start[k, i+1]:
-                    #     self.start[k, i+1] = start_new
                     self.end[k, i] = end_new
-                if (self.start[k, i] == self.start[k, (selected_edge_id + 1) % N]):
-                    self.start[k, i] = start_new
-                    # if i+1 < N and self.start[k, i] == self.start[k, i+1]:
-                    #     self.start[k, i+1] = start_new
-                    self.end[k, i] = end_new
-
-
-
-
-
             r_no_prob = r
             r = r * action_mask[k, selected_edge_id]
             reward = reward + r
@@ -183,7 +171,7 @@ class Policy_Net(nn.Module):
         return action
 
 
-def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100000000, num_env=1, gamma=0.9,
+def train_curriculum_learning(policy_net, optimizer, device, N=5, num_epochs=100000000, num_env=100, gamma=0.9,
                               best_reward=None, if_wandb=False):
     env = Env(N=N, device=device, num_env=num_env, episode_length=N - 1)
     for epoch in range(num_epochs):
