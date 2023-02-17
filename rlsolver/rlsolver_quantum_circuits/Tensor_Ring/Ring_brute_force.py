@@ -69,9 +69,7 @@ for k in range(num_env):
 print(reward.min(dim=-1)[0].mean().numpy())
 with open("record_r_baseline_random.pkl", "wb") as f:
     import pickle as pkl
-
     pkl.dump(reward, f)
 with open("record_permute_baseline_random.pkl", "wb") as f:
     import pickle as pkl
-
     pkl.dump(permute_record, f)
