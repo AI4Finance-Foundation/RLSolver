@@ -14,7 +14,7 @@ The following two key technologies are under active development:
 
 - **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
 
-Several key references:
+Key references:
 
 - Mazyavkina, Nina, et al. "Reinforcement learning for combinatorial optimization: A survey." Computers & Operations Research 134 (2021): 105400.
 
