@@ -5,14 +5,10 @@ import numpy as np
 from functorch import vmap
 from copy import deepcopy
 
-
-# 取消科学计数法
 np.set_printoptions(suppress=True)
 
-
-
 class Env():
-    def __init__(self, N=100, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:4")):
+    def __init__(self, N=100, episode_length=6, num_env=4096, max_dim=2, epsilon=0.9, device=torch.device("cuda:0")):
         self.N = N
         self.device = device
         self.num_env = num_env
@@ -74,7 +70,6 @@ class Env():
                 selected_edge_id = th.randint(low=0, high=self.N - 1, size=(1,1)).item()
             self.mask[k, selected_edge_id] = 0
             r = 1
-
             for j in range(self.start[k, selected_edge_id], self.end[k, selected_edge_id] + 1):
                 r *= (state[j, j] * state[j, self.start[k, selected_edge_id] - 1] * state[self.end[k, selected_edge_id] + 1, j])
             for j in range(self.start[k, selected_edge_id + 1], self.end[k, selected_edge_id + 1] + 1):
@@ -91,8 +86,6 @@ class Env():
             reward_no_prob += r_no_prob
             self.reward[k, self.num_steps] = r
             self.reward_no_prob[k, self.num_steps] = r_no_prob.detach()
-
-
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
         if self.done and self.if_test:
@@ -106,7 +99,7 @@ class Policy_Net(nn.Module):
         super(Policy_Net, self).__init__()
         self.N = N + 2
         self.action_dim = N - 1
-        self.device = torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mid_dim = mid_dim
         self.net = nn.Sequential(
             nn.Linear((N + 2) * (N + 2) + N + N + (N - 1), mid_dim * 2),
@@ -130,13 +123,12 @@ def train_curriculum_learning(policy_net, optimizer, device, N=100, num_epochs=1
             test = True
         state = env.reset(test)
         loss = 0
-        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 500))
+        env.epsilon = max(0.5, 0.5 + 0.5 * (1 - epoch / 300))
         while (1):
             action = policy_net(state)
             next_state, reward, done = env.step(action)
             state = next_state
             if done and test == False:
-                g = 1
                 discounted_reward = th.zeros(num_env).to(device)
                 loss_ = th.zeros(num_env).to(device)
                 for i in range(N-2, -1, -1):
@@ -159,11 +151,9 @@ def train_curriculum_learning(policy_net, optimizer, device, N=100, num_epochs=1
 
 if __name__ == "__main__":
     N = 100
-
     mid_dim = 256
     learning_rate = 5e-5
-
-    device = torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     policy_net = Policy_Net(mid_dim=mid_dim, N=N).to(device)
     optimizer = torch.optim.Adam(policy_net.parameters(), lr=learning_rate)
     if_wandb=False
