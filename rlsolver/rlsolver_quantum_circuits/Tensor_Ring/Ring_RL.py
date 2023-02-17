@@ -64,11 +64,9 @@ class Env():
         mask = deepcopy(self.mask)
         action_mask = th.mul(mask, action)
         action_mask = action_mask / action_mask.sum(dim=-1, keepdim=True)
-        # if self.if_test:
-        #     print(self.state)
-        if self.if_test:
-            print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(),
-                  self.epsilon)
+#         if self.if_test:
+#             print(self.num_steps, action_mask[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy(),
+#                   self.epsilon)
         for k in range(action.shape[0]):
             state = self.state[k]
             x = th.rand(1).item()
@@ -78,37 +76,23 @@ class Env():
                 selected_edge_id = th.randint(low=0, high=self.N, size=(1, 1)).item()
             self.mask[k, selected_edge_id] = 0
             r = 1
-
-            # if self.if_test:
-            #     print(state)
-            #     print(self.start, self.end)
             if (selected_edge_id == N-1):
                 first_node = (selected_edge_id + 1) % self.N
                 second_node = (selected_edge_id + 2) % self.N
             else:
                 first_node = (selected_edge_id + 2) % self.N
                 second_node = (selected_edge_id + 1) % self.N
-            # first_node = (selected_edge_id + (1 if selected_edge_id == N-1 else 2)) % self.N
-            # second_node = (selected_edge_id + (2 if selected_edge_id == N-1 else 1)) % self.N
             if (first_node == 0):    first_node = N
             if (second_node == 0):    second_node = N
             if self.start[k, selected_edge_id] == 1 or self.end[k, selected_edge_id] == N:
                 r = r * state[N, 1]
-                # if self.if_test:
-                #     # print(r, state[N, 1])
-                #     print(state)
             if self.start[k, (selected_edge_id + 1) % N] == 1 or self.end[k, (selected_edge_id + 1) % N] == N:
                 r = r * state[N, 1]
-                # if self.if_test:
-                #     print(state)
-                #     print(r)
             tmp1 = self.start[k, selected_edge_id]
             tmp2 = self.start[k, (selected_edge_id + 1) % N]
             for i in range(0, N):
                 if ((self.start[k, i] == tmp1) or (self.start[k, i] ==tmp2)):
                     r = r * (state[i + 1, i + 1] * state[i + 1, i] * state[i + 2, i + 1])
-
-            # 去除重用部分
             r /= 2
             if (N - self.num_steps == 2):
                 r /= 2
@@ -130,9 +114,10 @@ class Env():
 
         self.num_steps += 1
         self.done = True if self.num_steps >= self.episode_length else False
-        if self.done and self.if_test:
-            action_mask_ = th.mul(self.mask, action)
-            print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
+        Order
+#         if self.done and self.if_test:
+#             action_mask_ = th.mul(self.mask, action)
+#             print(self.num_steps, action_mask_[0].detach().cpu().numpy(), self.reward_no_prob[0].detach().cpu().numpy())
         return (self.state, self.start, self.end, self.mask, action.detach()), reward, self.done
 
 
@@ -194,7 +179,7 @@ def train_curriculum_learning(policy_net, optimizer, device, N=4, num_epochs=100
 
 
 if __name__ == "__main__":
-    N = 6
+    N = 100
     mid_dim = 256
     learning_rate = 5e-5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
