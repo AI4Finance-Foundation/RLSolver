@@ -1,10 +1,12 @@
 # ElegantRL_Solver: High-performance RL solvers
 
-For nonconvex optimizations (continuous variables) and combinatorial optimizations (discrete variables), we aim to find high-quality optimum, or even (nearly) global optimum.
+We aim to find high-quality optimum, or even (nearly) global optimum, for nonconvex or nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
 
-For combinatorial optimization problems, we compare with [Benchmark](http://plato.asu.edu/bench.html).
+We provide pretrained neural networks to perform real-time inference for convex optimization problems.
 
-This project is built based on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
+[Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
+
+This project is built on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
 The following two key technologies are under active development: 
 
