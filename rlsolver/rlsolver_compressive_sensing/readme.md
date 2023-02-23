@@ -85,7 +85,7 @@ sparse structure.
 ### DCS
 - Given train $G_\theta$, using Eqn. (7) in [1] to recover $\boldsymbol{\widehat{z}}$ and $\boldsymbol{\widehat{x}}$.
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{hundreds of iterations}]{Eqn. (7)} \widehat{\boldsymbol{z}}$
-
+- $\widehat{\boldsymbol{x}} = \boldsymbol{ G }_\theta ( \widehat{\boldsymbol{z}} )$.
 
 #### $m=50 $ 
 
@@ -97,7 +97,7 @@ sparse structure.
 ### Ours
 - Train a neural network (NN) to replace Eqn. (7) in [1].
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{\\# iterations < 10}]{NN} \widehat{\boldsymbol{z}}$
-
+- $\widehat{\boldsymbol{x}} = \boldsymbol{ G }_\theta ( \widehat{\boldsymbol{z}} )$.
 
 #### $m=50 $ 
 
