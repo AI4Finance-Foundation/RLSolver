@@ -126,24 +126,3 @@ sparse structure.
 |#iterations| $1$ | $3$ | $5$|
 |------|------|------|-----|
 |$n=100$||||
-
-## Different Initializations
-
-### MNIST
-
-- n = 784, m=300
-
-|#iterations| $10$ | $15$ | $20$|
-|------|------|------|-----|
-|Random|79.2%|37.56%|11.41%|
-|$G_\theta(Z)$|6.83%|1.71%|0.104%|
-|Lasso Initialization|19.55%|4.17%|0.26%|
-
-### Synthetic Data
-
-- n = 100, m=50
-
-|#iterations| $5$ | $10$ | $15$|
-|------|------|------|-----|
-|Random|50%|0.024%|0.00025%|
-|Lasso Initialization|0.064%|0.0014%|0.0014%|
