@@ -67,11 +67,6 @@ Ours: Formula (7) is trained as a deep neural network.
 sparse structure.
 - Verify whether $G_\theta(\boldsymbol{z})$ is sparse in the representation domain $\boldsymbol{\Phi}$, namely $\lVert\boldsymbol{\Phi}^{-1}G_\theta(\boldsymbol{z})\rVert_0 \approx k$.
 
-#### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
-
-|$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
-|---|----|----|---|
-||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$< 0.1$%|
 
 
 ### Lasso (CS)
