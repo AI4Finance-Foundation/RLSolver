@@ -67,23 +67,6 @@ Ours: Formula (7) is trained as a deep neural network.
 sparse structure.
 - Verify whether $G_\theta(\boldsymbol{z})$ is sparse in the representation domain $\boldsymbol{\Phi}$, namely $\lVert\boldsymbol{\Phi}^{-1}G_\theta(\boldsymbol{z})\rVert_0 \approx k$.
 
-#### Verify Sparse Structure with Auto Encoder: $\widehat{x} = g(f(x))$ 
-
-- True signal $x\in\mathbb{R}^n$ is $k$-sparse in the representation domain, hence $x$ can be represented by a latent vector with lower dimension.
-
-
-
-
-- Network Structure: 
-
-    $x\rightarrow$ $Linear$( $N$, $\frac{N + latentDim}{2}$) $\xrightarrow[]{ReLU}$ $Linear$( $\frac{N + latentDim}{2}$, $latentDim$) $\xrightarrow[]{Normalize}Linear$( $latentDim$, $\frac{N + latentDim}{2}$) $\xrightarrow[]{ReLU}Linear$( $\frac{N + latentDim}{2}$, $N$) $\rightarrow$ $\widehat{x}$
-
-- Loss: $MSE(\boldsymbol{x}, \widehat{\boldsymbol{x}})$
-
-    n = 100
-    | |$latentDim=100$|$latentDim=99$|$latentDim=90$ |$latentDim=80$ | 
-    |--|----|----|----|----|
-    | $Error$ |  $0.003$%  | $4.39$%   | $24.68$%   |  $43.97$%   |
 #### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
 
 |$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
