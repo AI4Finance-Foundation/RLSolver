@@ -23,7 +23,7 @@ In order to facilitate the calculation of Reward without affecting the results, 
 
 |Form|N=7|N=15|N=31|N=63|N=127|
 |-------| ----|------- | -----|------ |------ |
-|![TTN](https://user-images.githubusercontent.com/75991833/217782955-cd2cd6e8-d0b8-4187-b7e7-d202266bcbfb.png)||||||
+|![TTN](https://user-images.githubusercontent.com/75991833/217782955-cd2cd6e8-d0b8-4187-b7e7-d202266bcbfb.png)|30<br>30<br>GAP：0%|78<br>78<br>GAP：0%|174<br>180<br>GAP：3.45%|366<br>400<br>GAP：9.29%|750<br>832<br>GAP：10.94%|
 
 |Form|N=9|N=16|N=49|N=81|N=100|
 |-------| ----|------- | -----|------ |------ |
