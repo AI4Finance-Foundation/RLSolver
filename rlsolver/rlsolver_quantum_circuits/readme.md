@@ -18,7 +18,7 @@ In order to facilitate the calculation of Reward without affecting the results, 
 
 |Form|N=10|N=30|N=50|N=100|
 |-------| ----|------- | -----|------ |
-|![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)|2464<br>2464<br>GAP：0%<br>Cotengra:2506|2.1477512e9<br>log10[FLOPs]:9.33<br>2.147751690e9<br>Gap: 2.283e-7<br>Cotengra_log10[FLOPs]:9.63|2.2518e15<br>2.251800157282632e15<br>Gap: 6.985e-8|2.5353012e+30<br>2.535301200456459e+30<br>Gap: 1.8e-10|
+|![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)|2464<br>2464<br>GAP：0%<br>Cotengra:2506|2.1477512e9<br>log10[FLOPs]:9.33<br>Brute_Force2.147751690e9<br>Gap: 2.283e-7<br>Cotengra:9.63|2.2518e15<br>2.251800157282632e15<br>Gap: 6.985e-8|2.5353012e+30<br>2.535301200456459e+30<br>Gap: 1.8e-10|
 |![TR](https://user-images.githubusercontent.com/75991833/217780649-80acaa33-030b-46b9-9fc6-bf5bc84167a3.png)|4864<br>4864<br>GAP：0.0%|4.2954993e9<br>4.29549879296e9<br>GAP：1.180e-7|4.5036e15<br>4.503600314565263e15<br>GAP：6.9e-8|5.0706024e+30<br>5.070602400912918e+30<br>GAP：1.8e-10|
 
 |Form|N=7|N=15|N=31|N=63|N=127|
