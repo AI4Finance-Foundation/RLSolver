@@ -23,12 +23,12 @@ https://github.com/jcmgray/cotengra
 
 |Form|N=10|N=30|N=50|N=100|
 |-------| ----|------- | -----|------ |
-|![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)|OE_greedy: 3.848<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.69<br>RL_Simulator: **3.392**<br>Brute_Force: 3.392|OE_greedy: 9.855<br>CTG_Greedy: 9.633<br>CTG_Kahypar: 9.63<br>RL_Simulator: **9.332** <br>Brute_Force: 9.332|OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: 15.65<br>RL_Simulator: **15.353**<br>Brute_Force: 15.353|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.71<br>RL_Simulator: **30.404**<br>Brute_Force: 30.404|
+|![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)|OE_greedy: 3.848<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.69<br>RL: **3.392**<br>Brute_Force: 3.392|OE_greedy: 9.855<br>CTG_Greedy: 9.633<br>CTG_Kahypar: 9.63<br>RL: **9.332** <br>Brute_Force: 9.332|OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: 15.65<br>RL: **15.353**<br>Brute_Force: 15.353|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.71<br>RL: **30.404**<br>Brute_Force: 30.404|
 |![TR](https://user-images.githubusercontent.com/75991833/217780649-80acaa33-030b-46b9-9fc6-bf5bc84167a3.png)|3.687<br>3.687<br>GAP：0.0%|9.633<br>9.633<br>|15.654<br>15.654|30.705<br>30.705|
 
 |Form|N=200|N=300|N=500|N=800|
 |-------| ----|------- | -----|------ |
-|TT|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|OE_greedy:  91.133<br>CTG_Greedy: 90.911<br>CTG_Kahypar: 90.91<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|OE_greedy: 151.339<br>CTG_Greedy: 151.337<br>CTG_Kahypar: 151.12<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.43<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|
+|TT|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy:  91.133<br>CTG_Greedy: 90.911<br>CTG_Kahypar: 90.91<br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy: 151.339<br>CTG_Greedy: 151.337<br>CTG_Kahypar: 151.12<br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.43<br>RL: **xxx**<br>Brute_Force: xxx|
 
 
 
