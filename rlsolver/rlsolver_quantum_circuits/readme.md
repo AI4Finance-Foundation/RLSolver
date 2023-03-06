@@ -16,8 +16,17 @@ In order to facilitate the calculation of Reward without affecting the results, 
 
 ## Experimental Results
 - **OE_greedy**: Daniel, G., Gray, J., et al. (2018). Opt\_einsum-a python package for optimizing contraction order for einsum-like expressions. Journal of Open Source Software, 3(26):753
+
+https://github.com/dgasmith/opt_einsum
+
 - **CTG_Greedy**: Gray, J. and Kourtis, S. (2021). Hyper-optimized tensor network contraction. Quantum, 5:410.
+
+https://github.com/jcmgray/cotengra
+
+
 - **CTG_Kahypar**: Gray, J. and Kourtis, S. (2021). Hyper-optimized tensor network contraction. Quantum, 5:410.
+
+https://github.com/jcmgray/cotengra
 
 |Form|N=10|N=30|N=50|N=100|
 |-------| ----|------- | -----|------ |
