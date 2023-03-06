@@ -28,7 +28,7 @@ https://github.com/jcmgray/cotengra
 
 |Form|N=200|N=300|N=500|N=800|
 |-------| ----|------- | -----|------ |
-|TT|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL_Simulator:**xxx**<br>Brute_Force:xxx|OE_greedy:91.133<br>CTG_Greedy:90.911<br>CTG_Kahypar:90.91<br>RL_Simulator:**xxx**<br>Brute_Force:xxx|OE_greedy:151.339<br>CTG_Greedy:151.337<br>CTG_Kahypar:151.12<br>RL_Simulator:**xxx**<br>Brute_Force:xxx|OE_greedy:241.648<br>CTG_Greedy:241.426<br>CTG_Kahypar:241.43<br>RL_Simulator:**xxx**<br>Brute_Force:xxx|
+|TT|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|OE_greedy:  91.133<br>CTG_Greedy: 90.911<br>CTG_Kahypar: 90.91<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|OE_greedy: 151.339<br>CTG_Greedy: 151.337<br>CTG_Kahypar: 151.12<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.43<br>RL_Simulator: **xxx**<br>Brute_Force: xxx|
 
 
 
