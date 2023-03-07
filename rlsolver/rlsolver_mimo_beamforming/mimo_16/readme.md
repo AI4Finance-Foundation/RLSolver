@@ -20,11 +20,11 @@ multi_net_N=K=16_1.pth:
 
 multi_net_N=K=16_2.pth:
 
-## Run the following command to test the trained model:
+## Run the following command to train the pre-trained model:
 
-`python test_single_net.py`
+`python train_single_net.py`
 
-`python test_multi_net.py`
+`python train_multi_net.py`
 
 
 ---------------------------------------------------
