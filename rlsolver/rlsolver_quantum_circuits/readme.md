@@ -21,9 +21,9 @@ https://github.com/dgasmith/opt_einsum
 - **CTG_Greedy、CTG_Kahypar**: Gray, J. and Kourtis, S. (2021). Hyper-optimized tensor network contraction. Quantum, 5:410.
 https://github.com/jcmgray/cotengra
 
-**Tensor-Train**: 
+**Tensor-Train(TT)**:                     
 
-![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)
+**Tensor-Ring(TR)**: 
 
 |Form|N=10|N=30|N=50|N=100|N=200|N=300|N=500|N=800|
 |-------| ----|------- | -----|------| ----|------- | -----|------ |
@@ -33,8 +33,7 @@ https://github.com/jcmgray/cotengra
 
 |Form|N=10|N=30|N=50|N=100|
 |-------| ----|------- | -----|------ |
-|![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)|OE_greedy: 3.848<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.69<br>RL: **3.392**<br>Brute_Force: 3.392|OE_greedy: 9.855<br>CTG_Greedy: 9.633<br>CTG_Kahypar: 9.63<br>RL: **9.332** <br>Brute_Force: 9.332|OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: 15.65<br>RL: **15.353**<br>Brute_Force: 15.353|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.71<br>RL: **30.404**<br>Brute_Force: 30.404|
-|![TR](https://user-images.githubusercontent.com/75991833/217780649-80acaa33-030b-46b9-9fc6-bf5bc84167a3.png)|3.687<br>3.687<br>GAP：0.0%|9.633<br>9.633<br>|15.654<br>15.654|30.705<br>30.705|
+|TR|3.687<br>3.687<br>GAP：0.0%|9.633<br>9.633<br>|15.654<br>15.654|30.705<br>30.705|
 
 
 
