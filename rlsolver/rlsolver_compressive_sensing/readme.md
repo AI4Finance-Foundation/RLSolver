@@ -67,28 +67,6 @@ Ours: Formula (7) is trained as a deep neural network.
 sparse structure.
 - Verify whether $G_\theta(\boldsymbol{z})$ is sparse in the representation domain $\boldsymbol{\Phi}$, namely $\lVert\boldsymbol{\Phi}^{-1}G_\theta(\boldsymbol{z})\rVert_0 \approx k$.
 
-#### Verify Sparse Structure with Auto Encoder: $\widehat{x} = g(f(x))$ 
-
-- True signal $x\in\mathbb{R}^n$ is $k$-sparse in the representation domain, hence $x$ can be represented by a latent vector with lower dimension.
-
-
-
-
-- Network Structure: 
-
-    $x\rightarrow$ $Linear$( $N$, $\frac{N + latentDim}{2}$) $\xrightarrow[]{ReLU}$ $Linear$( $\frac{N + latentDim}{2}$, $latentDim$) $\xrightarrow[]{Normalize}Linear$( $latentDim$, $\frac{N + latentDim}{2}$) $\xrightarrow[]{ReLU}Linear$( $\frac{N + latentDim}{2}$, $N$) $\rightarrow$ $\widehat{x}$
-
-- Loss: $MSE(\boldsymbol{x}, \widehat{\boldsymbol{x}})$
-
-    n = 100
-    | |$latentDim=100$|$latentDim=99$|$latentDim=90$ |$latentDim=80$ | 
-    |--|----|----|----|----|
-    | $Error$ |  $0.003$%  | $4.39$%   | $24.68$%   |  $43.97$%   |
-#### Verify whether formula (7) recovers the sparse signal $G_\theta(z)$.
-
-|$\boldsymbol{z}$|$\boldsymbol{\Phi} \boldsymbol{z}$|$G_\theta(\boldsymbol{z})$|Error|
-|---|----|----|---|
-||![alt_text](./fig/origin_signal_supervised.png)|![alt_text](./fig/gen_signal_supervised.png)|$< 0.1$%|
 
 
 ### Lasso (CS)
@@ -107,7 +85,7 @@ sparse structure.
 ### DCS
 - Given train $G_\theta$, using Eqn. (7) in [1] to recover $\boldsymbol{\widehat{z}}$ and $\boldsymbol{\widehat{x}}$.
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{hundreds of iterations}]{Eqn. (7)} \widehat{\boldsymbol{z}}$
-- Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
+- $\widehat{\boldsymbol{x}} = \boldsymbol{ G }_\theta ( \widehat{\boldsymbol{z}} )$.
 
 #### $m=50 $ 
 
@@ -119,31 +97,10 @@ sparse structure.
 ### Ours
 - Train a neural network (NN) to replace Eqn. (7) in [1].
 - $\widehat{\boldsymbol{z}}_0 \xrightarrow[\text{\\# iterations < 10}]{NN} \widehat{\boldsymbol{z}}$
-- Error: $\frac{\lVert \boldsymbol{x} - \widehat{\boldsymbol{x}} \lVert_2}{\lVert \boldsymbol{x} \rVert_2} \times 100$%, where $\widehat{\boldsymbol{x}} = G_\theta( \widehat{\boldsymbol{z}}) $.
+- $\widehat{\boldsymbol{x}} = \boldsymbol{ G }_\theta ( \widehat{\boldsymbol{z}} )$.
 
 #### $m=50 $ 
 
 |#iterations| $1$ | $3$ | $5$|
 |------|------|------|-----|
 |$n=100$||||
-
-## Different Initializations
-
-### MNIST
-
-- n = 784, m=300
-
-|#iterations| $10$ | $15$ | $20$|
-|------|------|------|-----|
-|Random|79.2%|37.56%|11.41%|
-|$G_\theta(Z)$|6.83%|1.71%|0.104%|
-|Lasso Initialization|19.55%|4.17%|0.26%|
-
-### Synthetic Data
-
-- n = 100, m=50
-
-|#iterations| $5$ | $10$ | $15$|
-|------|------|------|-----|
-|Random|50%|0.024%|0.00025%|
-|Lasso Initialization|0.064%|0.0014%|0.0014%|

@@ -15,11 +15,34 @@ Roadmap
 In order to facilitate the calculation of Reward without affecting the results, we set the value of the tensor index of the unconnected relation in the state matrix to 1.
 
 ## Experimental Results
+- **OE_greedy**: Daniel, G., Gray, J., et al. (2018). Opt\_einsum-a python package for optimizing contraction order for einsum-like expressions. Journal of Open Source Software, 3(26):753
+https://github.com/dgasmith/opt_einsum
 
-|Method|N=10|N=30|N=50|N=100|
+- **CTG_Greedy、CTG_Kahypar**: Gray, J. and Kourtis, S. (2021). Hyper-optimized tensor network contraction. Quantum, 5:410.
+https://github.com/jcmgray/cotengra
+
+**Tensor-Train(TT)**:                     
+
+**Tensor-Ring(TR)**: 
+
+|Form|N=10|N=30|N=50|N=100|N=200|N=300|N=500|N=800|
+|-------| ----|------- | -----|------| ----|------- | -----|------ |
+|TT|OE_greedy: 3.848<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.69<br>RL: **3.392**<br>Brute_Force: 3.392|OE_greedy: 9.855<br>CTG_Greedy: 9.633<br>CTG_Kahypar: 9.63<br>RL: **9.332** <br>Brute_Force: 9.332|OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: 15.65<br>RL: **15.353**<br>Brute_Force: 15.353|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.71<br>RL: **30.404**<br>Brute_Force: 30.404|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy:  91.133<br>CTG_Greedy: 90.911<br>CTG_Kahypar: 90.91<br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy: 151.339<br>CTG_Greedy: 151.337<br>CTG_Kahypar: 151.12<br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.43<br>RL: **xxx**<br>Brute_Force: xxx|
+
+
+
+|Form|N=10|N=30|N=50|N=100|
 |-------| ----|------- | -----|------ |
-|![TT](https://user-images.githubusercontent.com/75991833/217780619-40f42213-62b8-4db5-bfa9-0c9f8d97081d.png)|2464<br>2464<br>GAP：0%|2147751200.00<br>2147751690.24<br>Gap: 2.283e-9|2251800000000000<br>2251800157282631.5<br>Gap: 6.98e-10|2.5353012e+30<br>2.535301200456459e+30<br>Gap: 1.8e-10|
-|![TR](https://user-images.githubusercontent.com/75991833/217780649-80acaa33-030b-46b9-9fc6-bf5bc84167a3.png)|4864<br>4864<br>GAP：0.0%|4295499300.00<br>4295500759.04<br>GAP：3.397e-7|4503600000000000.0<br>4503600314565263.0<br>GAP：6.9e-8|5.0706024e+30<br>5.070602400912918e+30<br>GAP：1.8e-10|
-|![TTN](https://user-images.githubusercontent.com/75991833/217782955-cd2cd6e8-d0b8-4187-b7e7-d202266bcbfb.png)||||
-|![G](https://user-images.githubusercontent.com/75991833/217780858-eff2a41e-3847-4ed2-bbcb-5db8aa86d9ce.png)||||
+|TR|3.687<br>3.687<br>GAP：0.0%|9.633<br>9.633<br>|15.654<br>15.654|30.705<br>30.705|
 
+
+
+
+
+|Form|N=7|N=15|N=31|N=63|N=127|
+|-------| ----|------- | -----|------ |------ |
+|![TTN](https://user-images.githubusercontent.com/75991833/217782955-cd2cd6e8-d0b8-4187-b7e7-d202266bcbfb.png)|30<br>30<br>GAP：0%|78<br>78<br>GAP：0%|174<br>180<br>GAP：3.45%|366<br>400<br>GAP：9.29%|750<br>832<br>GAP：10.94%|
+
+|Form|N=9|N=16|N=49|N=81|N=100|
+|-------| ----|------- | -----|------ |------ |
+|![G](https://user-images.githubusercontent.com/75991833/217780858-eff2a41e-3847-4ed2-bbcb-5db8aa86d9ce.png)||||||
