@@ -6,7 +6,7 @@ Roadmap
 - [ ] Massively parallel simulation of environment
 - [ ] Baseline methods: greedy, BRB
 - [ ] Dataset
-- [ ] RL achieves optimality and outperforms baselines
+- [ ] RL achieves optimality (or near-optimality) and outperforms other methods
 
 ## Data Generation
 
