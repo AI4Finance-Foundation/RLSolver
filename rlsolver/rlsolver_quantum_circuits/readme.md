@@ -33,9 +33,9 @@ https://github.com/jcmgray/cotengra
 
 
 
-|Quantum_Circuit|m=12|m=14|m=16|m=18|m=20|
-|-------| ----|------- | -----|------ |------ |
-|Res|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL:|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL:|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL:|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL:|
+|Quantum_Circuit|m=10|m=12|m=14|m=16|m=18|m=20|
+|-------| ----|------- | -----|------ |------ |------ |
+|Res|OE_greedy: 14.756<br>CTG_Greedy: 10.577<br>CTG_Kahypar: 10.304<br>RL_TNCO: 10.736<br>RL:|OE_greedy: 20.471<br>CTG_Greedy: 14.009<br>CTG_Kahypar: 13.639<br>RL_TNCO: 12.869<br>RL:|OE_greedy: 18.182<br>CTG_Greedy: 15.283<br>CTG_Kahypar: 14.704<br>RL_TNCO: 14.420<br>RL:|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL_TNCO: <br>RL:|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL_TNCO: <br>RL:|OE_greedy: 31.310<br>CTG_Greedy: 18.934<br>CTG_Kahypar: 18.765<br>RL_TNCO: 18.544<br>RL:|
 
 
 
