@@ -40,16 +40,12 @@ https://github.com/jcmgray/cotengra
 |-------| ----|------- | -----|------| ----|------- | -----|------ |
 |RES|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **3.687**<br>Brute_Force: 3.687|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **9.633** <br>Brute_Force: 9.633|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **15.654**<br>Brute_Force: 15.654|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **30.705**<br>Brute_Force: 30.705|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy:  <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**<br>Brute_Force: xxx|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**<br>Brute_Force: xxx|
 
-- **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
 
 
 
-
-
-
-|Form|N=7|N=15|N=31|N=63|N=127|
-|-------| ----|------- | -----|------ |------ |
-|![TTN](https://user-images.githubusercontent.com/75991833/217782955-cd2cd6e8-d0b8-4187-b7e7-d202266bcbfb.png)|30<br>30<br>GAP：0%|78<br>78<br>GAP：0%|174<br>180<br>GAP：3.45%|366<br>400<br>GAP：9.29%|750<br>832<br>GAP：10.94%|
+|Form|N=7|N=15|N=31|N=63|N=127|N=255|
+|-------| ----|------- | -----|------ |------ |------ |
+|![image](https://user-images.githubusercontent.com/75991833/226081000-e507cc10-5c7f-4268-8f7a-418b8de0faa4.png)|OE_greedy: 3.304<br>CTG_Greedy: 3.158<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 5.476<br>CTG_Greedy: 5.427<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 10.238<br>CTG_Greedy: 10.235<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 19.868<br>CTG_Greedy: 19.868<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 39.134<br>CTG_Greedy: 39.134<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 77.666<br>CTG_Greedy: 77.666<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|
 
 |Form|N=9|N=16|N=49|N=81|N=100|
 |-------| ----|------- | -----|------ |------ |
