@@ -151,7 +151,7 @@ def set_attr(obj, attr, val):
     setattr(obj, attrs[-1], val)
 
 
-def get_objective(h: TEN, w: TEN, noise: float = 1.) -> TEN:
+def objective_function(h: TEN, w: TEN, noise: float = 1.) -> TEN:
     hw = h @ w
     abs_hw_squared = th.abs(hw) ** 2
     signal = th.diagonal(abs_hw_squared)
@@ -177,13 +177,13 @@ class OptimizerTask(nn.Module):
 
     def forward(self, target):
         w = self.theta[0] + 1j * self.theta[1]
-        return target.get_objective(w)
+        return target.objective_function(w)
 
     def get_output(self):
         return self.theta[0] + 1j * self.theta[1]
 
 
-class OptimizerIter(nn.Module):
+class OptimizerFunc(nn.Module):
     def __init__(self, hid_dim=20):
         super().__init__()
         self.hid_dim = hid_dim
@@ -223,8 +223,8 @@ def train_optimizer():
     with open(f'./K{dim[0]}N{dim[1]}Samples=100.pkl', 'rb') as f:
         h_evals = th.as_tensor(pkl.load(f), dtype=th.cfloat, device=device)
 
-    obj_func = get_objective
-    opt_func = OptimizerIter(hid_dim=hid_dim).to(device)
+    obj_func = objective_function
+    opt_func = OptimizerFunc(hid_dim=hid_dim).to(device)
     opt_task = OptimizerTask(dim=dim, device=device)
     opt_base = optim.Adam(opt_func.parameters(), lr=lr)
 
@@ -238,7 +238,7 @@ def train_optimizer():
         for h in h_evals:
             h_scale = h * (p ** 0.5)
             w_mmse = mmse_beamformers(h, p)
-            loss_mmse.append(-get_objective(h_scale, w_mmse).item())
+            loss_mmse.append(-objective_function(h_scale, w_mmse).item())
         loss_mmse = sum(loss_mmse) / len(loss_mmse)
         loss_mmse_list.append(loss_mmse)
     print(f"{'MMSE':>8} {loss_mmse_list[0]:>9.3f} {loss_mmse_list[1]:>9.3f} {loss_mmse_list[2]:>9.3f}")
