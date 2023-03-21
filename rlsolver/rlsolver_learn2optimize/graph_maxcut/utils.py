@@ -1,10 +1,12 @@
 import torch
+import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
 import operator
 from itertools import islice
+import os
 from collections import OrderedDict
 
 def to_var(x, requires_grad=True):
@@ -544,3 +546,162 @@ class LeNet(MetaModule):
         x = self.main(x)
         x = x.view(-1, 120)
         return self.fc_layers(x).squeeze()
+
+
+def cpu_to_gpu(v):
+    try:
+        return v.cuda()
+    except Exception as e:
+        return v
+
+def detach_var(v):
+    var = cpu_to_gpu(Variable(v.data, requires_grad=True))
+    var.retain_grad()
+    return var
+
+def rsetattr(obj, attr, val):
+    pre, _, post = attr.rpartition('.')
+    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+
+def rgetattr(obj, attr, *args):
+    def _getattr(obj, attr):
+        return getattr(obj, attr, *args)
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
+
+
+def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
+    opt_net.eval()
+
+    optimizee = cpu_to_gpu(opt_variable(N, device))
+    n_params = 0
+    for name, p in optimizee.all_named_parameters():
+        n_params += int(np.prod(p.size()))
+
+    hidden_states = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+    cell_states = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+    all_losses_ever = []
+    all_losses = None
+    last = 0
+    for iteration in range(1, optim_it + 1):
+        loss = optimizee(target)
+
+        if all_losses is None:
+            all_losses = loss
+        else:
+            all_losses += loss
+
+        all_losses_ever.append(loss.data.cpu().numpy().copy())
+        loss.backward()
+
+        offset = 0
+        result_params = {}
+        hidden_states2 = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+        cell_states2 = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+        for name, p in optimizee.all_named_parameters():
+            cur_sz = int(np.prod(p.size()))
+            gradients = detach_var(p.grad.view(cur_sz, 1))
+            try:
+                a = result_params[name].detach()
+            except Exception as e:
+                a = gradients
+            updates, new_hidden, new_cell = opt_net(a, [h[offset:offset+cur_sz] for h in hidden_states], [c[offset:offset+cur_sz] for c in cell_states])
+            for i in range(len(new_hidden)):
+                hidden_states2[i][offset:offset+cur_sz] = new_hidden[i]
+                cell_states2[i][offset:offset+cur_sz] = new_cell[i]
+            temp = p + updates.view(*p.size())
+            # print(temp, th.norm(temp))
+            result_params[name] = temp
+            result_params[name].retain_grad()
+            offset += cur_sz
+        optimizee = cpu_to_gpu(opt_variable(N, device))
+        optimizee.load_state_dict(result_params)
+        optimizee.zero_grad()
+        hidden_states = [detach_var(v) for v in hidden_states2]
+        cell_states = [detach_var(v) for v in cell_states2]
+    return all_losses_ever
+
+def get_cwd(folder_name,N):
+    N = N
+    try:
+        os.mkdir(folder_name)
+    except:
+        pass
+    folder_name = folder_name+'/N'+str(N)
+    try:
+        os.mkdir(folder_name)
+    except:
+        pass
+
+    file_list = os.listdir('./{}/'.format(folder_name))
+    max_exp_id = 0
+    for exp_id in file_list:
+        if exp_id == '.DS_Store':
+            pass
+        elif int(exp_id) + 1 > max_exp_id:
+            max_exp_id = int(exp_id) + 1
+    os.mkdir('./{}/{}/'.format(folder_name, max_exp_id))
+    return f"./{folder_name}/{max_exp_id}/", max_exp_id
+
+
+def load_test_data(device):
+    sparsity = 0.15
+    n = 10
+    try:
+        test_data = th.as_tensor(np.load(f'./N{n}Samples10Sparsity{sparsity}.npy')).to(device)
+    except Exception as e:
+        test_data = th.zeros(n, n, device=device)
+        upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
+        test_data[0] = upper_triangle + upper_triangle.transpose(-1, -2)
+        np.save(f'./N{n}Samples10Sparsity{sparsity}.npy', test_data[0].cpu().numpy())
+    return test_data
+
+
+class Obj_fun():
+    def __init__(self, adjacency_matrix, **kwargs):
+        self.adjacency_matrix = adjacency_matrix
+        self.N = adjacency_matrix.shape[0]
+    def get_loss(self, x):
+        # print(x)
+        x = x.sigmoid()
+        return -th.mul(th.matmul(x.reshape(self.N, 1), (1 - x.reshape(self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+
+class Opt_variable(MetaModule):
+    def __init__(self, N, device):
+        super().__init__()
+        self.N = N
+        self.register_buffer('theta', cpu_to_gpu(to_var(th.rand(self.N,device=device), requires_grad=True)))
+
+    def forward(self, target):
+        return target.get_loss(self.theta)
+
+    def all_named_parameters(self):
+        return [('theta', self.theta)]
+
+class Opt_net(nn.Module):
+    def __init__(self, preproc=False, hidden_sz=20, preproc_factor=10.0):
+        super().__init__()
+        self.hidden_sz = hidden_sz
+        if preproc:
+            self.recurs = nn.LSTMCell(2, hidden_sz)
+        else:
+            self.recurs = nn.LSTMCell(1, hidden_sz)
+        self.recurs2 = nn.LSTMCell(hidden_sz, hidden_sz)
+        self.output = nn.Linear(hidden_sz, 1)
+        self.preproc = preproc
+        self.preproc_factor = preproc_factor
+        self.preproc_threshold = np.exp(-preproc_factor)
+
+    def forward(self, inp, hidden, cell):
+        if self.preproc:
+            inp = inp.data
+            inp2 = cpu_to_gpu(th.zeros(inp.size()[0], 2))
+            keep_grads = (th.abs(inp) >= self.preproc_threshold).squeeze()
+            inp2[:, 0][keep_grads] = (th.log(th.abs(inp[keep_grads]) + 1e-8) / self.preproc_factor).squeeze()
+            inp2[:, 1][keep_grads] = th.sign(inp[keep_grads]).squeeze()
+
+            inp2[:, 0][~keep_grads] = -1
+            inp2[:, 1][~keep_grads] = (float(np.exp(self.preproc_factor)) * inp[~keep_grads]).squeeze()
+            inp = cpu_to_gpu(Variable(inp2))
+        hidden0, cell0 = self.recurs(inp, (hidden[0], cell[0]))
+        hidden1, cell1 = self.recurs2(hidden0, (hidden[1], cell[1]))
+        return self.output(hidden1), (hidden0, hidden1), (cell0, cell1)
