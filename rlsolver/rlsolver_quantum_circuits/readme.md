@@ -18,6 +18,8 @@ In order to facilitate the calculation of Reward without affecting the results, 
 
 **Our results**
 
+Quantum circuits are circuits with quantum bit number n=53 and cycles m=12, 14, 16, 18, 20, source of dataset: https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8   
+
 |Sycamore_Circuit|m=12|m=14|m=16|m=18|m=20|
 |-------|------- | -----|------ |------ |------ |
 |Results|OE_greedy: 17.795<br>CTG_Greedy: 17.065<br>CTG_Kahypar: 13.408<br>RL:|OE_greedy: 19.679<br>CTG_Greedy: 19.282<br>CTG_Kahypar: 14.152<br>RL:|OE_greedy: 25.889<br>CTG_Greedy: 23.151<br>CTG_Kahypar: 17.012<br>RL:|OE_greedy: 26.793<br>CTG_Greedy: 23.570<br>CTG_Kahypar: 17.684<br>RL:|OE_greedy: 26.491<br>CTG_Greedy: 25.623<br>CTG_Kahypar: 18.826<br>RL:|
