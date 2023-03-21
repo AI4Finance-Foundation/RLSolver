@@ -20,7 +20,7 @@ Our results
 
 |Quantum_Circuit|m=10|m=12|m=14|m=16|m=18|m=20|
 |-------| ----|------- | -----|------ |------ |------ |
-|Res|OE_greedy: #<br>CTG_Greedy: #<br>CTG_Kahypar: #<br>RL_TNCO: #<br>RL:#|OE_greedy: 20.471<br>CTG_Greedy: 14.009<br>CTG_Kahypar: 13.639<br>RL_TNCO: 12.869<br>RL:|OE_greedy: 19.679<br>CTG_Greedy: 19.282<br>CTG_Kahypar: 14.152<br>RL_TNCO: 14.420<br>RL:|OE_greedy: 25.889<br>CTG_Greedy: 23.151<br>CTG_Kahypar: 17.012<br>RL_TNCO: #<br>RL:|OE_greedy: 26.793<br>CTG_Greedy: 23.570<br>CTG_Kahypar: 17.684<br>RL_TNCO: #<br>RL:|OE_greedy: 26.491<br>CTG_Greedy: 25.623<br>CTG_Kahypar: 18.826<br>RL_TNCO: 18.544<br>RL:|
+|Res|OE_greedy: #<br>CTG_Greedy: #<br>CTG_Kahypar: #<br>RL_TNCO: #<br>RL:#|OE_greedy: 17.795<br>CTG_Greedy: 17.065<br>CTG_Kahypar: 13.408<br>RL_TNCO: 12.869<br>RL:|OE_greedy: 19.679<br>CTG_Greedy: 19.282<br>CTG_Kahypar: 14.152<br>RL_TNCO: 14.420<br>RL:|OE_greedy: 25.889<br>CTG_Greedy: 23.151<br>CTG_Kahypar: 17.012<br>RL_TNCO: #<br>RL:|OE_greedy: 26.793<br>CTG_Greedy: 23.570<br>CTG_Kahypar: 17.684<br>RL_TNCO: #<br>RL:|OE_greedy: 26.491<br>CTG_Greedy: 25.623<br>CTG_Kahypar: 18.826<br>RL_TNCO: 18.544<br>RL:|
 
 
 - **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
