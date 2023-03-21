@@ -55,7 +55,7 @@ https://github.com/jcmgray/cotengra
 
 |Form|N=7|N=15|N=31|N=63|N=127|N=255|
 |-------| ----|------- | -----|------ |------ |------ |
-|![image](https://user-images.githubusercontent.com/75991833/226081000-e507cc10-5c7f-4268-8f7a-418b8de0faa4.png)|OE_greedy: 3.304<br>CTG_Greedy: 3.158<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 5.476<br>CTG_Greedy: 5.427<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 10.238<br>CTG_Greedy: 10.235<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 19.868<br>CTG_Greedy: 19.868<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 39.134<br>CTG_Greedy: 39.134<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 77.666<br>CTG_Greedy: 77.666<br>CTG_Kahypar: <br>RL: **XXX**<br>Brute_Force: XXX|
+|![image](https://user-images.githubusercontent.com/75991833/226081000-e507cc10-5c7f-4268-8f7a-418b8de0faa4.png)|OE_greedy: 3.304<br>CTG_Greedy: 3.158<br>CTG_Kahypar: 3.16<br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 5.476<br>CTG_Greedy: 5.427<br>CTG_Kahypar: 5.43<br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 10.238<br>CTG_Greedy: 10.235<br>CTG_Kahypar: 10.24<br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 19.868<br>CTG_Greedy: 19.868<br>CTG_Kahypar: 19.87<br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 39.134<br>CTG_Greedy: 39.134<br>CTG_Kahypar: 39.13<br>RL: **XXX**<br>Brute_Force: XXX|OE_greedy: 77.666<br>CTG_Greedy: 77.666<br>CTG_Kahypar: 77.67<br>RL: **XXX**<br>Brute_Force: XXX|
 
 |Form|N=9|N=16|N=49|N=81|N=100|
 |-------| ----|------- | -----|------ |------ |
