@@ -18,27 +18,23 @@ In order to facilitate the calculation of Reward without affecting the results, 
 
 Our results
 
+|Sycamore_Circuit|m=12|m=14|m=16|m=18|m=20|
+|-------|------- | -----|------ |------ |------ |
+|Results|OE_greedy: 17.795<br>CTG_Greedy: 17.065<br>CTG_Kahypar: 13.408<br>RL:|OE_greedy: 19.679<br>CTG_Greedy: 19.282<br>CTG_Kahypar: 14.152<br>RL:|OE_greedy: 25.889<br>CTG_Greedy: 23.151<br>CTG_Kahypar: 17.012<br>RL:|OE_greedy: 26.793<br>CTG_Greedy: 23.570<br>CTG_Kahypar: 17.684<br>RL:|OE_greedy: 26.491<br>CTG_Greedy: 25.623<br>CTG_Kahypar: 18.826<br>RL:|
+
 - **OE_greedy**: Daniel, G., Gray, J., et al. (2018). Opt\_einsum-a python package for optimizing contraction order for einsum-like expressions. Journal of Open Source Software, 3(26):753
 https://github.com/dgasmith/opt_einsum
 
 - **CTG_Greedy、CTG_Kahypar**: Gray, J. and Kourtis, S. (2021). Hyper-optimized tensor network contraction. Quantum, 5:410.
 https://github.com/jcmgray/cotengra
 
-
-|Sycamore_Circuit|m=12|m=14|m=16|m=18|m=20|
-|-------|------- | -----|------ |------ |------ |
-|Results|OE_greedy: 17.795<br>CTG_Greedy: 17.065<br>CTG_Kahypar: 13.408<br>RL:|OE_greedy: 19.679<br>CTG_Greedy: 19.282<br>CTG_Kahypar: 14.152<br>RL:|OE_greedy: 25.889<br>CTG_Greedy: 23.151<br>CTG_Kahypar: 17.012<br>RL:|OE_greedy: 26.793<br>CTG_Greedy: 23.570<br>CTG_Kahypar: 17.684<br>RL:|OE_greedy: 26.491<br>CTG_Greedy: 25.623<br>CTG_Kahypar: 18.826<br>RL:|
-
-
-- **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
-
-
-Results of ICML-Optimizing tensor network contraction using reinforcement learning
+Results of **ICML-Optimizing tensor network contraction using reinforcement learning**
 
 |Sycamore_Circuit|m=10|m=12|m=14|m=16(Not-Giving)|m=18(Not-Giving)|m=20|
 |-------| ----|------- | -----|------ |------ |------ |
 |Results|OE_greedy: 14.756<br>CTG_Greedy: 10.577<br>CTG_Kahypar: 10.304<br>RL_TNCO: 10.736|OE_greedy: 20.471<br>CTG_Greedy: 14.009<br>CTG_Kahypar: 13.639<br>RL_TNCO: 12.869|OE_greedy: 18.182<br>CTG_Greedy: 15.283<br>CTG_Kahypar: 14.704<br>RL_TNCO: 14.420|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL_TNCO: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL_TNCO: |OE_greedy: 31.310<br>CTG_Greedy: 18.934<br>CTG_Kahypar: 18.765<br>RL_TNCO: 18.544|
 
+- **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
 
 
 
