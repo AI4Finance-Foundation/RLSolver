@@ -6,6 +6,7 @@ import os
 import copy
 import numpy as np
 from utils import *
+import sys
 
 def roll_out(N, opt_net, optimizer, obj_fun, opt_variable_class, look_ahead_K, optim_it):
     opt_variable = cpu_to_gpu(opt_variable_class(N, device))
@@ -54,30 +55,32 @@ def roll_out(N, opt_net, optimizer, obj_fun, opt_variable_class, look_ahead_K, o
             cell_states = cell_states2
     return loss_H_ever
 
-def do_test(N, best_loss, opt_net, obj_fun, opt_variable_class, optim_it, test_data):
+def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class, optim_it, test_data):
     loss = []
     target = obj_fun(test_data)
     test_loss = forward_pass(N, opt_net, target, opt_variable_class, optim_it, device=device)
     loss.append(test_loss)
     loss = np.array(loss)[0] * -1
     loss_avg_final = loss[-1]
-    print(('{:<15}'+'{:<10}').format(*[ 'LSTM', 'LSTM*']))
-    print(('{:<15f}'+'{:<10f}').format(*[loss_avg_final, best_loss]))
+    print(('{:<15}'+'{:<10}'+'{:<10}').format(*[ 'tst_sol', 'test_sol*', 'train_sol*']))
+    print(('{:<15.2f}'+'{:<10.2f}'+'{:<10.2f}').format(*[loss_avg_final, best_loss, best_train_loss]))
     return loss_avg_final, loss
 
-def train_opt_net(N, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=20, preproc=False, look_ahead_K=10, optim_it=100, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000):
-    test_data = load_test_data(device)
+def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=20, preproc=False, look_ahead_K=10, optim_it=100, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000):
+    test_data = load_test_data(N, sparsity, device)
     best_net = None
-    best_loss, _ = do_test(N, 0, opt_net, obj_fun, opt_variable_class=opt_variable_class, optim_it=200,  test_data=test_data)
+    best_loss, _ = do_test(N, 0, 0, opt_net, obj_fun, opt_variable_class=opt_variable_class, optim_it=200,  test_data=test_data)
     history = { 'test_loss':[], 'train_loss':[] }
     epoch = 0
+    best_train_loss = 0
     for epoch in range(1, N_train_epochs+1):
         loss = roll_out(N, opt_net, optimizer, obj_fun(test_data), opt_variable_class,look_ahead_K, optim_it)
         history['train_loss'].append(-np.mean(loss))
+        best_train_loss = -np.min(loss) if -np.min(loss) > best_train_loss else best_train_loss
         if epoch % test_every == 0:
             print('='*60)
             print('epoch',epoch)
-            loss, _ = do_test(N, best_loss, opt_net, obj_fun, opt_variable_class=opt_variable_class, optim_it=200, test_data=test_data)
+            loss, _ = do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class=opt_variable_class, optim_it=200, test_data=test_data)
             history['test_loss'].append(loss)
             np.save(save_path+'history.npy', history)
             if loss > best_loss:
@@ -91,7 +94,8 @@ def train_opt_net(N, opt_net, optimizer, run_id, obj_fun, opt_variable_class, te
 if __name__ == '__main__':
     USE_CUDA = False
     device = th.device('cuda:0') if USE_CUDA is True else th.device('cpu')
-    N = 20
+    N = int(sys.argv[1])
+    sparsity= float(sys.argv[2])
     look_ahead_K = 5
     obj_fun = Obj_fun
     opt_variable_class = Opt_variable
@@ -102,5 +106,5 @@ if __name__ == '__main__':
     preproc=False
     opt_net = cpu_to_gpu(Opt_net(preproc=preproc, hidden_sz=hidden_sz))
     optimizer = optim.Adam(opt_net.parameters(), lr=lr)
-    loss, path = train_opt_net(N=N, opt_net=opt_net, optimizer=optimizer, run_id=run_id, obj_fun=obj_fun, opt_variable_class=opt_variable_class,look_ahead_K=look_ahead_K,
-        test_every=100, hidden_sz=hidden_sz, lr=lr, load_net_path=None, save_path=save_path, N_train_epochs=1000)
+    loss, path = train_opt_net(N=N, sparsity=sparsity, opt_net=opt_net, optimizer=optimizer, run_id=run_id, obj_fun=obj_fun, opt_variable_class=opt_variable_class,look_ahead_K=look_ahead_K,
+        test_every=10, hidden_sz=hidden_sz, lr=lr, load_net_path=None, save_path=save_path, N_train_epochs=1000)

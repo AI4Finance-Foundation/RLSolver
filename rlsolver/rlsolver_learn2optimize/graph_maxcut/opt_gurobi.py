@@ -1,12 +1,12 @@
 import numpy as np
 import torch as th
 from gurobipy import *
-
+import sys
 import os
 
 
 
-NUMS_NODES = [20]
+NUMS_NODES = [int(sys.argv[1])]
 EXP_ID = 0
 
 RESULT_GUROBI_DIR = 'gurobi_result'
@@ -26,13 +26,13 @@ def run_using_gurobi_fixed_num_nodes(n: int):
     model = Model("maxcut")
     node_indices = list(range(n))
     import pickle as pkl
-    sparsity = 0.5
+    sparsity = float(sys.argv[2])
 
     adjacency_matrix_list = np.load(f'N{n}Sparsity{sparsity}.npy')
-    print(adjacency_matrix_list)
+    # print(adjacency_matrix_list)
     for adj_id in range(1):
     # try:
-        print(adjacency_matrix_list)
+        # print(adjacency_matrix_list)
         adjacency_matrix = adjacency_matrix_list
         x = model.addVars(n, vtype=GRB.BINARY, name="x")
         y = model.addVars(n, n, vtype=GRB.BINARY, name="y")
