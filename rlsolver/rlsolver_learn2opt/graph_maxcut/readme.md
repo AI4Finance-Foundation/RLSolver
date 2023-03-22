@@ -20,11 +20,11 @@ python opt_gurobi.py #N #Sparsity
 
 ## Experiment Results
 Sprsity=0.5
-|Maxcut |Gurobi|Ours|
+|Maxcut |Gurobi (Running Time)|Ours (Running Time)|
 |-------|------|----|
-|N=20   | 67   | 67 |
-|N=30   | 132   | 132 |
-|N=100   | 1408   | 1409 |
-|N=1000   |  128508  |  129900|
+|N=20   | 67 (5s)  | 67 (20s)|
+|N=30   | 132 (10s)  | 132 (30s)|
+|N=100   | 1408 (2000s)  | 1409 (800s)|
+|N=1000   |  128508 (4400s)  |  129900 (1000s)|
 ## Workflow
  ![pipeline](pipeline.jpg)
