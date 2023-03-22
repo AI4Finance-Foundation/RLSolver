@@ -91,7 +91,7 @@ def train_opt_net(N, opt_net, optimizer, run_id, obj_fun, opt_variable_class, te
 if __name__ == '__main__':
     USE_CUDA = False
     device = th.device('cuda:0') if USE_CUDA is True else th.device('cpu')
-    N = 10
+    N = 20
     look_ahead_K = 5
     obj_fun = Obj_fun
     opt_variable_class = Opt_variable

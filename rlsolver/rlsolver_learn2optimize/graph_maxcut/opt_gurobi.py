@@ -6,7 +6,7 @@ import os
 
 
 
-NUMS_NODES = [100]
+NUMS_NODES = [20]
 EXP_ID = 0
 
 RESULT_GUROBI_DIR = 'gurobi_result'
@@ -26,10 +26,9 @@ def run_using_gurobi_fixed_num_nodes(n: int):
     model = Model("maxcut")
     node_indices = list(range(n))
     import pickle as pkl
-    sparsity = 0.15
-    nSamples = 10
+    sparsity = 0.5
 
-    adjacency_matrix_list = np.load(f'N{n}Samples{nSamples}Sparsity{sparsity}.npy')
+    adjacency_matrix_list = np.load(f'N{n}Sparsity{sparsity}.npy')
     print(adjacency_matrix_list)
     for adj_id in range(1):
     # try:

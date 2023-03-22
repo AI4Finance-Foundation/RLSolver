@@ -644,15 +644,15 @@ def get_cwd(folder_name,N):
 
 
 def load_test_data(device):
-    sparsity = 0.15
-    n = 10
+    sparsity = 0.5
+    n = 20
     try:
-        test_data = th.as_tensor(np.load(f'./N{n}Samples10Sparsity{sparsity}.npy')).to(device)
+        test_data = th.as_tensor(np.load(f'./N{n}Sparsity{sparsity}.npy')).to(device)
     except Exception as e:
         test_data = th.zeros(n, n, device=device)
         upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
-        test_data[0] = upper_triangle + upper_triangle.transpose(-1, -2)
-        np.save(f'./N{n}Samples10Sparsity{sparsity}.npy', test_data[0].cpu().numpy())
+        test_data = upper_triangle + upper_triangle.transpose(-1, -2)
+        np.save(f'./N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
     return test_data
 
 
