@@ -1,17 +1,17 @@
-# Learn to Optimize: Graph Maxcut
+# Graph Maxcut
 ## File structure
 ```python
 main.py #inlcuding the following functions: main, train_opt_net, roll_out
 opt_gurobi.py # gurobi code to compute optimal solutions, gurobi license is required
 utils.py # utils file, including opt_net, opt_variable, obj_fun and other utility functions
 ```
-## Run our method with the following command 
+## Run our method with command 
 
 ```
 python main.py #N #Sparsity
 ```
 
-## Run gurobi with the following command 
+## Run Gurobi with command 
 
 ```
 python opt_gurobi.py #N #Sparsity
