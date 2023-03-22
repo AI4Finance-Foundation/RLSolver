@@ -26,6 +26,7 @@ Sprsity=0.5
 |N=30   | 132 (10s)  | 132 (30s)|
 |N=100   | 1408 (2000s)  | 1409 (800s)|
 |N=1000   |  128508 (4400s)  |  129900 (1000s)|
+|N=5000||3179905.75(1000s)|
 
 Inference time of our method is less than 10 seconds.
 
