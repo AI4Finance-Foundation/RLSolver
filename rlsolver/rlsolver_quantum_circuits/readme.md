@@ -59,3 +59,8 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 |Form|N=36|N=64|N=100|N=144|N=196|N=256|
 |-------| ----|------- | -----|------ |------ |------ |
 |![image](https://user-images.githubusercontent.com/75991833/226536052-66cb5a8b-cbeb-4f5e-8842-389f03c8b40f.png)|OE_greedy: 12.996<br>CTG_Greedy: 12.944<br>CTG_Kahypar: 12.59<br>RL: **XXX**|OE_greedy: 21.983<br>CTG_Greedy: 21.975<br>CTG_Kahypar: 21.05<br>RL: **XXX**|OE_greedy: 34.317<br>CTG_Greedy: 33.715<br>CTG_Kahypar: 31.89<br>RL: **XXX**|OE_greedy: 48.165<br>CTG_Greedy: 47.262<br>CTG_Kahypar: 45.14<br>RL: **XXX**|OE_greedy: 64.420<br>CTG_Greedy: 64.420<br>CTG_Kahypar: 60.79<br>RL: **XXX**|OE_greedy: 83.084<br>CTG_Greedy: 82.783<br>CTG_Kahypar: 78.85<br>RL: **XXX**|
+
+
+|Form|Height=3|Height=4|Height=5|Height=6|Height=7|Height=8|
+|-------| ----|------- | -----|------ |------ |------ |
+|![image](https://user-images.githubusercontent.com/75991833/226824572-fe768e1b-6314-4299-a03d-fc004d6cb4c5.png)|OE_greedy: 3.595<br>CTG_Greedy: 3.595<br>CTG_Kahypar: 3.60<br>RL: **XXX**|OE_greedy: 5.793<br>CTG_Greedy: 5.402<br>CTG_Kahypar: 5.39<br>RL: **XXX**|OE_greedy: 11.446<br>CTG_Greedy: 10.111<br>CTG_Kahypar: 10.11<br>RL: **XXX**|OE_greedy: 21.079<br>CTG_Greedy: 19.743<br>CTG_Kahypar: 19.74<br>RL: **XXX**|OE_greedy: 39.009<br>CTG_Greedy: 39.009<br>CTG_Kahypar: 39.01<br>RL: **XXX**|OE_greedy: 77.541<br>CTG_Greedy: 77.541<br>CTG_Kahypar: 77.54<br>RL: **XXX**|
