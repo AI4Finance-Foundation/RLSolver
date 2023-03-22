@@ -20,7 +20,7 @@ python opt_gurobi.py #N #Sparsity
 
 ## Experiment Results
 Sprsity=0.5
-|Maxcut |Gurobi (Running Time)|Ours (Running Time)|
+|Maxcut |Gurobi (Running Time)|Ours (Training Time, inference within 10s)|
 |-------|------|----|
 |N=20   | 67 (5s)  | 67 (20s)|
 |N=30   | 132 (10s)  | 132 (30s)|
