@@ -34,7 +34,7 @@ Inference time of our method is less than 10 seconds.
 
 Gset dataset
 
-| graph | #nodes| #edges |  BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours | relative error $\epsilon$ |
+| graph | #nodes| #edges |  BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours | gap in percentage |
 |---|----------|-------|-----|-----|--------|----------|------|----|---------------------------|
 |G14 | 800 | 4694 | 3064| | 2922 | 3061 | 2943 | 3026 | 1.24 \%|
 |G15 | 800 | 4661 |  $3050$ | 2938 | $3050$ | 2928 | 2990 | | $\%$ |
