@@ -20,7 +20,8 @@ python opt_gurobi.py #N #Sparsity
 
 ## Experiment Results
 
-Sprsity=0.5
+Synthetic data at sparsity = 0.5
+ 
 |Maxcut |Gurobi, (Running Time)| Ours, (Training Time) | improvement |
 |-------|------|----| ---- |
 |N=20   | 67, (5s)  | 67, (20s)| same |
