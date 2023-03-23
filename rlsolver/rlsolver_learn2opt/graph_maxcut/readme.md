@@ -21,8 +21,8 @@ python opt_gurobi.py #N #Sparsity
 ## Experiment Results
 
 Sprsity=0.5
-|Maxcut |Gurobi, (Running Time)|Ours, (Training Time)| improvement |
-|-------|------|----|
+|Maxcut |Gurobi, (Running Time)| Ours, (Training Time) | improvement |
+|-------|------|----| ---- |
 |N=20   | 67 (5s)  | 67 (20s)| same |
 |N=30   | 132 (10s)  | 132 (30s)| same |
 |N=100   | 1408 (2000s)  | 1409 (800s)| 0.071\% ( 2.5 x) |
