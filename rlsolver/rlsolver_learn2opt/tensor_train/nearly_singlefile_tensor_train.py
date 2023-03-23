@@ -9,7 +9,7 @@ from time import time
 TEN = th.Tensor
 
 """Tensor Train"""
-from rlsolver_learn2opt.tensor_train.env_tt import *
+from rlsolver.rlsolver_learn2opt.tensor_train.env_tt import *
 
 
 # https://github.com/AI4Finance-Foundation/ElegantRL_Solver/blob/e500897738a8561027559a780be9b5fae0f936be/rlsolver/rlsolver_learn2opt/tensor_train/env_tt.py#L10
