@@ -32,7 +32,7 @@ Sprsity=0.5
 Inference time of our method is less than 10 seconds.
 
 
-Gset dataset
+[Gset dataset at stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 
 | graph | #nodes| #edges |  BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours | gap in percentage |
 |---|----------|-------|-----|-----|--------|----------|------|----|---------------------------|
