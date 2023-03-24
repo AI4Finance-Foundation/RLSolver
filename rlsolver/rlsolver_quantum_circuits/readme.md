@@ -43,9 +43,9 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 
 ![TT_TR](https://user-images.githubusercontent.com/75991833/225349458-a374eee6-01ea-4bdc-8c37-341f4f5cf87d.png)
 
-|TT|N=10|N=30|N=50|N=100|N=200|N=300|N=500|N=800|
-|-------| ----|------- | -----|------| ----|------- | -----|------ |
-|Results|OE_greedy: 3.848<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.69<br>RL: **3.392**|OE_greedy: 9.855<br>CTG_Greedy: 9.633<br>CTG_Kahypar: 9.63<br>RL: **9.332** |OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: 15.65<br>RL: **15.353**|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.71<br>RL: **30.404**|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL: **xxx**|OE_greedy:  91.133<br>CTG_Greedy: 90.911<br>CTG_Kahypar: 90.91<br>RL: **xxx**|OE_greedy: 151.339<br>CTG_Greedy: 151.337<br>CTG_Kahypar: 151.12<br>RL: **xxx**|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.43<br>RL: **xxx**|
+|TT|N=10|N=50|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
+|-------| ----|------- | -----|------| ----|------- | -----|------ | -----|------ |
+|Results|OE_greedy: 3.848<br>OE_dynamic: 3.693<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.690<br>RL: **3.392**|OE_greedy: 15.875<br>OE_dynamic: N<br>CTG_Greedy: 15.654 <br>CTG_Kahypar: 15.650<br>RL: |OE_greedy: 30.927<br>OE_dynamic: N<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.710<br>RL: **30.404**|OE_greedy: 61.030<br>OE_dynamic: N<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.810<br>RL: |OE_greedy: 121.236<br>OE_dynamic: N<br>CTG_Greedy: 121.014<br>CTG_Kahypar: 121.010<br>RL: |OE_greedy:  181.442<br>OE_dynamic: N<br>CTG_Greedy: 181.220<br>CTG_Kahypar: 181.220<br>RL: |OE_greedy: 241.648<br>OE_dynamic: N<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.430<br>RL: |OE_greedy: 301.854<br>OE_dynamic: N<br>CTG_Greedy: 301.632<br>CTG_Kahypar: 301.630<br>RL: |OE_greedy: N<br>OE_dynamic: N<br>CTG_Greedy: N<br>CTG_Kahypar: 452.150<br>RL: |OE_greedy: N<br>OE_dynamic: N<br>CTG_Greedy: N<br>CTG_Kahypar: 602.660<br>RL: |
 
 |TR|N=10|N=30|N=50|N=100|N=200|N=300|N=500|N=800|
 |-------| ----|------- | -----|------| ----|------- | -----|------ |
