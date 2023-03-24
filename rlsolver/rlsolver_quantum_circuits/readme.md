@@ -39,7 +39,7 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 
 - **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
 
-![image](https://user-images.githubusercontent.com/75991833/227594984-95cb7d1d-e810-4418-bd93-f2487b899b20.png)
+![image](https://user-images.githubusercontent.com/75991833/227595309-a341713d-0247-4f3b-a12b-d94ac74af351.png)
 
 
 |TT|N=10|N=50|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
