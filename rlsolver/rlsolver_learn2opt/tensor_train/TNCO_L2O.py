@@ -55,14 +55,15 @@ class MLP(nn.Module):
         return self.net(x)
 
 
-theta_list = []  # 设置成全局变量，建议每一次训练后，都独立地保存并收集这些数据，因为训练 trainable objective function 的数据越多越好
-score_list = []  # 设置成全局变量，建议每一次训练后，都独立地保存并收集这些数据，因为训练 trainable objective function 的数据越多越好
-gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+theta_list = []  # todo 设置成全局变量，建议每次训练后，独立地保存并收集这些数据，因为训练 trainable objective function 的数据越多越好
+score_list = []  # todo 设置成全局变量，建议每次训练后，独立地保存并收集这些数据，因为训练 trainable objective function 的数据越多越好
+gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else -1
 DEVICE = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-obj_model = MLP(inp_dim=99, out_dim=1, dims=(256, 256, 256))
+obj_model = MLP(inp_dim=ENV.num_edges, out_dim=1, dims=(256, 256, 256))
 optimizer = optim.SGD(obj_model.parameters(), lr=1e-4)
 criterion = nn.MSELoss()
 batch_size = 64
+StartTrainSize = batch_size * 2 ** 8
 
 
 def get_objective(theta: TEN) -> TEN:
@@ -74,7 +75,7 @@ def get_objective(theta: TEN) -> TEN:
     score_tensor = torch.tensor(score_list).to(DEVICE)
     train_size = score_tensor.shape[0]
 
-    if train_size > batch_size:
+    if train_size > StartTrainSize:
         for epoch in range(128):  # fast_fit_it
             # indices = torch.randint(train_size, size=(batch_size,), device=device) # 训练集样本数量远大于 batch_size，就用这个
             indices = torch.randperm(train_size, device=DEVICE)[:batch_size]  # 训练集样本数量没有远大于 batch_size，就用这个
@@ -96,14 +97,14 @@ def get_objective(theta: TEN) -> TEN:
 """Learn To Optimize"""
 
 
-def opt_train(obj_func, obj_args, opt_lstm, opt_task, num_opt, device, unroll, opt_base):
-    opt_lstm.train()
+def opt_train(obj_task, obj_args, opt_opti, opt_task, num_opt, device, unroll, opt_base):
+    opt_opti.train()
     opt_task.zero_grad()
 
     n_params = 0
     for name, p in opt_task.get_register_params():
         n_params += int(np.prod(p.size()))
-    hc_state1 = th.zeros(4, n_params, opt_lstm.hid_dim, device=device)
+    hc_state1 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
 
     all_losses_ever = []
     all_losses = None
@@ -111,7 +112,7 @@ def opt_train(obj_func, obj_args, opt_lstm, opt_task, num_opt, device, unroll, o
     torch.set_grad_enabled(True)
     for iteration in range(1, num_opt + 1):
         output = opt_task.get_output()
-        loss = obj_func(*obj_args, output)
+        loss = obj_task(*obj_args, output)
         loss.backward(retain_graph=True)
 
         if all_losses is None:
@@ -122,14 +123,14 @@ def opt_train(obj_func, obj_args, opt_lstm, opt_task, num_opt, device, unroll, o
 
         i = 0
         result_params = {}
-        hc_state2 = th.zeros(4, n_params, opt_lstm.hid_dim, device=device)
+        hc_state2 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
         for name, p in opt_task.get_register_params():
             hid_dim = int(np.prod(p.size()))
             gradients = p.grad.view(hid_dim, 1).detach().clone().requires_grad_(True)
 
             j = i + hid_dim
             hc_part = hc_state1[:, i:j]
-            updates, new_hidden, new_cell = opt_lstm(gradients, hc_part[0:2], hc_part[2:4])
+            updates, new_hidden, new_cell = opt_opti(gradients, hc_part[0:2], hc_part[2:4])
 
             hc_state2[0, i:j] = new_hidden[0]
             hc_state2[1, i:j] = new_hidden[1]
@@ -143,9 +144,11 @@ def opt_train(obj_func, obj_args, opt_lstm, opt_task, num_opt, device, unroll, o
             i = j
 
         if iteration % unroll == 0:
-            opt_base.zero_grad()
-            all_losses.backward()
-            opt_base.step()
+
+            if len(score_list) > StartTrainSize:  # todo 等数据积攒够多了，再启用 opt_base 去训练
+                opt_base.zero_grad()
+                all_losses.backward()
+                opt_base.step()
 
             all_losses = None
 
@@ -164,13 +167,13 @@ def opt_train(obj_func, obj_args, opt_lstm, opt_task, num_opt, device, unroll, o
     return all_losses_ever
 
 
-def opt_eval(obj_func, obj_args, opt_iter, opt_task, num_opt, device):
-    opt_iter.eval()
+def opt_eval(obj_task, obj_args, opt_opti, opt_task, num_opt, device):
+    opt_opti.eval()
 
     n_params = 0
-    for name, p in opt_task.get_register_params():
-        n_params += int(np.prod(p.size()))
-    hc_state1 = th.zeros(4, n_params, opt_iter.hid_dim, device=device)
+    for name, param in opt_task.get_register_params():
+        n_params += int(np.prod(param.size()))
+    hc_state1 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
 
     best_res = None
     min_loss = torch.inf
@@ -178,27 +181,27 @@ def opt_eval(obj_func, obj_args, opt_iter, opt_task, num_opt, device):
     torch.set_grad_enabled(True)
     for _ in range(num_opt):
         output = opt_task.get_output()
-        loss = obj_func(*obj_args, output)
+        loss = obj_task(*obj_args, output)
         loss.backward(retain_graph=True)
 
         result_params = {}
-        hc_state2 = th.zeros(4, n_params, opt_iter.hid_dim, device=device)
+        hc_state2 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
 
         i = 0
-        for name, p in opt_task.get_register_params():
-            param_dim = int(np.prod(p.size()))
-            gradients = p.grad.view(param_dim, 1).detach().clone().requires_grad_(True)
+        for name, param in opt_task.get_register_params():
+            param_dim = int(np.prod(param.size()))
+            gradients = param.grad.view(param_dim, 1).detach().clone().requires_grad_(True)
 
             j = i + param_dim
             hc_part = hc_state1[:, i:j]
-            updates, new_hidden, new_cell = opt_iter(gradients, hc_part[0:2], hc_part[2:4])
+            updates, new_hidden, new_cell = opt_opti(gradients, hc_part[0:2], hc_part[2:4])
 
             hc_state2[0, i:j] = new_hidden[0]
             hc_state2[1, i:j] = new_hidden[1]
             hc_state2[2, i:j] = new_cell[0]
             hc_state2[3, i:j] = new_cell[1]
 
-            result = p + updates.view(*p.size())
+            result = param + updates.view(*param.size())
             result_params[name] = result / result.norm()
 
             i = j
@@ -213,7 +216,7 @@ def opt_eval(obj_func, obj_args, opt_iter, opt_task, num_opt, device):
             best_res = opt_task.get_output()
             min_loss = loss
     torch.set_grad_enabled(False)
-    return best_res, min_loss
+    return best_res, min_loss.item()
 
 
 def set_attr(obj, attr, val):
@@ -266,7 +269,7 @@ def train_optimizer():
     dim = ENV.num_edges  # 如果是TensorTrain 里的List结构，共100个节点，则有99条边
 
     '''train'''
-    train_times = 1000
+    train_times = 2 ** 9
     lr = 1e-4  # 要更小一些，甚至前期先不训练。
     unroll = 16
     num_opt = 64  # 要更大一些
@@ -278,27 +281,30 @@ def train_optimizer():
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-    obj_net = get_objective  # 这里换成一个可以根据 99条边 估计出 张量收缩后的乘法个数的 可导神经网络。我们要最小化它输出的乘法次数
-    # 还有，最好让 可导的神经网络拟合的乘法个数是  log10(乘法个数)，这个数值是已经求和过了的，所以可以直接套一个log10(...)
-    opt_obj = OptimizerTask(dim=dim, device=device)
-    opt_rnn = OptimizerLSTM(hid_dim=hid_dim).to(device)
-    opt_org = optim.Adam(opt_rnn.parameters(), lr=lr)
+    obj_task = get_objective
+    opt_task = OptimizerTask(dim=dim, device=device)
+    opt_opti = OptimizerLSTM(hid_dim=hid_dim).to(device)
+    opt_base = optim.Adam(opt_opti.parameters(), lr=lr)
 
     start_time = time()
-    print("Start training")
-
     '''loop'''
     for i in range(train_times + 1):
-        opt_train(obj_func=obj_net, obj_args=(), opt_task=opt_obj, opt_lstm=opt_rnn,
-                  num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_org)
+        opt_train(obj_task=obj_task, obj_args=(), opt_task=opt_task, opt_opti=opt_opti,
+                  num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
 
         if i % eval_gap == 0:
             best_result, min_loss = opt_eval(
-                obj_func=obj_net, obj_args=(), opt_iter=opt_rnn, opt_task=opt_obj,
+                obj_task=obj_task, obj_args=(), opt_opti=opt_opti, opt_task=opt_task,
                 num_opt=num_opt * 2, device=device
             )
             time_used = time() - start_time
-            print(f"{i:>9}    {min_loss}    TimeUsed {time_used:9}")
+
+            log10_multiple_times = ENV.get_log10_multiple_times(edge_argsort=best_result.squeeze(0).argsort())
+            print(f"{i:>9}    {log10_multiple_times:9.3f}    {min_loss:9.3e}    TimeUsed {time_used:9.0f}")
+
+    # todo 训练结束后，一定要时刻保存 我们的 score_list 以及 theta_list，比避免保存的时候因为重名覆盖掉上一次训练的，积攒数据
+    # torch.save(torch.stack(theta_list), './theta_list.pth')
+    # torch.save(torch.stack(score_list), './score_list.pth')
 
 
 if __name__ == '__main__':
