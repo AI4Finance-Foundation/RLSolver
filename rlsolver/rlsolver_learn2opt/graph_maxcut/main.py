@@ -92,10 +92,11 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
     return best_loss, best_net_path
 
 if __name__ == '__main__':
-    USE_CUDA = False
-    device = th.device('cuda:0') if USE_CUDA is True else th.device('cpu')
+
     N = int(sys.argv[1])
     sparsity= float(sys.argv[2])
+    gpu_id = int(sys.argv[3])
+    device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
     look_ahead_K = 5
     obj_fun = Obj_fun
     opt_variable_class = Opt_variable
