@@ -583,14 +583,14 @@ def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
     all_losses = None
     last = 0
     for iteration in range(1, optim_it + 1):
-        loss = optimizee(target)
+        loss,l_list = optimizee(target)
 
         if all_losses is None:
             all_losses = loss
         else:
             all_losses += loss
 
-        all_losses_ever.append(loss.data.cpu().numpy().copy())
+        all_losses_ever = all_losses_ever + l_list
         loss.backward()
 
         offset = 0
@@ -669,13 +669,26 @@ class Opt_variable(MetaModule):
     def __init__(self, N, device):
         super().__init__()
         self.N = N
-        self.register_buffer('theta', cpu_to_gpu(to_var(th.rand(self.N,device=device), requires_grad=True)))
+        self.bs = 10
+        self.loss = []
+        for i in range(self.bs):
+            self.register_buffer(f'theta{i}', cpu_to_gpu(to_var(th.rand(self.N,device=device), requires_grad=True)))
 
     def forward(self, target):
-        return target.get_loss(self.theta)
+        loss = 0
+        l_list = []
+        for i in range(10):
+            
+            l =  target.get_loss(getattr(self, f"theta{i}"))
+            l_list.append(l.item())
+            loss += l
+        return loss, l_list
 
     def all_named_parameters(self):
-        return [('theta', self.theta)]
+        # i = 0
+        # print(getattr(self, f"theta{i}"))
+        
+        return [(f'theta{i}', getattr(self, f"theta{i}")) for i in range(self.bs)]
 
 class Opt_net(nn.Module):
     def __init__(self, preproc=False, hidden_sz=20, preproc_factor=10.0):
