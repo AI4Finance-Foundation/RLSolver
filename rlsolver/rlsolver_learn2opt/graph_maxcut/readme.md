@@ -8,7 +8,7 @@ utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
 ## Run our method with command 
 
 ```
-python main.py #N #Sparsity
+python main.py #N #Sparsity #gpu_id 
 ```
 
 ## Run Gurobi with command 
