@@ -570,21 +570,21 @@ def rgetattr(obj, attr, *args):
 
 
 def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
+    
     opt_net.eval()
-
+    
     optimizee = cpu_to_gpu(opt_variable(N, device))
     n_params = 0
     for name, p in optimizee.all_named_parameters():
         n_params += int(np.prod(p.size()))
-
     hidden_states = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
     cell_states = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
     all_losses_ever = []
     all_losses = None
     last = 0
     for iteration in range(1, optim_it + 1):
+        
         loss,l_list = optimizee(target)
-
         if all_losses is None:
             all_losses = loss
         else:
@@ -661,34 +661,43 @@ class Obj_fun():
         self.adjacency_matrix = adjacency_matrix
         self.N = adjacency_matrix.shape[0]
     def get_loss(self, x):
-        # print(x)
+        loss = 0
         x = x.sigmoid()
-        return -th.mul(th.matmul(x.reshape(self.N, 1), (1 - x.reshape(self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+        loss -= th.mul(th.matmul(x.reshape(self.N, 1), (1 - x.reshape(self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+        return loss
 
 class Opt_variable(MetaModule):
     def __init__(self, N, device):
         super().__init__()
         self.N = N
-        self.bs = 10
+        self.bs = 2
+        self.flip_prob = 0.05
         self.loss = []
-        for i in range(self.bs):
-            self.register_buffer(f'theta{i}', cpu_to_gpu(to_var(th.rand(self.N,device=device), requires_grad=True)))
-
+        self.register_buffer(f'theta', cpu_to_gpu(to_var(th.rand(self.bs, self.N,device=device), requires_grad=True)))
     def forward(self, target):
         loss = 0
         l_list = []
-        for i in range(10):
-            
-            l =  target.get_loss(getattr(self, f"theta{i}"))
+        for i in range(self.bs):
+            l =  target.get_loss(self.theta[i])
             l_list.append(l.item())
             loss += l
         return loss, l_list
 
     def all_named_parameters(self):
-        # i = 0
-        # print(getattr(self, f"theta{i}"))
+        return [('theta', self.theta)]
+    def duplicate_parameters(self, id):
+        with th.no_grad():
+            for i in range(self.bs):
+                self.theta[i] = self.theta[id]
+    
+    def flip_parameters(self, flip_prob=0.05):
+        flip_mat = (th.rand(self.bs, self.N) > flip_prob).int()
+        with th.no_grad():
+            for i in range(self.bs):
+                for j in range(self.N):
+                    if(flip_mat[i][j] == 0):
+                        self.theta[i][j] = 1- self.theta[i][j]
         
-        return [(f'theta{i}', getattr(self, f"theta{i}")) for i in range(self.bs)]
 
 class Opt_net(nn.Module):
     def __init__(self, preproc=False, hidden_sz=20, preproc_factor=10.0):
