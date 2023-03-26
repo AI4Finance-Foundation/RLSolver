@@ -8,6 +8,7 @@ import numpy as np
 from utils import *
 import sys
 from copy import deepcopy
+import time
 def roll_out(N, opt_net, optimizer, obj_fun, opt_variable_class, look_ahead_K, optim_it, opt_variable):
     opt_variable = opt_variable
     # opt_variable = cpu_to_gpu(opt_variable_class(N, device))
@@ -73,6 +74,7 @@ def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class,
     return loss_avg_final, loss
 
 def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=1, preproc=False, look_ahead_K=10, optim_it=1000, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000):
+    start_time = time.time()
     test_data = load_test_data(N, sparsity, device)
     opt_variable = cpu_to_gpu(opt_variable_class(N, device))
     best_net = None
@@ -85,6 +87,8 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
     epoch = 0
     best_train_loss = 0
     for epoch in range(1, N_train_epochs+1):
+        running_time = time.time() - start_time
+        print(f"running_time: {running_time: .2f} seconds")
         t = deepcopy(test_data)
         #t[epoch*1000:, epoch*1000:] = 0
         if epoch % 10 == 0:
