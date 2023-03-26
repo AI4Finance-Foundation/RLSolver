@@ -35,9 +35,9 @@ def roll_out(N, opt_net, optimizer, obj_fun, opt_variable_class, look_ahead_K, o
             for i in range(len(new_hidden)):
                 hidden_states2[i][offset:offset+cur_sz] = new_hidden[i]
                 cell_states2[i][offset:offset+cur_sz] = new_cell[i]
-            if iteration==1:
-                temp += cpu_to_gpu(th.rand_like(temp)) * 0.1
             temp = p + updates.view(*p.size())
+            if iteration==1:
+               temp += cpu_to_gpu(th.rand_like(temp)) * 0.1
             result_params[name] = temp
             result_params[name].retain_grad()
             offset += cur_sz
