@@ -80,6 +80,7 @@ def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class,
 
 def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=1, preproc=False, look_ahead_K=10, optim_it=2, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000):
     test_data = load_test_data(N, sparsity, device)
+    start_time = time.time()
     opt_variable = cpu_to_gpu(opt_variable_class(N, device))
     opt_variable.duplicate_parameters(1)
     best_net = None
