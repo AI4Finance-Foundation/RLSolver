@@ -1,4 +1,4 @@
-# ElegantRL_Solver: High-performance RL solvers
+# ElegantRL_Solver: High-performance RL Solvers
 
 We aim to find high-quality optimum, or even (nearly) global optimum, for nonconvex or nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
 
