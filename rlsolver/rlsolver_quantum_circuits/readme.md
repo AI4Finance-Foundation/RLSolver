@@ -39,28 +39,31 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 
 - **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
 
+![image](https://user-images.githubusercontent.com/75991833/227595309-a341713d-0247-4f3b-a12b-d94ac74af351.png)
 
 
-![TT_TR](https://user-images.githubusercontent.com/75991833/225349458-a374eee6-01ea-4bdc-8c37-341f4f5cf87d.png)
+|TT|N=10|N=50|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
+|-------| ----|------- | -----|------| ----|------- | -----|------ | -----|------ |
+|Results|OE_greedy: 3.848<br>OE_dynamic: 3.693<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.690<br>RL: |OE_greedy: 15.875<br>OE_dynamic: N<br>CTG_Greedy: 15.654 <br>CTG_Kahypar: 15.650<br>RL: |OE_greedy: 30.927<br>OE_dynamic: N<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.710<br>RL: |OE_greedy: 61.030<br>OE_dynamic: N<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.810<br>RL: |OE_greedy: 121.236<br>OE_dynamic: N<br>CTG_Greedy: 121.014<br>CTG_Kahypar: 121.010<br>RL: |OE_greedy:  181.442<br>OE_dynamic: N<br>CTG_Greedy: 181.220<br>CTG_Kahypar: 181.220<br>RL: |OE_greedy: 241.648<br>OE_dynamic: N<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.430<br>RL: |OE_greedy: 301.854<br>OE_dynamic: N<br>CTG_Greedy: 301.632<br>CTG_Kahypar: 301.630<br>RL: |OE_greedy: N<br>OE_dynamic: N<br>CTG_Greedy: N<br>CTG_Kahypar: 452.150<br>RL: |OE_greedy: N<br>OE_dynamic: N<br>CTG_Greedy: N<br>CTG_Kahypar: 602.660<br>RL: |
 
-|TT|N=10|N=30|N=50|N=100|N=200|N=300|N=500|N=800|
-|-------| ----|------- | -----|------| ----|------- | -----|------ |
-|Results|OE_greedy: 3.848<br>CTG_Greedy: 3.693<br>CTG_Kahypar: 3.69<br>RL: **3.392**|OE_greedy: 9.855<br>CTG_Greedy: 9.633<br>CTG_Kahypar: 9.63<br>RL: **9.332** |OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: 15.65<br>RL: **15.353**|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: 30.71<br>RL: **30.404**|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: 60.81<br>RL: **xxx**|OE_greedy:  91.133<br>CTG_Greedy: 90.911<br>CTG_Kahypar: 90.91<br>RL: **xxx**|OE_greedy: 151.339<br>CTG_Greedy: 151.337<br>CTG_Kahypar: 151.12<br>RL: **xxx**|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: 241.43<br>RL: **xxx**|
-
-|TR|N=10|N=30|N=50|N=100|N=200|N=300|N=500|N=800|
-|-------| ----|------- | -----|------| ----|------- | -----|------ |
-|Results|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **3.687**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **9.633** |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **15.654**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **30.705**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**|OE_greedy:  <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: **xxx**|
+|TR|N=10|N=50|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
+|-------| ----|------- | -----|------| ----|------- | -----|------ | -----|------ |
+|Results|OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |
 
 
-|Form|N=7|N=15|N=31|N=63|N=127|N=255|
+
+|TTN|Height=3|Height=4|Height=5|Height=6|Height=7|Height=8|Height=9|Height=10|
+|-------| ----|------- | -----|------ |------ |------ |------ |------ |
+|Results|OE_greedy: 3.304<br>OE_dynamic: 3.158<br>CTG_Greedy: 3.158<br>CTG_Kahypar: 3.16<br>RL: **XXX**|OE_greedy: 5.476<br>OE_dynamic: 5.427<br>CTG_Greedy: 5.427<br>CTG_Kahypar: 5.43<br>RL: **XXX**|OE_greedy: 10.238<br>OE_dynamic: N<br>CTG_Greedy: 10.235<br>CTG_Kahypar: 10.24<br>RL: **XXX**|OE_greedy: 19.868<br>OE_dynamic: N<br>CTG_Greedy: 19.868<br>CTG_Kahypar: 19.87<br>RL: **XXX**|OE_greedy: 39.134<br>OE_dynamic: N<br>CTG_Greedy: 39.134<br>CTG_Kahypar: 39.13<br>RL: **XXX**|OE_greedy: 77.666<br>OE_dynamic: N<br>CTG_Greedy: 77.666<br>CTG_Kahypar: 77.67<br>RL: **XXX**|OE_greedy: 154.729<br>OE_dynamic: N<br>CTG_Greedy: 154.729<br>CTG_Kahypar: 154.730<br>RL: **XXX**|OE_greedy: N<br>OE_dynamic: N<br>CTG_Greedy: N<br>CTG_Kahypar: 308.860<br>RL: **XXX**|
+
+
+
+|MERA|Height=3|Height=4|Height=5|Height=6|Height=7|Height=8|Height=9|Height=10|
+|-------| ----|------- | -----|------ |------ |------ |------ |------ |
+|Results|OE_greedy: 3.595<br>OE_dynamic: 3.325<br>CTG_Greedy: 3.609<br>CTG_Kahypar: 3.600<br>RL: **XXX**|OE_greedy: 5.793<br>OE_dynamic: N<br>CTG_Greedy: 5.393<br>CTG_Kahypar: 5.390<br>RL: **XXX**|OE_greedy: 11.446<br>OE_dynamic: N<br>CTG_Greedy: 10.111<br>CTG_Kahypar: 10.110<br>RL: **XXX**|OE_greedy: 21.079<br>OE_dynamic: N<br>CTG_Greedy: 19.743<br>CTG_Kahypar: 19.740<br>RL: **XXX**|OE_greedy: 39.009<br>OE_dynamic: N<br>CTG_Greedy: 39.009<br>CTG_Kahypar: 39.010<br>RL: **XXX**|OE_greedy: 77.541<br>OE_dynamic: N<br>CTG_Greedy: 77.541<br>CTG_Kahypar: 77.540<br>RL: **XXX**|OE_greedy: 154.604<br>OE_dynamic: N<br>CTG_Greedy: 154.604<br>CTG_Kahypar: 154.600<br>RL: **XXX**|OE_greedy: N<br>OE_dynamic: N<br>CTG_Greedy: N<br>CTG_Kahypar: 308.730<br>RL: **XXX**|
+
+|PEPS|N=36|N=64|N=100|N=144|N=196|N=256|
 |-------| ----|------- | -----|------ |------ |------ |
-|![image](https://user-images.githubusercontent.com/75991833/226081000-e507cc10-5c7f-4268-8f7a-418b8de0faa4.png)|OE_greedy: 3.304<br>CTG_Greedy: 3.158<br>CTG_Kahypar: 3.16<br>RL: **XXX**|OE_greedy: 5.476<br>CTG_Greedy: 5.427<br>CTG_Kahypar: 5.43<br>RL: **XXX**|OE_greedy: 10.238<br>CTG_Greedy: 10.235<br>CTG_Kahypar: 10.24<br>RL: **XXX**|OE_greedy: 19.868<br>CTG_Greedy: 19.868<br>CTG_Kahypar: 19.87<br>RL: **XXX**|OE_greedy: 39.134<br>CTG_Greedy: 39.134<br>CTG_Kahypar: 39.13<br>RL: **XXX**|OE_greedy: 77.666<br>CTG_Greedy: 77.666<br>CTG_Kahypar: 77.67<br>RL: **XXX**|
-
-|Form|N=36|N=64|N=100|N=144|N=196|N=256|
-|-------| ----|------- | -----|------ |------ |------ |
-|![image](https://user-images.githubusercontent.com/75991833/226536052-66cb5a8b-cbeb-4f5e-8842-389f03c8b40f.png)|OE_greedy: 12.996<br>CTG_Greedy: 12.944<br>CTG_Kahypar: 12.59<br>RL: **XXX**|OE_greedy: 21.983<br>CTG_Greedy: 21.975<br>CTG_Kahypar: 21.05<br>RL: **XXX**|OE_greedy: 34.317<br>CTG_Greedy: 33.715<br>CTG_Kahypar: 31.89<br>RL: **XXX**|OE_greedy: 48.165<br>CTG_Greedy: 47.262<br>CTG_Kahypar: 45.14<br>RL: **XXX**|OE_greedy: 64.420<br>CTG_Greedy: 64.420<br>CTG_Kahypar: 60.79<br>RL: **XXX**|OE_greedy: 83.084<br>CTG_Greedy: 82.783<br>CTG_Kahypar: 78.85<br>RL: **XXX**|
+|Results|OE_greedy: 12.996<br>OE_dynamic: N<br>CTG_Greedy: 12.944<br>CTG_Kahypar: 12.590<br>RL: **XXX**|OE_greedy: 21.983<br>OE_dynamic: N<br>CTG_Greedy: 21.975<br>CTG_Kahypar: 21.050<br>RL: **XXX**|OE_greedy: 34.317<br>OE_dynamic: N<br>CTG_Greedy: 33.715<br>CTG_Kahypar: 31.890<br>RL: **XXX**|OE_greedy: 48.165<br>OE_dynamic: N<br>CTG_Greedy: 47.262<br>CTG_Kahypar: 45.140<br>RL: **XXX**|OE_greedy: 64.420<br>OE_dynamic: N<br>CTG_Greedy: 64.420<br>CTG_Kahypar: 60.790<br>RL: **XXX**|OE_greedy: 83.084<br>OE_dynamic: N<br>CTG_Greedy: 82.783<br>CTG_Kahypar: 78.850<br>RL: **XXX**|
 
 
-|Form|Height=3|Height=4|Height=5|Height=6|Height=7|Height=8|
-|-------| ----|------- | -----|------ |------ |------ |
-|![image](https://user-images.githubusercontent.com/75991833/226824572-fe768e1b-6314-4299-a03d-fc004d6cb4c5.png)|OE_greedy: 3.595<br>CTG_Greedy: 3.595<br>CTG_Kahypar: 3.60<br>RL: **XXX**|OE_greedy: 5.793<br>CTG_Greedy: 5.402<br>CTG_Kahypar: 5.39<br>RL: **XXX**|OE_greedy: 11.446<br>CTG_Greedy: 10.111<br>CTG_Kahypar: 10.11<br>RL: **XXX**|OE_greedy: 21.079<br>CTG_Greedy: 19.743<br>CTG_Kahypar: 19.74<br>RL: **XXX**|OE_greedy: 39.009<br>CTG_Greedy: 39.009<br>CTG_Kahypar: 39.01<br>RL: **XXX**|OE_greedy: 77.541<br>CTG_Greedy: 77.541<br>CTG_Kahypar: 77.54<br>RL: **XXX**|
