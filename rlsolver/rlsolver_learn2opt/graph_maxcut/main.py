@@ -88,7 +88,7 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
     best_train_loss = 0
     for epoch in range(1, N_train_epochs+1):
         running_time = time.time() - start_time
-        print(f"running_time: {running_time: .2f} seconds")
+        print(f"running_time: {running_time: <.0f} seconds")
         t = deepcopy(test_data)
         #t[epoch*1000:, epoch*1000:] = 0
         if epoch % 10 == 0:
