@@ -555,7 +555,7 @@ def cpu_to_gpu(v):
         return v
 
 def gset2npy(id):
-    file1 = open(f".data/Gset/G{id}.txt", 'r')
+    file1 = open(f"./data/Gset/G{id}.txt", 'r')
     Lines = file1.readlines()
     
     count = 0
@@ -664,14 +664,15 @@ def get_cwd(folder_name,N):
     return f"./{folder_name}/{max_exp_id}/", max_exp_id
 
 
-def load_test_data(N, sparsity, choice, device):
+def load_test_data(choice, device, N=10, sparsity=0.5):
     sparsity = sparsity
     n = N
     if choice > 0:
         try:
             gset2npy(choice)
-            test_data = th.as_tensor(np.load(f"./data/gset_G{id}.npy")).to(device)
+            test_data = th.as_tensor(np.load(f"./data/gset_G{choice}.npy")).to(device)
         except Exception as e:
+            print(e)
             test_data = th.zeros(n, n, device=device)
             upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
             test_data = upper_triangle + upper_triangle.transpose(-1, -2)
@@ -682,7 +683,6 @@ def load_test_data(N, sparsity, choice, device):
         test_data = upper_triangle + upper_triangle.transpose(-1, -2)
         np.save(f'./data/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())    
     return test_data
-
 
 class Obj_fun():
     def __init__(self, adjacency_matrix, **kwargs):

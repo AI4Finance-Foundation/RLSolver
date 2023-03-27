@@ -15,7 +15,7 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
     for name, p in opt_variable.all_named_parameters():
         n_params += int(np.prod(p.shape[-1]))
     hidden_states = [Variable(th.randn(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
-    cell_states = [Variable(th.randn(n_params, opt_net.hidden_sz))).to(device) for _ in range(2)]
+    cell_states = [Variable(th.randn(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
     loss_H_ever = []
     optimizer.zero_grad()
     loss_H = 0
@@ -23,9 +23,15 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
         loss, l_list = opt_variable(obj_fun)
         if(min(l_list) < best_loss):
             best_loss = min(l_list)
-            with open(f"./best_label/label_bestloss={best_loss}_batch_id={l_list.index(min(l_list))}.pkl", 'wb') as f:
-                import pickle as pkl
-                pkl.dump(opt_variable.theta.detach().cpu().numpy(), f)
+            try:
+                with open(f"./best_label/label_bestloss={int(best_loss)}_batch_id={l_list.index(min(l_list))}.pkl", 'wb') as f:
+                    import pickle as pkl
+                    pkl.dump(opt_variable.theta.detach().cpu().numpy(), f)
+            except Exception as e:
+                os.mkdir('./best_label')
+                with open(f"./best_label/label_bestloss={int(best_loss)}_batch_id={l_list.index(min(l_list))}.pkl", 'wb') as f:
+                    import pickle as pkl
+                    pkl.dump(opt_variable.theta.detach().cpu().numpy(), f)
         loss_H += loss
         
         loss_H_ever = loss_H_ever+l_list      
@@ -78,8 +84,7 @@ def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class,
     # wandb.log({"best":round(best_train_loss, 0), "K":look_ahead_K, "training_loss":np.mean(l)})
     return loss_avg_final, loss
 
-def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=1, preproc=False, look_ahead_K=10, optim_it=2, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000):
-    test_data = load_test_data(N, sparsity, choice, device)
+def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=1, preproc=False, look_ahead_K=10, optim_it=2, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000, test_data=None):
     start_time = time.time()
     opt_variable = opt_variable_class(N, device).to(device)
     opt_variable.duplicate_parameters(1)
@@ -122,17 +127,28 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
     return best_loss, best_net_path
 
 if __name__ == '__main__':
-    N = int(sys.argv[1]) # num of nodes
-    sparsity= float(sys.argv[2])
-    gpu_id = int(sys.argv[3])
-    choice = int(sys.argv[4])
+    
+    gpu_id = int(sys.argv[1])
+    choice = int(sys.argv[2])
+    
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
+    if choice == 0:
+        N = int(sys.argv[3]) # num of nodes
+        sparsity= float(sys.argv[4])    
+        test_graph = load_test_data(choice, device, N, sparsity)
+    else:
+        id = int(sys.argv[3])
+        test_graph = load_test_data(id, device)
+        N = test_graph.size()[0]
+        sparsity = test_graph.sum() / (N * N)
     optim_it = 100
     look_ahead_K = 20
     obj_fun = Obj_fun
     opt_variable_class = Opt_variable
     folder_name = "opt_nets"
     save_path, run_id = get_cwd(folder_name, N)
+    
+    
     hidden_sz = 40
     lr = 1e-3
 
@@ -151,6 +167,7 @@ if __name__ == '__main__':
             save_code=True,
     )
 
+    
     preproc=False
     opt_net = Opt_net(preproc=preproc, hidden_sz=hidden_sz).to(device)
     optimizer = optim.Adam(opt_net.parameters(), lr=lr)
@@ -169,4 +186,5 @@ if __name__ == '__main__':
                                load_net_path=
                                None,
                                save_path=save_path,
-                               N_train_epochs=3000)
+                               N_train_epochs=3000,
+                               test_data=test_graph)
