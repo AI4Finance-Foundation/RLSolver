@@ -7,7 +7,12 @@ utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
 ```
 ## Run our method with command 
 
-If using Synthetic data:
+Format:
+```
+python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) ...
+```
+
+If using synthetic data:
 ```
 python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) #N #Sparsity 
 ```
