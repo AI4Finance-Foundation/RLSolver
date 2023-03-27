@@ -22,7 +22,7 @@ python opt_gurobi.py #N #Sparsity #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthe
 
 Synthetic data at sparsity = 0.5
  
-|Maxcut |Gurobi, (Running Time)| Ours-CPU (Training Time) | Ours-GPU (Training Time) |improvement and speedup using CPU |improvement and speedup using GPU |
+|Maxcut |Gurobi, (Running Time)| Ours-CPU (Training Time) | Ours-GPU (Training Time) |improvement using CPU |improvement using GPU |
 |-------|------|----| ---- |---- |---- |
 |N=20   | 67, (5s)  | 67, (20s)|  | same |  |
 |N=30   | 132, (10s)  | 132, (30s)|  | same | |
