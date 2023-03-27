@@ -2,7 +2,7 @@
 ## File structure
 ```python
 main.py  #main functions: main, train_opt_net, roll_out
-opt_gurobi.py # run Gurobi for reference performance, Gurobi license is required
+opt_gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
 utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
 ```
 ## Run our method with command 
