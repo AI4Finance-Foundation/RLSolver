@@ -6,11 +6,16 @@ opt_gurobi.py # run Gurobi for reference performance, Gurobi should be installed
 utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
 ```
 ## Run our method with command 
+
 If using Synthetic data:
 ```
 python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) #N #Sparsity 
 ```
 
+If using Gset:
+```
+python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) #GsetId
+```
 
 
 ## Run Gurobi with command 
