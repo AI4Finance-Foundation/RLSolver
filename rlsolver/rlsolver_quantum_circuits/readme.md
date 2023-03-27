@@ -37,7 +37,7 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 |-------| ----|------- | -----|------ |------ |------ |
 |Results|OE_greedy: 14.756<br>CTG_Greedy: 10.577<br>CTG_Kahypar: 10.304<br>RL_TNCO: 10.736|OE_greedy: 20.471<br>CTG_Greedy: 14.009<br>CTG_Kahypar: 13.639<br>RL_TNCO: 12.869|OE_greedy: 18.182<br>CTG_Greedy: 15.283<br>CTG_Kahypar: 14.704<br>RL_TNCO: 14.420|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL_TNCO: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL_TNCO: |OE_greedy: 31.310<br>CTG_Greedy: 18.934<br>CTG_Kahypar: 18.765<br>RL_TNCO: 18.544|
 
-- **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning[C]//International Conference on Machine Learning. PMLR, 2022: 15278-15292.
+- **TNCO**: Meirom E, Maron H, Mannor S, et al. Optimizing tensor network contraction using reinforcement learning. International Conference on Machine Learning. PMLR, 2022: 15278-15292.
 
 ![image](https://user-images.githubusercontent.com/75991833/227595309-a341713d-0247-4f3b-a12b-d94ac74af351.png)
 
