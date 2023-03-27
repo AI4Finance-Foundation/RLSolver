@@ -123,7 +123,7 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
     return best_loss, best_net_path
 
 if __name__ == '__main__':
-    N = int(sys.argv[1])
+    N = int(sys.argv[1]) # num of nodes
     sparsity= float(sys.argv[2])
     gpu_id = int(sys.argv[3])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
@@ -154,5 +154,19 @@ if __name__ == '__main__':
     preproc=False
     opt_net = cpu_to_gpu(Opt_net(preproc=preproc, hidden_sz=hidden_sz))
     optimizer = optim.Adam(opt_net.parameters(), lr=lr)
-    loss, path = train_opt_net(N=N, sparsity=sparsity, opt_net=opt_net, optim_it=optim_it, optimizer=optimizer, run_id=run_id, obj_fun=obj_fun, opt_variable_class=opt_variable_class,look_ahead_K=look_ahead_K,
-        test_every=1, hidden_sz=hidden_sz, lr=lr, load_net_path=None, save_path=save_path, N_train_epochs=3000)
+    loss, path = train_opt_net(N=N,
+                               sparsity=sparsity,
+                               opt_net=opt_net,
+                               optim_it=optim_it,
+                               optimizer=optimizer,
+                               run_id=run_id,
+                               obj_fun=obj_fun,
+                               opt_variable_class=opt_variable_class,
+                               look_ahead_K=look_ahead_K,
+                               test_every=1,
+                               hidden_sz=hidden_sz,
+                               lr=lr,
+                               load_net_path=
+                               None,
+                               save_path=save_path,
+                               N_train_epochs=3000)
