@@ -8,6 +8,7 @@ import numpy as np
 from utils import *
 import sys
 from copy import deepcopy
+import time
 def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look_ahead_K, optim_it, opt_variable):
     opt_variable = opt_variable
     # opt_variable = cpu_to_gpu(opt_variable_class(N, device))
@@ -134,12 +135,12 @@ if __name__ == '__main__':
     save_path, run_id = get_cwd(folder_name, N)
     hidden_sz = 40
     lr = 1e-3
-    import wandb
-    config = {
 
-    }
     if_wandb = False
+    config = {
+    }
     if if_wandb:
+        import wandb
         wandb.init(
             project=f'graph_maxcut',
             entity="sxun",
