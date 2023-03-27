@@ -14,12 +14,12 @@ python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) 
 
 If using synthetic data:
 ```
-python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) #N #Sparsity 
+python main.py #gpu_id (-1: cpu, >=0: gpu) 0 #N #Sparsity 
 ```
 
 If using Gset:
 ```
-python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) #GsetId
+python main.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
 ```
 
 
