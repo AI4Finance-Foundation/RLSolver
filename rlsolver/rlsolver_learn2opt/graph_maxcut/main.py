@@ -11,12 +11,11 @@ from copy import deepcopy
 import time
 def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look_ahead_K, optim_it, opt_variable):
     opt_variable = opt_variable
-    # opt_variable = cpu_to_gpu(opt_variable_class(N, device))
     n_params = 0
     for name, p in opt_variable.all_named_parameters():
         n_params += int(np.prod(p.shape[-1]))
-    hidden_states = [cpu_to_gpu(Variable(th.randn(n_params, opt_net.hidden_sz))) for _ in range(2)]
-    cell_states = [cpu_to_gpu(Variable(th.randn(n_params, opt_net.hidden_sz))) for _ in range(2)]
+    hidden_states = [Variable(th.randn(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
+    cell_states = [Variable(th.randn(n_params, opt_net.hidden_sz))).to(device) for _ in range(2)]
     loss_H_ever = []
     optimizer.zero_grad()
     loss_H = 0
@@ -33,8 +32,8 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
         loss.backward(retain_graph=True)
         offset = 0
         result_params = {}
-        hidden_states2 = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
-        cell_states2 = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+        hidden_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
+        cell_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
         for name, p in opt_variable.all_named_parameters():
             result_params[name] = th.zeros_like(p, device=device)
             for i in range(p.shape[0]):
@@ -80,9 +79,9 @@ def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class,
     return loss_avg_final, loss
 
 def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=1, preproc=False, look_ahead_K=10, optim_it=2, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000):
-    test_data = load_test_data(N, sparsity, device)
+    test_data = load_test_data(N, sparsity, choice, device)
     start_time = time.time()
-    opt_variable = cpu_to_gpu(opt_variable_class(N, device))
+    opt_variable = opt_variable_class(N, device).to(device)
     opt_variable.duplicate_parameters(1)
     best_net = None
     loss = np.array([0])
@@ -126,6 +125,7 @@ if __name__ == '__main__':
     N = int(sys.argv[1]) # num of nodes
     sparsity= float(sys.argv[2])
     gpu_id = int(sys.argv[3])
+    choice = int(sys.argv[4])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
     optim_it = 100
     look_ahead_K = 20
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     )
 
     preproc=False
-    opt_net = cpu_to_gpu(Opt_net(preproc=preproc, hidden_sz=hidden_sz))
+    opt_net = Opt_net(preproc=preproc, hidden_sz=hidden_sz).to(device)
     optimizer = optim.Adam(opt_net.parameters(), lr=lr)
     loss, path = train_opt_net(N=N,
                                sparsity=sparsity,
