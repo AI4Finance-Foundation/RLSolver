@@ -8,6 +8,7 @@ import numpy as np
 from utils import *
 import sys
 from copy import deepcopy
+import time
 def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look_ahead_K, optim_it, opt_variable):
     opt_variable = opt_variable
     n_params = 0
@@ -121,7 +122,7 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
     return best_loss, best_net_path
 
 if __name__ == '__main__':
-    N = int(sys.argv[1])
+    N = int(sys.argv[1]) # num of nodes
     sparsity= float(sys.argv[2])
     gpu_id = int(sys.argv[3])
     choice = int(sys.argv[4])
@@ -134,12 +135,12 @@ if __name__ == '__main__':
     save_path, run_id = get_cwd(folder_name, N)
     hidden_sz = 40
     lr = 1e-3
-    import wandb
-    config = {
 
-    }
     if_wandb = False
+    config = {
+    }
     if if_wandb:
+        import wandb
         wandb.init(
             project=f'graph_maxcut',
             entity="sxun",
@@ -153,5 +154,19 @@ if __name__ == '__main__':
     preproc=False
     opt_net = Opt_net(preproc=preproc, hidden_sz=hidden_sz).to(device)
     optimizer = optim.Adam(opt_net.parameters(), lr=lr)
-    loss, path = train_opt_net(N=N, sparsity=sparsity, opt_net=opt_net, optim_it=optim_it, optimizer=optimizer, run_id=run_id, obj_fun=obj_fun, opt_variable_class=opt_variable_class,look_ahead_K=look_ahead_K,
-        test_every=1, hidden_sz=hidden_sz, lr=lr, load_net_path=None, save_path=save_path, N_train_epochs=3000)
+    loss, path = train_opt_net(N=N,
+                               sparsity=sparsity,
+                               opt_net=opt_net,
+                               optim_it=optim_it,
+                               optimizer=optimizer,
+                               run_id=run_id,
+                               obj_fun=obj_fun,
+                               opt_variable_class=opt_variable_class,
+                               look_ahead_K=look_ahead_K,
+                               test_every=1,
+                               hidden_sz=hidden_sz,
+                               lr=lr,
+                               load_net_path=
+                               None,
+                               save_path=save_path,
+                               N_train_epochs=3000)
