@@ -677,8 +677,8 @@ def load_test_data(choice, device, N=10, sparsity=0.5):
     return test_data
 
 class Obj_fun():
-    def __init__(self, adjacency_matrix, **kwargs):
-        self.adjacency_matrix = adjacency_matrix
+    def __init__(self, adjacency_matrix, device=th.device("cuda" if th.cuda.is_available() else "cpu")):
+        self.adjacency_matrix = adjacency_matrix.to(device)
         self.N = adjacency_matrix.shape[0]
     def get_loss(self, x):
         loss = 0
