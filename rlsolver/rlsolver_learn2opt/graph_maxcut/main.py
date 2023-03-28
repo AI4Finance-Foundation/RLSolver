@@ -73,7 +73,7 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
 def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class, optim_it, test_data, look_ahead_K, loss):
     loss = []
     l = loss
-    target = obj_fun(test_data)
+    target = obj_fun(test_data, device=device)
     test_loss = 0
     test_loss = forward_pass(N, opt_net, target, opt_variable_class, optim_it=1, device=device)
     loss.append(test_loss)
@@ -105,7 +105,7 @@ def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable
             opt_variable.duplicate_parameters(best_loss_id)
             opt_variable.flip_parameters(0.3)
             look_ahead_K = max(look_ahead_K-1, 1)
-        loss, opt_variable = roll_out(N, opt_net, optimizer, best_train_loss, obj_fun(t), opt_variable_class,look_ahead_K, optim_it, opt_variable = opt_variable)
+        loss, opt_variable = roll_out(N, opt_net, optimizer, best_train_loss, obj_fun(t, device=device), opt_variable_class,look_ahead_K, optim_it, opt_variable = opt_variable)
         history['train_loss'].append(-np.mean(loss))
         best_train_loss = -np.min(loss) if -np.min(loss) > best_train_loss else best_train_loss
 
