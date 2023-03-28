@@ -2,7 +2,8 @@ import torch
 import torch as th
 
 TEN = th.Tensor
-SycamoreNodesN53M12 = [
+
+NodesSycamoreN53M12 = [
     [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
     [26, 30, 2, 15], [27, 31, 23, 55], [28, 32, 36], [29, 33, 24, 16], [30, 34, 3, 17], [31, 35, 4, 58],
     [33, 36, 5, 39], [34, 37, 6, 18], [35, 38, 7, 60], [37, 39, 10, 41], [38, 40, 11, 61], [40, 41, 14, 127],
@@ -43,7 +44,7 @@ SycamoreNodesN53M12 = [
     [201, 183, 180, 203], [202, 184, 181, 204], [203, 185, 182, 159], [160, 183, 206], [205, 186, 184, 207],
     [206, 187, 185, 163], [164, 186, 209], [208, 188, 187, 166], [167, 188, 168]
 ]
-SycamoreNodesN53M14 = [
+NodesSycamoreN53M14 = [
     [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
     [26, 30, 2, 15], [27, 31, 23, 55], [28, 32, 36], [29, 33, 24, 16], [30, 34, 3, 17], [31, 35, 4, 58],
     [33, 36, 5, 39], [34, 37, 6, 18], [35, 38, 7, 60], [37, 39, 10, 41], [38, 40, 11, 61], [40, 41, 14, 127],
@@ -91,7 +92,7 @@ SycamoreNodesN53M14 = [
     [237, 219, 220, 239], [238, 220, 221, 240], [239, 221, 204, 159], [205, 222, 242], [241, 222, 223, 243],
     [242, 223, 207, 163], [208, 224, 245], [244, 224, 209, 166]
 ]
-SycamoreNodesN53M20 = [
+NodesSycamoreN53M20 = [
     [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
     [26, 30, 2, 15], [27, 31, 23, 55], [28, 32, 36], [29, 33, 24, 16], [30, 34, 3, 17], [31, 35, 4, 58],
     [33, 36, 5, 39], [34, 37, 6, 18], [35, 38, 7, 60], [37, 39, 10, 41], [38, 40, 11, 61], [40, 41, 14, 127],
@@ -168,8 +169,21 @@ SycamoreNodesN53M20 = [
 ]
 
 
+def get_nodes_list(len_list: int = 4):
+    nodes = [[] for _ in range(len_list)]  # 初始化邻接表
+
+    for i in range(len_list):
+        if i > 0:
+            nodes[i].append(i - 1)
+        if i < len_list - 1:
+            nodes[i].append(i + 1)
+        nodes[i].append(i + len_list)
+        nodes.append([i])
+    return nodes
+
+
 def get_nodes_ary(nodes_list: list) -> TEN:
-    # nodes_list = SycamoreNodes
+    # nodes_list = NodesSycamore
     nodes_ary = th.zeros((len(nodes_list), max([len(nodes) for nodes in nodes_list])), dtype=th.int) - 1
     # # -1 表示这里没有连接
     for i, nodes in enumerate(nodes_list):
@@ -232,6 +246,7 @@ class TensorNetworkEnv:
 
     def get_log10_multiple_times(self, edge_argsort: TEN) -> float:
         # edge_argsort = th.rand(self.num_edges).argsort()
+        edge_argsort = edge_argsort.cpu()  # todo plan to cancel
 
         node_dims_arys = get_node_dims_arys(self.nodes_ary)
         assert self.num_edges == sum([(ary == 1).sum().item() for ary in node_dims_arys]) / 2
@@ -247,7 +262,7 @@ class TensorNetworkEnv:
             contract_dims = node_dims_arys[node_i0] + node_dims_arys[node_i1]  # 计算收缩后的node 的邻接张量的维度 以及 来源
             contract_bool = node_bool_arys[node_i0] | node_bool_arys[node_i1]  # 计算收缩后的node 由哪些原初node 合成
 
-            mult_pow_time = contract_dims.sum() - contract_dims[contract_bool].sum() // 2  # 收缩掉的edge 算一遍乘法
+            mult_pow_time = contract_dims.sum() - contract_dims[contract_bool].sum() * 0.5  # 收缩掉的edge 算一遍乘法
             mult_pow_times.append(mult_pow_time)
             # multiple_times += 2 ** mult_pow_time
             # print(mult_pow_time, 2 ** mult_pow_time)
@@ -270,7 +285,7 @@ class TensorNetworkEnv:
 
 def run():
     for i in range(8):
-        env = TensorNetworkEnv(nodes_list=SycamoreNodesN53M12)
+        env = TensorNetworkEnv(nodes_list=NodesSycamoreN53M12)
         multiple_times = env.get_log10_multiple_times(edge_argsort=th.rand(env.num_edges).argsort())
 
         if i == 0:
