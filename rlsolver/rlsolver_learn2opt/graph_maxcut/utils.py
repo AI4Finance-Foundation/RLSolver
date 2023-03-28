@@ -569,7 +569,7 @@ def gset2npy(id):
     np.save(f"./data/gset_G{id}.npy", adjacency)
     
 def detach_var(v, device):
-    var = Variable(v.data, requires_grad=True, device=device)
+    var = Variable(v.data, requires_grad=True).to(device)
     var.retain_grad()
     return var
 
