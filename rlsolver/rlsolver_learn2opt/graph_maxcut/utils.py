@@ -591,8 +591,8 @@ def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
     n_params = 0
     for name, p in optimizee.all_named_parameters():
         n_params += int(np.prod(p.size()))
-    hidden_states = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
-    cell_states = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
+    hidden_states = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
+    cell_states = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
     all_losses_ever = []
     all_losses = None
     last = 0
@@ -609,8 +609,8 @@ def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
 
         offset = 0
         result_params = {}
-        hidden_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
-        cell_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
+        hidden_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
+        cell_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
         for name, p in optimizee.all_named_parameters():
             cur_sz = int(np.prod(p.size()))
             gradients = detach_var(p.grad.view(cur_sz, 1), device)
