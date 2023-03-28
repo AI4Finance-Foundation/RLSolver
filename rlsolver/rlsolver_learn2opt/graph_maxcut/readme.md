@@ -7,9 +7,21 @@ utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
 ```
 ## Run our method with command 
 
+Format:
 ```
-python main.py #N #Sparsity #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset)
+python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) ...
 ```
+
+If using synthetic data:
+```
+python main.py #gpu_id (-1: cpu, >=0: gpu) 0 #N #Sparsity 
+```
+
+If using Gset:
+```
+python main.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
+```
+
 
 ## Run Gurobi with command 
 
@@ -35,10 +47,10 @@ Inference time of our method is less than 10 seconds.
 
 [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-| graph | #nodes| #edges | #sparsity| BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours | improvement | 
-|---|----------|----|---|-----|-----|--------|----------|------|----|---------------------------|
-|G14 | 800 | 4694 | 3064| | 2922 | 3061 | 2943 |  | -1  \%|
-|G15 | 800 | 4661 | 3050 | 2938 | 3050 | 2928 | 2990 | | \% | 
+| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours-CPU (Training Time) | improvement | 
+|---|----------|----|---|-----|-----|--------|----------|------|----|
+|G14 | 800 | 4694 | 3064| | 2922 | 3061 | 2943 | 2892 | -1  \%|
+|G15 | 800 | 4661 | 3050 | 2938 | 3050 | 2928 | 2990 | 2902 | -4.8\% | 
 |G22 | 2000 | 19990 |13359 | 12960 | 13359 | 13028 | 13181 | |  \% | 
 |G49 | 3000 | 6000 | 6000 | 6000 | 6000 | 6000 | 5918 | |  \% | 
 |G50 | 3000 | 6000 | 5880 | 5880 | 5880 | 5880 | 5820 | |  \% | 
