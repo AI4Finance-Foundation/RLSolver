@@ -547,13 +547,6 @@ class LeNet(MetaModule):
         x = x.view(-1, 120)
         return self.fc_layers(x).squeeze()
 
-
-def cpu_to_gpu(v):
-    try:
-        return v.cuda()
-    except Exception as e:
-        return v
-
 def gset2npy(id):
     file1 = open(f"./data/Gset/G{id}.txt", 'r')
     Lines = file1.readlines()
@@ -575,8 +568,8 @@ def gset2npy(id):
     sparsity=edge / (N * N)
     np.save(f"./data/gset_G{id}.npy", adjacency)
     
-def detach_var(v):
-    var = cpu_to_gpu(Variable(v.data, requires_grad=True))
+def detach_var(v, device):
+    var = Variable(v.data, requires_grad=True, device=device)
     var.retain_grad()
     return var
 
@@ -594,12 +587,12 @@ def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
     
     opt_net.eval()
     
-    optimizee = cpu_to_gpu(opt_variable(N, device))
+    optimizee = opt_variable(N, device)
     n_params = 0
     for name, p in optimizee.all_named_parameters():
         n_params += int(np.prod(p.size()))
-    hidden_states = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
-    cell_states = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+    hidden_states = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
+    cell_states = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
     all_losses_ever = []
     all_losses = None
     last = 0
@@ -616,11 +609,11 @@ def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
 
         offset = 0
         result_params = {}
-        hidden_states2 = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
-        cell_states2 = [cpu_to_gpu(Variable(th.zeros(n_params, opt_net.hidden_sz))) for _ in range(2)]
+        hidden_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
+        cell_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz), device=device) for _ in range(2)]
         for name, p in optimizee.all_named_parameters():
             cur_sz = int(np.prod(p.size()))
-            gradients = detach_var(p.grad.view(cur_sz, 1))
+            gradients = detach_var(p.grad.view(cur_sz, 1), device)
             try:
                 a = result_params[name].detach()
             except Exception as e:
@@ -634,11 +627,11 @@ def forward_pass(N, opt_net, target, opt_variable, optim_it, device):
             result_params[name] = temp
             result_params[name].retain_grad()
             offset += cur_sz
-        optimizee = cpu_to_gpu(opt_variable(N, device))
+        optimizee = opt_variable(N, device)
         optimizee.load_state_dict(result_params)
         optimizee.zero_grad()
-        hidden_states = [detach_var(v) for v in hidden_states2]
-        cell_states = [detach_var(v) for v in cell_states2]
+        hidden_states = [detach_var(v, device) for v in hidden_states2]
+        cell_states = [detach_var(v, device) for v in cell_states2]
     return all_losses_ever
 
 def get_cwd(folder_name,N):
@@ -672,7 +665,6 @@ def load_test_data(choice, device, N=10, sparsity=0.5):
             gset2npy(choice)
             test_data = th.as_tensor(np.load(f"./data/gset_G{choice}.npy")).to(device)
         except Exception as e:
-            print(e)
             test_data = th.zeros(n, n, device=device)
             upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
             test_data = upper_triangle + upper_triangle.transpose(-1, -2)
@@ -701,7 +693,7 @@ class Opt_variable(MetaModule):
         self.bs = 2
         self.flip_prob = 0.05
         self.loss = []
-        self.register_buffer(f'theta', cpu_to_gpu(to_var(th.rand(self.bs, self.N,device=device), requires_grad=True)))
+        self.register_buffer(f'theta', to_var(th.rand(self.bs, self.N,device=device), requires_grad=True))
     def forward(self, target):
         loss = 0
         l_list = []
@@ -728,9 +720,10 @@ class Opt_variable(MetaModule):
         
 
 class Opt_net(nn.Module):
-    def __init__(self, preproc=False, hidden_sz=20, preproc_factor=10.0):
+    def __init__(self, preproc=False, hidden_sz=20, preproc_factor=10.0, device=th.device("cuda" if th.cuda.is_available() else "cpu")):
         super().__init__()
         self.hidden_sz = hidden_sz
+        self.device=device
         if preproc:
             self.recurs = nn.LSTMCell(2, hidden_sz)
         else:
@@ -744,14 +737,14 @@ class Opt_net(nn.Module):
     def forward(self, inp, hidden, cell):
         if self.preproc:
             inp = inp.data
-            inp2 = cpu_to_gpu(th.zeros(inp.size()[0], 2))
+            inp2 = th.zeros(inp.size()[0], 2, device=self.device)
             keep_grads = (th.abs(inp) >= self.preproc_threshold).squeeze()
             inp2[:, 0][keep_grads] = (th.log(th.abs(inp[keep_grads]) + 1e-8) / self.preproc_factor).squeeze()
             inp2[:, 1][keep_grads] = th.sign(inp[keep_grads]).squeeze()
 
             inp2[:, 0][~keep_grads] = -1
             inp2[:, 1][~keep_grads] = (float(np.exp(self.preproc_factor)) * inp[~keep_grads]).squeeze()
-            inp = cpu_to_gpu(Variable(inp2))
+            inp = Variable(inp2, device=self.device)
         hidden0, cell0 = self.recurs(inp, (hidden[0], cell[0]))
         hidden1, cell1 = self.recurs2(hidden0, (hidden[1], cell[1]))
         return self.output(hidden1), (hidden0, hidden1), (cell0, cell1)

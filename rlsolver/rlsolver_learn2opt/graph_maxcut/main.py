@@ -58,7 +58,7 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
             loss_H.backward()
             optimizer.step()
             loss_H = 0
-            opt_variable = cpu_to_gpu(opt_variable_class(N, device))
+            opt_variable = opt_variable_class(N, device)
             opt_variable.load_state_dict(result_params)
             opt_variable.zero_grad()
             hidden_states = [detach_var(v) for v in hidden_states2]
