@@ -44,7 +44,7 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
             result_params[name] = th.zeros_like(p, device=device)
             for i in range(p.shape[0]):
                 cur_sz = int(np.prod(p[i].size()))
-                gradients = detach_var(p.grad[i].view(cur_sz, 1))
+                gradients = detach_var(p.grad[i].view(cur_sz, 1), device)
                 updates, new_hidden, new_cell = opt_net(gradients, [h[offset:offset+cur_sz] for h in hidden_states], [c[offset:offset+cur_sz] for c in cell_states])
                 for i in range(len(new_hidden)):
                     hidden_states2[i][offset:offset+cur_sz] = new_hidden[i]
@@ -61,8 +61,8 @@ def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look
             opt_variable = opt_variable_class(N, device)
             opt_variable.load_state_dict(result_params)
             opt_variable.zero_grad()
-            hidden_states = [detach_var(v) for v in hidden_states2]
-            cell_states = [detach_var(v) for v in cell_states2]
+            hidden_states = [detach_var(v, device) for v in hidden_states2]
+            cell_states = [detach_var(v, device) for v in cell_states2]
         else:
             for name, p in opt_variable.all_named_parameters():
                 rsetattr(opt_variable, name, result_params[name])
