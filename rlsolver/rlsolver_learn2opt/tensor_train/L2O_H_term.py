@@ -22,13 +22,16 @@ class ObjectiveTask:
     def get_objective(*args) -> TEN:
         return th.zeros()
 
+    @staticmethod
+    def get_norm(x):
+        return x
+
 
 class OptimizerTask(nn.Module):
     def __init__(self, dim, device):
         super().__init__()
         self.dim = dim
         self.device = device
-
         self.register_buffer('theta', th.zeros(self.dim, requires_grad=True, device=device))
 
     def re_init(self):
@@ -87,6 +90,7 @@ def opt_train(
     th.set_grad_enabled(True)
     for iteration in range(1, num_opt + 1):
         output = opt_task.get_output()
+        output = obj_task.get_norm(output)
         loss = obj_task.get_objective(output, *obj_args)
         loss.backward(retain_graph=True)
 
@@ -113,7 +117,7 @@ def opt_train(
             hc_state2[3, i:j] = new_cell[1]
 
             result = p + updates.view(*p.size())
-            result_params[name] = result / result.norm()
+            result_params[name] = obj_task.get_norm(result)
             result_params[name].retain_grad()
 
             i = j
@@ -156,12 +160,14 @@ def opt_eval(
         n_params += th.tensor(p.shape).prod().item()
     hc_state1 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
 
+    loss = None
     best_res = None
     min_loss = th.inf
 
     th.set_grad_enabled(True)
     for _ in range(num_opt):
         output = opt_task.get_output()
+        output = obj_task.get_norm(output)
         loss = obj_task.get_objective(output, *obj_args)
         loss.backward(retain_graph=True)
 
@@ -183,7 +189,7 @@ def opt_eval(
             hc_state2[3, i:j] = new_cell[1]
 
             result = p + updates.view(*p.size())
-            result_params[name] = result / result.norm()
+            result_params[name] = obj_task.get_norm(result)
 
             i = j
 
@@ -195,7 +201,9 @@ def opt_eval(
 
         if loss < min_loss:
             best_res = opt_task.get_output()
+            best_res = obj_task.get_norm(best_res)
             min_loss = loss
+    assert not th.isnan(loss)
     th.set_grad_enabled(False)
     return best_res, min_loss
 
@@ -246,6 +254,10 @@ class ObjectiveMISO(ObjectiveTask):
         interference = abs_hw_squared.sum(dim=-1) - signal
         sinr = signal / (interference + noise)
         return -th.log2(1 + sinr).sum()
+
+    @staticmethod
+    def get_norm(x):
+        return x / x.norm()
 
     @staticmethod
     def load_from_disk(device):
