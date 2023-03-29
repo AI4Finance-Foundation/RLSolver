@@ -1,25 +1,18 @@
+import os
 import sys
-import torch
+import time
 import torch as th
 import torch.nn as nn
-import torch.optim as optim
-import numpy as np
-from time import time
+from copy import deepcopy
 
-from TNCO_env import TensorNetworkEnv, SycamoreNodesN53M12
+from TNCO_env import TensorNetworkEnv, get_nodes_list
+from L2O_H_term import ObjectiveTask, OptimizerTask, OptimizerOpti
+from L2O_H_term import opt_train, opt_eval
 
 TEN = th.Tensor
-ENV = TensorNetworkEnv(nodes_list=SycamoreNodesN53M12)
-
-
-def get_cumulative_reward(theta: TEN) -> float:
-    env = ENV
-    assert theta.shape[0] == env.num_edges
-    log10_multiple_times = env.get_log10_multiple_times(edge_argsort=theta.argsort())
-    return log10_multiple_times
-
-
-"""trainable objective function"""
+"""
+zzz 2023-03-29 21:41:02
+"""
 
 
 def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn.Sequential:
@@ -41,8 +34,8 @@ def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn
 
 
 def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
-    torch.nn.init.orthogonal_(layer.weight, std)
-    torch.nn.init.constant_(layer.bias, bias_const)
+    th.nn.init.orthogonal_(layer.weight, std)
+    th.nn.init.constant_(layer.bias, bias_const)
 
 
 class MLP(nn.Module):
@@ -55,257 +48,282 @@ class MLP(nn.Module):
         return self.net(x)
 
 
-theta_list = []  # todo 设置成全局变量，建议每次训练后，独立地保存并收集这些数据，因为训练 trainable objective function 的数据越多越好
-score_list = []  # todo 设置成全局变量，建议每次训练后，独立地保存并收集这些数据，因为训练 trainable objective function 的数据越多越好
-gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else -1
-DEVICE = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-obj_model = MLP(inp_dim=ENV.num_edges, out_dim=1, dims=(256, 256, 256))
-optimizer = optim.SGD(obj_model.parameters(), lr=1e-4)
-criterion = nn.MSELoss()
-batch_size = 64
-StartTrainSize = batch_size * 2 ** 8
+class ReplayBuffer:  # for off-policy
+    def __init__(self, max_size: int, state_dim: int, gpu_id: int = 0):
+        self.p = 0  # pointer
+        self.if_full = False
+        self.cur_size = 0
+        self.max_size = max_size
+        self.device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
 
+        self.states = th.empty((max_size, state_dim), dtype=th.float32, device=self.device)
+        self.scores = th.empty((max_size, 1), dtype=th.float32, device=self.device)
 
-def get_objective(theta: TEN) -> TEN:
-    score = get_cumulative_reward(theta)
-    theta_list.append(theta)
-    score_list.append(score)
+    def update(self, items: [TEN]):
+        states, rewards = items
+        p = self.p + rewards.shape[0]  # pointer
+        if p > self.max_size:
+            self.if_full = True
+            p0 = self.p
+            p1 = self.max_size
+            p2 = self.max_size - self.p
+            p = p - self.max_size
 
-    theta_tensor = torch.stack(theta_list).to(DEVICE)
-    score_tensor = torch.tensor(score_list).to(DEVICE)
-    train_size = score_tensor.shape[0]
-
-    if train_size > StartTrainSize:
-        for epoch in range(128):  # fast_fit_it
-            # indices = torch.randint(train_size, size=(batch_size,), device=device) # 训练集样本数量远大于 batch_size，就用这个
-            indices = torch.randperm(train_size, device=DEVICE)[:batch_size]  # 训练集样本数量没有远大于 batch_size，就用这个
-
-            inputs = theta_tensor[indices]
-            labels = score_tensor[indices]
-
-            outputs = obj_model(inputs)
-            loss = criterion(outputs, labels)
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-    objective = obj_model(theta)
-    return objective
-
-
-"""Learn To Optimize"""
-
-
-def opt_train(obj_task, obj_args, opt_opti, opt_task, num_opt, device, unroll, opt_base):
-    opt_opti.train()
-    opt_task.zero_grad()
-
-    n_params = 0
-    for name, p in opt_task.get_register_params():
-        n_params += int(np.prod(p.size()))
-    hc_state1 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
-
-    all_losses_ever = []
-    all_losses = None
-
-    torch.set_grad_enabled(True)
-    for iteration in range(1, num_opt + 1):
-        output = opt_task.get_output()
-        loss = obj_task(*obj_args, output)
-        loss.backward(retain_graph=True)
-
-        if all_losses is None:
-            all_losses = loss
+            self.states[p0:p1], self.states[0:p] = states[:p2], states[-p:]
+            self.scores[p0:p1], self.scores[0:p] = rewards[:p2], rewards[-p:]
         else:
-            all_losses += loss
-        all_losses_ever.append(loss.data.cpu().numpy())
+            self.states[self.p:p] = states
+            self.scores[self.p:p] = rewards
+        self.p = p
+        self.cur_size = self.max_size if self.if_full else self.p
 
-        i = 0
-        result_params = {}
-        hc_state2 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
-        for name, p in opt_task.get_register_params():
-            hid_dim = int(np.prod(p.size()))
-            gradients = p.grad.view(hid_dim, 1).detach().clone().requires_grad_(True)
+    def sample(self, batch_size: int) -> [TEN]:
+        ids = th.randint(self.cur_size - 1, size=(batch_size,), requires_grad=False)
+        return self.states[ids], self.scores[ids]
 
-            j = i + hid_dim
-            hc_part = hc_state1[:, i:j]
-            updates, new_hidden, new_cell = opt_opti(gradients, hc_part[0:2], hc_part[2:4])
+    def save_or_load_history(self, cwd: str, if_save: bool):
+        item_names = (
+            (self.states, "states"),
+            (self.scores, "scores"),
+        )
 
-            hc_state2[0, i:j] = new_hidden[0]
-            hc_state2[1, i:j] = new_hidden[1]
-            hc_state2[2, i:j] = new_cell[0]
-            hc_state2[3, i:j] = new_cell[1]
+        if if_save:
+            for item, name in item_names:
+                if self.cur_size == self.p:
+                    buf_item = item[:self.cur_size]
+                else:
+                    buf_item = th.vstack((item[self.p:self.cur_size], item[0:self.p]))
+                file_path = f"{cwd}/replay_buffer_{name}.pth"
+                print(f"| buffer.save_or_load_history(): Save {file_path}    {buf_item.shape}")
+                th.save(buf_item.half(), file_path)  # save float32 as float16
 
-            result = p + updates.view(*p.size())
-            result_params[name] = result / result.norm()
-            result_params[name].retain_grad()
+        elif all([os.path.isfile(f"{cwd}/replay_buffer_{name}.pth") for item, name in item_names]):
+            max_sizes = []
+            for item, name in item_names:
+                file_path = f"{cwd}/replay_buffer_{name}.pth"
+                buf_item = th.load(file_path).float()  # load float16 as float32
+                print(f"| buffer.save_or_load_history(): Load {file_path}    {buf_item.shape}")
 
-            i = j
-
-        if iteration % unroll == 0:
-
-            if len(score_list) > StartTrainSize:  # todo 等数据积攒够多了，再启用 opt_base 去训练
-                opt_base.zero_grad()
-                all_losses.backward()
-                opt_base.step()
-
-            all_losses = None
-
-            opt_task.re_init()
-            opt_task.load_state_dict(result_params)
-            opt_task.zero_grad()
-
-            hc_state1 = hc_state2.detach().clone().requires_grad_(True)
-
-        else:
-            for name, p in opt_task.get_register_params():
-                set_attr(opt_task, name, result_params[name])
-
-            hc_state1 = hc_state2
-    torch.set_grad_enabled(False)
-    return all_losses_ever
+                max_size = buf_item.shape[0]
+                item[:max_size] = buf_item
+                max_sizes.append(max_size)
+            assert all([max_size == max_sizes[0] for max_size in max_sizes])
+            self.cur_size = max_sizes[0]
+            self.if_full = self.cur_size == self.max_size  # todo remember to fix bug in ElegantRL
 
 
-def opt_eval(obj_task, obj_args, opt_opti, opt_task, num_opt, device):
-    opt_opti.eval()
+def collect_buffer_history(if_remove: bool = False):
+    max_size = 2 ** 18
+    save_dir0 = 'task_TNCO'
+    save_dirs = [save_dir for save_dir in os.listdir('.') if save_dir[:9] == 'task_TNCO']
 
-    n_params = 0
-    for name, param in opt_task.get_register_params():
-        n_params += int(np.prod(param.size()))
-    hc_state1 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
+    states_ary = []
+    scores_ary = []
+    for save_dir in save_dirs:
+        states_path = f"{save_dir}/replay_buffer_states.pth"
+        scores_path = f"{save_dir}/replay_buffer_scores.pth"
 
-    best_res = None
-    min_loss = torch.inf
+        if_all_exists = all([os.path.isfile(path) for path in (states_path, scores_path)])
+        if not if_all_exists:
+            print(f"FileExist? [states, scores] {if_all_exists}")
+            continue
 
-    torch.set_grad_enabled(True)
-    for _ in range(num_opt):
-        output = opt_task.get_output()
-        loss = obj_task(*obj_args, output)
-        loss.backward(retain_graph=True)
+        states = th.load(states_path, map_location=th.device('cpu')).half()
+        scores = th.load(scores_path, map_location=th.device('cpu')).half()
+        states_ary.append(states)
+        scores_ary.append(scores)
 
-        result_params = {}
-        hc_state2 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
+        os.remove(states_path) if if_remove else None
+        os.remove(scores_path) if if_remove else None
+        print(f"Load {save_dir:12}    num_samples {scores.shape[0]}")
 
-        i = 0
-        for name, param in opt_task.get_register_params():
-            param_dim = int(np.prod(param.size()))
-            gradients = param.grad.view(param_dim, 1).detach().clone().requires_grad_(True)
+    states_ary = th.vstack(states_ary)
+    scores_ary = th.vstack(scores_ary)
 
-            j = i + param_dim
-            hc_part = hc_state1[:, i:j]
-            updates, new_hidden, new_cell = opt_opti(gradients, hc_part[0:2], hc_part[2:4])
+    sort = -scores_ary.squeeze(1).argsort()[:max_size]  # notice negative symbol here.
+    states_ary = states_ary[sort]
+    scores_ary = scores_ary[sort]
 
-            hc_state2[0, i:j] = new_hidden[0]
-            hc_state2[1, i:j] = new_hidden[1]
-            hc_state2[2, i:j] = new_cell[0]
-            hc_state2[3, i:j] = new_cell[1]
-
-            result = param + updates.view(*param.size())
-            result_params[name] = result / result.norm()
-
-            i = j
-
-        opt_task.re_init()
-        opt_task.load_state_dict(result_params)
-        opt_task.zero_grad()
-
-        hc_state1 = hc_state2.detach().clone().requires_grad_(True)
-
-        if loss < min_loss:
-            best_res = opt_task.get_output()
-            min_loss = loss
-    torch.set_grad_enabled(False)
-    return best_res, min_loss.item()
+    os.makedirs(save_dir0, exist_ok=True)
+    th.save(states_ary, f"{save_dir0}/replay_buffer_states.pth")
+    th.save(scores_ary, f"{save_dir0}/replay_buffer_scores.pth")
+    print(f"Save {save_dir0:12}    num_samples {scores_ary.shape[0]}")
+    print(f"sort max {scores_ary[+0].item():9.3f}")
+    print(f"sort min {scores_ary[-1].item():9.3f}")
 
 
-def set_attr(obj, attr, val):
-    attrs = attr.split('.')
-    for attr in attrs[:-1]:
-        obj = getattr(obj, attr)
-    setattr(obj, attrs[-1], val)
-
-
-class OptimizerTask(nn.Module):
+class ObjectiveTNCO(ObjectiveTask):
     def __init__(self, dim, device):
-        super().__init__()
-        self.dim = dim
+        super(ObjectiveTNCO, self).__init__()
         self.device = device
+        self.args = ()
 
-        self.register_buffer('theta', th.zeros(dim, requires_grad=True, device=device))
+        self.env = TensorNetworkEnv(nodes_list=get_nodes_list(len_list=100))
+        self.dim = self.env.num_edges
+        print(self.dim) if self.dim != dim else None
 
-    def re_init(self):
-        self.__init__(dim=self.dim, device=self.device)
+        self.obj_model0 = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
+        self.obj_model1 = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
 
-    def get_register_params(self):
-        return [('theta', self.theta)]
+        self.optimizer = th.optim.Adam(self.obj_model0.parameters(), lr=1e-4)
+        self.criterion = nn.MSELoss()
+        self.batch_size = 2 ** 8
+        self.min_train_size = self.batch_size * 2 ** 8
+        self.train_thresh = 2 ** -5  # 0.03125
+        self.ema_loss = 0.0
 
-    def forward(self, target):
-        batch_theta = self.theta.unsqueeze(0)
-        return target.objective_function(batch_theta)  # 有空把这个改成并行的
+        gpu_id = self.device.index
+        self.save_path = f'./task_TNCO_{gpu_id:02}'
+        os.makedirs(self.save_path, exist_ok=True)
 
-    def get_output(self):
-        return self.theta
+        '''warm up'''
+        gpu_id = device.index  # not elegant
+        warm_up_size = 2 ** 16
+        self.buffer = ReplayBuffer(max_size=2 ** 18, state_dim=self.dim, gpu_id=gpu_id)
+        self.buffer.save_or_load_history(cwd=self.save_path, if_save=False)
+        if self.buffer.cur_size < warm_up_size:
+            thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size, if_tqdm=True)
+            self.buffer.update(items=(thetas, scores))
+        self.save_and_check_buffer()
+
+        self.fast_train_obj_model()
+
+    def get_objective(self, theta, *args) -> TEN:
+        num_repeats = 8
+        with th.no_grad():
+            thetas = theta.repeat(num_repeats, 1)
+            thetas[1:] = thetas[1:] + th.rand_like(thetas[1:])
+            thetas = self.get_norm(thetas)
+
+            scores = th.tensor([self.get_objective_without_grad(theta) for theta in thetas],
+                               dtype=th.float32, device=self.device).unsqueeze(1)
+
+            self.buffer.update(items=(thetas, scores))
+
+        self.fast_train_obj_model()
+
+        self.obj_model1 = deepcopy(self.obj_model0)
+        # avoid `gradient computation has been modified by an inplace operation` in `all_losses.backward()` !!!
+
+        objective = self.obj_model1(theta)
+        return objective
+
+    def get_objective_without_grad(self, theta, *_args) -> float:
+        # assert theta.shape[0] == self.env.num_edges
+        log10_multiple_times = self.env.get_log10_multiple_times(edge_argsort=theta.argsort())
+        return log10_multiple_times
+
+    @staticmethod
+    def get_norm(x):
+        x = (x - x.mean(dim=-1, keepdim=True)) / (x.std(dim=-1, keepdim=True) + 1e-6)
+        return x.clamp(-3, +3)
+
+    def random_generate_input_output(self, warm_up_size: int = 1024, if_tqdm: bool = False):
+        print(f"TNCO | random_generate_input_output: num_warm_up={warm_up_size}")
+        thetas = th.randn((warm_up_size, self.dim), dtype=th.float32, device=self.device).clamp(-3, +3)
+        thetas = ((thetas - thetas.mean(dim=1, keepdim=True)) / thetas.std(dim=1, keepdim=True)).clamp(-3, +3)
+
+        if if_tqdm:
+            from tqdm import tqdm
+            scores_list = [self.get_objective_without_grad(theta) for theta in tqdm(thetas, ascii=True)]
+        else:
+            scores_list = [self.get_objective_without_grad(theta) for theta in thetas]
+        scores = th.tensor(scores_list, dtype=th.float32, device=self.device).unsqueeze(1)
+
+        return thetas, scores
+
+    def fast_train_obj_model(self):
+        train_thresh = self.train_thresh
+
+        ema_loss = 1  # Exponential Moving Average (EMA) loss value
+        gamma = 0.98
+
+        # counter = 0
+        while ema_loss > train_thresh:
+            inputs, labels = self.buffer.sample(self.batch_size)
+
+            outputs = self.obj_model0(inputs)
+            loss = self.criterion(outputs, labels)
+
+            self.optimizer.zero_grad()
+            loss.backward(retain_graph=True)  # todo
+            self.optimizer.step()
+
+            ema_loss = gamma * ema_loss + (1 - gamma) * loss.item()
+            # counter += 1
+        self.ema_loss = ema_loss
+        # print(f";;;; counter {counter}    ema_loss {self.ema_loss:9.2f}")
+
+    def save_and_check_buffer(self):
+        self.buffer.save_or_load_history(cwd=self.save_path, if_save=True)
+
+        scores = self.buffer.scores[:self.buffer.cur_size]
+        print(f"num_train: {scores.shape[0]}")
+        print(f"min_score: {scores.min().item():9.3f}")
+        print(f"avg_score: {scores.mean().item():9.3f} ± {scores.std(dim=0).item():9.3f}")
+        print(f"max_score: {scores.max().item():9.3f}")
+        print(f"best_result: {self.buffer.states[scores.argmin()].argsort()}")  # todo
 
 
-class OptimizerLSTM(nn.Module):
-    def __init__(self, hid_dim=20):
-        super().__init__()
-        self.hid_dim = hid_dim
-        self.recurs1 = nn.LSTMCell(1, hid_dim)
-        self.recurs2 = nn.LSTMCell(hid_dim, hid_dim)
-        self.output = nn.Linear(hid_dim, 1)
+def unit_test__objective_tnco():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-    def forward(self, inp0, hid0, cell):
-        hid1, cell1 = self.recurs1(inp0, (hid0[0], cell[0]))
-        hid2, cell2 = self.recurs2(hid1, (hid0[1], cell[1]))
-        return self.output(hid2), (hid1, hid2), (cell1, cell2)
+    obj_task = ObjectiveTNCO(dim=199, device=device)
+
+    obj_task.get_objective(theta=th.rand(obj_task.dim, dtype=th.float32, device=obj_task.device))
+    obj_task.save_and_check_buffer()
 
 
-"""run"""
+"""trainable objective function"""
 
 
 def train_optimizer():
-    dim = ENV.num_edges  # 如果是TensorTrain 里的List结构，共100个节点，则有99条边
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
     '''train'''
-    train_times = 2 ** 9
-    lr = 1e-4  # 要更小一些，甚至前期先不训练。
+    train_times = 2 ** 12
+    lr = 1e-4
     unroll = 16
-    num_opt = 64  # 要更大一些
-    hid_dim = 40
+    num_opt = 64
+    hid_dim = 64
 
     '''eval'''
-    eval_gap = 128
+    eval_gap = 2 ** 3
 
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-    obj_task = get_objective
-    opt_task = OptimizerTask(dim=dim, device=device)
-    opt_opti = OptimizerLSTM(hid_dim=hid_dim).to(device)
-    opt_base = optim.Adam(opt_opti.parameters(), lr=lr)
+    dim = 199  # set by env.num_edges
+    obj_task = ObjectiveTNCO(dim=dim, device=device)
+    dim = obj_task.env.num_edges
 
-    start_time = time()
+    opt_task = OptimizerTask(dim=dim, device=device)
+    opt_opti = OptimizerOpti(hid_dim=hid_dim).to(device)
+    opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
+
+    start_time = time.time()
     '''loop'''
     for i in range(train_times + 1):
-        opt_train(obj_task=obj_task, obj_args=(), opt_task=opt_task, opt_opti=opt_opti,
+        opt_train(obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
                   num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
 
         if i % eval_gap == 0:
             best_result, min_loss = opt_eval(
-                obj_task=obj_task, obj_args=(), opt_opti=opt_opti, opt_task=opt_task,
+                obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
                 num_opt=num_opt * 2, device=device
             )
-            time_used = time() - start_time
+            time_used = time.time() - start_time
 
-            log10_multiple_times = ENV.get_log10_multiple_times(edge_argsort=best_result.squeeze(0).argsort())
-            print(f"{i:>9}    {log10_multiple_times:9.3f}    {min_loss:9.3e}    TimeUsed {time_used:9.0f}")
+            score = obj_task.env.get_log10_multiple_times(edge_argsort=best_result.argsort())
+            print(f"{i:>9}    {score:9.3f}    {min_loss.item():9.3e}    TimeUsed {time_used:9.0f}")
 
-    # todo 训练结束后，一定要时刻保存 我们的 score_list 以及 theta_list，比避免保存的时候因为重名覆盖掉上一次训练的，积攒数据
-    # torch.save(torch.stack(theta_list), './theta_list.pth')
-    # torch.save(torch.stack(score_list), './score_list.pth')
+            if i % (eval_gap * 32) == 0:
+                obj_task.save_and_check_buffer()
+
+    obj_task.save_and_check_buffer()
 
 
 if __name__ == '__main__':
+    # unit_test__objective_tnco()
     train_optimizer()
