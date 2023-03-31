@@ -21,7 +21,11 @@ If using Gset:
 ```
 python main.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
 ```
+## Download data using the following link:
 
+```
+https://drive.google.com/drive/folders/13tTd73NahyX2_WU9cFL0BhoZc-MIbtxc?usp=sharing
+```
 
 ## Run Gurobi with command 
 
