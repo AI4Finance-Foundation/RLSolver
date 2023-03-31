@@ -1,4 +1,4 @@
-# High-Performance Classical Simulation of Quantum Circuits Using Tensor Networks
+# Classical simulation of quantum circuits using tensor networks
 
 Roadmap
 - [x] Tensor network representations
