@@ -169,7 +169,7 @@ NodesSycamoreN53M20 = [
 ]
 
 
-def get_nodes_list(len_list: int = 4):
+def get_nodes_list_of_tensor_train(len_list: int = 4):
     nodes = [[] for _ in range(len_list)]  # 初始化邻接表
     for i in range(len_list):
         if i > 0:

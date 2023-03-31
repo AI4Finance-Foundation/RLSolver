@@ -5,14 +5,17 @@ import torch as th
 import torch.nn as nn
 from copy import deepcopy
 
-from TNCO_env import TensorNetworkEnv  # get_nodes_list
+from TNCO_env import TensorNetworkEnv
+from TNCO_env import NodesSycamoreN53M12, get_nodes_list_of_tensor_train
 from L2O_H_term import ObjectiveTask, OptimizerTask, OptimizerOpti
 from L2O_H_term import opt_train, opt_eval
 
 TEN = th.Tensor
-"""
-zzz 2023-03-31 09:38:56
-"""
+
+# NodesList = NodesSycamoreN53M12
+# NumBanEdge = 0
+NodesList = get_nodes_list_of_tensor_train(len_list=100)
+NumBanEdge = 100
 
 
 def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn.Sequential:
@@ -161,9 +164,8 @@ class ObjectiveTNCO(ObjectiveTask):
         self.device = device
         self.args = ()
 
-        from TNCO_env import NodesSycamoreN53M12
-        self.env = TensorNetworkEnv(nodes_list=NodesSycamoreN53M12, device=device)  # NodesSycamoreN53M12
-        self.dim = self.env.num_edges
+        self.env = TensorNetworkEnv(nodes_list=NodesList, device=device)  # NodesSycamoreN53M12
+        self.dim = self.env.num_edges - NumBanEdge
         print(self.dim) if self.dim != dim else None
 
         self.obj_model = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
@@ -194,7 +196,7 @@ class ObjectiveTNCO(ObjectiveTask):
         num_repeats = 8  # todo
         with th.no_grad():
             thetas = theta.repeat(num_repeats, 1)
-            thetas[1:] += th.rand_like(thetas[1:])
+            thetas[1:] += th.randn_like(thetas[1:]) / (self.dim * 3)
             thetas = self.get_norm(thetas)  # shape == (warm_up_size, self.dim)
             scores = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
             self.buffer.update(items=(thetas, scores))
@@ -226,7 +228,7 @@ class ObjectiveTNCO(ObjectiveTask):
         thetas_iter = thetas.reshape((-1, 1024, self.dim))
         if if_tqdm:
             from tqdm import tqdm
-            thetas_iter = tqdm(thetas_iter)
+            thetas_iter = tqdm(thetas_iter, ascii=True)
         scores = th.hstack([self.get_objectives_without_grad(thetas) for thetas in thetas_iter]).unsqueeze(1)
 
         # assert thetas.shape == (warm_up_size, self.dim)
@@ -237,7 +239,7 @@ class ObjectiveTNCO(ObjectiveTask):
         train_thresh = self.train_thresh
 
         ema_loss = 1  # Exponential Moving Average (EMA) loss value
-        gamma = 0.98
+        gamma = 0.95
 
         # counter = 0
         while ema_loss > train_thresh:
@@ -295,9 +297,9 @@ def train_optimizer():
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-    dim = 414  # set by env.num_edges
+    dim = 199 - 100  # set by env.num_edges
     obj_task = ObjectiveTNCO(dim=dim, device=device)
-    dim = obj_task.env.num_edges
+    dim = obj_task.dim
 
     opt_task = OptimizerTask(dim=dim, device=device)
     opt_opti = OptimizerOpti(hid_dim=hid_dim).to(device)
