@@ -5,13 +5,13 @@ import torch as th
 import torch.nn as nn
 from copy import deepcopy
 
-from TNCO_env import TensorNetworkEnv, get_nodes_list
+from TNCO_env import TensorNetworkEnv  # get_nodes_list
 from L2O_H_term import ObjectiveTask, OptimizerTask, OptimizerOpti
 from L2O_H_term import opt_train, opt_eval
 
 TEN = th.Tensor
 """
-zzz 2023-03-29 21:41:02
+zzz 2023-03-31 09:38:56
 """
 
 
@@ -60,8 +60,11 @@ class ReplayBuffer:  # for off-policy
         self.scores = th.empty((max_size, 1), dtype=th.float32, device=self.device)
 
     def update(self, items: [TEN]):
-        states, rewards = items
-        p = self.p + rewards.shape[0]  # pointer
+        states, scores = items
+        # assert thetas.shape == (warm_up_size, self.dim)
+        # assert scores.shape == (warm_up_size, 1)
+
+        p = self.p + scores.shape[0]  # pointer
         if p > self.max_size:
             self.if_full = True
             p0 = self.p
@@ -70,10 +73,10 @@ class ReplayBuffer:  # for off-policy
             p = p - self.max_size
 
             self.states[p0:p1], self.states[0:p] = states[:p2], states[-p:]
-            self.scores[p0:p1], self.scores[0:p] = rewards[:p2], rewards[-p:]
+            self.scores[p0:p1], self.scores[0:p] = scores[:p2], scores[-p:]
         else:
             self.states[self.p:p] = states
-            self.scores[self.p:p] = rewards
+            self.scores[self.p:p] = scores
         self.p = p
         self.cur_size = self.max_size if self.if_full else self.p
 
@@ -158,17 +161,16 @@ class ObjectiveTNCO(ObjectiveTask):
         self.device = device
         self.args = ()
 
-        self.env = TensorNetworkEnv(nodes_list=get_nodes_list(len_list=100))
+        from TNCO_env import NodesSycamoreN53M12
+        self.env = TensorNetworkEnv(nodes_list=NodesSycamoreN53M12, device=device)  # NodesSycamoreN53M12
         self.dim = self.env.num_edges
         print(self.dim) if self.dim != dim else None
 
-        self.obj_model0 = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
-        self.obj_model1 = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
+        self.obj_model = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
 
-        self.optimizer = th.optim.Adam(self.obj_model0.parameters(), lr=1e-4)
+        self.optimizer = th.optim.Adam(self.obj_model.parameters(), lr=1e-4)
         self.criterion = nn.MSELoss()
-        self.batch_size = 2 ** 8
-        self.min_train_size = self.batch_size * 2 ** 8
+        self.batch_size = 2 ** 10
         self.train_thresh = 2 ** -5  # 0.03125
         self.ema_loss = 0.0
 
@@ -178,7 +180,7 @@ class ObjectiveTNCO(ObjectiveTask):
 
         '''warm up'''
         gpu_id = device.index  # not elegant
-        warm_up_size = 2 ** 16
+        warm_up_size = 2 ** 14  # todo
         self.buffer = ReplayBuffer(max_size=2 ** 18, state_dim=self.dim, gpu_id=gpu_id)
         self.buffer.save_or_load_history(cwd=self.save_path, if_save=False)
         if self.buffer.cur_size < warm_up_size:
@@ -189,28 +191,26 @@ class ObjectiveTNCO(ObjectiveTask):
         self.fast_train_obj_model()
 
     def get_objective(self, theta, *args) -> TEN:
-        num_repeats = 8
+        num_repeats = 8  # todo
         with th.no_grad():
             thetas = theta.repeat(num_repeats, 1)
-            thetas[1:] = thetas[1:] + th.rand_like(thetas[1:])
-            thetas = self.get_norm(thetas)
-
-            scores = th.tensor([self.get_objective_without_grad(theta) for theta in thetas],
-                               dtype=th.float32, device=self.device).unsqueeze(1)
-
+            thetas[1:] += th.rand_like(thetas[1:])
+            thetas = self.get_norm(thetas)  # shape == (warm_up_size, self.dim)
+            scores = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
             self.buffer.update(items=(thetas, scores))
 
         self.fast_train_obj_model()
 
-        self.obj_model1 = deepcopy(self.obj_model0)
+        obj_model1 = deepcopy(self.obj_model)
         # avoid `gradient computation has been modified by an inplace operation` in `all_losses.backward()` !!!
 
-        objective = self.obj_model1(theta)
+        objective = obj_model1(theta)
         return objective
 
-    def get_objective_without_grad(self, theta, *_args) -> float:
+    def get_objectives_without_grad(self, thetas, *_args) -> TEN:
         # assert theta.shape[0] == self.env.num_edges
-        log10_multiple_times = self.env.get_log10_multiple_times(edge_argsort=theta.argsort())
+        with th.no_grad():
+            log10_multiple_times = self.env.get_log10_multiple_times(edge_argsorts=thetas.argsort(dim=1))
         return log10_multiple_times
 
     @staticmethod
@@ -223,13 +223,14 @@ class ObjectiveTNCO(ObjectiveTask):
         thetas = th.randn((warm_up_size, self.dim), dtype=th.float32, device=self.device).clamp(-3, +3)
         thetas = ((thetas - thetas.mean(dim=1, keepdim=True)) / thetas.std(dim=1, keepdim=True)).clamp(-3, +3)
 
+        thetas_iter = thetas.reshape((-1, 1024, self.dim))
         if if_tqdm:
             from tqdm import tqdm
-            scores_list = [self.get_objective_without_grad(theta) for theta in tqdm(thetas, ascii=True)]
-        else:
-            scores_list = [self.get_objective_without_grad(theta) for theta in thetas]
-        scores = th.tensor(scores_list, dtype=th.float32, device=self.device).unsqueeze(1)
+            thetas_iter = tqdm(thetas_iter)
+        scores = th.hstack([self.get_objectives_without_grad(thetas) for thetas in thetas_iter]).unsqueeze(1)
 
+        # assert thetas.shape == (warm_up_size, self.dim)
+        # assert scores.shape == (warm_up_size, 1)
         return thetas, scores
 
     def fast_train_obj_model(self):
@@ -242,7 +243,7 @@ class ObjectiveTNCO(ObjectiveTask):
         while ema_loss > train_thresh:
             inputs, labels = self.buffer.sample(self.batch_size)
 
-            outputs = self.obj_model0(inputs)
+            outputs = self.obj_model(inputs)
             loss = self.criterion(outputs, labels)
 
             self.optimizer.zero_grad()
@@ -262,7 +263,7 @@ class ObjectiveTNCO(ObjectiveTask):
         print(f"min_score: {scores.min().item():9.3f}")
         print(f"avg_score: {scores.mean().item():9.3f} ± {scores.std(dim=0).item():9.3f}")
         print(f"max_score: {scores.max().item():9.3f}")
-        print(f"best_result: {self.buffer.states[scores.argmin()].argsort()}")  # todo
+        print(f"best_result: \n{self.buffer.states[scores.argmin()].argsort()}")
 
 
 def unit_test__objective_tnco():
@@ -283,18 +284,18 @@ def train_optimizer():
 
     '''train'''
     train_times = 2 ** 12
-    lr = 1e-4
+    lr = 2e-4
     unroll = 16
-    num_opt = 64
+    num_opt = 128
     hid_dim = 64
 
     '''eval'''
-    eval_gap = 2 ** 3
+    eval_gap = 2 ** 4
 
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-    dim = 199  # set by env.num_edges
+    dim = 414  # set by env.num_edges
     obj_task = ObjectiveTNCO(dim=dim, device=device)
     dim = obj_task.env.num_edges
 
@@ -313,12 +314,17 @@ def train_optimizer():
                 obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
                 num_opt=num_opt * 2, device=device
             )
-            time_used = time.time() - start_time
 
-            score = obj_task.env.get_log10_multiple_times(edge_argsort=best_result.argsort())
+            '''get score'''
+            with th.no_grad():
+                edge_argsorts = best_result.argsort().unsqueeze(0)
+                scores = obj_task.env.get_log10_multiple_times(edge_argsorts=edge_argsorts)
+                score = scores.squeeze(0)
+
+            time_used = time.time() - start_time
             print(f"{i:>9}    {score:9.3f}    {min_loss.item():9.3e}    TimeUsed {time_used:9.0f}")
 
-            if i % (eval_gap * 32) == 0:
+            if i % (eval_gap * 4) == 0:
                 obj_task.save_and_check_buffer()
 
     obj_task.save_and_check_buffer()
@@ -327,3 +333,4 @@ def train_optimizer():
 if __name__ == '__main__':
     # unit_test__objective_tnco()
     train_optimizer()
+    # collect_buffer_history(if_remove=False)

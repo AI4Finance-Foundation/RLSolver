@@ -1,4 +1,4 @@
-import torch
+import sys
 import torch as th
 
 TEN = th.Tensor
@@ -232,67 +232,110 @@ def get_node_bool_arys(nodes_ary: TEN) -> list:
 
 
 class TensorNetworkEnv:
-    def __init__(self, nodes_list: list):
-        self.nodes_ary = get_nodes_ary(nodes_list)
-        # print(self.nodes_ary[:16])
-        self.num_nodes = self.nodes_ary.max().item() + 1
-        assert self.num_nodes == self.nodes_ary.shape[0]
+    def __init__(self, nodes_list: list, device: th.device):
+        self.device = device
 
-        self.edges_ary = get_edges_ary(self.nodes_ary)
-        # print(self.edges_ary[:16])
-        self.num_edges = self.edges_ary.max().item() + 1
-        assert self.num_edges == (self.edges_ary != -1).sum() / 2
+        '''build node_arys and edges_ary'''
+        nodes_ary = get_nodes_ary(nodes_list)
+        num_nodes = nodes_ary.max().item() + 1
+        assert num_nodes == nodes_ary.shape[0]
 
-    def get_log10_multiple_times(self, edge_argsort: TEN) -> float:
+        edges_ary = get_edges_ary(nodes_ary)
+        num_edges = edges_ary.max().item() + 1
+        assert num_edges == (edges_ary != -1).sum() / 2
+
+        # self.nodes_ary = nodes_ary
+        self.edges_ary = edges_ary.to(device)
+        self.num_nodes = num_nodes
+        self.num_edges = num_edges
+
+        '''build for get_log10_multiple_times'''
+        node_dims_arys = get_node_dims_arys(nodes_ary)
+        assert num_edges == sum([(ary == 1).sum().item() for ary in node_dims_arys]) / 2
+
+        node_bool_arys = get_node_bool_arys(nodes_ary)
+        assert num_nodes == sum([ary.sum() for ary in node_bool_arys])
+
+        self.node_dims_arys = [ary.to(device) for ary in node_dims_arys]
+        self.node_bool_arys = [ary.to(device) for ary in node_bool_arys]
+
+    def get_log10_multiple_times(self, edge_argsorts: TEN) -> TEN:
         # edge_argsort = th.rand(self.num_edges).argsort()
-        edge_argsort = edge_argsort.cpu()  # todo plan to cancel
+        device = self.device
+        edges_ary: TEN = self.edges_ary
 
-        node_dims_arys = get_node_dims_arys(self.nodes_ary)
-        assert self.num_edges == sum([(ary == 1).sum().item() for ary in node_dims_arys]) / 2
-        node_bool_arys = get_node_bool_arys(self.nodes_ary)
-        assert self.num_nodes == sum([ary.sum() for ary in node_bool_arys])
+        num_envs, num_edges = edge_argsorts.shape
+        node_dims_aryss = [[ary.clone() for ary in self.node_dims_arys] for _ in range(num_envs)]
+        node_bool_aryss = [[ary.clone() for ary in self.node_bool_arys] for _ in range(num_envs)]
 
-        mult_pow_times = []
-        # multiple_times = th.zeros((), dtype=th.float64)
+        mult_pow_timess = th.zeros((num_envs, num_edges), dtype=th.float64, device=device)
 
-        for edge_i in edge_argsort:
-            node_i0, node_i1 = self.map_edge_i_to_two_node_i(edge_i)  # 找出这条edge 两端的node
+        vec_env_is = th.arange(num_envs, device=device)
+        for i in range(num_edges):
+            edge_is = edge_argsorts[:, i]
+            # [edge_i for edge_i in edge_is]
 
-            contract_dims = node_dims_arys[node_i0] + node_dims_arys[node_i1]  # 计算收缩后的node 的邻接张量的维度 以及 来源
-            contract_bool = node_bool_arys[node_i0] | node_bool_arys[node_i1]  # 计算收缩后的node 由哪些原初node 合成
+            """find two nodes of an edge_i"""
+            # node_i0, node_i1 = th.where(edges_ary == edge_i)[0]  # 找出这条edge 两端的node
+            # assert isinstance(node_i0.item(), int)
+            # assert isinstance(node_i1.item(), int)
+            vec_edges_ary: TEN = edges_ary[None, :, :]
+            vec_edges_is: TEN = edge_is[:, None, None]
+            res = th.where(vec_edges_ary == vec_edges_is)[1]
+            res = res.reshape((num_envs, 2))
+            node_i0s, node_i1s = res[:, 0], res[:, 1]
 
-            mult_pow_time = contract_dims.sum() - contract_dims[contract_bool].sum() * 0.5  # 收缩掉的edge 算一遍乘法
-            mult_pow_times.append(mult_pow_time)
-            # multiple_times += 2 ** mult_pow_time
-            # print(mult_pow_time, 2 ** mult_pow_time)
+            node_dims_ten = th.stack([th.stack(arys) for arys in node_dims_aryss])
+            node_bool_ten = th.stack([th.stack(arys) for arys in node_bool_aryss])
 
-            contract_dims[contract_bool] = 0  # 把收缩掉的边的乘法数量赋值为1，接下来不再参与乘法次数的计算
-            node_dims_arys[node_i0] = node_dims_arys[node_i1] = contract_dims  # 让收缩前的两个node 指向收缩后的node
-            node_bool_arys[node_i0] = node_bool_arys[node_i1] = contract_bool  # 让收缩前的两个node 指向收缩后的node
+            # contract_dims = node_dims_arys[node_i0] + node_dims_arys[node_i1]  # 计算收缩后的node 的邻接张量的维度 以及来源
+            contract_dimss = node_dims_ten[vec_env_is, node_i0s] + node_dims_ten[vec_env_is, node_i1s]
 
-        mult_pow_times = th.tensor(mult_pow_times, dtype=th.float64)
-        # print(mult_pow_times)
+            # contract_bool = node_bool_arys[node_i0] | node_bool_arys[node_i1]  # 计算收缩后的node 由哪些原初node 合成
+            contract_bools = node_bool_ten[vec_env_is, node_i0s] + node_bool_ten[vec_env_is, node_i1s]
+
+            # 收缩掉的edge 只需要算一遍乘法。因此上面对 两次重复的指数求和后乘以0.5
+            mult_pow_times = contract_dimss.sum(dim=1) - (contract_dimss * contract_bools).sum(dim=1) * 0.5
+
+            # assert mult_pow_times.shape == (num_envs,)
+            mult_pow_timess[:, i] = mult_pow_times
+
+            for j in range(num_envs):
+                node_i0 = node_i0s[j]
+                node_i1 = node_i1s[j]
+                node_dims_arys = node_dims_aryss[j]
+                node_bool_arys = node_bool_aryss[j]
+
+                contract_dimss[j][contract_bools[j]] = 0  # 把收缩掉的边的乘法数量赋值为1，接下来不再参与乘法次数的计算
+                node_dims_arys[node_i0] = node_dims_arys[node_i1] = contract_dimss[j]  # 让收缩前的两个node 指向收缩后的node
+                node_bool_arys[node_i0] = node_bool_arys[node_i1] = contract_bools[j]  # 让收缩前的两个node 指向收缩后的node
 
         temp_power = 10  # 计算这个乘法个数时，即便用 float64 也偶尔会过拟合，所以先除以 2**temp_power ，求log10 后再恢复它
-        multiple_times = (2 ** (mult_pow_times - temp_power)).sum()
+        multiple_times = (2 ** (mult_pow_timess - temp_power)).sum(dim=1)
         multiple_times = multiple_times.log10() + th.log10(th.tensor(2 ** temp_power))
-        return multiple_times.item()
+        return multiple_times.detach()
 
-    def map_edge_i_to_two_node_i(self, edge_i):
-        return th.where(self.edges_ary == edge_i)[0]
+    """
+    L2O_H_term.py", line 463, in opt_train
+    gradients = p.grad.view(hid_dim, 1).detach().clone().requires_grad_(True)
+    """
 
 
 def run():
-    for i in range(8):
-        env = TensorNetworkEnv(nodes_list=NodesSycamoreN53M12)
-        multiple_times = env.get_log10_multiple_times(edge_argsort=th.rand(env.num_edges).argsort())
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-        if i == 0:
-            print(f"\nnum_nodes      {env.num_nodes:9}"
-                  f"\nnum_edges      {env.num_edges:9}"
-                  f"\nmultiple_times {multiple_times:9.3f} (log10)")
-        else:
-            print(f"multiple_times {multiple_times:9.3f} (log10)")
+    env = TensorNetworkEnv(nodes_list=NodesSycamoreN53M12, device=device)
+    print(f"\nnum_nodes      {env.num_nodes:9}"
+          f"\nnum_edges      {env.num_edges:9}")
+    num_envs = 8
+
+    edge_arys = th.rand((num_envs, env.num_edges), device=device)
+    # th.save(edge_arys, 'temp.pth')
+    # edge_arys = th.load('temp.pth', map_location=device)
+
+    multiple_times = env.get_log10_multiple_times(edge_argsorts=edge_arys.argsort(dim=1))
+    print(f"multiple_times(log10) {multiple_times}")
 
 
 if __name__ == '__main__':
