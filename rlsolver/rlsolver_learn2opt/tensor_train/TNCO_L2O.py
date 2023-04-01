@@ -12,10 +12,8 @@ from L2O_H_term import opt_train, opt_eval
 
 TEN = th.Tensor
 
-# NodesList = NodesSycamoreN53M12
-# NumBanEdge = 0
-NodesList = get_nodes_list_of_tensor_train(len_list=100)
-NumBanEdge = 100
+NodesList, BanEdges = NodesSycamoreN53M12, 0
+# NodesList, BanEdges = get_nodes_list_of_tensor_train(len_list=100), 100
 
 
 def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn.Sequential:
@@ -164,11 +162,13 @@ class ObjectiveTNCO(ObjectiveTask):
         self.device = device
         self.args = ()
 
-        self.env = TensorNetworkEnv(nodes_list=NodesList, device=device)  # NodesSycamoreN53M12
-        self.dim = self.env.num_edges - NumBanEdge
-        print(self.dim) if self.dim != dim else None
+        env = TensorNetworkEnv(nodes_list=NodesList, device=device)
+        env.ban_edges = BanEdges
+        self.env = env
+        self.dim = env.num_edges - env.ban_edges
+        print(f"dim {self.dim} = num_edges {env.num_edges} - ban_edges {env.ban_edges}") if self.dim != dim else None
 
-        self.obj_model = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
+        self.obj_model = MLP(inp_dim=self.dim, out_dim=1, dims=(512, 256, 256)).to(device)
 
         self.optimizer = th.optim.Adam(self.obj_model.parameters(), lr=1e-4)
         self.criterion = nn.MSELoss()
@@ -225,7 +225,7 @@ class ObjectiveTNCO(ObjectiveTask):
         thetas = th.randn((warm_up_size, self.dim), dtype=th.float32, device=self.device).clamp(-3, +3)
         thetas = ((thetas - thetas.mean(dim=1, keepdim=True)) / thetas.std(dim=1, keepdim=True)).clamp(-3, +3)
 
-        thetas_iter = thetas.reshape((-1, 1024, self.dim))
+        thetas_iter = thetas.reshape((-1, 256, self.dim))
         if if_tqdm:
             from tqdm import tqdm
             thetas_iter = tqdm(thetas_iter, ascii=True)
