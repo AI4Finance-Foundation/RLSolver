@@ -32,7 +32,12 @@ class OptimizerTask(nn.Module):
         super().__init__()
         self.dim = dim
         self.device = device
-        self.register_buffer('theta', th.zeros(self.dim, requires_grad=True, device=device))
+
+        with th.no_grad():
+            theta = th.rand(self.dim, requires_grad=True, device=device)
+            theta = (theta - theta.mean(dim=-1, keepdim=True)) / (theta.std(dim=-1, keepdim=True) + 1e-6)
+            theta = theta.clamp(-3, +3)  # todo
+        self.register_buffer('theta', theta.requires_grad_(True))
 
     def re_init(self):
         self.__init__(dim=self.dim, device=self.device)
