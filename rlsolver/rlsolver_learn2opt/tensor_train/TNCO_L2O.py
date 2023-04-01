@@ -177,6 +177,7 @@ class ObjectiveTNCO(ObjectiveTask):
         self.ema_loss = 0.0
 
         gpu_id = self.device.index
+        gpu_id = gpu_id if gpu_id is not None else -1
         self.save_path = f'./task_TNCO_{gpu_id:02}'
         os.makedirs(self.save_path, exist_ok=True)
 
@@ -297,8 +298,7 @@ def train_optimizer():
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
-    dim = 199 - 100  # set by env.num_edges
-    obj_task = ObjectiveTNCO(dim=dim, device=device)
+    obj_task = ObjectiveTNCO(dim=None, device=device)
     dim = obj_task.dim
 
     opt_task = OptimizerTask(dim=dim, device=device)
