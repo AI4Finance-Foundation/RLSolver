@@ -4,6 +4,7 @@ import time
 import torch as th
 import torch.nn as nn
 from copy import deepcopy
+from typing import List
 
 from TNCO_env import TensorNetworkEnv
 from TNCO_env import NodesSycamoreN53M12, get_nodes_list_of_tensor_train
