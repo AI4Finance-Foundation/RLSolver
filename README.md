@@ -1,8 +1,8 @@
 # ElegantRL_Solver: High-performance RL Solvers
 
-We aim to find high-quality optimum, or even (nearly) global optimum, for nonconvex or nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
+We aim to find high-quality optimum, or even (nearly) global optimum, for nonconvex/nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
 
-We provide pretrained neural networks to perform real-time inference for convex optimization problems.
+We provide pretrained neural networks to perform real-time inference for nonconvex optimization problems.
 
 [Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
 
