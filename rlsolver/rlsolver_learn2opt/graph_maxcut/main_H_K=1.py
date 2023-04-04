@@ -128,7 +128,8 @@ if __name__ == "__main__":
     learning_rate = 1e-5
     num_env=1024
     episode_length = 20
-    device = th.device("cuda:0")
+    gpu_id = 0
+    device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
     th.manual_seed(0)
     opt_net = Opt_net(N, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
