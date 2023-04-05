@@ -45,8 +45,8 @@ class MaxcutEnv():
         return adjacency_matrix # num_env x self.N x self.N
 
     def get_cut_value_and_indicators_for_one_tensor(self, mu: Tensor):
-        rand = th.randn(mu.size())
-        indicators = mu >= rand
+        # rand = th.randn(mu.size())
+        indicators = mu >= 0.5
         n = len(indicators)
         matrix = th.zeros([n, n], dtype=th.int)
         for i in range(n):
