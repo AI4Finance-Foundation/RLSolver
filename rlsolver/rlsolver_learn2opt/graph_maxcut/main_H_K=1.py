@@ -3,6 +3,7 @@ import torch.nn as nn
 from copy import deepcopy
 import functorch
 import numpy as np
+from torch import Tensor
 class Opt_net(nn.Module):
     def __init__(self, N, hidden_layers):
         super(Opt_net, self).__init__()
@@ -43,9 +44,34 @@ class MaxcutEnv():
         adjacency_matrix = upper_triangle + upper_triangle.transpose(-1, -2)
         return adjacency_matrix # num_env x self.N x self.N
 
-    def get_cut_value(self, mu_1, mu_2):
-        return th.mul(th.matmul(mu_1.reshape(self.N, 1), (1 - mu_2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+    def get_cut_value_and_indicators_for_one_tensor(self, mu: Tensor):
+        # rand = th.randn(mu.size())
+        indicators = mu >= 0.5
+        n = len(indicators)
+        matrix = th.zeros([n, n], dtype=th.int)
+        for i in range(n):
+            for j in range(n):
+                if indicators[i] == indicators[j]:
+                    matrix[i, j] = 0
+                else:
+                    matrix[i, j] = 1
+        matrix *= self.adjacency_matrix
+        cut = matrix.sum() / 2
+        return cut, indicators
 
+
+    def get_cut_value(self, mu1, mu2):
+        # return th.mul(th.matmul(mu_1.reshape(self.N, 1), (1 - mu_2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+        # mu1_ = mu1.reshape(self.N, 1)
+        # mu2_ = 1 - mu2
+        cut1, indicators1 = self.get_cut_value_and_indicators_for_one_tensor(mu1)
+        cut2, indicators2 = self.get_cut_value_and_indicators_for_one_tensor(mu2)
+        cut = cut1 + cut2 + (indicators1 != indicators2).sum()
+        # for i in range(len(indicators1)):
+        #     if indicators1[i] != indicators2[i]:
+        #         cut += 1
+        # cut2 = th.mul(th.matmul(mu_1.reshape(self.N, 1), (1 - mu_2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+        return cut
 
 
 def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_size):
@@ -128,7 +154,8 @@ if __name__ == "__main__":
     learning_rate = 1e-5
     num_env=1024
     episode_length = 20
-    device = th.device("cuda:0")
+    gpu_id = 0
+    device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
     th.manual_seed(0)
     opt_net = Opt_net(N, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)

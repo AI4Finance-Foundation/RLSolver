@@ -183,8 +183,7 @@ if __name__ == '__main__':
                                test_every=1,
                                hidden_sz=hidden_sz,
                                lr=lr,
-                               load_net_path=
-                               None,
+                               load_net_path=None,
                                save_path=save_path,
                                N_train_epochs=3000,
                                test_data=test_graph)
