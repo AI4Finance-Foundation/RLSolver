@@ -51,7 +51,7 @@ Inference time of our method is less than 10 seconds.
 
 [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours-CPU (Training Time) | improvement | 
+| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Ours-CPU | improvement | 
 |---|----------|----|---|-----|-----|--------|----------|------|----|
 |G14 | 800 | 4694 | 3064| | 2922 | 3061 | 2943 | 2978 | -2.8  \%|
 |G15 | 800 | 4661 | 3050 | 2938 | 3050 | 2928 | 2990 | 2958 | -3.0\% | 
