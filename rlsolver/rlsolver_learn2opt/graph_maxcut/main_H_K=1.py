@@ -50,8 +50,9 @@ class MaxcutEnv():
         #indicators = (mu >= 0.5).to(th.float32)
         n = len(indicators)
         #print(indicators.shape, n)
-        matrix = th.zeros([n, n], dtype=th.int)
+        # matrix = th.zeros([n, n], dtype=th.int)
         matrix = (th.matmul(indicators.reshape( n, 1), (1-indicators.reshape(1,n))) +  th.matmul((1-indicators.reshape(n,1)), indicators.reshape(1, n)))
+
         #for i in range(n):
         #    for j in range(n):
         #        if indicators[i] == indicators[j]:
@@ -59,7 +60,7 @@ class MaxcutEnv():
         #        else:
         #            matrix[i, j] = 1
         matrix *= self.adjacency_matrix
-        cut = matrix.sum() / 2
+        cut = matrix.sum()
         return cut, indicators
 
 
@@ -132,7 +133,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
                 a = (a>0.5).to(th.float32)
                 # print(a)
                 # assert 0
-                l = env_maxcut.get_cut_value_tensor(a, a)
+                l, _ = env_maxcut.get_cut_value_and_indicators_for_one_tensor(a)
                 loss_list[num_env*(step):num_env*(step+1)] = l.detach()
                 #if (step + 6) % 2 == 0:
                     #optimizer.zero_grad()
