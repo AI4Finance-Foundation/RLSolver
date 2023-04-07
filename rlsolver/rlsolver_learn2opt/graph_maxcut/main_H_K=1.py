@@ -97,7 +97,11 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             action, h, c = opt_net(action_prev.reshape(num_env, 1, N), prev_h, prev_c)
 
             #action = action.reshape(num_env, N)
-            l = env.get_cut_value_tensor(action.reshape(num_env, N), action.reshape(num_env, N))
+            action = action.reshape(num_env, N)
+            # l = env.get_cut_value_tensor(action, action)
+            l = 0
+            for i in range(num_env):
+                l += env.get_cut_value_tensor(action[i], action[i])
             loss_list[num_env*(step):num_env*(step+1)] = l.detach()
             loss -= l.sum()
             #print(action_prev.shape, action.shape)
