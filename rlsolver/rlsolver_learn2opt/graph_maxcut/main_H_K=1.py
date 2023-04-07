@@ -46,15 +46,18 @@ class MaxcutEnv():
 
     def get_cut_value_and_indicators_for_one_tensor(self, mu: Tensor):
         # rand = th.randn(mu.size())
-        indicators = mu >= 0.5
+        indicators=mu
+        #indicators = (mu >= 0.5).to(th.float32)
         n = len(indicators)
+        #print(indicators.shape, n)
         matrix = th.zeros([n, n], dtype=th.int)
-        for i in range(n):
-            for j in range(n):
-                if indicators[i] == indicators[j]:
-                    matrix[i, j] = 0
-                else:
-                    matrix[i, j] = 1
+        matrix = (th.matmul(indicators.reshape( n, 1), (1-indicators.reshape(1,n))) +  th.matmul((1-indicators.reshape(n,1)), indicators.reshape(1, n)))
+        #for i in range(n):
+        #    for j in range(n):
+        #        if indicators[i] == indicators[j]:
+        #            matrix[i, j] = 0
+        #        else:
+        #            matrix[i, j] = 1
         matrix *= self.adjacency_matrix
         cut = matrix.sum() / 2
         return cut, indicators
@@ -64,6 +67,10 @@ class MaxcutEnv():
         # return th.mul(th.matmul(mu_1.reshape(self.N, 1), (1 - mu_2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
         # mu1_ = mu1.reshape(self.N, 1)
         # mu2_ = 1 - mu2
+        #indicators1 = (mu1 >= 0.5).to(th.float32)
+        #indicators2 = (mu2 >= 0.5).to(th.float32)
+
+        #mat1 =  (th.matmul(indicators.reshape(-1, self.N, 1), (1-indicators.reshape(-1,n, 1))) +  th.matmul((1-indicators.reshape(-1,n, 1)), indicators.reshape(-1, n, 1))) / 2
         cut1, indicators1 = self.get_cut_value_and_indicators_for_one_tensor(mu1)
         cut2, indicators2 = self.get_cut_value_and_indicators_for_one_tensor(mu2)
         cut = cut1 + cut2 + (indicators1 != indicators2).sum()
@@ -93,7 +100,8 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             l = env_maxcut.get_cut_value_tensor(action.reshape(num_env, N), action.reshape(num_env, N))
             loss_list[num_env*(step):num_env*(step+1)] = l.detach()
             loss -= l.sum()
-            l = env_maxcut.get_cut_value_tensor(action_prev, action.reshape(num_env, N))
+            #print(action_prev.shape, action.shape)
+            l = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
             loss -= 0.05 * l.sum()
             action_prev = action.detach()
             #prev_h, prev_c = h.detach(), c.detach()
@@ -102,6 +110,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
 
             if (step + 1) % 5 == 0:
                 optimizer.zero_grad()
+                #print(loss)
                 loss.backward(retain_graph=True)
                 optimizer.step()
                 loss = 0
