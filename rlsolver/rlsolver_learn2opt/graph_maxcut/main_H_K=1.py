@@ -52,7 +52,6 @@ class MaxcutEnv():
         #print(indicators.shape, n)
         # matrix = th.zeros([n, n], dtype=th.int)
         matrix = (th.matmul(indicators.reshape( n, 1), (1-indicators.reshape(1,n))) +  th.matmul((1-indicators.reshape(n,1)), indicators.reshape(1, n)))
-        matrix[matrix >= 1] = 1
         #for i in range(n):
         #    for j in range(n):
         #        if indicators[i] == indicators[j]:
