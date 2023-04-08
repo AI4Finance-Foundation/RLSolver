@@ -4,16 +4,19 @@ from copy import deepcopy
 import functorch
 import numpy as np
 from torch import Tensor
+graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
+
 class Opt_net(nn.Module):
     def __init__(self, N, hidden_layers):
         super(Opt_net, self).__init__()
         self.N = N
         self.hidden_layers = hidden_layers
         self.lstm = nn.LSTM(self.N, self.hidden_layers,batch_first=True)
+        self.output = nn.Linear(hidden_layers, self.N)
 
     def forward(self, configuration, hidden_state, cell_state):
         x, (h, c) = self.lstm(configuration, (hidden_state, cell_state))
-        return x.sigmoid(), h, c
+        return self.output(x).sigmoid(), h, c
 
 class MaxcutEnv():
     def __init__(self, N = 20, num_env=128, device=th.device("cuda:0"), episode_length=6):
@@ -46,12 +49,12 @@ class MaxcutEnv():
 
     def get_cut_value_and_indicators_for_one_tensor(self, mu: Tensor):
         # rand = th.randn(mu.size())
-        assert len(mu.shape) == 1
+        indicators=mu
         #indicators = (mu >= 0.5).to(th.float32)
-        n = mu.shape[0]
-        indicators = mu.reshape(n, 1)
-        indicatorst = mu.reshape(1, n)
-        matrix = th.matmul(indicators, 1-indicatorst) + th.matmul(1-indicators, indicatorst)
+        n = len(indicators)
+        #print(indicators.shape, n)
+        matrix = th.zeros([n, n], dtype=th.int)
+        matrix = (th.matmul(indicators.reshape( n, 1), (1-indicators.reshape(1,n))) +  th.matmul((1-indicators.reshape(n,1)), indicators.reshape(1, n)))
         #for i in range(n):
         #    for j in range(n):
         #        if indicators[i] == indicators[j]:
@@ -59,60 +62,60 @@ class MaxcutEnv():
         #        else:
         #            matrix[i, j] = 1
         matrix *= self.adjacency_matrix
-        cut = matrix.sum()
+        cut = matrix.sum() / 2
         return cut, indicators
 
 
     def get_cut_value(self, mu1, mu2):
-        # return th.mul(th.matmul(mu_1.reshape(self.N, 1), (1 - mu_2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
+        return th.mul(th.matmul(mu1.reshape(self.N, 1), (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1) + ((mu1-mu2)**2).sum()
         # mu1_ = mu1.reshape(self.N, 1)
         # mu2_ = 1 - mu2
         #indicators1 = (mu1 >= 0.5).to(th.float32)
         #indicators2 = (mu2 >= 0.5).to(th.float32)
 
         #mat1 =  (th.matmul(indicators.reshape(-1, self.N, 1), (1-indicators.reshape(-1,n, 1))) +  th.matmul((1-indicators.reshape(-1,n, 1)), indicators.reshape(-1, n, 1))) / 2
-        cut1, indicators1 = self.get_cut_value_and_indicators_for_one_tensor(mu1)
-        cut2, indicators2 = self.get_cut_value_and_indicators_for_one_tensor(mu2)
-        cut = cut1 + cut2 + (indicators1 != indicators2).sum()
+        #cut1, indicators1 = self.get_cut_value_and_indicators_for_one_tensor(mu1)
+        #cut2, indicators2 = self.get_cut_value_and_indicators_for_one_tensor(mu2)
+        #cut = cut1 + cut2 + ((indicators1 - indicators2)**2).sum()
         # for i in range(len(indicators1)):
         #     if indicators1[i] != indicators2[i]:
         #         cut += 1
         # cut2 = th.mul(th.matmul(mu_1.reshape(self.N, 1), (1 - mu_2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1)
-        return cut
+        #return cut
 
 
 def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_size):
-    env = MaxcutEnv(N=N, num_env=num_env, device=device, episode_length=episode_length)
-    env.load_graph("./data/gset_G14.npy")
+    env_maxcut = MaxcutEnv(N=N, num_env=num_env, device=device, episode_length=episode_length)
+
+    env_maxcut.load_graph(f"./data/gset_G{sys.argv[1]}.npy")
     h_init = th.zeros(1, num_env, hidden_layer_size).to(device)
     c_init = th.zeros(1, num_env, hidden_layer_size).to(device)
     for epoch in range(100000):
         prev_h, prev_c = h_init.clone(), c_init.clone()
         loss = 0
         loss_list = th.zeros(episode_length * num_env).to(device)
-        action_prev = env.reset()
+        action_prev = env_maxcut.reset()
         gamma0 = 0.98
         gamma = gamma0 ** episode_length
         for step in range(episode_length):
+            #print(action_prev.shape)
+            #print(action_prev.reshape(num_env, N, 1).shape)
+            #action, h, c = opt_net(action_prev.reshape(num_env, N, 1), prev_h, prev_c)
             action, h, c = opt_net(action_prev.reshape(num_env, 1, N), prev_h, prev_c)
 
             #action = action.reshape(num_env, N)
-            action = action.reshape(num_env, N)
-            # l = env.get_cut_value_tensor(action, action)
-            l = 0
-            for i in range(num_env):
-                l += env.get_cut_value_tensor(action[i], action[i])
+            l = env_maxcut.get_cut_value_tensor(action.reshape(num_env, N), action.reshape(num_env, N))
             loss_list[num_env*(step):num_env*(step+1)] = l.detach()
             loss -= l.sum()
             #print(action_prev.shape, action.shape)
-            l = env.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
-            loss -= 0.05 * l.sum()
+            l = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
+            loss -= 0.1 * l.sum()
             action_prev = action.detach()
             #prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
 
 
-            if (step + 1) % 5 == 0:
+            if (step + 1) % 3 == 0:
                 optimizer.zero_grad()
                 #print(loss)
                 loss.backward(retain_graph=True)
@@ -128,7 +131,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             loss = 0
             #loss_list = []
             loss_list = th.zeros(episode_length * num_env * 2).to(device)
-            action = env.reset()
+            action = env_maxcut.reset()
             for step in range(episode_length * 2):
                 action, h, c = opt_net(action.detach().reshape(num_env, 1, N), h, c)
                 action = action.reshape(num_env, N)
@@ -136,7 +139,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
                 a = (a>0.5).to(th.float32)
                 # print(a)
                 # assert 0
-                l, _ = env.get_cut_value_and_indicators_for_one_tensor(a)
+                l = env_maxcut.get_cut_value_tensor(a, a) #/ 2
                 loss_list[num_env*(step):num_env*(step+1)] = l.detach()
                 #if (step + 6) % 2 == 0:
                     #optimizer.zero_grad()
@@ -152,7 +155,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
                 #             a[i][j] = 1
                 #         else:
                 #             a[i][j] = 0
-                #     l = env.get_cut_value(a[i], a[i])
+                #     l = env_maxcut.get_cut_value(a[i], a[i])
                 #     loss_list.append(l)
                 #     loss -= l
 
@@ -162,10 +165,11 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
 
 
 if __name__ == "__main__":
-    N = 800
-    hidden_layer_size = N
-    learning_rate = 1e-5
-    num_env=1024
+    import sys
+    N = graph_node[sys.argv[1]]
+    hidden_layer_size = 2000
+    learning_rate = 5e-5
+    num_env=128
     episode_length = 20
     gpu_id = 0
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
