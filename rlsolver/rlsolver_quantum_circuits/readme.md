@@ -48,7 +48,7 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 
 |TR|N=10|N=50|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
 |-------| ----|------- | -----|------| ----|------- | -----|------ | -----|------ |
-|Results|OE_greedy: 4.143<br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>OE_dynamic: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |
+|Results|OE_greedy: 4.143<br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>RL: |
 
 
 
