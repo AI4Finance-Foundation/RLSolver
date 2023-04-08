@@ -16,7 +16,7 @@ In order to facilitate the calculation of Reward without affecting the results, 
 
 ## Experimental Results
 
-The quantum circuits are of quantum bit number n=53 and periods m=12, 14, 16, 18, 20, respectively, and the source of the dataset is: https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8                                                                                                                                          
+The quantum circuits have qubits n=53 and cycles (depth) m=12, 14, 16, 18, 20, respectively, and the datasets can be downloaded from https://datadryad.org/stash/dataset/doi:10.5061/dryad.k6t1rj8                                                                                                                                          
 The file and the transformed txt file are located in sycamore_circuits/sycamore.
 
 **Our results**
