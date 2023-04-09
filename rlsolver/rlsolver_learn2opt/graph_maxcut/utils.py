@@ -656,7 +656,8 @@ def get_cwd(folder_name,N):
     os.mkdir('./{}/{}/'.format(folder_name, max_exp_id))
     return f"./{folder_name}/{max_exp_id}/", max_exp_id
 
-
+# choice 0: use Synthetic data with N and sparsity
+# choice >= 1: use Gset with the ID choice
 def load_test_data(choice, device, N=10, sparsity=0.5):
     sparsity = sparsity
     n = N
