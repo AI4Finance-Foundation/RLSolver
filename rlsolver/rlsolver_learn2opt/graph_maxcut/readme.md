@@ -62,6 +62,6 @@ Inference time of our method is less than 10 seconds.
 |G70 | 10000 | 9999 |9541 | 9456 | 9458 | - | 9421 |8917 | -6.54 \% | 
 
 
-
+<!-- 
 ## Workflow
- ![pipeline](pipeline.jpg)
+ ![pipeline](pipeline.jpg) -->
