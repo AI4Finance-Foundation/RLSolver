@@ -511,7 +511,9 @@ class TensorNetworkEnv:
         return multiple_times.detach()
 
     def convert_edge_sort_to_node2s(self, edge_sort: TEN) -> list:
-        edges_ary: TEN = self.edges_ary
+        edges_ary: TEN = self.edges_ary.cpu()
+        edge_sort = edge_sort.cpu()
+
         run_edges = edge_sort.shape[0]
         assert run_edges == self.num_edges - self.ban_edges
 
@@ -527,7 +529,7 @@ class TensorNetworkEnv:
         return node2s
 
     def convert_node2s_to_edge_sort(self, node2s: list) -> TEN:
-        edges_ary: TEN = self.edges_ary
+        edges_ary: TEN = self.edges_ary.cpu()
 
         edge_sort = []
         import numpy as np
