@@ -9,17 +9,33 @@ from TNCO_env import TensorNetworkEnv  # get_nodes_list
 from L2O_H_term import ObjectiveTask, OptimizerTask, OptimizerOpti
 from L2O_H_term import opt_train, opt_eval
 
-from TNCO_env import NodesSycamoreN53M12
+from TNCO_env import \
+    NodesSycamoreN53M12, \
+    NodesSycamoreN53M14, \
+    NodesSycamoreN53M16, \
+    NodesSycamoreN53M18, \
+    NodesSycamoreN53M20
 
 TEN = th.Tensor
 
-NodesList, BanEdges = NodesSycamoreN53M12, 0
+GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+if GPU_ID in {0, 4}:
+    NodesList, BanEdges = NodesSycamoreN53M12, 0
+elif GPU_ID in {1, 5}:
+    NodesList, BanEdges = NodesSycamoreN53M14, 0
+elif GPU_ID in {2, 6}:
+    NodesList, BanEdges = NodesSycamoreN53M16, 0
+elif GPU_ID in {3, 7}:
+    NodesList, BanEdges = NodesSycamoreN53M20, 0
+else:
+    NodesList, BanEdges = NodesSycamoreN53M18, 0
 
 WarmUpSize = 2 ** 14
-NumRepeats = 8
-EmaLossInit = 1
-TrainThresh = 2 ** -5
+NumRepeats = 4
+EmaLossInit = 64
+TrainThresh = 2 ** -4
 EmaGamma = 0.98
+MaxEpoch = 2 ** 9
 
 
 def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn.Sequential:
@@ -247,9 +263,9 @@ class ObjectiveTNCO(ObjectiveTask):
 
         ema_loss = EmaLossInit  # Exponential Moving Average (EMA) loss value
         ema_gamma = EmaGamma
+        max_epoch = MaxEpoch
 
-        # counter = 0
-        while ema_loss > train_thresh:
+        for counter in range(max_epoch):
             inputs, labels = self.buffer.sample(self.batch_size)
 
             outputs = self.obj_model(inputs)
@@ -260,9 +276,9 @@ class ObjectiveTNCO(ObjectiveTask):
             self.optimizer.step()
 
             ema_loss = ema_gamma * ema_loss + (1 - ema_gamma) * loss.item()
-            # counter += 1
-            # if counter == 1:
-            #     print(f";;;; counter {counter:9}    ema_loss {ema_loss:9.2f}")
+            if ema_loss < train_thresh:
+                break
+
         self.ema_loss = ema_loss
         # print(f"     counter {counter:9}    ema_loss {ema_loss:9.2f}")
 
@@ -300,7 +316,7 @@ def train_optimizer():
     hid_dim = 64
 
     '''eval'''
-    eval_gap = 2 ** 3
+    eval_gap = 2 ** 2
 
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
