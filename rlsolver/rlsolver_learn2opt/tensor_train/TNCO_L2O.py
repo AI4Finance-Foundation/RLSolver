@@ -18,18 +18,19 @@ from TNCO_env import \
 
 TEN = th.Tensor
 
-GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-if GPU_ID in {0, 4}:
-    NodesList, BanEdges = NodesSycamoreN53M12, 0
-elif GPU_ID in {1, 5}:
-    NodesList, BanEdges = NodesSycamoreN53M14, 0
-elif GPU_ID in {2, 6}:
-    NodesList, BanEdges = NodesSycamoreN53M16, 0
-elif GPU_ID in {3, 7}:
-    NodesList, BanEdges = NodesSycamoreN53M20, 0
-else:
-    NodesList, BanEdges = NodesSycamoreN53M18, 0
+# GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+# if GPU_ID in {0, 4}:
+#     NodesList, BanEdges = NodesSycamoreN53M12, 0
+# elif GPU_ID in {1, 5}:
+#     NodesList, BanEdges = NodesSycamoreN53M14, 0
+# elif GPU_ID in {2, 6}:
+#     NodesList, BanEdges = NodesSycamoreN53M16, 0
+# elif GPU_ID in {3, 7}:
+#     NodesList, BanEdges = NodesSycamoreN53M20, 0
+# else:
+#     NodesList, BanEdges = NodesSycamoreN53M18, 0
 
+NodesList, BanEdges = NodesSycamoreN53M12, 0
 WarmUpSize = 2 ** 14
 NumRepeats = 4
 EmaLossInit = 64
