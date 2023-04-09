@@ -3,6 +3,28 @@ import torch as th
 
 TEN = th.Tensor
 
+NodesSycamoreN12M14 = [
+    [10, 11, 1], [12, 13, 0], [6, 7, 3], [8, 9, 2], [6, 7, 5], [8, 9, 4], [10, 21, 2, 4], [11, 16, 2, 4],
+    [12, 16, 3, 5], [13, 22, 3, 5], [17, 19, 0, 6], [14, 15, 0, 7], [14, 15, 1, 8], [18, 20, 1, 9], [17, 18, 11, 12],
+    [19, 20, 11, 12], [21, 22, 7, 8], [27, 28, 10, 14], [29, 30, 14, 13], [23, 24, 10, 15], [25, 26, 15, 13],
+    [23, 24, 6, 16], [25, 26, 16, 9], [27, 38, 19, 21], [28, 33, 19, 21], [29, 33, 20, 22], [30, 39, 20, 22],
+    [34, 36, 17, 23], [31, 32, 17, 24], [31, 32, 18, 25], [35, 37, 18, 26], [34, 35, 28, 29], [36, 37, 28, 29],
+    [38, 39, 24, 25], [44, 45, 27, 31], [46, 47, 31, 30], [40, 41, 27, 32], [42, 43, 32, 30], [40, 41, 23, 33],
+    [42, 43, 33, 26], [44, 36, 38, 50], [45, 50, 36, 38], [46, 50, 37, 39], [47, 50, 37, 39], [34, 40, 48, 49],
+    [48, 49, 34, 41], [48, 49, 35, 42], [48, 49, 35, 43], [44, 45, 46, 47], [44, 45, 46, 47], [40, 41, 42, 43]
+]
+NodesSycamoreN14M14 = [
+    [12, 6, 1], [7, 15, 0], [8, 9, 3], [10, 11, 2], [8, 9, 5], [10, 11, 4], [16, 13, 7, 0], [16, 14, 6, 1],
+    [12, 24, 2, 4], [13, 19, 2, 4], [14, 19, 3, 5], [15, 25, 3, 5], [20, 22, 0, 8], [17, 18, 6, 9], [17, 18, 7, 10],
+    [21, 23, 1, 11], [26, 27, 6, 7], [20, 21, 13, 14], [22, 23, 13, 14], [24, 25, 9, 10], [32, 26, 12, 17],
+    [27, 35, 17, 15], [28, 29, 12, 18], [30, 31, 18, 15], [28, 29, 8, 19], [30, 31, 19, 11], [36, 33, 16, 20],
+    [36, 34, 16, 21], [32, 44, 22, 24], [33, 39, 22, 24], [34, 39, 23, 25], [35, 45, 23, 25], [40, 42, 20, 28],
+    [37, 38, 26, 29], [37, 38, 27, 30], [41, 43, 21, 31], [46, 47, 26, 27], [40, 41, 33, 34], [42, 43, 33, 34],
+    [44, 45, 29, 30], [52, 46, 32, 37], [47, 55, 37, 35], [48, 49, 32, 38], [50, 51, 38, 35], [48, 49, 28, 39],
+    [50, 51, 39, 31], [53, 36, 40, 47], [46, 54, 36, 41], [52, 42, 44, 58], [53, 58, 42, 44], [54, 58, 43, 45],
+    [55, 58, 43, 45], [40, 48, 56, 57], [56, 57, 46, 49], [56, 57, 47, 50], [56, 57, 41, 51], [52, 53, 54, 55],
+    [52, 53, 54, 55], [48, 49, 50, 51]
+]
 NodesSycamoreN53M12 = [
     [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
     [26, 30, 2, 15], [27, 31, 23, 55], [28, 32, 36], [29, 33, 24, 16], [30, 34, 3, 17], [31, 35, 4, 58],
@@ -91,6 +113,130 @@ NodesSycamoreN53M14 = [
     [231, 215, 196], [197, 216, 234], [233, 216, 217, 235], [234, 217, 218, 236], [235, 218, 200, 113], [201, 219, 238],
     [237, 219, 220, 239], [238, 220, 221, 240], [239, 221, 204, 159], [205, 222, 242], [241, 222, 223, 243],
     [242, 223, 207, 163], [208, 224, 245], [244, 224, 209, 166]
+]
+NodesSycamoreN53M16 = [
+    [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
+    [26, 30, 2, 15], [27, 31, 23, 55], [28, 32, 36], [29, 33, 24, 16], [30, 34, 3, 17], [31, 35, 4, 58],
+    [33, 36, 5, 39], [34, 37, 6, 18], [35, 38, 7, 60], [37, 39, 10, 41], [38, 40, 11, 61], [40, 41, 14, 127],
+    [0, 128, 104, 2], [62, 42, 1, 0], [42, 63, 2, 4], [43, 44, 3, 2], [44, 65, 4, 8], [66, 45, 5, 10], [45, 46, 6, 3],
+    [46, 47, 7, 4], [47, 69, 8, 51], [70, 48, 9, 5], [48, 49, 10, 6], [49, 50, 11, 7], [50, 51, 12, 8], [74, 52, 9],
+    [52, 53, 13, 10], [53, 54, 14, 11], [54, 55, 15, 12], [78, 56, 9, 13], [56, 57, 16, 14], [57, 58, 17, 15],
+    [81, 59, 13, 16], [59, 60, 18, 17], [83, 61, 16, 18], [62, 63, 20, 21], [85, 64, 1, 22], [64, 65, 22, 23],
+    [66, 67, 24, 25], [67, 68, 25, 26], [68, 69, 26, 27], [70, 71, 28, 29], [71, 72, 29, 30], [72, 73, 30, 31],
+    [73, 93, 31, 27], [74, 75, 32, 33], [75, 76, 33, 34], [76, 77, 34, 35], [77, 97, 35, 8], [78, 79, 36, 37],
+    [79, 80, 37, 38], [80, 100, 38, 12], [81, 82, 39, 40], [82, 102, 40, 15], [83, 103, 41, 17], [129, 84, 20, 42],
+    [84, 106, 42, 21], [85, 86, 43, 44], [86, 109, 44, 23], [133, 87, 24, 45], [87, 88, 45, 46], [88, 89, 46, 47],
+    [89, 113, 47, 27], [137, 90, 28, 48], [90, 91, 48, 49], [91, 92, 49, 50], [92, 93, 50, 51], [202, 94, 32, 52],
+    [94, 95, 52, 53], [95, 96, 53, 54], [96, 97, 54, 55], [118, 98, 36, 56], [98, 99, 56, 57], [99, 100, 57, 58],
+    [122, 101, 39, 59], [101, 102, 59, 60], [125, 103, 41, 61], [105, 104, 62, 63], [107, 105, 43, 64],
+    [108, 106, 64, 65], [110, 107, 66, 67], [111, 108, 67, 68], [112, 109, 68, 69], [114, 110, 70, 71],
+    [115, 111, 71, 72], [116, 112, 72, 73], [117, 113, 73, 51], [118, 114, 74, 75], [119, 115, 75, 76],
+    [120, 116, 76, 77], [121, 117, 77, 55], [122, 119, 78, 79], [123, 120, 79, 80], [124, 121, 80, 58],
+    [125, 123, 81, 82], [126, 124, 82, 60], [127, 126, 83, 61], [147, 130, 19, 84], [128, 131, 84, 85],
+    [149, 132, 63, 86], [129, 134, 85, 87], [130, 135, 86, 88], [152, 136, 65, 89], [153, 138, 87, 90],
+    [131, 139, 88, 91], [132, 140, 89, 92], [69, 93, 197, 221], [133, 141, 90, 94], [134, 142, 91, 95],
+    [135, 143, 92, 96], [136, 159, 93, 97], [137, 160, 94, 78], [138, 144, 95, 98], [139, 145, 96, 99],
+    [140, 163, 97, 100], [141, 164, 98, 81], [142, 146, 99, 101], [143, 166, 100, 102], [144, 167, 101, 83],
+    [145, 168, 102, 103], [146, 169, 103, 18], [170, 148, 19, 105], [171, 150, 62, 107], [147, 151, 104, 108],
+    [148, 154, 105, 111], [149, 155, 106, 112], [175, 156, 66, 114], [150, 157, 107, 115], [151, 158, 108, 116],
+    [152, 159, 109, 117], [179, 160, 70, 118], [153, 161, 110, 119], [154, 162, 111, 120], [155, 163, 112, 121],
+    [156, 164, 114, 122], [157, 165, 115, 123], [158, 166, 116, 124], [161, 167, 119, 125], [162, 168, 120, 126],
+    [165, 169, 123, 127], [189, 172, 104, 130], [170, 173, 128, 131], [191, 174, 106, 132], [171, 176, 129, 134],
+    [172, 177, 130, 135], [193, 178, 109, 136], [194, 180, 110, 138], [173, 181, 131, 139], [174, 182, 132, 140],
+    [175, 183, 133, 141], [176, 184, 134, 142], [177, 185, 135, 143], [178, 225, 136, 117], [179, 206, 137, 118],
+    [180, 186, 138, 144], [181, 187, 139, 145], [182, 228, 140, 121], [183, 209, 141, 122], [184, 188, 142, 146],
+    [185, 230, 143, 124], [186, 211, 144, 125], [187, 231, 145, 126], [188, 296, 146, 127], [189, 190, 128, 148],
+    [190, 213, 129, 150], [191, 192, 147, 151], [192, 195, 148, 154], [193, 196, 149, 155], [194, 198, 133, 156],
+    [195, 199, 150, 157], [196, 200, 151, 158], [197, 201, 152, 159], [198, 202, 137, 160], [199, 203, 153, 161],
+    [200, 204, 154, 162], [201, 205, 155, 163], [203, 206, 156, 164], [204, 207, 157, 165], [205, 208, 158, 166],
+    [207, 209, 161, 167], [208, 210, 162, 168], [210, 211, 165, 169], [170, 147, 274, 275], [232, 212, 171, 170],
+    [212, 233, 172, 149], [213, 214, 173, 172], [214, 235, 174, 152], [236, 215, 175, 153], [215, 216, 176, 173],
+    [216, 217, 177, 174], [217, 239, 178, 113], [240, 218, 179, 175], [218, 219, 180, 176], [219, 220, 181, 177],
+    [220, 221, 182, 178], [244, 222, 74, 179], [222, 223, 183, 180], [223, 224, 184, 181], [224, 225, 185, 182],
+    [248, 226, 160, 183], [226, 227, 186, 184], [227, 228, 187, 185], [251, 229, 164, 186], [229, 230, 188, 187],
+    [253, 231, 167, 188], [232, 233, 190, 191], [255, 234, 171, 192], [234, 235, 192, 193], [236, 237, 194, 195],
+    [237, 238, 195, 196], [238, 239, 196, 197], [240, 241, 198, 199], [241, 242, 199, 200], [242, 243, 200, 201],
+    [243, 263, 201, 113], [244, 245, 202, 203], [245, 246, 203, 204], [246, 247, 204, 205], [247, 267, 205, 159],
+    [248, 249, 206, 207], [249, 250, 207, 208], [250, 270, 208, 163], [251, 252, 209, 210], [252, 272, 210, 166],
+    [253, 273, 211, 168], [254, 190, 212, 277], [254, 276, 212, 191], [255, 256, 213, 214], [256, 279, 214, 193],
+    [257, 194, 215, 283], [257, 258, 215, 216], [258, 259, 216, 217], [259, 217, 197, 263], [260, 198, 218, 287],
+    [260, 261, 218, 219], [261, 262, 219, 220], [262, 263, 220, 221], [264, 202, 222], [264, 265, 222, 223],
+    [265, 266, 223, 224], [266, 267, 224, 225], [287, 268, 206, 226], [268, 269, 226, 227], [269, 270, 227, 228],
+    [291, 271, 209, 229], [271, 272, 229, 230], [294, 273, 211, 231], [275, 274, 232, 233], [277, 275, 213, 234],
+    [278, 276, 234, 235], [280, 277, 236, 237], [281, 278, 237, 238], [282, 279, 238, 239], [283, 280, 240, 241],
+    [284, 281, 241, 242], [285, 282, 242, 243], [286, 239, 243, 221], [287, 283, 244, 245], [288, 284, 245, 246],
+    [289, 285, 246, 247], [290, 286, 247, 225], [291, 288, 248, 249], [292, 289, 249, 250], [293, 290, 250, 228],
+    [294, 292, 251, 252], [295, 293, 252, 230], [296, 295, 253, 231], [189, 254, 278], [189, 254, 255, 281],
+    [233, 256, 282], [232, 255, 257, 284], [274, 256, 258, 285], [235, 259, 286], [257, 260, 288], [275, 258, 261, 289],
+    [276, 259, 262, 290], [236, 260, 264, 291], [277, 261, 265, 292], [278, 262, 266, 293], [279, 263, 267],
+    [240, 264, 248], [280, 265, 268, 294], [281, 266, 269, 295], [282, 267, 270], [283, 268, 251], [284, 269, 271, 296],
+    [285, 270, 272], [288, 271, 253], [289, 272, 273], [292, 273, 169]
+]
+NodesSycamoreN53M18 = [
+    [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
+    [26, 30, 2, 15], [27, 31, 23, 55], [28, 32, 36], [29, 33, 24, 16], [30, 34, 3, 17], [31, 35, 4, 58],
+    [33, 36, 5, 39], [34, 37, 6, 18], [35, 38, 7, 60], [37, 39, 10, 41], [38, 40, 11, 61], [40, 41, 14, 127],
+    [0, 128, 104, 2], [62, 42, 1, 0], [42, 63, 2, 4], [43, 44, 3, 2], [44, 65, 4, 8], [66, 45, 5, 10], [45, 46, 6, 3],
+    [46, 47, 7, 4], [47, 69, 8, 51], [70, 48, 9, 5], [48, 49, 10, 6], [49, 50, 11, 7], [50, 51, 12, 8], [74, 52, 9],
+    [52, 53, 13, 10], [53, 54, 14, 11], [54, 55, 15, 12], [78, 56, 9, 13], [56, 57, 16, 14], [57, 58, 17, 15],
+    [81, 59, 13, 16], [59, 60, 18, 17], [83, 61, 16, 18], [62, 63, 20, 21], [85, 64, 1, 22], [64, 65, 22, 23],
+    [66, 67, 24, 25], [67, 68, 25, 26], [68, 69, 26, 27], [70, 71, 28, 29], [71, 72, 29, 30], [72, 73, 30, 31],
+    [73, 93, 31, 27], [74, 75, 32, 33], [75, 76, 33, 34], [76, 77, 34, 35], [77, 97, 35, 8], [78, 79, 36, 37],
+    [79, 80, 37, 38], [80, 100, 38, 12], [81, 82, 39, 40], [82, 102, 40, 15], [83, 103, 41, 17], [129, 84, 20, 42],
+    [84, 106, 42, 21], [85, 86, 43, 44], [86, 109, 44, 23], [133, 87, 24, 45], [87, 88, 45, 46], [88, 89, 46, 47],
+    [89, 113, 47, 27], [137, 90, 28, 48], [90, 91, 48, 49], [91, 92, 49, 50], [92, 93, 50, 51], [202, 94, 32, 52],
+    [94, 95, 52, 53], [95, 96, 53, 54], [96, 97, 54, 55], [118, 98, 36, 56], [98, 99, 56, 57], [99, 100, 57, 58],
+    [122, 101, 39, 59], [101, 102, 59, 60], [125, 103, 41, 61], [105, 104, 62, 63], [107, 105, 43, 64],
+    [108, 106, 64, 65], [110, 107, 66, 67], [111, 108, 67, 68], [112, 109, 68, 69], [114, 110, 70, 71],
+    [115, 111, 71, 72], [116, 112, 72, 73], [117, 113, 73, 51], [118, 114, 74, 75], [119, 115, 75, 76],
+    [120, 116, 76, 77], [121, 117, 77, 55], [122, 119, 78, 79], [123, 120, 79, 80], [124, 121, 80, 58],
+    [125, 123, 81, 82], [126, 124, 82, 60], [127, 126, 83, 61], [147, 130, 19, 84], [128, 131, 84, 85],
+    [149, 132, 63, 86], [129, 134, 85, 87], [130, 135, 86, 88], [152, 136, 65, 89], [153, 138, 87, 90],
+    [131, 139, 88, 91], [132, 140, 89, 92], [69, 93, 197, 221], [133, 141, 90, 94], [134, 142, 91, 95],
+    [135, 143, 92, 96], [136, 159, 93, 97], [137, 160, 94, 78], [138, 144, 95, 98], [139, 145, 96, 99],
+    [140, 163, 97, 100], [141, 164, 98, 81], [142, 146, 99, 101], [143, 166, 100, 102], [144, 167, 101, 83],
+    [145, 168, 102, 103], [146, 169, 103, 18], [170, 148, 19, 105], [171, 150, 62, 107], [147, 151, 104, 108],
+    [148, 154, 105, 111], [149, 155, 106, 112], [175, 156, 66, 114], [150, 157, 107, 115], [151, 158, 108, 116],
+    [152, 159, 109, 117], [179, 160, 70, 118], [153, 161, 110, 119], [154, 162, 111, 120], [155, 163, 112, 121],
+    [156, 164, 114, 122], [157, 165, 115, 123], [158, 166, 116, 124], [161, 167, 119, 125], [162, 168, 120, 126],
+    [165, 169, 123, 127], [189, 172, 104, 130], [170, 173, 128, 131], [191, 174, 106, 132], [171, 176, 129, 134],
+    [172, 177, 130, 135], [193, 178, 109, 136], [194, 180, 110, 138], [173, 181, 131, 139], [174, 182, 132, 140],
+    [175, 183, 133, 141], [176, 184, 134, 142], [177, 185, 135, 143], [178, 225, 136, 117], [179, 206, 137, 118],
+    [180, 186, 138, 144], [181, 187, 139, 145], [182, 228, 140, 121], [183, 209, 141, 122], [184, 188, 142, 146],
+    [185, 230, 143, 124], [186, 211, 144, 125], [187, 231, 145, 126], [188, 296, 146, 127], [189, 190, 128, 148],
+    [190, 213, 129, 150], [191, 192, 147, 151], [192, 195, 148, 154], [193, 196, 149, 155], [194, 198, 133, 156],
+    [195, 199, 150, 157], [196, 200, 151, 158], [197, 201, 152, 159], [198, 202, 137, 160], [199, 203, 153, 161],
+    [200, 204, 154, 162], [201, 205, 155, 163], [203, 206, 156, 164], [204, 207, 157, 165], [205, 208, 158, 166],
+    [207, 209, 161, 167], [208, 210, 162, 168], [210, 211, 165, 169], [170, 147, 313, 274], [232, 212, 171, 170],
+    [212, 233, 172, 149], [213, 214, 173, 172], [214, 235, 174, 152], [236, 215, 175, 153], [215, 216, 176, 173],
+    [216, 217, 177, 174], [217, 239, 178, 113], [240, 218, 179, 175], [218, 219, 180, 176], [219, 220, 181, 177],
+    [220, 221, 182, 178], [244, 222, 74, 179], [222, 223, 183, 180], [223, 224, 184, 181], [224, 225, 185, 182],
+    [248, 226, 160, 183], [226, 227, 186, 184], [227, 228, 187, 185], [251, 229, 164, 186], [229, 230, 188, 187],
+    [253, 231, 167, 188], [232, 233, 190, 191], [255, 234, 171, 192], [234, 235, 192, 193], [236, 237, 194, 195],
+    [237, 238, 195, 196], [238, 239, 196, 197], [240, 241, 198, 199], [241, 242, 199, 200], [242, 243, 200, 201],
+    [243, 263, 201, 113], [244, 245, 202, 203], [245, 246, 203, 204], [246, 247, 204, 205], [247, 267, 205, 159],
+    [248, 249, 206, 207], [249, 250, 207, 208], [250, 270, 208, 163], [251, 252, 209, 210], [252, 272, 210, 166],
+    [253, 273, 211, 168], [315, 254, 190, 212], [254, 276, 212, 191], [255, 256, 213, 214], [256, 279, 214, 193],
+    [321, 257, 194, 215], [257, 258, 215, 216], [258, 259, 216, 217], [259, 217, 197, 263], [287, 260, 198, 218],
+    [260, 261, 218, 219], [261, 262, 219, 220], [262, 263, 220, 221], [264, 202, 222], [264, 265, 222, 223],
+    [265, 266, 223, 224], [266, 267, 224, 225], [287, 268, 206, 226], [268, 269, 226, 227], [269, 270, 227, 228],
+    [291, 271, 209, 229], [271, 272, 229, 230], [294, 273, 211, 231], [275, 274, 232, 233], [277, 275, 213, 234],
+    [278, 276, 234, 235], [280, 277, 236, 237], [281, 278, 237, 238], [282, 279, 238, 239], [283, 280, 240, 241],
+    [284, 281, 241, 242], [285, 282, 242, 243], [286, 239, 243, 221], [287, 283, 244, 245], [288, 284, 245, 246],
+    [289, 285, 246, 247], [290, 286, 247, 225], [291, 288, 248, 249], [292, 289, 249, 250], [293, 290, 250, 228],
+    [294, 292, 251, 252], [295, 293, 252, 230], [296, 295, 253, 231], [312, 297, 189, 254], [313, 298, 254, 255],
+    [314, 299, 233, 256], [315, 300, 255, 257], [297, 301, 256, 258], [317, 302, 235, 259], [318, 303, 257, 260],
+    [298, 304, 258, 261], [299, 305, 259, 262], [321, 306, 260, 264], [300, 307, 261, 265], [301, 308, 262, 266],
+    [302, 324, 263, 267], [264, 248, 240], [303, 309, 265, 268], [304, 310, 266, 269], [305, 327, 267, 270],
+    [306, 328, 268, 251], [307, 311, 269, 271], [308, 330, 270, 272], [309, 331, 271, 253], [310, 332, 272, 273],
+    [311, 333, 273, 169], [312, 316, 274, 278], [313, 319, 275, 281], [314, 320, 276, 282], [315, 322, 277, 284],
+    [316, 323, 278, 285], [317, 324, 279, 286], [318, 325, 280, 288], [319, 326, 281, 289], [320, 327, 282, 290],
+    [321, 328, 283, 291], [322, 329, 284, 292], [323, 330, 285, 293], [325, 331, 288, 294], [326, 332, 289, 295],
+    [329, 333, 292, 296], [274, 297, 316], [298, 319, 189, 275], [276, 299, 320], [300, 322, 232, 277],
+    [312, 297, 301, 323], [279, 302, 324], [280, 303, 325], [313, 298, 304, 326], [314, 299, 305, 327],
+    [306, 328, 236, 283], [315, 300, 307, 329], [316, 301, 308, 330], [317, 302, 286], [318, 303, 309, 331],
+    [319, 304, 310, 332], [320, 305, 290], [321, 306, 291], [322, 307, 311, 333], [323, 308, 293], [325, 309, 294],
+    [326, 310, 295], [329, 311, 296]
 ]
 NodesSycamoreN53M20 = [
     [19, 20, 3], [20, 43, 6], [21, 22, 19, 7], [22, 25, 0, 11], [23, 26, 21, 12], [24, 28, 13], [25, 29, 1, 14],
@@ -247,7 +393,7 @@ def get_node_bool_arys(nodes_ary: TEN) -> list:
 
 
 class TensorNetworkEnv:
-    def __init__(self, nodes_list: list, device: th.device):
+    def __init__(self, nodes_list: list, ban_edges: int, device: th.device):
         self.device = device
 
         '''build node_arys and edges_ary'''
@@ -263,7 +409,7 @@ class TensorNetworkEnv:
         self.edges_ary = edges_ary.to(device)
         self.num_nodes = num_nodes
         self.num_edges = num_edges
-        self.ban_edges = None  # todo not elegant
+        self.ban_edges = ban_edges
 
         '''build for get_log10_multiple_times'''
         node_dims_arys = get_node_dims_arys(nodes_ary)
@@ -272,56 +418,58 @@ class TensorNetworkEnv:
         node_bool_arys = get_node_bool_arys(nodes_ary)
         assert num_nodes == sum([ary.sum() for ary in node_bool_arys])
 
-        self.node_dims_ten = th.stack(node_dims_arys).to(device)
-        self.node_bool_ten = th.stack(node_bool_arys).to(device)
+        self.dims_ten = th.stack(node_dims_arys).type(th.float32).to(device)
+        self.bool_ten = th.stack(node_bool_arys).type(th.bool).to(device)
+        self.dims_tens = th.stack([self.dims_ten.clone() for _ in range(1)])
+        self.bool_tens = th.stack([self.bool_ten.clone() for _ in range(1)])
 
-    def get_log10_multiple_times(self, edge_argsorts: TEN) -> TEN:
+    def get_log10_multiple_times(self, edge_sorts: TEN) -> TEN:
         # edge_argsort = th.rand(self.num_edges).argsort()
         device = self.device
         edges_ary: TEN = self.edges_ary
-        num_envs, run_edges = edge_argsorts.shape
+        num_envs, run_edges = edge_sorts.shape
         assert run_edges == self.num_edges - self.ban_edges
-        vec_env_is = th.arange(num_envs, device=device)
+        env_is = th.arange(num_envs, device=device)
 
-        node_dims_tens = th.stack([self.node_dims_ten.clone() for _ in range(num_envs)])
-        node_bool_tens = th.stack([self.node_bool_ten.clone() for _ in range(num_envs)])
+        if not (self.dims_tens.shape[0] == self.bool_tens.shape[0] == num_envs):
+            self.dims_tens = th.stack([self.dims_ten.clone() for _ in range(num_envs)])
+            self.bool_tens = th.stack([self.bool_ten.clone() for _ in range(num_envs)])
+        dims_tens = self.dims_tens.clone()
+        bool_tens = self.bool_tens.clone()
 
-        mult_pow_timess = th.zeros((num_envs, run_edges), dtype=th.float64, device=device)
-
+        pow_timess = th.zeros((num_envs, run_edges), dtype=th.float64, device=device)
         for i in range(run_edges):
-            edge_is = edge_argsorts[:, i]
+            edge_is = edge_sorts[:, i]
 
             """Vanilla (single)"""
             # for j in range(num_envs):
             #     edge_i = edge_is[j]
-            #     node_dims_arys = node_dims_tens[j]
-            #     node_bool_arys = node_bool_tens[j]
+            #     dims_arys = dims_tens[j]
+            #     bool_arys = bool_tens[j]
             #
             #     '''find two nodes of an edge_i'''
             #     node_i0, node_i1 = th.where(edges_ary == edge_i)[0]  # 找出这条edge 两端的node
             #     # assert isinstance(node_i0.item(), int)
             #     # assert isinstance(node_i1.item(), int)
             #
+            #     '''whether node_i0 and node_i1 are different'''
+            #     if_diff = th.logical_not(bool_arys[node_i0, node_i1])
+            #
             #     '''calculate the multiple and avoid repeat'''
-            #     contract_dims = node_dims_arys[node_i0] + node_dims_arys[node_i1]  # 计算收缩后的node 的邻接张量的维度 以及来源
-            #     contract_bool = node_bool_arys[node_i0] | node_bool_arys[node_i1]  # 计算收缩后的node 由哪些原初node 合成
-            #     # assert contract_dims.shape == (num_nodes, )
-            #     # assert contract_bool.shape == (num_nodes, )
+            #     ct_dims = dims_arys[node_i0] + dims_arys[node_i1] * if_diff  # 计算收缩后的node 的邻接张量的维数以及来源
+            #     ct_bool = bool_arys[node_i0] | bool_arys[node_i1]  # 计算收缩后的node 由哪些原初node 合成
+            #     # assert ct_dims.shape == (num_nodes, )
+            #     # assert ct_bool.shape == (num_nodes, )
             #
             #     # 收缩掉的edge 只需要算一遍乘法。因此上面对 两次重复的指数求和后乘以0.5
-            #     mult_pow_time = contract_dims.sum(dim=0) - (contract_dims * contract_bool).sum(dim=0) * 0.5
-            #     # assert mult_pow_time.shape == (1, )
-            #     mult_pow_timess[j, i] = mult_pow_time
+            #     pow_times = ct_dims.sum(dim=0) - (ct_dims * ct_bool).sum(dim=0) * 0.5
+            #     pow_timess[j, i] = pow_times * if_diff
             #
-            #     '''adjust two list: node_dims_arys, node_bool_arys'''
-            #     contract_dims[contract_bool] = 0  # 把收缩掉的边的乘法数量赋值为2**0，接下来不再参与乘法次数的计算
-            #
-            #     node_dims_arys[contract_bool] = contract_dims.repeat(1, 1)  # 根据 bool 将所有收缩后的节点都刷新成相同的信息
-            #     node_bool_arys[contract_bool] = contract_bool.repeat(1, 1)  # 根据 bool 将所有收缩后的节点都刷新成相同的信息
-            #
-            #     # print('\n;;;', i, edge_i, node_i0, node_i1)
-            #     # [print(ary) for ary in node_dims_arys[:-self.ban_edges]]
-            #     # [print(ary.int()) for ary in node_bool_arys[:-self.ban_edges]]
+            #     '''adjust two list: dims_arys, bool_arys'''
+            #     # 如果两个张量是一样的，那么 `ct_bool & if_diff` 就会全部变成 False，让下面这行代码不修改任何数值
+            #     ct_dims[ct_bool & if_diff] = 0  # 把收缩掉的边的乘法数量赋值为2**0，接下来不再参与乘法次数的计算
+            #     dims_tens[j, ct_bool] = ct_dims.repeat(1, 1)  # 根据 bool 将所有收缩后的节点都刷新成相同的信息
+            #     bool_tens[j, ct_bool] = ct_bool.repeat(1, 1)  # 根据 bool 将所有收缩后的节点都刷新成相同的信息
 
             """Vectorized"""
             '''find two nodes of an edge_i'''
@@ -333,58 +481,137 @@ class TensorNetworkEnv:
             # assert node_i0s.shape == (num_envs, )
             # assert node_i1s.shape == (num_envs, )
 
+            '''whether node_i0 and node_i1 are different'''
+            if_diffs = th.logical_not(bool_tens[env_is, node_i0s, node_i1s])
+            # assert if_diffs.shape == (num_envs, )
+
             '''calculate the multiple and avoid repeat'''
-            contract_dimss = node_dims_tens[vec_env_is, node_i0s] + node_dims_tens[vec_env_is, node_i1s]
-            contract_bools = node_bool_tens[vec_env_is, node_i0s] | node_bool_tens[vec_env_is, node_i1s]
-            # assert contract_dimss.shape == (num_envs, num_nodes)
-            # assert contract_bools.shape == (num_envs, num_nodes)
+            ct_dimss = dims_tens[env_is, node_i0s] + dims_tens[env_is, node_i1s] * if_diffs.unsqueeze(1)
+            ct_bools = bool_tens[env_is, node_i0s] | bool_tens[env_is, node_i1s]
+            # assert ct_dimss.shape == (num_envs, num_nodes)
+            # assert ct_bools.shape == (num_envs, num_nodes)
 
-            mult_pow_times = contract_dimss.sum(dim=1) - (contract_dimss * contract_bools).sum(dim=1) * 0.5
-            # assert mult_pow_times.shape == (num_envs, )
-            mult_pow_timess[:, i] = mult_pow_times
+            pow_times = ct_dimss.sum(dim=1) - (ct_dimss * ct_bools).sum(dim=1) * 0.5
+            pow_timess[:, i] = pow_times * if_diffs
 
-            '''adjust two list: node_dims_arys, node_bool_arys'''
-            contract_dimss[contract_bools] = 0  # 把收缩掉的边的乘法数量赋值为2**0，接下来不再参与乘法次数的计算
-
+            '''adjust two list: dims_arys, bool_arys'''
             for j in range(num_envs):  # 根据 bool 将所有收缩后的节点都刷新成相同的信息
-                contract_dims = contract_dimss[j]
-                contract_bool = contract_bools[j]
-                node_dims_tens[j, contract_bool] = contract_dims.repeat(1, 1)
-                node_bool_tens[j, contract_bool] = contract_bool.repeat(1, 1)
+                ct_dims = ct_dimss[j]
+                ct_bool = ct_bools[j]
 
-            # print('\n;;;', i, )
-            # env_i = 0
-            # [print(ary) for ary in node_dims_tens[env_i, :-self.ban_edges]]
-            # [print(ary.int()) for ary in node_bool_tens[env_i, :-self.ban_edges]]
+                ct_dims[ct_bool & if_diffs[j]] = 0  # 把收缩掉的边的乘法数量赋值为2**0，接下来不再参与乘法次数的计算
+                dims_tens[j, ct_bool] = ct_dims.repeat(1, 1)
+                bool_tens[j, ct_bool] = ct_bool.repeat(1, 1)
 
-        temp_power = 10  # 计算这个乘法个数时，即便用 float64 也偶尔会过拟合，所以先除以 2**temp_power ，求log10 后再恢复它
-        multiple_times = (2 ** (mult_pow_timess - temp_power)).sum(dim=1)
-        multiple_times = multiple_times.log10() + th.log10(th.tensor(2 ** temp_power))
+        # 计算这个乘法个数时，即便用 float64 也偶尔会过拟合，所以先除以 2**temp_power ，求log10 后再恢复它
+        adj_pow_times = pow_timess.max(dim=1)[0] - 960  # automatically set `max - 960`, 960 < the limit 1024,
+        multiple_times = (2 ** (pow_timess - adj_pow_times.unsqueeze(1))).sum(dim=1)
+        multiple_times = multiple_times.log10() + adj_pow_times / th.log2(th.tensor((10,), device=device))
+        # adj_pow_times / th.log2(th.tensor((10, ), device=device))  # Change of Base Formula
         return multiple_times.detach()
 
+    def convert_edge_sort_to_node2s(self, edge_sort: TEN) -> list:
+        edges_ary: TEN = self.edges_ary
+        run_edges = edge_sort.shape[0]
+        assert run_edges == self.num_edges - self.ban_edges
 
-def run():
+        node2s = []
+        for i in range(run_edges):
+            edge_i = edge_sort[i]
+
+            '''find two nodes of an edge_i'''
+            node_i0, node_i1 = th.where(edges_ary == edge_i)[0]  # 找出这条edge 两端的node
+            # assert isinstance(node_i0.item(), int)
+            # assert isinstance(node_i1.item(), int)
+            node2s.append((node_i0.item(), node_i1.item()))
+        return node2s
+
+    def convert_node2s_to_edge_sort(self, node2s: list) -> TEN:
+        edges_ary: TEN = self.edges_ary
+
+        edge_sort = []
+        import numpy as np
+        for node_i0, node_i1 in node2s:
+            edge_is = np.intersect1d(edges_ary[node_i0], edges_ary[node_i1])
+            edge_i = [edge_i for edge_i in edge_is if edge_i != -1][0]
+            edge_sort.append(edge_i)
+        edge_sort = th.tensor(edge_sort)
+        return edge_sort
+
+
+'''unit tests'''
+
+
+def unit_test_convert_node2s_to_edge_sorts():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
+    nodes_list, ban_edges = NodesSycamoreN12M14, 0
+    # nodes_list, ban_edges = NodesSycamoreN14M14, 0
     # nodes_list, ban_edges = NodesSycamoreN53M12, 0
     # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=8), 8
-    nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=100), 100
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=100), 100
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=2000), 2000
+    # from TNCO_env import get_nodes_list_of_tensor_tree
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_tree(depth=3), 2 ** (3 - 1)
 
-    env = TensorNetworkEnv(nodes_list=nodes_list, device=device)
-    env.ban_edges = ban_edges
+    env = TensorNetworkEnv(nodes_list=nodes_list, ban_edges=ban_edges, device=device)
     print(f"\nnum_nodes      {env.num_nodes:9}"
           f"\nnum_edges      {env.num_edges:9}"
           f"\nban_edges      {env.ban_edges:9}")
-    num_envs = 32
+    num_envs = 6
 
-    edge_arys = th.rand((num_envs, env.num_edges - env.ban_edges), device=device)
     # th.save(edge_arys, 'temp.pth')
     # edge_arys = th.load('temp.pth', map_location=device)
 
-    multiple_times = env.get_log10_multiple_times(edge_argsorts=edge_arys.argsort(dim=1))
-    print(f"multiple_times(log10) {multiple_times}")
+    edge_arys = th.rand((num_envs, env.num_edges - env.ban_edges), device=device)
+    edge_ary = edge_arys[0]
+    print(edge_ary.argsort().shape)
+    print(edge_ary.argsort())
+    node2s = env.convert_edge_sort_to_node2s(edge_sort=edge_ary.argsort(dim=0))
+    edge_sort = env.convert_node2s_to_edge_sort(node2s=node2s).to(device)
+    print(edge_sort.shape)
+    print(edge_sort)
+
+    print(edge_sort - edge_ary.argsort())
+    edge_sorts = edge_sort.unsqueeze(0)
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts)
+    print(f"multiple_times(log10) {multiple_times.numpy()}")
+
+
+def unit_test_get_log10_multiple_times():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+
+    # nodes_list, ban_edges = NodesSycamoreN12M14, 0
+    # nodes_list, ban_edges = NodesSycamoreN14M14, 0
+    # nodes_list, ban_edges = NodesSycamoreN53M12, 0
+    nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=8), 8
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=100), 100
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=2000), 2000
+    # from TNCO_env import get_nodes_list_of_tensor_tree
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_tree(depth=3), 2 ** (3 - 1)
+
+    env = TensorNetworkEnv(nodes_list=nodes_list, ban_edges=ban_edges, device=device)
+    print(f"\nnum_nodes      {env.num_nodes:9}"
+          f"\nnum_edges      {env.num_edges:9}"
+          f"\nban_edges      {env.ban_edges:9}")
+    num_envs = 6
+
+    # th.save(edge_arys, 'temp.pth')
+    # edge_arys = th.load('temp.pth', map_location=device)
+
+    edge_arys = th.rand((num_envs, env.num_edges - env.ban_edges), device=device)
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1))
+    print(f"multiple_times(log10) {multiple_times.numpy()}")
+
+    edge_arys = th.rand((num_envs, env.num_edges - env.ban_edges), device=device)
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1))
+    print(f"multiple_times(log10) {multiple_times.numpy()}")
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1))
+    print(f"multiple_times(log10) {multiple_times.numpy()}")
 
 
 if __name__ == '__main__':
-    run()
+    # unit_test_get_log10_multiple_times()
+    unit_test_convert_node2s_to_edge_sorts()
