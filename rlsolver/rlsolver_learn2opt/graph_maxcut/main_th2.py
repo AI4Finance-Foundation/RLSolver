@@ -51,7 +51,11 @@ class MaxcutEnv():
         return adjacency_matrix # num_env x self.N x self.N
 
     def get_cut_value(self, mu1, mu2):
-        return th.mul(th.matmul(mu1.reshape(self.N, 1), (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1) + ((mu1-mu2)**2).sum()
+        return th.mul(th.matmul(mu1.reshape(self.N, 1), \
+                                (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
+                      self.adjacency_matrix)\
+                   .flatten().sum(dim=-1) \
+               + ((mu1-mu2)**2).sum()
 
 def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_size):
     env_maxcut = MaxcutEnv(N=N, num_env=num_env, device=device, episode_length=episode_length)
@@ -83,7 +87,6 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             action_prev = action.detach()
             #prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
-
 
             if (step + 1) % 4 == 0:
                 optimizer.zero_grad()
