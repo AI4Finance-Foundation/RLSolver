@@ -23,11 +23,7 @@ class MaxcutEnv():
         self.num_env = num_env
         self.device = device
         self.episode_length = episode_length
-        if sys.argv[1] == 0:
-            self.get_cut_value_tensor = th.vmap(self.get_cut_value, in_dims=(0, 0))
-        else:
-            import functorch
-            self.get_cut_value_tensor = functorch.vmap(self.get_cut_value, in_dims=(0, 0))
+        self.get_cut_value_tensor = th.vmap(self.get_cut_value, in_dims=(0, 0))
         self.adjacency_matrix = None
 
     def load_graph(self, file_name):
@@ -128,13 +124,12 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
 
 if __name__ == "__main__":
     import sys
-    # sys.argv[1]: 0 (torch.vmap), 1(functorch.vmap)
-    N = graph_node[sys.argv[2]]
+    N = graph_node[sys.argv[1]]
     hidden_layer_size = 800
     learning_rate = 5e-5
     num_env=128
     episode_length = 20
-    gpu_id = int(sys.argv[3])
+    gpu_id = int(sys.argv[2])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
     th.manual_seed(0)
     opt_net = Opt_net(N, hidden_layer_size).to(device)
