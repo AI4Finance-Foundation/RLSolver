@@ -17,7 +17,7 @@ class MaxcutEnv():
         self.adjacency_matrix = th.as_tensor(np.load(file_name), device=self.device)
 
     def reset(self):
-        self.configuration = th.rand(num_env, self.N).to(self.device)
+        self.configuration = th.rand(self.num_env, self.N).to(self.device)
         self.num_steps = 0
         return self.configuration
 
