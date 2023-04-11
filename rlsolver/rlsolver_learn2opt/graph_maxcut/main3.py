@@ -65,7 +65,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
                 a = (a>0.5).to(th.float32)
                 # print(a)
                 # assert 0
-                l = env_maxcut.get_cut_value_tensor(a, a) #/ 2
+                l = env_maxcut.get_cut_value_one_tensor(a)
                 loss_list[num_env*(step):num_env*(step+1)] = l.detach()
                 #if (step + 6) % 2 == 0:
                     #optimizer.zero_grad()
