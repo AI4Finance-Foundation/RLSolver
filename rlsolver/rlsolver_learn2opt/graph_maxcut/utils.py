@@ -720,7 +720,7 @@ class Opt_variable(MetaModule):
                         self.theta[i][j] = 1- self.theta[i][j]
         
 
-class Opt_net(nn.Module):
+class Opt_net2(nn.Module):
     def __init__(self, preproc=False, hidden_sz=20, preproc_factor=10.0, device=th.device("cuda" if th.cuda.is_available() else "cpu")):
         super().__init__()
         self.hidden_sz = hidden_sz
@@ -749,3 +749,16 @@ class Opt_net(nn.Module):
         hidden0, cell0 = self.recurs(inp, (hidden[0], cell[0]))
         hidden1, cell1 = self.recurs2(hidden0, (hidden[1], cell[1]))
         return self.output(hidden1), (hidden0, hidden1), (cell0, cell1)
+
+
+class Opt_net(nn.Module):
+    def __init__(self, N, hidden_layers):
+        super(Opt_net, self).__init__()
+        self.N = N
+        self.hidden_layers = hidden_layers
+        self.lstm = nn.LSTM(self.N, self.hidden_layers,1,batch_first=True)
+        self.output = nn.Linear(hidden_layers, self.N)
+
+    def forward(self, configuration, hidden_state, cell_state):
+        x, (h, c) = self.lstm(configuration, (hidden_state, cell_state))
+        return self.output(x).sigmoid(), h, c
