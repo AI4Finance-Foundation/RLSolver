@@ -33,13 +33,14 @@ class MaxcutEnv():
         adjacency_matrix = upper_triangle + upper_triangle.transpose(-1, -2)
         return adjacency_matrix # num_env x self.N x self.N
 
+    # make sure that mu1 and mu2 are different tensors. If they are the same, use get_cut_value_one_tensor
     def get_cut_value(self, mu1, mu2):
         # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
         #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
         #               self.adjacency_matrix)\
         #            .flatten().sum(dim=-1) \
         #        + ((mu1-mu2)**2).sum()
-        mu1 = mu1.reshape(self.N, 1)
+        mu1 = mu1.reshape(-1, self.N, 1)
         mu1_1 = 1 - mu1
         mu2 = mu2.reshape(-1, self.N, 1)
         mu2_t = mu2.transpose(-1, -2)
@@ -58,5 +59,5 @@ class MaxcutEnv():
         mu2 = mu1.reshape(-1, self.N, 1)
         mu2_1_t = (1 - mu2).transpose(-1, -2)
         mu12 = th.mul(th.matmul(mu1, mu2_1_t), self.adjacency_matrix)
-        cut = mu12.flatten().sum()
+        cut = mu12.flatten().sum(dim=-1) / self.num_env
         return cut
