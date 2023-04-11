@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     
     preproc=False
-    opt_net = Opt_net(preproc=preproc, hidden_sz=hidden_sz).to(device)
+    opt_net = Opt_net2(preproc=preproc, hidden_sz=hidden_sz).to(device)
     optimizer = optim.Adam(opt_net.parameters(), lr=lr)
     loss, path = train_opt_net(N=N,
                                sparsity=sparsity,
