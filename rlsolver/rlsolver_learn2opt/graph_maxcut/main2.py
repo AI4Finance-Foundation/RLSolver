@@ -4,7 +4,7 @@ from copy import deepcopy
 import numpy as np
 from torch import Tensor
 from env import MaxcutEnv
-from opt_net import Opt_net
+from utils import Opt_net
 
 graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
