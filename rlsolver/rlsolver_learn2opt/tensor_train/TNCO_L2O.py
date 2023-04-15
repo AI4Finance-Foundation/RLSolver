@@ -230,7 +230,7 @@ class ObjectiveTNCO(ObjectiveTask):
         self.fast_train_obj_model()
 
         obj_model1 = deepcopy(self.obj_model)
-        # avoid `gradient computation has been modified by an inplace operation` in `all_losses.backward()` !!!
+        # avoid `gradient computation has been modified by an inplace operation` inv `all_losses.backward()`
 
         objective = obj_model1(theta)
         return objective

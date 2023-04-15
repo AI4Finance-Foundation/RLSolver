@@ -130,6 +130,7 @@ def opt_train(
         if iteration % unroll == 0:
             opt_base.zero_grad()
             all_losses.backward()
+            # avoid `gradient computation has been modified by an inplace operation` inv `all_losses.backward()`
             opt_base.step()
 
             all_losses = None
