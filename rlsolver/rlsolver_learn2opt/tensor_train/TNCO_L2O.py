@@ -20,7 +20,7 @@ from TNCO_env import \
 TEN = th.Tensor
 
 GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-if GPU_ID in {0, 4}:
+if GPU_ID in {4, }:  # todo {0, 4}:
     NodesList, BanEdges = NodesSycamoreN53M12, 0
 elif GPU_ID in {1, 5}:
     NodesList, BanEdges = NodesSycamoreN53M14, 0
@@ -220,22 +220,20 @@ def collect_buffer_history(if_remove: bool = False):
             scores_ary = scores_ary[sort]
 
             '''save'''
-            # for src_dir in src_dirs:  # todo
-            #     dst_dir = f"{save_dir}/{src_dir}"
-            #     os.makedirs(dst_dir, exist_ok=True)
-            #     th.save(states_ary, f"{dst_dir}/replay_buffer_states.pth")
-            #     th.save(scores_ary, f"{dst_dir}/replay_buffer_scores.pth")
+            for src_dir in src_dirs:
+                dst_dir = f"{save_dir}/{src_dir}"
+                os.makedirs(dst_dir, exist_ok=True)
+                th.save(states_ary, f"{dst_dir}/replay_buffer_states.pth")
+                th.save(scores_ary, f"{dst_dir}/replay_buffer_scores.pth")
 
-            if buf_type == 'buf0':
-                scores = scores_ary.to(th.float64)
-                min_score = scores[-1].item()  # = scores.min().item()
-                avg_score = scores.mean().item()
-                max_score = scores[+0].item()  # = scores.max().item()
-                print(f"min_score: {min_score:9.3f}")
-                print(f"avg_score: {avg_score:9.3f} ± {scores.std(dim=0).item():9.3f}")
-                print(f"max_score: {max_score:9.3f}")
-                print(f"type_names: {type_name}    states.shape: {list(states_ary.shape)}")
-                print()
+            scores = scores_ary.to(th.float64)
+            min_score = scores[-1].item()  # = scores.min().item()
+            avg_score = scores.mean().item()
+            max_score = scores[+0].item()  # = scores.max().item()
+            print(f"min_score: {min_score:9.3f}")
+            print(f"avg_score: {avg_score:9.3f} ± {scores.std(dim=0).item():9.3f}")
+            print(f"max_score: {max_score:9.3f}")
+            print(f"type_names: {type_name}    states.shape: {list(states_ary.shape)}")
 
 
 class ObjectiveTNCO(ObjectiveTask):
@@ -254,6 +252,7 @@ class ObjectiveTNCO(ObjectiveTask):
         self.criterion = nn.MSELoss()
         self.train_thresh = TrainThresh
         self.ema_loss = 0.0
+        self.ema_counter = 0
 
         gpu_id = -1 if self.device.index is None else self.device.index
 
@@ -343,6 +342,7 @@ class ObjectiveTNCO(ObjectiveTask):
         ema_gamma = EmaGamma
         max_epoch = MaxEpoch
 
+        counter = 0
         for counter in range(max_epoch):
             inputs1, labels1 = self.buffer1.sample(self.batch_size1)
             inputs0, labels0 = self.buffer0.sample(self.batch_size0)
@@ -361,6 +361,7 @@ class ObjectiveTNCO(ObjectiveTask):
                 break
 
         self.ema_loss = ema_loss
+        self.ema_counter = counter
 
     def save_and_check_buffer(self):
         self.buffer0.save_or_load_history(cwd=self.save_path0, if_save=True)
@@ -425,8 +426,9 @@ def train_optimizer():
         for _ in range(eval_gap):
             opt_train(obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
                       num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
-            pbar.set_description(f"EmaLoss: {obj_task.ema_loss:9.3e}")  # 更新进度条前面的描述信息
-            pbar.update(1)  # 更新进度条的进度
+            pbar.set_description(f"EmaLoss {obj_task.ema_loss:9.3e}    Counter {obj_task.ema_counter:6}")
+            pbar.update(1)
+        pbar.close()
 
         '''eval'''
         min_result, min_loss = opt_eval(obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
@@ -449,3 +451,25 @@ if __name__ == '__main__':
     # unit_test__objective_tnco()
     train_optimizer()
     # collect_buffer_history(if_remove=False)
+
+"""
+min_score:    15.531
+avg_score:    24.387 ±     4.990
+max_score:    49.375
+type_names: m12    states.shape: [171814, 414]
+
+min_score:    16.500
+avg_score:    24.874 ±     6.104
+max_score:    54.500
+type_names: m14    states.shape: [175331, 484]
+
+min_score:    20.219
+avg_score:    30.698 ±     9.330
+max_score:    67.438
+type_names: m16    states.shape: [123673, 585]
+
+min_score:    22.734
+avg_score:    32.146 ±     9.677
+max_score:    81.000
+type_names: m20    states.shape: [254913, 754]
+"""
