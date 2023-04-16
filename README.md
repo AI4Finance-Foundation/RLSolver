@@ -73,7 +73,9 @@ RLSolver
 
 ## Progress
 
-- [x] mimo_beamforming
-- [ ] graph_maxcut
-- [ ] traveling salesman problem
+- [x] MIMO
+- [ ] Graph max-cut
+- [ ] TSP
+- [ ] MILP
 - [ ] portfolio_management
+- [ ] quantum_circuits
