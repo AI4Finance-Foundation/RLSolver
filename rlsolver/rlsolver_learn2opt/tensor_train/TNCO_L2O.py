@@ -3,6 +3,7 @@ import sys
 import time
 import torch as th
 import torch.nn as nn
+from tqdm import tqdm
 from copy import deepcopy
 
 from TNCO_env import TensorNetworkEnv  # get_nodes_list
@@ -30,14 +31,21 @@ elif GPU_ID in {3, 7}:
 else:
     NodesList, BanEdges = NodesSycamoreN53M18, 0
 
-# NodesList, BanEdges = NodesSycamoreN53M12, 0
 WarmUpSize = 2 ** 14
+BufferSize = 2 ** 20
+BufferRate = 0.25  # Buffer1Size = Buffer2Size * BufferCoff
+BatchSize = 2 ** 9
 NumRepeats = 4
 EmaLossInit = 64
-# TrainThresh = 2 ** -6  # 0 ~ 3
-TrainThresh = 2 ** -5  # 4 ~ 7
-EmaGamma = 0.98
-MaxEpoch = 2 ** 9
+TrainThresh = 2 ** -4
+EmaGamma = 0.99
+MaxEpoch = 2 ** 10
+
+UnRoll = 24
+NumOpt = 192
+HidDimLSTM = 128
+
+'''MLP + ReplayBuffer -> Trainable objective'''
 
 
 def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn.Sequential:
@@ -63,14 +71,33 @@ def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
     th.nn.init.constant_(layer.bias, bias_const)
 
 
-class MLP(nn.Module):
-    def __init__(self, inp_dim, out_dim, dims=(256, 256, 256)):
+class ObjNet(nn.Module):
+    def __init__(self, inp_dim, out_dim, dims=(512, 256, 256 * 4, 256)):
         super().__init__()
-        self.net = build_mlp(dims=[inp_dim, *dims, out_dim], activation=nn.Tanh)
+        self.net = nn.Sequential(
+            nn.Linear(inp_dim, dims[0]), nn.ReLU(),
+            nn.Linear(dims[0], dims[1]), nn.Tanh(),
+            DenseNet(lay_dim=dims[1]), nn.ReLU(),
+            nn.Linear(dims[2], dims[3]), nn.ReLU(),
+            nn.Linear(dims[3], out_dim),
+        )
         layer_init_with_orthogonal(self.net[-1], std=0.1)
 
     def forward(self, x):
         return self.net(x)
+
+
+class DenseNet(nn.Module):  # plan to hyper-param: layer_number
+    def __init__(self, lay_dim):
+        super().__init__()
+        self.dense1 = nn.Sequential(nn.Linear(lay_dim * 1, lay_dim * 1), nn.Hardswish())
+        self.dense2 = nn.Sequential(nn.Linear(lay_dim * 2, lay_dim * 2), nn.Hardswish())
+        self.inp_dim = lay_dim
+        self.out_dim = lay_dim * 4
+
+    def forward(self, x1):  # x1.shape==(-1, lay_dim*1)
+        x2 = th.cat((x1, self.dense1(x1)), dim=1)
+        return th.cat((x2, self.dense2(x2)), dim=1)  # x3  # x2.shape==(-1, lay_dim*4)
 
 
 class ReplayBuffer:  # for off-policy
@@ -137,47 +164,78 @@ class ReplayBuffer:  # for off-policy
                 max_sizes.append(max_size)
             assert all([max_size == max_sizes[0] for max_size in max_sizes])
             self.cur_size = max_sizes[0]
+            self.p = self.cur_size
             self.if_full = self.cur_size == self.max_size
+
+    def get_cur_ten(self, var_name: str) -> TEN:
+        ten = getattr(self, var_name)
+        return ten[:self.cur_size]
 
 
 def collect_buffer_history(if_remove: bool = False):
-    max_size = 2 ** 18
-    save_dir0 = 'task_TNCO'
-    save_dirs = [save_dir for save_dir in os.listdir('') if save_dir[:9] == 'task_TNCO']
+    max_size = BufferSize
+    save_dir = f'task_TNCO'
+    gpu_ids_list = [(0, 4), (1, 5), (2, 6), (3, 7)]
+    type_names = ['m12', 'm14', 'm16', 'm20']
 
-    states_ary = []
-    scores_ary = []
-    for save_dir in save_dirs:
-        states_path = f"{save_dir}/replay_buffer_states.pth"
-        scores_path = f"{save_dir}/replay_buffer_scores.pth"
+    for type_id, type_name in enumerate(type_names):
+        gpu_ids = gpu_ids_list[type_id]
 
-        if_all_exists = all([os.path.isfile(path) for path in (states_path, scores_path)])
-        if not if_all_exists:
-            print(f"FileExist? [states, scores] {if_all_exists}")
-            continue
+        for buf_type in ('buf0', 'buf1'):
+            src_dirs = [f"{save_dir}_{gpu_id:02}_{buf_type}" for gpu_id in gpu_ids]
 
-        states = th.load(states_path, map_location=th.device('cpu')).half()
-        scores = th.load(scores_path, map_location=th.device('cpu')).half()
-        states_ary.append(states)
-        scores_ary.append(scores)
+            states_ary = []
+            scores_ary = []
+            for src_dir in src_dirs:
+                states_path = f"{src_dir}/replay_buffer_states.pth"
+                scores_path = f"{src_dir}/replay_buffer_scores.pth"
 
-        os.remove(states_path) if if_remove else None
-        os.remove(scores_path) if if_remove else None
-        print(f"Load {save_dir:12}    num_samples {scores.shape[0]}")
+                if_exists = [os.path.isfile(path) for path in (states_path, scores_path)]
+                if not all(if_exists):
+                    print(f"[states, scores]: {if_exists}    FileNotFound in: {src_dir}")
+                    continue
 
-    states_ary = th.vstack(states_ary)
-    scores_ary = th.vstack(scores_ary)
+                states = th.load(states_path, map_location=th.device('cpu')).half()
+                scores = th.load(scores_path, map_location=th.device('cpu')).half()
 
-    sort = -scores_ary.squeeze(1).argsort()[:max_size]  # notice negative symbol here.
-    states_ary = states_ary[sort]
-    scores_ary = scores_ary[sort]
+                filter_ten = (th.isnan(scores) & th.isinf(scores)).squeeze(1)  # filter nan and inf
+                filter_num = filter_ten.to(th.float32).sum()
+                if filter_num != 0:
+                    print(f"Exist nan or inf: {filter_num} in {src_dir}")
+                states = states[~filter_ten]
+                scores = scores[~filter_ten]
 
-    os.makedirs(save_dir0, exist_ok=True)
-    th.save(states_ary, f"{save_dir0}/replay_buffer_states.pth")
-    th.save(scores_ary, f"{save_dir0}/replay_buffer_scores.pth")
-    print(f"Save {save_dir0:12}    num_samples {scores_ary.shape[0]}")
-    print(f"sort max {scores_ary[+0].item():9.3f}")
-    print(f"sort min {scores_ary[-1].item():9.3f}")
+                states_ary.append(states)
+                scores_ary.append(scores)
+
+                os.remove(states_path) if if_remove else None
+                os.remove(scores_path) if if_remove else None
+                # print(f"Load {src_dir:12}    num_samples {scores.shape[0]}")
+
+            states_ary = th.vstack(states_ary)
+            scores_ary = th.vstack(scores_ary)
+
+            sort = (-scores_ary).squeeze(1).argsort()[-max_size:]  # notice negative symbol here.
+            states_ary = states_ary[sort]
+            scores_ary = scores_ary[sort]
+
+            '''save'''
+            # for src_dir in src_dirs:  # todo
+            #     dst_dir = f"{save_dir}/{src_dir}"
+            #     os.makedirs(dst_dir, exist_ok=True)
+            #     th.save(states_ary, f"{dst_dir}/replay_buffer_states.pth")
+            #     th.save(scores_ary, f"{dst_dir}/replay_buffer_scores.pth")
+
+            if buf_type == 'buf0':
+                scores = scores_ary.to(th.float64)
+                min_score = scores[-1].item()  # = scores.min().item()
+                avg_score = scores.mean().item()
+                max_score = scores[+0].item()  # = scores.max().item()
+                print(f"min_score: {min_score:9.3f}")
+                print(f"avg_score: {avg_score:9.3f} ± {scores.std(dim=0).item():9.3f}")
+                print(f"max_score: {max_score:9.3f}")
+                print(f"type_names: {type_name}    states.shape: {list(states_ary.shape)}")
+                print()
 
 
 class ObjectiveTNCO(ObjectiveTask):
@@ -188,51 +246,68 @@ class ObjectiveTNCO(ObjectiveTask):
 
         self.env = TensorNetworkEnv(nodes_list=NodesList, ban_edges=BanEdges, device=device)
         self.dim = self.env.num_edges - self.env.ban_edges
-        print(f"ObjectiveTNCO.dim {self.dim} != dim {dim}") if self.dim != dim else None
+        print(f"ObjectiveTNCO.dim: {self.dim} != dim: {dim}") if self.dim != dim else None
 
-        self.obj_model = MLP(inp_dim=self.dim, out_dim=1, dims=(256, 256, 256)).to(device)
+        self.obj_model = ObjNet(inp_dim=self.dim, out_dim=1).to(device)
 
         self.optimizer = th.optim.Adam(self.obj_model.parameters(), lr=1e-4)
         self.criterion = nn.MSELoss()
-        self.batch_size = 2 ** 10
         self.train_thresh = TrainThresh
         self.ema_loss = 0.0
 
         gpu_id = -1 if self.device.index is None else self.device.index
-        self.save_path = f'./task_TNCO_{gpu_id:02}'
-        os.makedirs(self.save_path, exist_ok=True)
 
-        '''warm up'''
-        warm_up_size = WarmUpSize
-        self.buffer = ReplayBuffer(max_size=2 ** 18, state_dim=self.dim, gpu_id=gpu_id)
-        self.buffer.save_or_load_history(cwd=self.save_path, if_save=False)
-        if self.buffer.cur_size < warm_up_size:
-            thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size, if_tqdm=True)
-            self.buffer.update(items=(thetas, scores))
+        """init buffer"""
+        buf_rate0 = BufferRate
+        buf_rate1 = 1 - BufferRate
+
+        buf_max_size1 = int(BufferSize * buf_rate1)
+        buf_max_size0 = int(BufferSize * buf_rate0)
+        warm_up_size1 = int(WarmUpSize * buf_rate1)
+        warm_up_size0 = int(WarmUpSize * buf_rate0)
+        self.batch_size1 = int(BatchSize * buf_rate1)
+        self.batch_size0 = int(BatchSize * buf_rate0)
+        self.best_score = th.inf
+
+        '''init buffer0 for best result'''
+        self.save_path0 = f'./task_TNCO_{gpu_id:02}_buf0'
+        os.makedirs(self.save_path0, exist_ok=True)
+        self.buffer0 = ReplayBuffer(max_size=buf_max_size0, state_dim=self.dim, gpu_id=gpu_id)
+        self.buffer0.save_or_load_history(cwd=self.save_path0, if_save=False)
+        if self.buffer0.cur_size < warm_up_size0:
+            thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size0, if_tqdm=True)
+            self.buffer0.update(items=(thetas, scores))
+
+        '''init buffer1 and warm up'''
+        self.save_path1 = f'./task_TNCO_{gpu_id:02}_buf1'
+        os.makedirs(self.save_path1, exist_ok=True)
+        self.buffer1 = ReplayBuffer(max_size=buf_max_size1, state_dim=self.dim, gpu_id=gpu_id)
+        self.buffer1.save_or_load_history(cwd=self.save_path1, if_save=False)
+        if self.buffer1.cur_size < warm_up_size1:
+            thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size1, if_tqdm=True)
+            self.buffer1.update(items=(thetas, scores))
+
         self.save_and_check_buffer()
         self.fast_train_obj_model()
 
-        # thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size, if_tqdm=True)
-        # self.buffer.update(items=(thetas, scores))
-        # self.save_and_check_buffer()
-        # self.fast_train_obj_model()
-        # exit()
-
     def get_objective(self, theta, *args) -> TEN:
         num_repeats = NumRepeats
+
         with th.no_grad():
             thetas = theta.repeat(num_repeats, 1)
             thetas[1:] += th.rand_like(thetas[1:])
-            thetas = self.get_norm(thetas)  # shape == (warm_up_size, self.dim)
-            scores = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
-            self.buffer.update(items=(thetas, scores))
+            thetas: TEN = self.get_norm(thetas)  # shape == (warm_up_size, self.dim)
+            scores: TEN = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
+
+            indices = (scores < self.buffer0.get_cur_ten('scores').mean()).squeeze(1)
+            self.buffer0.update(items=(thetas[indices], scores[indices]))
+            self.buffer1.update(items=(thetas[~indices], scores[~indices]))
 
         self.fast_train_obj_model()
 
         obj_model1 = deepcopy(self.obj_model)
         # avoid `gradient computation has been modified by an inplace operation` inv `all_losses.backward()`
-
-        objective = obj_model1(theta)
+        objective = obj_model1(theta.unsqueeze(0)).squeeze(0)
         return objective
 
     def get_objectives_without_grad(self, thetas, *_args) -> TEN:
@@ -245,12 +320,13 @@ class ObjectiveTNCO(ObjectiveTask):
     def get_norm(x):
         return (x - x.mean(dim=-1, keepdim=True)) / (x.std(dim=-1, keepdim=True) + 1e-6)
 
-    def random_generate_input_output(self, warm_up_size: int = 512, if_tqdm: bool = False):
+    def random_generate_input_output(self, warm_up_size: int = 512, batch_size: int = 1024, if_tqdm: bool = False):
         print(f"TNCO | random_generate_input_output: num_warm_up={warm_up_size}")
         thetas = th.randn((warm_up_size, self.dim), dtype=th.float32, device=self.device)
         thetas = ((thetas - thetas.mean(dim=1, keepdim=True)) / (thetas.std(dim=1, keepdim=True) + 1e-6))
 
-        thetas_iter = thetas.reshape((-1, 512, self.dim))
+        batch_size = batch_size if batch_size <= warm_up_size else warm_up_size
+        thetas_iter = thetas.reshape((-1, batch_size, self.dim))
         if if_tqdm:
             from tqdm import tqdm
             thetas_iter = tqdm(thetas_iter, ascii=True)
@@ -268,7 +344,10 @@ class ObjectiveTNCO(ObjectiveTask):
         max_epoch = MaxEpoch
 
         for counter in range(max_epoch):
-            inputs, labels = self.buffer.sample(self.batch_size)
+            inputs1, labels1 = self.buffer1.sample(self.batch_size1)
+            inputs0, labels0 = self.buffer0.sample(self.batch_size0)
+            inputs = th.vstack((inputs1, inputs0))
+            labels = th.vstack((labels1, labels0))
 
             outputs = self.obj_model(inputs)
             loss = self.criterion(outputs, labels)
@@ -282,20 +361,27 @@ class ObjectiveTNCO(ObjectiveTask):
                 break
 
         self.ema_loss = ema_loss
-        # print(f"     counter {counter:9}    ema_loss {ema_loss:9.2f}")
 
     def save_and_check_buffer(self):
-        self.buffer.save_or_load_history(cwd=self.save_path, if_save=True)
+        self.buffer0.save_or_load_history(cwd=self.save_path0, if_save=True)
+        self.buffer1.save_or_load_history(cwd=self.save_path1, if_save=True)
 
-        scores = self.buffer.scores[:self.buffer.cur_size]
+        scores = self.buffer0.scores[:self.buffer0.cur_size]
+        min_score = scores.min().item()
+        avg_score = scores.mean().item()
+        max_score = scores.max().item()
         print(f"num_train: {scores.shape[0]}")
-        print(f"min_score: {scores.min().item():9.3f}")
-        print(f"avg_score: {scores.mean().item():9.3f} ± {scores.std(dim=0).item():9.3f}")
-        print(f"max_score: {scores.max().item():9.3f}")
-        print(f"best_result: \n{self.buffer.states[scores.argmin()].argsort()}")
+        print(f"min_score: {min_score:9.3f}")
+        print(f"avg_score: {avg_score:9.3f} ± {scores.std(dim=0).item():9.3f}")
+        print(f"max_score: {max_score:9.3f}")
+
+        if min_score < self.best_score:
+            self.best_score = min_score
+            print(f"best_result: {self.best_score:9.3f}    best_sort:\n"
+                  f"{self.buffer0.states[scores.argmin()].argsort()}")
 
 
-def unit_test__objective_tnco():
+def unit_test__objective():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
@@ -304,7 +390,7 @@ def unit_test__objective_tnco():
     obj_task.save_and_check_buffer()
 
 
-"""trainable objective function"""
+"""H2O: Hamilton Term + Learn to Optimize via Trainable objective"""
 
 
 def train_optimizer():
@@ -313,9 +399,9 @@ def train_optimizer():
     '''train'''
     train_times = 2 ** 12
     lr = 2e-4
-    unroll = 16
-    num_opt = 128
-    hid_dim = 64
+    unroll = UnRoll
+    num_opt = NumOpt
+    hid_dim = HidDimLSTM
 
     '''eval'''
     eval_gap = 2 ** 2
@@ -331,26 +417,29 @@ def train_optimizer():
     opt_opti = OptimizerOpti(hid_dim=hid_dim).to(device)
     opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
 
-    start_time = time.time()
     '''loop'''
+    start_time = time.time()
     for i in range(train_times + 1):
-        opt_train(obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
-                  num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
+        '''train'''
+        pbar = tqdm(total=eval_gap, ascii=True)
+        for _ in range(eval_gap):
+            opt_train(obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
+                      num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
+            pbar.set_description(f"EmaLoss: {obj_task.ema_loss:9.3e}")  # 更新进度条前面的描述信息
+            pbar.update(1)  # 更新进度条的进度
 
-        if i % eval_gap == 0:
-            best_result, min_loss = opt_eval(obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
-                                             num_opt=num_opt * 2, device=device)
-
-            '''get score'''
-            with th.no_grad():
-                edge_sorts = best_result.argsort().unsqueeze(0)
-                scores = obj_task.env.get_log10_multiple_times(edge_sorts=edge_sorts)
-                score = scores.squeeze(0)
-
+        '''eval'''
+        min_result, min_loss = opt_eval(obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
+                                        num_opt=num_opt * 2, device=device)
+        with th.no_grad():
+            edge_sorts = min_result.argsort().unsqueeze(0)
+            scores = obj_task.env.get_log10_multiple_times(edge_sorts=edge_sorts)
+            score = scores.squeeze(0)
             time_used = time.time() - start_time
-            print(f"{i:>9}    {score:9.3f}    {min_loss.item():9.3e}    TimeUsed {time_used:9.0f}")
+            print(f"\n{i:>9}    {score:9.3f}    {min_loss.item():9.3e}    TimeUsed {time_used:9.0f}")
 
-        if i % (eval_gap * 4) == 0:
+        '''save'''
+        if i % 4 == 0:
             obj_task.save_and_check_buffer()
 
     obj_task.save_and_check_buffer()
