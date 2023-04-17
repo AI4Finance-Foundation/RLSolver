@@ -40,19 +40,27 @@ class MaxcutEnv():
         #               self.adjacency_matrix)\
         #            .flatten().sum(dim=-1) \
         #        + ((mu1-mu2)**2).sum()
-        mu1 = mu1.reshape(self.N, 1)
-        mu1_1 = 1 - mu1
-        mu2 = mu2.reshape(-1, self.N, 1)
-        mu2_t = mu2.transpose(-1, -2)
-        mu2_1_t = (1 - mu2).transpose(-1, -2)
-        mu12_ = th.mul(th.matmul(mu1, mu2_1_t), self.adjacency_matrix)
-        mu1_2 = th.mul(th.matmul(mu1_1, mu2_t), self.adjacency_matrix)
-        mu12 = th.min(th.ones_like(mu12_), mu12_ + mu1_2)
-        cut12 = mu12.flatten().sum(dim=-1)
-        cut1 = self.get_cut_value_one_tensor(mu1)
-        cut2 = self.get_cut_value_one_tensor(mu2)
-        cut = cut1 + cut2 + cut12
-        return cut
+
+        # mu1 = mu1.reshape(self.N, 1)
+        # mu1_1 = 1 - mu1
+        # mu2 = mu2.reshape(-1, self.N, 1)
+        # mu2_t = mu2.transpose(-1, -2)
+        # mu2_1_t = (1 - mu2).transpose(-1, -2)
+        # mu12_ = th.mul(th.matmul(mu1, mu2_1_t), self.adjacency_matrix)
+        # mu1_2 = th.mul(th.matmul(mu1_1, mu2_t), self.adjacency_matrix)
+        # mu12 = th.min(th.ones_like(mu12_), mu12_ + mu1_2)
+        # cut12 = mu12.flatten().sum(dim=-1)
+        # cut1 = self.get_cut_value_one_tensor(mu1)
+        # cut2 = self.get_cut_value_one_tensor(mu2)
+        # cut = cut1 + cut2 + cut12
+        # return cut
+
+        return self.get_cut_value_one_tensor(mu1) \
+               + self.get_cut_value_one_tensor(mu2) \
+               + th.mul(th.matmul(mu1.reshape(-1, self.N, 1), (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)),
+                        self.adjacency_matrix) \
+               + th.mul(th.matmul(1 - mu1.reshape(-1, self.N, 1), mu2.reshape(-1, self.N, 1).transpose(-1, -2)),
+                        self.adjacency_matrix)
 
     def get_cut_value_one_tensor(self, mu1):
         mu1 = mu1.reshape(-1, self.N, 1)
