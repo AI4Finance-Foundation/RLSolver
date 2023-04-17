@@ -55,8 +55,8 @@ class MaxcutEnv():
         # cut = cut1 + cut2 + cut12
         # return cut
 
+        # + self.get_cut_value_one_tensor(mu2) \
         return self.get_cut_value_one_tensor(mu1) \
-               + self.get_cut_value_one_tensor(mu2) \
                + th.mul(th.matmul(mu1.reshape(-1, self.N, 1), (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)),
                         self.adjacency_matrix) \
                + th.mul(th.matmul(1 - mu1.reshape(-1, self.N, 1), mu2.reshape(-1, self.N, 1).transpose(-1, -2)),
