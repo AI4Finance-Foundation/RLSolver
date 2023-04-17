@@ -63,9 +63,11 @@ class MaxcutEnv():
                         self.adjacency_matrix)
 
     def get_cut_value_one_tensor(self, mu1):
-        mu1 = mu1.reshape(-1, self.N, 1)
-        mu2 = mu1.reshape(-1, self.N, 1)
-        mu2_1_t = (1 - mu2).transpose(-1, -2)
-        mu12 = th.mul(th.matmul(mu1, mu2_1_t), self.adjacency_matrix)
-        cut = mu12.flatten().sum(dim=-1) / self.num_env
-        return cut
+        # mu1 = mu1.reshape(-1, self.N, 1)
+        # mu2 = mu1.reshape(-1, self.N, 1)
+        # mu2_1_t = (1 - mu2).transpose(-1, -2)
+        # mu12 = th.mul(th.matmul(mu1, mu2_1_t), self.adjacency_matrix)
+        # cut = mu12.flatten().sum(dim=-1) / self.num_env
+        # return cut
+
+        return th.mul(th.matmul(mu1.reshape(-1, self.N, 1), (1 - mu1.reshape(-1, self.N, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1) / self.num_env
