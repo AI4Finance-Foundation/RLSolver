@@ -35,8 +35,8 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             loss_list[num_env*(step):num_env*(step+1)] = l.detach()
             # loss -= l.sum()
             #print(action_prev.shape, action.shape)
-            l = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
-            loss = 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
+            l2 = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
+            loss -= 0.2 * l2.sum()#max(0.05, (500-epoch) / 500) * l.sum()
             action_prev = action.detach()
             #prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
