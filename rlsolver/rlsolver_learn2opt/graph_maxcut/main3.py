@@ -33,10 +33,10 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             #action = action.reshape(num_env, N)
             l = env_maxcut.get_cut_value_one_tensor(action.reshape(num_env, N))
             loss_list[num_env*(step):num_env*(step+1)] = l.detach()
-            # loss -= l.sum()
+            loss -= l.sum()
             #print(action_prev.shape, action.shape)
-            l2 = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
-            loss -= 0.2 * l2.sum()#max(0.05, (500-epoch) / 500) * l.sum()
+            l = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
+            loss -= 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
             action_prev = action.detach()
             #prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
@@ -82,13 +82,13 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
 if __name__ == "__main__":
     import sys
     N = graph_node[sys.argv[1]]
-    hidden_layer_size = 800
-    learning_rate = 5e-5
+    hidden_layer_size = 3000
+    learning_rate = 3e-5
     num_env=128
-    episode_length = 20
+    episode_length = 30
     gpu_id = int(sys.argv[2])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
-    th.manual_seed(0)
+    th.manual_seed(10)
     opt_net = Opt_net(N, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
 
