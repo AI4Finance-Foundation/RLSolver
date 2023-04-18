@@ -5,6 +5,7 @@ import numpy as np
 from torch import Tensor
 from env import MaxcutEnv
 from utils import Opt_net
+import pickle as pkl
 
 graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
@@ -33,10 +34,10 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             #action = action.reshape(num_env, N)
             l = env_maxcut.get_cut_value_one_tensor(action.reshape(num_env, N))
             loss_list[num_env*(step):num_env*(step+1)] = l.detach()
-            # loss -= l.sum()
+            loss -= l.sum()
             #print(action_prev.shape, action.shape)
-            l2 = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
-            loss -= 0.2 * l2.sum()#max(0.05, (500-epoch) / 500) * l.sum()
+            l = env_maxcut.get_cut_value_tensor(action_prev.reshape(num_env, N), action.reshape(num_env, N))
+            loss -= 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
             action_prev = action.detach()
             #prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
@@ -58,6 +59,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             #loss_list = []
             loss_list = th.zeros(episode_length * num_env * 2).to(device)
             action = env_maxcut.reset()
+            sol = th.zeros(episode_length * num_env * 2, N).to(device)
             for step in range(episode_length * 2):
                 action, h, c = opt_net(action.detach().reshape(num_env, 1, N), h, c)
                 action = action.reshape(num_env, N)
@@ -67,13 +69,16 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
                 # assert 0
                 l = env_maxcut.get_cut_value_one_tensor(a)
                 loss_list[num_env*(step):num_env*(step+1)] = l.detach()
+                sol[num_env * step: num_env * (step + 1)] = a.detach()
                 #if (step + 6) % 2 == 0:
                     #optimizer.zero_grad()
                     #loss.backward()
                     #optimizer.step()
                     #loss = 0
                     #h, c = h_init.clone(), c_init.clone()
-
+            val, ind = loss_list.max(dim=-1)
+            with open(f"{sys.argv[1]}_cut={val.item()}.pkl", 'wb') as f:
+                pkl.dump(sol[ind], f)
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
 
 
@@ -82,13 +87,13 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
 if __name__ == "__main__":
     import sys
     N = graph_node[sys.argv[1]]
-    hidden_layer_size = 800
-    learning_rate = 5e-5
+    hidden_layer_size = 3000
+    learning_rate = 3e-5
     num_env=128
-    episode_length = 20
+    episode_length = 30
     gpu_id = int(sys.argv[2])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
-    th.manual_seed(0)
+    th.manual_seed(10)
     opt_net = Opt_net(N, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
 
