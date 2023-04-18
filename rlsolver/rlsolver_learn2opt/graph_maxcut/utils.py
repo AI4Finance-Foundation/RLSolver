@@ -14,6 +14,38 @@ def to_var(x, requires_grad=True):
     #     x = x.cuda()
     return Variable(x, requires_grad=requires_grad)
 
+# e.g., gset14_345.pkl, front = "gset", end = ".", val = 500, then output is gset14_500.pkl
+def remove_rename_max(dir: str, front: str, end:str, new_val: int):
+    def calc_file_name(front: str, id2: int, val: int, end:str):
+        return front + str(id2) + "_" + str(val) + end + "pkl"
+    files = os.listdir(dir)
+    filtered_files = []
+    max_val = -np.inf
+    prev_val = -np.inf
+    for f in files:
+        if front in f:
+            id2 = int(f.split(front)[1].split("_")[0])
+            if end in f.split(str(id2))[1]:
+                val = int(f.split('_')[1].split(end)[0])
+                if val > max_val:
+                    max_val = val
+                prev_file_name = calc_file_name(front, id2, prev_val, end)
+                if prev_file_name in files and val > prev_val:
+                    prev_file_name = dir + "/" + prev_file_name
+                    if os.path.isfile(prev_file_name):
+                        os.remove(prev_file_name)
+                prev_val = val
+
+    if new_val > max_val:
+        max_val_file_name = calc_file_name(front, id2, max_val, end)
+        max_val_file_name = dir + "/" + max_val_file_name
+        if os.path.isfile(max_val_file_name):
+            os.remove(max_val_file_name)
+
+
+
+
+
 class MetaModule(nn.Module):
     # adopted from: Adrien Ecoffet https://github.com/AdrienLE
     def parameters(self):
