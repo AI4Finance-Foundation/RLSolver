@@ -6,7 +6,8 @@ from torch import Tensor
 from env import MaxcutEnv
 from utils import Opt_net
 import pickle as pkl
-
+from utils import remove_files_less_than_new_val
+from utils import calc_file_name
 graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
 
@@ -77,7 +78,13 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
                     #loss = 0
                     #h, c = h_init.clone(), c_init.clone()
             val, ind = loss_list.max(dim=-1)
-            with open(f"{sys.argv[1]}_cut={val.item()}.pkl", 'wb') as f:
+            dir = "./result"
+            front = "gset"
+            end = "."
+            id2 = sys.argv[1]
+            file_name = dir + "/" + calc_file_name(front, id2, val.item(), end)
+            with open(file_name, 'wb') as f:
+                remove_files_less_than_new_val(dir, front, end, val)
                 pkl.dump(sol[ind], f)
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
 
