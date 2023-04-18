@@ -1,3 +1,5 @@
+import os.path
+
 import torch as th
 import torch.nn as nn
 from copy import deepcopy
@@ -83,6 +85,8 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             end = "."
             id2 = sys.argv[1]
             file_name = dir + "/" + calc_file_name(front, id2, val.item(), end)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
             with open(file_name, 'wb') as f:
                 remove_files_less_than_new_val(dir, front, end, val)
                 pkl.dump(sol[ind], f)
