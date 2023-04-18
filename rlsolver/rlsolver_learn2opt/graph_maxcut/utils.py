@@ -14,12 +14,12 @@ def to_var(x, requires_grad=True):
     #     x = x.cuda()
     return Variable(x, requires_grad=requires_grad)
 
-# e.g., gset14_345.pkl, front = "gset", end = ".", val = 500, then output is gset14_500.pkl
+def calc_file_name(front: str, id2: int, val: int, end:str):
+    return front + str(id2) + "_" + str(val) + end + "pkl"
+
+# e.g., gset14_345.pkl, front = "gset", end = ".", new_val = 500, then output is gset14_500.pkl
 def remove_files_less_than_new_val(dir: str, front: str, end:str, new_val: int):
-    def calc_file_name(front: str, id2: int, val: int, end:str):
-        return front + str(id2) + "_" + str(val) + end + "pkl"
     files = os.listdir(dir)
-    filtered_files = []
     max_val = -np.inf
     prev_val = -np.inf
     for f in files:
