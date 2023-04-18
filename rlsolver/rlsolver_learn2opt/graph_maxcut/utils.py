@@ -18,7 +18,7 @@ def calc_file_name(front: str, id2: int, val: int, end:str):
     return front + str(id2) + "_" + str(val) + end + "pkl"
 
 # e.g., gset14_345.pkl, front = "gset", end = ".", new_val = 500, then output is gset14_500.pkl
-def remove_files_less_than_new_val(dir: str, front: str, end:str, new_val: int):
+def remove_files_less_equal_new_val(dir: str, front: str, end:str, new_val: int):
     files = os.listdir(dir)
     max_val = -np.inf
     prev_val = -np.inf
@@ -36,7 +36,7 @@ def remove_files_less_than_new_val(dir: str, front: str, end:str, new_val: int):
                         os.remove(prev_file_name)
                 prev_val = val
 
-    if new_val > max_val:
+    if new_val >= max_val:
         max_val_file_name = calc_file_name(front, id2, max_val, end)
         max_val_file_name = dir + "/" + max_val_file_name
         if os.path.isfile(max_val_file_name):
