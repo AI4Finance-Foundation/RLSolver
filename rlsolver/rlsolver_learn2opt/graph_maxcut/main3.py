@@ -84,11 +84,12 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             front = "gset"
             end = "."
             id2 = sys.argv[1]
-            file_name = dir + "/" + calc_file_name(front, id2, val.item(), end)
+            file_name = dir + "/" + calc_file_name(front, id2, int(val.item()), end)
             if not os.path.exists(dir):
                 os.makedirs(dir)
             with open(file_name, 'wb') as f:
-                remove_files_less_than_new_val(dir, front, end, val)
+                remove_files_less_than_new_val(dir, front, end, int(val.item()))
+                # print("sol[ind]: ", sol[ind])
                 pkl.dump(sol[ind], f)
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
 
