@@ -15,7 +15,7 @@ def to_var(x, requires_grad=True):
     return Variable(x, requires_grad=requires_grad)
 
 # e.g., gset14_345.pkl, front = "gset", end = ".", val = 500, then output is gset14_500.pkl
-def remove_rename_max(dir: str, front: str, end:str, new_val: int):
+def remove_files_less_than_new_val(dir: str, front: str, end:str, new_val: int):
     def calc_file_name(front: str, id2: int, val: int, end:str):
         return front + str(id2) + "_" + str(val) + end + "pkl"
     files = os.listdir(dir)
