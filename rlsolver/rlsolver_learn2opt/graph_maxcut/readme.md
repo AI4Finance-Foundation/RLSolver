@@ -47,13 +47,14 @@ Synthetic data at sparsity = 0.5
 
 Average over 30 runs.
  
-|Maxcut |Gurobi, (Running Time)| Ours-CPU (Training Time) | Ours-GPU (Training Time) |improvement using CPU |improvement using GPU |
-|-------|------|----| ---- |---- |---- |
-|N=20   | 67 $\pm$, (5 $\pm$ s)  | 67 $\pm$, (20s)| 71 $\pm$, (36)s | 0% | +5.97 $\pm$ % |
-|N=30   | 132 $\pm$, (10 $\pm$ s)  | 132 $\pm$, (30s)| 135 $\pm$, (93s) | 0% | +2.27% |
-|N=100   | 1408 $\pm$, (2000s)  | 1409 $\pm$, (800s)| 1415, (33s) | + 0.071\%, (2.5x) | +0.49%, (60.6x) |
-|N=1000   |  128508 $\pm$, (4400s)  |  129900 $\pm$, (1000s)| 129714, (119s)| + 1.072\%, (4.4x) | +0.94%, (36.97x) |
-|N=5000 | |3124937 $\pm$, (4520s)  | 3175813 $\pm$, (202s) | | |
+|Maxcut |Gurobi, (1 h)| Gurobi, (5 h) | Gurobi, (10 h) | Ours|improvement |
+|-------|------|----| ---- |---- |--|
+|N=100   | 1408 $\pm$, (2000s)  | || 1415, (33s)  | +0.49%, (60.6x) |
+|N=1000   |  128508 $\pm$, (4400s)  || | 129714, (119s) | +0.94%, (36.97x) |
+|N=2000   |   | | |  | | 
+|N=3000   |   | | |  | |
+|N=4000   | | | |  | |
+|N=5000 | |  |  | 3175813 $\pm$, (202s)| |
 
 Inference time of our method is less than 10 seconds.
 
