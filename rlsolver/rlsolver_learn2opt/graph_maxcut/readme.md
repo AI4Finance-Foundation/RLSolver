@@ -43,6 +43,8 @@ python opt_gurobi.py #N #Sparsity #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthe
 
 ## Experiment Results
 
+In the following experiments, we use GPU during training by default. 
+
 Synthetic data at sparsity = 0.5
 
 Average over 30 runs.
@@ -61,7 +63,7 @@ Inference time of our method is less than 10 seconds.
 
 [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours-GPU | improvement | 
+| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | improvement | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
 |G14 | 800 | 4694 | 3064| | 2922 | 3061 | 2943  |3056 (24h) | ---| ---| 3003 | -1.99\%|
 |G15 | 800 | 4661 | 3050 | 2938 | 3050 | 2928 | 2990  | ---| ---| | 2965 | -2.78\% | 
