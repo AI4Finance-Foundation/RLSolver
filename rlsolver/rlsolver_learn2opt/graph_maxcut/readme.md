@@ -76,4 +76,4 @@ Inference time of our method is less than 10 seconds.
 
 
 ## Workflow
- #![pipeline](pipeline.jpg) 
+ 
