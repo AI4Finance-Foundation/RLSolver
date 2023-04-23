@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+
+import numpy as np
 import torch as th
 import torch.nn as nn
 from tqdm import tqdm
@@ -15,35 +17,40 @@ from TNCO_env import \
     NodesSycamoreN53M14, \
     NodesSycamoreN53M16, \
     NodesSycamoreN53M18, \
-    NodesSycamoreN53M20
+    NodesSycamoreN53M20, \
+    NodesSycamoreN12M14
 
 TEN = th.Tensor
 
 GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-if GPU_ID in {4, }:  # todo {0, 4}:
+if GPU_ID in {4, }:
     NodesList, BanEdges = NodesSycamoreN53M12, 0
-elif GPU_ID in {1, 5}:
+elif GPU_ID in {5, }:
     NodesList, BanEdges = NodesSycamoreN53M14, 0
-elif GPU_ID in {2, 6}:
+elif GPU_ID in {6, }:
     NodesList, BanEdges = NodesSycamoreN53M16, 0
-elif GPU_ID in {3, 7}:
-    NodesList, BanEdges = NodesSycamoreN53M20, 0
-else:
+elif GPU_ID in {0, }:
     NodesList, BanEdges = NodesSycamoreN53M18, 0
+elif GPU_ID in {7, }:
+    NodesList, BanEdges = NodesSycamoreN53M20, 0
+else:  # {3, }
+    NodesList, BanEdges = NodesSycamoreN12M14, 0
+    assert GPU_ID in {3, }
 
 WarmUpSize = 2 ** 14
-BufferSize = 2 ** 20
+BufferSize = 2 ** 19  # todo 18
 BufferRate = 0.25  # Buffer1Size = Buffer2Size * BufferCoff
-BatchSize = 2 ** 9
-NumRepeats = 4
-EmaLossInit = 64
-TrainThresh = 2 ** -4
-EmaGamma = 0.99
-MaxEpoch = 2 ** 10
+BatchSize = 2 ** 9  # todo 8
 
-UnRoll = 24
-NumOpt = 192
-HidDimLSTM = 128
+TrainGap = 8
+NumRepeats = 16
+NumPatience = 2 ** 9  # todo 10
+EmaLossInit = 64
+EmaGamma = 0.98
+
+UnRoll = 16
+NumOpt = 128
+HidDimLSTM = 64
 
 '''MLP + ReplayBuffer -> Trainable objective'''
 
@@ -72,14 +79,13 @@ def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
 
 
 class ObjNet(nn.Module):
-    def __init__(self, inp_dim, out_dim, dims=(512, 256, 256 * 4, 256)):
+    def __init__(self, inp_dim, out_dim, dims=(128, 128 * 4)):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(inp_dim, dims[0]), nn.ReLU(),
-            nn.Linear(dims[0], dims[1]), nn.Tanh(),
-            DenseNet(lay_dim=dims[1]), nn.ReLU(),
-            nn.Linear(dims[2], dims[3]), nn.ReLU(),
-            nn.Linear(dims[3], out_dim),
+            nn.Linear(inp_dim, inp_dim), nn.Tanh(),
+            nn.Linear(inp_dim, dims[0]), nn.Tanh(),
+            DenseNet(lay_dim=dims[0]),
+            nn.Linear(dims[1], out_dim),
         )
         layer_init_with_orthogonal(self.net[-1], std=0.1)
 
@@ -143,13 +149,13 @@ class ReplayBuffer:  # for off-policy
         )
 
         if if_save:
+            print(f"| buffer.save_or_load_history(): Save {cwd}    cur_size {self.cur_size}")
             for item, name in item_names:
                 if self.cur_size == self.p:
                     buf_item = item[:self.cur_size]
                 else:
                     buf_item = th.vstack((item[self.p:self.cur_size], item[0:self.p]))
                 file_path = f"{cwd}/replay_buffer_{name}.pth"
-                print(f"| buffer.save_or_load_history(): Save {file_path}    {buf_item.shape}")
                 th.save(buf_item.half(), file_path)  # save float32 as float16
 
         elif all([os.path.isfile(f"{cwd}/replay_buffer_{name}.pth") for item, name in item_names]):
@@ -160,8 +166,10 @@ class ReplayBuffer:  # for off-policy
                 print(f"| buffer.save_or_load_history(): Load {file_path}    {buf_item.shape}")
 
                 max_size = buf_item.shape[0]
-                item[:max_size] = buf_item
+                max_size = min(self.max_size, max_size)
+                item[:max_size] = buf_item[-max_size:]  # load
                 max_sizes.append(max_size)
+
             assert all([max_size == max_sizes[0] for max_size in max_sizes])
             self.cur_size = max_sizes[0]
             self.p = self.cur_size
@@ -248,10 +256,10 @@ class ObjectiveTNCO(ObjectiveTask):
 
         self.obj_model = ObjNet(inp_dim=self.dim, out_dim=1).to(device)
 
-        self.optimizer = th.optim.Adam(self.obj_model.parameters(), lr=1e-4)
+        self.optimizer = th.optim.Adam(self.obj_model.parameters(), lr=4e-4)
         self.criterion = nn.MSELoss()
-        self.train_thresh = TrainThresh
-        self.ema_loss = 0.0
+        self.best_loss = EmaLossInit
+        self.ema_loss = EmaLossInit
         self.ema_counter = 0
 
         gpu_id = -1 if self.device.index is None else self.device.index
@@ -276,6 +284,7 @@ class ObjectiveTNCO(ObjectiveTask):
         if self.buffer0.cur_size < warm_up_size0:
             thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size0, if_tqdm=True)
             self.buffer0.update(items=(thetas, scores))
+            self.buffer0.save_or_load_history(cwd=self.save_path0, if_save=True)
 
         '''init buffer1 and warm up'''
         self.save_path1 = f'./task_TNCO_{gpu_id:02}_buf1'
@@ -285,9 +294,17 @@ class ObjectiveTNCO(ObjectiveTask):
         if self.buffer1.cur_size < warm_up_size1:
             thetas, scores = self.random_generate_input_output(warm_up_size=warm_up_size1, if_tqdm=True)
             self.buffer1.update(items=(thetas, scores))
+            self.buffer1.save_or_load_history(cwd=self.save_path0, if_save=True)
 
-        self.save_and_check_buffer()
+        self.pbar = tqdm(total=NumPatience, ascii=True)
+        self.obj_model_path = f"{self.save_path0}/obj_model.pth"
+        if os.path.isfile(self.obj_model_path):  # load obj_model before self.fast_train_obj_model
+            self.obj_model = th.load(self.obj_model_path, map_location=device)
         self.fast_train_obj_model()
+        self.pbar.close()
+
+        self.train_counter = 0
+        self.buffer0_thresh = -th.inf
 
     def get_objective(self, theta, *args) -> TEN:
         num_repeats = NumRepeats
@@ -298,11 +315,17 @@ class ObjectiveTNCO(ObjectiveTask):
             thetas: TEN = self.get_norm(thetas)  # shape == (warm_up_size, self.dim)
             scores: TEN = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
 
-            indices = (scores < self.buffer0.get_cur_ten('scores').mean()).squeeze(1)
+            indices = scores.squeeze(1) < self.buffer0_thresh
             self.buffer0.update(items=(thetas[indices], scores[indices]))
             self.buffer1.update(items=(thetas[~indices], scores[~indices]))
 
-        self.fast_train_obj_model()
+        self.train_counter += 1
+        if self.train_counter > TrainGap:
+            self.train_counter = 0
+            self.fast_train_obj_model()
+
+            buffer0_scores = self.buffer0.get_cur_ten('scores')[::64]
+            self.buffer0_thresh = th.quantile(buffer0_scores, q=BufferRate).item()
 
         obj_model1 = deepcopy(self.obj_model)
         # avoid `gradient computation has been modified by an inplace operation` inv `all_losses.backward()`
@@ -336,14 +359,16 @@ class ObjectiveTNCO(ObjectiveTask):
         return thetas, scores
 
     def fast_train_obj_model(self):
-        train_thresh = self.train_thresh
-
+        best_loss = EmaLossInit
         ema_loss = EmaLossInit  # Exponential Moving Average (EMA) loss value
         ema_gamma = EmaGamma
-        max_epoch = MaxEpoch
 
-        counter = 0
-        for counter in range(max_epoch):
+        num_patience = NumPatience
+        num_iter = 0
+        num_counter = 0
+        pbar = self.pbar
+
+        while num_iter < num_patience:
             inputs1, labels1 = self.buffer1.sample(self.batch_size1)
             inputs0, labels0 = self.buffer0.sample(self.batch_size0)
             inputs = th.vstack((inputs1, inputs0))
@@ -357,11 +382,23 @@ class ObjectiveTNCO(ObjectiveTask):
             self.optimizer.step()
 
             ema_loss = ema_gamma * ema_loss + (1 - ema_gamma) * loss.item()
-            if ema_loss < train_thresh:
-                break
+
+            num_counter += 1
+            num_iter += 1
+            if best_loss > ema_loss:
+                if num_iter > num_patience * 0.1:
+                    pbar.n = num_iter
+                pbar.set_description(f"EmaLoss {ema_loss:9.3e}  Counter {num_counter:9}")
+                pbar.update(0)
+
+                best_loss = ema_loss
+                num_iter = 0
+        pbar.set_description(f"EmaLoss {ema_loss:9.3e}  Counter {num_counter:9}")
+        pbar.n = num_patience
+        pbar.update(0)
 
         self.ema_loss = ema_loss
-        self.ema_counter = counter
+        self.ema_counter = num_counter
 
     def save_and_check_buffer(self):
         self.buffer0.save_or_load_history(cwd=self.save_path0, if_save=True)
@@ -377,9 +414,11 @@ class ObjectiveTNCO(ObjectiveTask):
         print(f"max_score: {max_score:9.3f}")
 
         if min_score < self.best_score:
+            th.save(self.obj_model, self.obj_model_path)
+
             self.best_score = min_score
             print(f"best_result: {self.best_score:9.3f}    best_sort:\n"
-                  f"{self.buffer0.states[scores.argmin()].argsort()}")
+                  f"{self.buffer0.states[scores.argmin()].argsort().cpu().detach().numpy()}")
 
 
 def unit_test__objective():
@@ -399,13 +438,13 @@ def train_optimizer():
 
     '''train'''
     train_times = 2 ** 12
-    lr = 2e-4
     unroll = UnRoll
     num_opt = NumOpt
     hid_dim = HidDimLSTM
 
     '''eval'''
     eval_gap = 2 ** 2
+    np.set_printoptions(linewidth=128)
 
     print('start training')
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
@@ -416,19 +455,16 @@ def train_optimizer():
 
     opt_task = OptimizerTask(dim=dim, device=device)
     opt_opti = OptimizerOpti(hid_dim=hid_dim).to(device)
-    opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
+    opt_base = th.optim.Adam(opt_opti.parameters(), lr=4e-4)
 
     '''loop'''
     start_time = time.time()
     for i in range(train_times + 1):
         '''train'''
-        pbar = tqdm(total=eval_gap, ascii=True)
+        obj_task.pbar = tqdm(total=NumPatience, ascii=True)
         for _ in range(eval_gap):
             opt_train(obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
                       num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
-            pbar.set_description(f"EmaLoss {obj_task.ema_loss:9.3e}    Counter {obj_task.ema_counter:6}")
-            pbar.update(1)
-        pbar.close()
 
         '''eval'''
         min_result, min_loss = opt_eval(obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
@@ -438,7 +474,9 @@ def train_optimizer():
             scores = obj_task.env.get_log10_multiple_times(edge_sorts=edge_sorts)
             score = scores.squeeze(0)
             time_used = time.time() - start_time
-            print(f"\n{i:>9}    {score:9.3f}    {min_loss.item():9.3e}    TimeUsed {time_used:9.0f}")
+            obj_task.pbar.set_description(f"EmaLoss {obj_task.ema_loss:9.3e}  Counter {obj_task.ema_counter:6}  "
+                                          f"{i:>9}  {score:9.3f}  {min_loss.item():9.3e}  {time_used:9.3e} sec")
+        obj_task.pbar.close()
 
         '''save'''
         if i % 4 == 0:
@@ -453,23 +491,11 @@ if __name__ == '__main__':
     # collect_buffer_history(if_remove=False)
 
 """
-min_score:    15.531
-avg_score:    24.387 ±     4.990
-max_score:    49.375
-type_names: m12    states.shape: [171814, 414]
+n12m14  5.981
 
-min_score:    16.500
-avg_score:    24.874 ±     6.104
-max_score:    54.500
-type_names: m14    states.shape: [175331, 484]
-
-min_score:    20.219
-avg_score:    30.698 ±     9.330
-max_score:    67.438
-type_names: m16    states.shape: [123673, 585]
-
-min_score:    22.734
-avg_score:    32.146 ±     9.677
-max_score:    81.000
-type_names: m20    states.shape: [254913, 754]
+n53m12 15.485
+n53m14 16.198
+n53m16 20.169
+n53m18 23.331
+n53m20 22.734
 """

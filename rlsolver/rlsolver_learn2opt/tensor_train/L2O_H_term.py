@@ -28,19 +28,19 @@ class ObjectiveTask:
 
 
 class OptimizerTask(nn.Module):
-    def __init__(self, dim, device):
+    def __init__(self, dim: [int], device: th.device, theta: TEN = None):
         super().__init__()
         self.dim = dim
         self.device = device
 
         with th.no_grad():
-            theta = th.rand(self.dim, requires_grad=True, device=device)
+            theta = th.rand(self.dim, requires_grad=True, device=device) if theta is None else theta
             theta = (theta - theta.mean(dim=-1, keepdim=True)) / (theta.std(dim=-1, keepdim=True) + 1e-6)
-            theta = theta.clamp(-3, +3)  # todo
+            theta = theta.clamp(-3, +3)
         self.register_buffer('theta', theta.requires_grad_(True))
 
-    def re_init(self):
-        self.__init__(dim=self.dim, device=self.device)
+    def re_init(self, theta: TEN = None):
+        self.__init__(dim=self.dim, device=self.device, theta=theta)
 
     def get_register_params(self):
         return [('theta', self.theta)]
@@ -55,12 +55,17 @@ class OptimizerOpti(nn.Module):
         self.hid_dim = hid_dim
         self.recurs1 = nn.LSTMCell(1, hid_dim)
         self.recurs2 = nn.LSTMCell(hid_dim, hid_dim)
-        self.output = nn.Linear(hid_dim, 1)
+        self.output0 = nn.Linear(hid_dim, 1)
 
     def forward(self, inp0, hid0, cell):
         hid1, cell1 = self.recurs1(inp0, (hid0[0], cell[0]))
         hid2, cell2 = self.recurs2(hid1, (hid0[1], cell[1]))
-        return self.output(hid2), (hid1, hid2), (cell1, cell2)
+        out = self.output0(hid2)
+        # assert inp0.shape == out.shape == (opt_task.dim, 1)
+        # assert hid0.shape == cell.shape == (2, opt_task.dim, self.hid_dim)
+        # assert hid1.shape == cell1.shape == (opt_task.dim, self.hid_dim)
+        # assert hid2.shape == cell2.shape == (opt_task.dim, self.hid_dim)
+        return out, (hid1, hid2), (cell1, cell2)
 
 
 def set_attr(obj, attr, val):
@@ -72,94 +77,84 @@ def set_attr(obj, attr, val):
 
 def opt_train(
         obj_task: ObjectiveTask,
-        opt_opti: OptimizerOpti,
         opt_task: OptimizerTask,
+        opt_opti: OptimizerOpti,
         opt_base: th.optim,
         num_opt: int,
         unroll: int,
         device: th.device,
 ):
+    obj_args = obj_task.get_args_for_train()
     opt_opti.train()
     opt_task.zero_grad()
-
-    obj_args = obj_task.get_args_for_train()
 
     n_params = 0
     for name, p in opt_task.get_register_params():
         n_params += th.tensor(p.shape).prod().item()
     hc_state1 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
 
-    all_losses_ever = []
-    all_losses = None
-
     th.set_grad_enabled(True)
-    for iteration in range(1, num_opt + 1):
-        output = opt_task.get_output()
-        output = obj_task.get_norm(output)
-        loss = obj_task.get_objective(output, *obj_args)
-        loss.backward(retain_graph=True)
+    for iteration in range(num_opt // unroll):
+        part_losses = th.zeros(unroll, dtype=th.float32, device=device)
 
-        if all_losses is None:
-            all_losses = loss
-        else:
-            all_losses += loss
-        all_losses_ever.append(loss.data.cpu().numpy())
+        hc_state2 = None
+        result_params = None
+        for unroll_i in range(unroll):
+            output = opt_task.get_output()
+            output = obj_task.get_norm(output)
+            loss = obj_task.get_objective(output, *obj_args)
+            loss.backward(retain_graph=True)
 
-        i = 0
-        result_params = {}
-        hc_state2 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
-        for name, p in opt_task.get_register_params():
-            hid_dim = th.tensor(p.shape).prod().item()
-            gradients = p.grad.view(hid_dim, 1).detach().clone().requires_grad_(True)
+            part_losses[unroll_i] = loss
 
-            j = i + hid_dim
-            hc_part = hc_state1[:, i:j]
-            updates, new_hidden, new_cell = opt_opti(gradients, hc_part[0:2], hc_part[2:4])
+            i = 0
+            result_params = {}
+            hc_state2 = th.zeros(4, n_params, opt_opti.hid_dim, device=device)
+            for name, p in opt_task.get_register_params():
+                hid_dim = th.tensor(p.shape).prod().item()
+                gradients = p.grad.view(hid_dim, 1).detach().clone().requires_grad_(True)
 
-            hc_state2[0, i:j] = new_hidden[0]
-            hc_state2[1, i:j] = new_hidden[1]
-            hc_state2[2, i:j] = new_cell[0]
-            hc_state2[3, i:j] = new_cell[1]
+                j = i + hid_dim
+                hc_part = hc_state1[:, i:j]
+                updates, new_hidden, new_cell = opt_opti(gradients, hc_part[0:2], hc_part[2:4])
 
-            result = p + updates.view(*p.size())
-            result_params[name] = obj_task.get_norm(result)
-            result_params[name].retain_grad()
+                hc_state2[0, i:j] = new_hidden[0]
+                hc_state2[1, i:j] = new_hidden[1]
+                hc_state2[2, i:j] = new_cell[0]
+                hc_state2[3, i:j] = new_cell[1]
 
-            i = j
+                result = p + updates.view(*p.size())
+                result_params[name] = obj_task.get_norm(result)
+                result_params[name].retain_grad()
 
-        if iteration % unroll == 0:
-            opt_base.zero_grad()
-            all_losses.backward()
-            # avoid `gradient computation has been modified by an inplace operation` inv `all_losses.backward()`
-            opt_base.step()
+                i = j
 
-            all_losses = None
-
-            opt_task.re_init()
-            opt_task.load_state_dict(result_params)
-            opt_task.zero_grad()
-
-            hc_state1 = hc_state2.detach().clone().requires_grad_(True)
-
-        else:
             for name, p in opt_task.get_register_params():
                 set_attr(opt_task, name, result_params[name])
-
             hc_state1 = hc_state2
+
+        opt_base.zero_grad()
+        part_losses.mean(dim=0).backward()  # todo min
+        opt_base.step()
+
+        opt_task.re_init()
+        opt_task.load_state_dict(result_params)
+        opt_task.zero_grad()
+
+        hc_state1 = hc_state2.detach().clone().requires_grad_(True)
+
     th.set_grad_enabled(False)
-    return all_losses_ever
 
 
 def opt_eval(
         obj_task: ObjectiveTask,
-        opt_opti: OptimizerOpti,
         opt_task: OptimizerTask,
+        opt_opti: OptimizerOpti,
         num_opt: int,
         device: th.device
 ):
-    opt_opti.eval()
-
     obj_args = obj_task.get_args_for_eval()
+    opt_opti.eval()
 
     n_params = 0
     for name, p in opt_task.get_register_params():
