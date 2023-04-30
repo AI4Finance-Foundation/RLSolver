@@ -8,7 +8,7 @@
 Welcome to ElegantRL-Solver!
 =====================================================================================================
 
-`ElegantRL-Solver`_ aim to find high-quality optimum, or even (nearly) global optimum, for nonconvex/nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
+`ElegantRL-Solver`_ aims to find high-quality optimum, or even (nearly) global optimum, for nonconvex/nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
 
 .. _ElegantRL-Solver: https://github.com/AI4Finance-Foundation/ElegantRL_Solver.git
 
@@ -58,6 +58,15 @@ Feel free to leave us feedback: report bugs using `Github issues`_.
    tutorial/tnco
    tutorial/mimo_beamforming
    tutorial/compressive_sensing
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Benchmark
+
+   benchmark/graph_maxcut
+   benchmark/tnco
+   benchmark/mimo_beamforming
+   benchmark/compressive_sensing
 
 
 
