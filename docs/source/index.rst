@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-:github_url: https://github.com/AI4Finance-Foundation/FinRL
+:github_url: https://github.com/AI4Finance-Foundation/ElegantRL_Solver
 
 Welcome to ElegantRL-Solver!
 =====================================================================================================
