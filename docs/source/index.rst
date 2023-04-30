@@ -59,6 +59,15 @@ Feel free to leave us feedback: report bugs using `Github issues`_.
    tutorial/mimo_beamforming
    tutorial/compressive_sensing
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Benchmark
+
+   benchmark/graph_maxcut
+   benchmark/tnco
+   benchmark/mimo_beamforming
+   benchmark/compressive_sensing
+
 
 
 .. toctree::
