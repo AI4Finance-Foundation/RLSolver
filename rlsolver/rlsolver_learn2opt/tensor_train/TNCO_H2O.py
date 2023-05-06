@@ -5,15 +5,16 @@ import torch as th
 import torch.nn as nn
 from tqdm import tqdm
 
-from TNCO_env import TensorNetworkEnv  # get_nodes_list
-from L2O_H_term import ObjectiveTask, OptimizerTask, OptimizerOpti
-from L2O_H_term import opt_train, opt_eval
+from H2O_MISO import ObjectiveTask, OptimizerTask, OptimizerOpti
+from H2O_MISO import opt_loop
 
-from TNCO_env import NodesSycamoreN53M20
+from TNCO_env import TensorNetworkEnv  # get_nodes_list
+from TNCO_env import NodesSycamoreN53M20, NodesSycamoreN12M14
 
 TEN = th.Tensor
 
 NodesList, BanEdges = NodesSycamoreN53M20, 0
+# NodesList, BanEdges = NodesSycamoreN12M14, 0
 
 WarmUpSize = 2 ** 14
 BufferSize = 2 ** 20
@@ -22,33 +23,27 @@ BatchSize = 2 ** 9
 
 NumRepeats = 8
 IterMaxStep = 2 ** 12
-IterMinLoss = 2 ** -4
+IterMinLoss = 2 ** -4 if os.name != 'nt' else 2 ** 4
 EmaGamma = 0.98
 NoiseRatio = 1
 Dims = (512, 256, 512, 256)
 
 GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
-
-# if GPU_ID in {0, }:  # 22.22
-#     IterMinLoss = 2 ** -4
-#     NoiseRatio = 1.0
-# if GPU_ID in {1, }:  # 25.45
-#     IterMinLoss = 2 ** -3
-#     NoiseRatio = 1.0
-# if GPU_ID in {2, }:  # 22.85
-#     IterMinLoss = 2 ** -4
-#     NoiseRatio = 0.25
-# if GPU_ID in {3, }:  # 24.079
-#     IterMinLoss = 2 ** -3
-#     NoiseRatio = 0.25
-#
-# if GPU_ID in {4, 5}:  # 25, 25， 21.86  | 26, 21， 21.128
-#     IterMinLoss = 2 ** -3
-# if GPU_ID in {6, }:  # 25, 25， 22.482
-#     IterMinLoss = 2 ** -4
-# if GPU_ID in {7, }:  # 26.234
-#     NoiseRatio = 0.5
+if GPU_ID in {2, }:
+    NodesList, BanEdges = NodesSycamoreN12M14, 0
+    NumRepeats = 8
+if GPU_ID in {3, }:
+    NodesList, BanEdges = NodesSycamoreN12M14, 0
+    NumRepeats = 16
+if GPU_ID in {4, 5}:  # 5 beta2
+    NodesList, BanEdges = NodesSycamoreN53M20, 0
+    NumRepeats = 8
+    IterMinLoss = 2 ** -1
+if GPU_ID in {6, 7}:  # 7 beta2
+    NodesList, BanEdges = NodesSycamoreN53M20, 0
+    NumRepeats = 16
+    IterMinLoss = 2 ** -1
 
 
 def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn.Sequential:
@@ -69,16 +64,10 @@ def build_mlp(dims: [int], activation: nn = None, if_raw_out: bool = True) -> nn
     return nn.Sequential(*net_list)
 
 
-def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
-    th.nn.init.orthogonal_(layer.weight, std)
-    th.nn.init.constant_(layer.bias, bias_const)
-
-
 class ObjModel(nn.Module):
     def __init__(self, inp_dim, out_dim, dims=(256, 256, 256)):
         super().__init__()
         self.net = build_mlp(dims=[inp_dim, *dims, out_dim], activation=nn.Tanh, if_raw_out=True)
-        layer_init_with_orthogonal(self.net[-1], std=0.1)
 
     def forward(self, x):
         return self.net(x)
@@ -202,10 +191,13 @@ def collect_buffer_history(if_remove: bool = False):
 
 
 class ObjectiveTNCO(ObjectiveTask):
-    def __init__(self, dim, device):
+    def __init__(self, num, dim, device):
         super(ObjectiveTNCO, self).__init__()
-        self.device = device
+        self.num = num
         self.args = ()
+        self.device = device
+
+        self.num_eval = num
 
         self.env = TensorNetworkEnv(nodes_list=NodesList, ban_edges=BanEdges, device=device)
         self.dim = self.env.num_edges - self.env.ban_edges
@@ -214,7 +206,7 @@ class ObjectiveTNCO(ObjectiveTask):
         self.obj_model1 = ObjModel(inp_dim=self.dim, out_dim=1, dims=Dims).to(device)
         self.obj_model0 = ObjModel(inp_dim=self.dim, out_dim=1, dims=Dims).to(device)
 
-        self.optimizer = th.optim.Adam(self.obj_model1.parameters(), lr=1e-4)
+        self.optimizer = th.optim.Adam(self.obj_model1.parameters(), lr=1e-3)
         self.criterion = nn.MSELoss()
         self.batch_size = BatchSize
         self.ema_loss = IterMinLoss * 1.1
@@ -265,6 +257,21 @@ class ObjectiveTNCO(ObjectiveTask):
         objective = self.obj_model0(theta)
         return objective
 
+    def get_objectives(self, thetas, *args) -> TEN:
+        iter_max_step = IterMaxStep
+
+        # todo +sort
+        thetas = self.get_norm(thetas, if_grad=True)  # shape == (warm_up_size, self.dim)
+        with th.no_grad():
+            scores = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
+            self.buffer1.update(items=(thetas, scores))
+
+        self.fast_train_obj_model(iter_max_step=iter_max_step)
+
+        self.hard_update(self.obj_model0, self.obj_model1)
+        objectives = self.obj_model0(thetas)
+        return objectives
+
     def get_objectives_without_grad(self, thetas, *_args) -> TEN:
         # assert theta.shape[0] == self.env.num_edges
         with th.no_grad():
@@ -272,17 +279,22 @@ class ObjectiveTNCO(ObjectiveTask):
         return log10_multiple_times
 
     @staticmethod
-    def get_norm(x):
-        return (x - x.mean(dim=-1, keepdim=True)) / (x.std(dim=-1, keepdim=True) + 1e-6)
+    def get_norm(x_raw, if_grad=True):
+        x_norm = (x_raw - x_raw.mean(dim=-1, keepdim=True)) / (x_raw.std(dim=-1, keepdim=True) + 1e-6)
+
+        x_sort = x_raw.argsort(dim=-1).to(th.float32)
+        x_sort = (x_sort - x_sort.mean(dim=-1, keepdim=True)) / (x_sort.std(dim=-1, keepdim=True) + 1e-6)
+        x_sort.requires_grad_(if_grad)
+        return (x_norm + x_sort) / 2
 
     def random_generate_input_output(self, warm_up_size: int = 512, if_tqdm: bool = False):
         batch_size = 512
+
         print(f"TNCO | random_generate_input_output: num_warm_up={warm_up_size}")
         thetas = th.randn((warm_up_size, self.dim), dtype=th.float32, device=self.device)
-        thetas = ((thetas - thetas.mean(dim=1, keepdim=True)) / (thetas.std(dim=1, keepdim=True) + 1e-6))
+        thetas = self.get_norm(thetas)
 
         scores = th.zeros((warm_up_size, 1), dtype=th.float32, device=self.device)
-
         i_iter = range(0, warm_up_size, batch_size)
         i_iter = tqdm(i_iter, ascii=True) if if_tqdm else i_iter
         for i in i_iter:
@@ -308,9 +320,9 @@ class ObjectiveTNCO(ObjectiveTask):
         for iter_step in range(1, iter_max_step + 1):
             inputs1, labels1 = self.buffer1.sample(batch_size1)
             inputs0, labels0 = self.buffer0.sample(batch_size0)
+
             inputs = th.vstack((inputs1, inputs0))
             labels = th.vstack((labels1, labels0))
-
             outputs = self.obj_model1(inputs)
             loss = self.criterion(outputs, labels)
 
@@ -339,7 +351,8 @@ class ObjectiveTNCO(ObjectiveTask):
         buffer.save_or_load_history(cwd=self.save_path, if_save=True)
 
         '''move data to buffer1 buffer0'''
-        states = buffer.get_cur_ten('thetas')
+        thetas = buffer.get_cur_ten('thetas')
+        thetas = self.get_norm(thetas, if_grad=False)  # todo +sort
         scores = buffer.get_cur_ten('scores')
         del buffer
 
@@ -348,8 +361,8 @@ class ObjectiveTNCO(ObjectiveTask):
         self.buffer0.empty_and_reset_pointer()
         mask1 = scores.squeeze(1) > self.keep_score
         mask0 = ~mask1
-        self.buffer1.update(items=(states[mask1], scores[mask1]))
-        self.buffer0.update(items=(states[mask0], scores[mask0]))
+        self.buffer1.update(items=(thetas[mask1], scores[mask1]))
+        self.buffer0.update(items=(thetas[mask0], scores[mask0]))
 
         thetas0 = self.buffer0.get_cur_ten('thetas')
         scores0 = self.buffer0.get_cur_ten('scores')
@@ -371,6 +384,19 @@ class ObjectiveTNCO(ObjectiveTask):
         for tar, cur in zip(target_net.parameters(), current_net.parameters()):
             tar.data.copy_(cur.data)
 
+    def get_thetas(self, num):
+        thetas = th.randn((num, self.dim), requires_grad=True, device=self.device)
+        thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
+        thetas = thetas.clamp(-3, +3)
+
+        scores = self.buffer0.get_cur_ten('scores')
+        ids = (scores < self.keep_score).nonzero(as_tuple=True)[0]
+        num2 = num // 2
+        if ids.shape[0] > num2:
+            rd_ids = th.randperm(len(ids))[:num2]
+            thetas[:num2] = self.buffer0.thetas[ids[rd_ids]]
+        return thetas
+
     def get_args_for_train(self):
         scores = self.buffer0.get_cur_ten('scores').squeeze(1)
         self.keep_score = th.quantile(scores, q=BufferRate).item()
@@ -383,8 +409,9 @@ class ObjectiveTNCO(ObjectiveTask):
 def unit_test__objective_tnco():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+    num = 3  # batch_size
 
-    obj_task = ObjectiveTNCO(dim=0, device=device)
+    obj_task = ObjectiveTNCO(num=num, dim=-1, device=device)
     obj_task.get_objective(theta=th.rand(obj_task.dim, dtype=th.float32, device=obj_task.device))
     obj_task.save_and_check_buffer()
 
@@ -396,42 +423,46 @@ def train_optimizer():
     gpu_id = GPU_ID
 
     '''train'''
-    train_times = 2 ** 12
-    lr = 2e-4
-    unroll = 16
-    num_opt = 128
-    hid_dim = 64
+    train_times = 2 ** 10
+    num = NumRepeats  # batch_size
+    lr = 4e-4
+    unroll = 16  # step of Hamilton Term
+    num_opt = 64
+    hid_dim = 2 ** 7
 
     '''eval'''
-    eval_gap = 2 ** 3
+    eval_gap = 2 ** 1
     import numpy as np
     np.set_printoptions(linewidth=120)
 
-    print('start training')
+    '''init task'''
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+    obj_task = ObjectiveTNCO(num=num, dim=-1, device=device)
+    dim = obj_task.dim
 
-    dim = 414  # set by env.num_edges
-    obj_task = ObjectiveTNCO(dim=dim, device=device)
-    dim = obj_task.env.num_edges
-
-    opt_task = OptimizerTask(dim=dim, device=device)
-    opt_opti = OptimizerOpti(hid_dim=hid_dim).to(device)
+    opt_task = OptimizerTask(num=num, dim=dim, device=device)
+    opt_opti = OptimizerOpti(inp_dim=dim, hid_dim=hid_dim).to(device)
     opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
 
     '''loop'''
+    print('training start')
     start_time = time.time()
     for i in range(train_times + 1):
-        obj_task.pbar = tqdm(total=NumRepeats, ascii=True)
+        obj_task.pbar = tqdm(total=IterMaxStep, ascii=True)
 
         for _ in range(eval_gap):
-            opt_train(obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
-                      num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base)
+            opt_loop(
+                obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
+                num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base, if_train=True)
 
-        best_result, min_loss = opt_eval(obj_task=obj_task, opt_opti=opt_opti, opt_task=opt_task,
-                                         num_opt=num_opt * 2, device=device)
+        best_results, min_losses = opt_loop(
+            obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
+            num_opt=num_opt * 2, device=device, unroll=unroll, opt_base=opt_base, if_train=False)
 
+        min_loss, ids = th.min(min_losses, dim=0)
         with th.no_grad():
-            edge_sorts = best_result.argsort().unsqueeze(0)
+            # best_result.shape == (1, -1)
+            edge_sorts = best_results[ids].argsort()
             scores = obj_task.env.get_log10_multiple_times(edge_sorts=edge_sorts)
             score = scores.squeeze(0)
 
@@ -443,6 +474,7 @@ def train_optimizer():
         '''save'''
         if i % 4 == 0:
             obj_task.save_and_check_buffer()
+    print('training stop')
 
     obj_task.save_and_check_buffer()
 
