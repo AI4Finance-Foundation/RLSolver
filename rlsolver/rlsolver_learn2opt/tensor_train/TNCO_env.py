@@ -396,6 +396,7 @@ Node2sSycamoreN53N20Test2 = [
     (4, 121), (4, 5), (4, 6), (4, 110), (4, 167), (4, 94), (4, 164), (4, 88), (4, 91), (4, 0), (0, 108), (0, 187),
     (0, 113), (0, 181), (0, 206), (0, 118), (0, 356), (0, 271), (0, 273), (0, 285)
 ]  # log10(multiple_times) = 25.888611588740623
+<<<<<<< Updated upstream
 
 EdgeSortStrH2OSycamoreN12M14 = """
 [22 96 78 74 84 92 87 72 45 57 94 91 89 24 26  8  2 73  0 23 35 76 97  7 36 14 59 19 75 21  4 63 12 66 10  3 30 20 80 34
@@ -517,6 +518,138 @@ EdgeSortStrH2OSycamoreN53M20 = """
 
 def get_nodes_list_of_tensor_train(len_list: int = 4):
     nodes = [[] for _ in range(len_list)]  # 初始化邻接表
+=======
+
+EdgeSortStrH2OSycamoreN12M14 = """
+[22 96 78 74 84 92 87 72 45 57 94 91 89 24 26  8  2 73  0 23 35 76 97  7 36 14 59 19 75 21  4 63 12 66 10  3 30 20 80 34
+ 90  6 52 11 77 79 53 31 16 49 54 25 70 62 56 33 83 95 15 18 47 43 93  9 55 71 32 29 64 46 67 17 44 38 86 61 13 40 51 58
+ 65 85 37 41 5 81 28 27 68 39 48 42  1 82 60 88 69 98 50]
+"""
+EdgeSortStrH2OSycamoreN53M12 = """
+[263 165 127 209 233 160  88 291 344 207 269 128 396 124 397 161 388 125 266  73  56 155   5  81  26  80  98 346 340 323
+  95  59 384 158   0 258 292 222 308  34 210  71  55 300 283 275 332 315 409 206 316 110  38   2  35 144 117 173  15 247
+ 195  37 257 244 135 309 302 162 113 120 331  16 121 134  12 142 212 343 261 153  72 299 141 400 339 150 208  46  40  52
+ 274 129  43 259  51 152  68 221  50 306 236  60 362 183 237 268 307 321 136  65 119 118 354 370 177 232  83 298  92  45
+ 360 199 350 218  17   1  89  96 231  49 172 336 166  20 369  94 159 337 107  84  28 187 241 196 372 239  82 289 131 198
+ 216 408  36 228 282 382 361 205 102 356 191 189 193  57 334 278 293 304 277 320  29 280 279  93 103 227 248 140 287 168
+ 32 355 380 254 174 170   13 403 281 214  19 229  63 371 410 246 352 224 353 303 378 157 333 376 325  76  97 167 116 171
+ 264 178   4 391 138  75 115   9 347  66 411  18 201 357 181 285 146 367 290 245  53  14 330 179 345 390 130 256 203 175
+ 101 106 392 255 365 385 329 322  47 348 311 194 393 211 251 250  10 226  54 412 133 375  23 260 123 137 200 399 267 328
+ 358 111 149 413 122 284  86 318 402 310 295 169 294 317 270 253 230  62  87 374 319 406 394 381 405 148 100 108  22 338
+ 342 234 252  61 114  77  30  41   8 176 276 197 147  58 297   3 154 180  69 364 265  39 182 217 164 126 215  25 373  24
+ 312 225 313 213 262 407  33 220  67 202 386 351  70 249  74 104  48  21 143  78 314 335 395 272 341 151 238 184 190  90
+ 286 223 271 398 188  64 163 377 240  79 109 112  99 366 349 379 145 105  44 389 192 359 324 186 301 273 326  42 383 401
+ 132 288  11   6 243 242  85  27 404 363 204 296 368 387 185   7  31 327 235 219 139 156 305  91]
+"""
+EdgeSortStrH2OSycamoreN53M14 = """
+[445  85  19  49 133  17  95 140   4 216 441 434 320 457 272 289 475 427 259 126 221  48 127  92  86 229 197 470 483
+ 407 260 116 354 310  40 377  60 149 306 442 378  68 430 348 344  32 452 390 258 312 227 297 218 352 307 161  46 202
+ 194 135  43 300 308 478 295 178 365 425  72 112 179 388 162  47 422 443  96 186 305 293 410 326 262 339   0 459 255
+ 137 141 153 219 154 109 181 471 228  12 236 423  63 249 263  52 192  13 184  33  36  78 429  16 108 444 476  57 317
+ 271 129 436 404 264  55 405  56  74  91 146 177 125 455 217 118 187 424   2  99 150 274 107 460 253 298 389 171 353
+  24 472 292  93 473 342 188 180  53 416 311 222  97 355  73 169 346  61 128 409  77 376 433 463 174 421 155 418 270
+  14 435 234 195 235  98  90 176 119 357 438 175 428 294 208 351  54 115 393 120 166 261  94 299 134 143 230 124 469
+ 462 324  25 479  15 384 101 329 420  30  18 304  80 447 233 408 139 193 145 316 301 347 220 466  88  82 335 431   1
+ 415 419  27 382 163 100  28 268  50   3  34 212 231 132  67 242  44 314 448 383 122 396 103 276 224 102 361  76 437
+  62 451 391 461 136 458 156 394 191 159 239 160 254 164  45 189 144 111 245  64 303 243 331 282 333 464 474 148 373
+ 467 414 157 277 392  79 321 213  22 401 232 205 267 395 440 142 170 319 403 360 340 456 426  59 323 413 291  75 362
+  84 454 110  65 121 345 240 190 225 172  31 158 343 356  26 432 211 105 257 199 371  66 296 251 265 302 417  70  23
+ 114  42 341 123  51  37 131  20 398 247 397 370 465 183 334 363 283 381 453 374 385  38 185   8 288 325 315 446 482
+ 359 364 367  71 226 200 256  58  41  39  21 318 368 468   7 309 439 412   5 400 337 214 152 223 481 106 198 278 210
+ 281 290 402 275 206   6 113 449 330 204   9 372 406 285 480 375 237 151 167 284  69 387 269 279 273 266 477 369 117
+ 165 379 147  81 104 332  10 173 450 241 411 203 399 358  29  83 207 168 336 248 201 215 182 313 130 252 338 138 350
+ 246 196 327 287 328 250 349 244 286  35 322 238  87 209  11 366  89 280 386 380]
+"""
+EdgeSortStrH2OSycamoreN53M16 = """
+[ 12  69 231 397 392 268 576  28 477 195 266 393 570 391  14 340 333 559 367 418 419 139 543  47 304   9 514 429 155
+ 439 158 152 553  45 560 129 486 556 188 101 416 535 575 498 551  15 504 124 580 321 156  91 177 371 554  72 121 166
+ 577 395 487 545  39 345  86 409 136 516 202 460 422 567 306 447 217 509 118 544 273 502 434 561  59 281 285 548 402
+ 364 322 491 334 414 473 494 119 113 542 381 465   5 483 305 518 270 448  46 503 342 350 203 496 566 573 534 383 138
+ 541 260 470 198 480 240  34 525 555 165 303 579 493 572 537 110 201  36 415 578 445 299 581 412 478 583 111 249 427
+  84 511  16 313 248 168 479  18  10 550 469 222 436 505   1 160 265 557 507 225 360 302 289 378 571 183 115  89 146
+ 510  73 489 108 399 435 209 425 344 193 584 157 454 423  87 182 175 403 247 574 552 547 314 453 223  98  56 387  50
+ 290 320 512 170  20 134 328 404 236  23 295 234 428 324 251 140 291 259 294 528 329 292 267 354 457 122  11 382 262
+ 369 208 452 521 224  60 533 463 229 476 374 173 300 524 242 366 315 215 243 159 472 196 269 471 449 287  27  92 440
+  53 216 286 351 370 438 353 441 357 325 197 191 563 130 390 330 501  76 406 145  63  58 417 176 327  79 218  13  95
+ 539 317  62  90 274   0  43 426 297 380 169 464 279 220 379  96 213 163 513 458 181 227 272 482 356 257 254 326 141
+ 190 278  80 481 132 398 459 373 385 123 421 362 348 347 275 411  48 310 400  93  41  97 517 150 396  74 312 245 443
+ 408 241 125 239  85 131 205 432 311 582 137  71 526 346 226 244 184 401 319 214 135 558 282 102  83  49 186 104  94
+ 180 128  31  37 343 109 405  51 204 532 256 475  54 171 519 529 430 250 298 413  75 280 112 336 468 359 309 189 221
+ 410   7 161 258  38 232 538 568 271  78 361  82 149  64 151  19 376 335 253 133 126   3 219 499 523   4  22 164  55
+   6 308 337 237 143 207 536 365 349 338 252  32 105 355 332 194  66   8 114 284  21 144 444 530 261 167  52 106 339
+ 307  35 462 148 467 283 549 433 187  33 446 263 497  44 495 527  88 116 485 162 255 368 200 352 127 384 117 238 461
+  65  61 288 103 488 437 424 569 147 178 185  17 500 301 420 199 431  70 331 323 564  67  57  30 233 562 296   2 490
+ 389 375 316 515 456 506 455  42 531 363 546 142 230 474 492 318  77 212 179 246 358  68 341 192 276 228 100  81 565
+  24 484 153 451 442 372  40 394 377 508 210 206 293  25 174 172 235 466 388 450 264 107  99 120 211 386 520  29 154
+ 407 522 277 540  26]
+"""
+EdgeSortStrH2OSycamoreN53M18 = """
+[308  47 362 144 388 273  80 128 427 165  95 167 482 471  22 100 324 274 271 473 183  82 319 123 226 266 463 268 435
+ 394 117  58  28 245 190  54 365  25 179 262 264 221 136 265 154 224 419 320 480 189 405  71 408 267 275 181 428  16
+ 223 433 301 209 398  97 231 222 184 287 282 479 339 392  23 272  55 443 312 315 146 211 470 180 432  67 393 260  52
+ 455 172 237 326 188 449 299  86  92 475 317  57 139  21 415 384 150  42 195 305 242 175 353 306  50 459 112  94 297
+  13  51 446 256 437 114 166  26 140 101 283 425 255  60 132  90 177 307  56 174 403  83 378 292 158  10 151 286 289
+ 169  89 321 208  63 122 280 401 258 102  48 168 113 110  84 295 481 278 133 421  96  40 316 469 402 161 347  27 460
+ 410 182 413 138 127   2 400 259 163 436 430 103  75 457 279 417 194 422 250 106 472 483 109 228 309 234 131 424 288
+ 444 241 350 420 396 454 121  14 376 120 412 263 356  19 141 240 135 124 390 171  73 108 220 313 196  24 229 218 215
+ 452  35 116 232 474 302 129 348 204 468  70 389   1   0 293 395  36 404 198  66 212 448 328 355 244 462 456 290 152
+  34 411 197 253 149 119 105 159   4 323 291 219 351 416 160 137 254  43  59 300  74 310 372 467 385  31 269 464  29
+ 445  45  77  17 466  93 270 431 330 458  33 199 381 153 251 235 342 447 477 143  39  38 357 277 318 441 434  11 377
+ 374  99 147 217 107 202 227 380 200 337   5 406 338 322 439 111 386  85 201 176 205  69 409 246 354 429 366  44 236
+ 451  68  61 249 164 407 371 115 358 162 261 187  37 373 367 284 329 303 142 450 118 397 453  65 252  62 248 130 156
+ 281 352 207 368 185 344 391 426 345  32 298 225  15   9  18 230 173   7 311 285 233 333 314  46 178 243  79 442 104
+  41 438 346 155 247 257 340 238 461 145  20 440 327 206 465 186  87 157 375 325 349 125  12 203 336  53 134  49  81
+ 387  98  30 360  88   8 476 418 399 126 478 214 170 361 359  78  72  64  91 210 414 332   3 296 364 216 276 331   6
+ 304 334 343  76 239 341 148 335 363 423 382 192 213 191 379 383 294 370]
+"""
+EdgeSortStrH2OSycamoreN53M20 = """
+[699 751 622 397  41 274 198 135 317   6 752  83 734 712 648  85 624 232 165 407 500  36 424  80 649 263 283 182 589
+ 442 316 113 741 744 602 271 170 434 130 150 749 646 412 394 679 264 655 306  49 410 213 614 676 663 323 579 324 163
+ 297 127 302 583 106 125 117 325 169 715  75 721 102 147 640 727  66  56  29 321 477  99  45 402 391 634  59 300 191
+ 703 209 666 732 613 695 293 706 689 670 435 608 582 122 700 654 664 735 745 307 298 299 201 400 415  22  18 617 136
+ 194  94 458 632 243 341 625 517  84 116 348 174 340  21 440  81 447 588 105 160 473 269 678 379  58 502 707 157 604
+ 312 698 738 651 328 563 562 609  51 650 643 188 510  47  14 258   7 577 710  88 492 133  55 683   4 123  78  24 743
+ 204 267 495 375 513 226 168 315 638 702  27 730 724  67 694 257 685  87 310 748  71   3 559 635 708  89  95 418  52
+ 736 211 202 110 395 111 665 368 282 284 172  43 523  34 633  70 594 581  13 626 112 486 190 716  33 153 641 161 309
+ 290  44 587 210 680 207 451 499 503 668 692 728 720 479 200  76  16 675 184 470 644  42 138 414 629 742 652 669 454
+ 506 630  73  90  82 146 275 171 430 301 584 327 733 409  32 636 631 717 158 289 140  25 677 192 313 627 688  11 288
+ 448  28 444 682 591 251 463 511 747 548 537  74 599 195  26 272 472 238 560 344 266 580 571  15 129 681 496 305  79
+ 637 249 388 308 701 119 605 326  19 661 250 164 508 658 351 381 515 569 714  62 319 142 731 466 177 693  63 573 203
+ 233 255 671 109 533 705 601 436 645  30 118  23 216 181  31 152 476 556 229 485 219   8 718 176 575 518  68 697 141
+ 156 199 279 273 722 482 471 552 144 162 320 687 115 719 711 483 490  92 336  86 468 349 103 597 107 489 459 521 148
+   5 426 555 223 244 342 386 667 621 246 139 208 276 224 314 558 143 531 539  38 189 598 132 358 120 690  72 464 527
+ 166 423  10 303 493 740  77 595 265 592 373 474 673 205 750 101 215 361  35 217 350 704 242 524 175 227 514 653 509
+ 366 230  91 252 541 505 352 662 357 408 159 557 439 516 691 660 603 231 353 546  54   0 338  98 709 498 615 359 270
+ 610  20 333 234 128 425 206 237 185 218 540 280 456 628 453 241  64 295 296 642 657 121 173 235 481 108 405 519  61
+ 543 544 331 561 696 145 542 639 619 285  40 183 475 245 339 545 104 329 240 318 494 196 384  12 620 154 239 529 187
+ 593 330 100 739 504  60 590 335 428  48 737 550 607  96 332 432 225 566 528 337 374 443 403 612 429 686  53 467 364
+ 446 600 311 383  57 260 452 256 491 304 362 365 179 360 382 659 278  37 268 411 212 478 564 291 578 281 572 134 532
+ 221 554 387 220 149 370 497 520 398 393 488 616 363 536 726 512 248 114 420 417 585 576 356 389 487 262 647 437 469
+ 413 406 322 247 178 623 480 606 551 567 222 431 684 377 723 261 460   1 674 725 534 465 180 277 729 507 422 286 753
+ 433 713 746 197 254 253 445 421 124 462  97 186 565  93 354 570 347 167   2 596 372 346  39 380 399 392 401 343 151
+  17 568 441  65 549   9 427 419 526  69 376 547 501 450 618 672  50 126 287 656 294 461 455 611  46 404 385 525 155
+ 228 355 586 438 538 553 131 259 416 396 371 574 214 449 193 367 535 236 334 390 530 345 457 522 292 484 369 378 137]
+"""
+
+
+def get_nodes_list_and_band_edges_of_tensor_ring(len_list: int = 4):
+    ban_edges = len_list
+
+    nodes = [[] for _ in range(len_list)]  # 初始化邻接表
+    for i in range(len_list):
+        nodes[i].append((i - 1) % len_list)
+        nodes[i].append((i + 1) % len_list)
+
+        nodes[i].append(i + len_list)
+        nodes.append([i])
+    return nodes, ban_edges
+
+
+def get_nodes_list_and_band_edges_of_tensor_train(len_list: int = 4):
+    ban_edges = len_list
+
+    nodes = [[] for _ in range(len_list)]  # 初始化邻接表
+>>>>>>> Stashed changes
     for i in range(len_list):
         if i > 0:
             nodes[i].append(i - 1)
@@ -524,7 +657,35 @@ def get_nodes_list_of_tensor_train(len_list: int = 4):
             nodes[i].append(i + 1)
         nodes[i].append(i + len_list)
         nodes.append([i])
-    return nodes
+    return nodes, ban_edges
+
+
+def get_nodes_list_and_ban_edges_of_tensor_tree(depth: int = 3):
+    depth -= 1  # todo standard depth for tensor tree
+
+    # 初始化二叉树的二维列表
+    num_nodes = 2 ** (depth + 1) - 1
+    ban_edges = 2 ** depth
+    tree = [[] for i in range(num_nodes)]
+
+    # 添加二叉树的边
+    def add_edges(_depth, node=0, org_node=-1):
+        left_node = node * 2 + 1
+        right_node = node * 2 + 2
+
+        tree[node].append(org_node) if org_node >= 0 else None
+        if _depth == 0:
+            return
+        tree[node].append(left_node)
+        tree[node].append(right_node)
+
+        org_node = node
+        _depth -= 1
+        add_edges(_depth, left_node, org_node)
+        add_edges(_depth, right_node, org_node)
+
+    add_edges(depth)
+    return tree, ban_edges
 
 
 def get_nodes_ary(nodes_list: list) -> TEN:
@@ -620,19 +781,32 @@ class TensorNetworkEnv:
 
         self.dims_ten = th.stack(node_dims_arys).type(th.float32).to(device)
         self.bool_ten = th.stack(node_bool_arys).type(th.bool).to(device)
+<<<<<<< Updated upstream
         self.dims_tens = th.stack([self.dims_ten.clone() for _ in range(1)])
         self.bool_tens = th.stack([self.bool_ten.clone() for _ in range(1)])
 
         self.update_pow_counts = self.update_pow_vectorized if if_vec else self.update_pow_vanilla
 
     def get_log10_multiple_times(self, edge_sorts: TEN, if_vec: bool = True) -> TEN:
+=======
+        default_num_envs = 1
+        self.dims_tens = th.stack([self.dims_ten.clone() for _ in range(default_num_envs)])
+        self.bool_tens = th.stack([self.bool_ten.clone() for _ in range(default_num_envs)])
+
+        self.update_pow_counts = self.update_pow_vectorized if if_vec else self.update_pow_vanilla
+
+    def get_log10_multiple_times(self, edge_sorts: TEN, if_acc: bool = False) -> TEN:
+>>>>>>> Stashed changes
         # edge_argsort = th.rand(self.num_edges).argsort()
         device = self.device
         edges_ary: TEN = self.edges_ary
         num_envs, run_edges = edge_sorts.shape
+<<<<<<< Updated upstream
         # if run_edges != self.num_edges - self.ban_edges:
         #     print(f"TensorNetworkEnv.get_log10_multiple_times(edge_sorts). "
         #           f"WARNING: run_edges {run_edges} != num_edges {self.num_edges} - ban_edges {self.ban_edges}")
+=======
+>>>>>>> Stashed changes
 
         if not (self.dims_tens.shape[0] == self.bool_tens.shape[0] == num_envs):
             self.dims_tens = th.stack([self.dims_ten.clone() for _ in range(num_envs)])
@@ -645,7 +819,12 @@ class TensorNetworkEnv:
             edge_is = edge_sorts[:, i]
             self.update_pow_counts(i, edge_is, edges_ary, dims_tens, bool_tens, pow_counts)
 
+<<<<<<< Updated upstream
         result = self.get_multiple_times_vectorized(pow_counts) if if_vec \
+=======
+        # pow_counts += 1  # todo WARMING (Maybe opt_einsum is wrong)
+        result = self.get_multiple_times_vectorized(pow_counts) if if_acc \
+>>>>>>> Stashed changes
             else self.get_multiple_times_accurately(pow_counts)
         return result.detach()
 
@@ -709,7 +888,11 @@ class TensorNetworkEnv:
         # assert ct_bools.shape == (num_envs, num_nodes)
 
         # 初始化的时候，给每个节点它自己多送了一个 2 ** 1 标记，排除重复的乘法时，会多减了它自己，下面的代码把它加回去
+<<<<<<< Updated upstream
         pow_count = ct_dimss.sum(dim=1) - (ct_dimss * ct_bools).sum(dim=1) * 0.5 + 1
+=======
+        pow_count = ct_dimss.sum(dim=1) - (ct_dimss * ct_bools).sum(dim=1) * 0.5
+>>>>>>> Stashed changes
         pow_counts[:, i] = pow_count * if_diffs
 
         '''adjust two list: dims_arys, bool_arys'''
@@ -807,7 +990,11 @@ def unit_test_get_log10_multiple_times():
     # nodes_list, ban_edges = NodesSycamoreN12M14, 0
     # nodes_list, ban_edges = NodesSycamoreN14M14, 0
     # nodes_list, ban_edges = NodesSycamoreN53M12, 0
+<<<<<<< Updated upstream
     nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=8), 8
+=======
+    nodes_list, ban_edges = get_nodes_list_and_band_edges_of_tensor_train(len_list=8)
+>>>>>>> Stashed changes
     # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=100), 100
     # nodes_list, ban_edges = get_nodes_list_of_tensor_train(len_list=2000), 2000
     # from TNCO_env import get_nodes_list_of_tensor_tree
@@ -827,9 +1014,15 @@ def unit_test_get_log10_multiple_times():
     print(f"multiple_times(log10) {multiple_times.cpu().numpy()}")
 
     edge_arys = th.rand((num_envs, env.num_edges - env.ban_edges), device=device)
+<<<<<<< Updated upstream
     multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1), if_vec=True)
     print(f"multiple_times(log10) if_vec=True  {multiple_times.cpu().numpy()}")
     multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1), if_vec=False)
+=======
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1), if_acc=True)
+    print(f"multiple_times(log10) if_vec=True  {multiple_times.cpu().numpy()}")
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_arys.argsort(dim=1), if_acc=False)
+>>>>>>> Stashed changes
     print(f"multiple_times(log10) if_vec=False {multiple_times.cpu().numpy()}")
 
 
@@ -874,7 +1067,12 @@ def unit_test_convert_node2s_to_edge_sorts_of_load():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
+<<<<<<< Updated upstream
     nodes_list, ban_edges = NodesSycamoreN53M20, 0
+=======
+    # nodes_list, ban_edges = NodesSycamoreN53M20, 0
+    nodes_list, ban_edges = get_nodes_list_and_band_edges_of_tensor_train(len_list=100)
+>>>>>>> Stashed changes
     env = TensorNetworkEnv(nodes_list=nodes_list, ban_edges=ban_edges, device=device)
     print(f"\nnum_nodes      {env.num_nodes:9}"
           f"\nnum_edges      {env.num_edges:9}"
@@ -887,11 +1085,19 @@ def unit_test_convert_node2s_to_edge_sorts_of_load():
     print(edge_sort)
 
     edge_sorts = edge_sort.unsqueeze(0)
+<<<<<<< Updated upstream
     multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts.to(device), if_vec=True)
     multiple_times = multiple_times.cpu().numpy()[0]
     print(f"multiple_times(log10) {multiple_times:20.16f}    "
           f"diff (if_vec=True)    {multiple_times - ground_true_log10:9.3e}")
     multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts.to(device), if_vec=False)
+=======
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts.to(device), if_acc=True)
+    multiple_times = multiple_times.cpu().numpy()[0]
+    print(f"multiple_times(log10) {multiple_times:20.16f}    "
+          f"diff (if_vec=True)    {multiple_times - ground_true_log10:9.3e}")
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts.to(device), if_acc=False)
+>>>>>>> Stashed changes
     multiple_times = multiple_times.cpu().numpy()[0]
     print(f"multiple_times(log10) {multiple_times:20.16f}    "
           f"diff (if_vec=False)   {multiple_times - ground_true_log10:9.3e}")
@@ -901,6 +1107,7 @@ def unit_test_edge_sorts_to_log10_multiple_times():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
+<<<<<<< Updated upstream
     edge_sort_str = EdgeSortStrH2OSycamoreN12M14  # 5.8802926980863841, otherSOTA 5.83
 
     edge_sort_str = EdgeSortStrH2OSycamoreN53M12  # 15.0808558142151714, otherSOTA 12.869
@@ -908,6 +1115,15 @@ def unit_test_edge_sorts_to_log10_multiple_times():
     edge_sort_str = EdgeSortStrH2OSycamoreN53M16  # 20.1694935624996106, otherSOTA 17.012
     edge_sort_str = EdgeSortStrH2OSycamoreN53M18  # 24.0913914307142356, otherSOTA 17.484
     edge_sort_str = EdgeSortStrH2OSycamoreN53M20  # 22.3475084308591754, otherSOTA 18.544
+=======
+    edge_sort_str = EdgeSortStrH2OSycamoreN12M14  # 5.5792907356870209, otherSOTA 5.83
+
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M12  # 14.7798258185512630, otherSOTA 12.869
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M14  # 15.2322678386901487, otherSOTA 14.420
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M16  # 19.8684635668356293, otherSOTA 17.012
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M18  # 23.7903614350502544, otherSOTA 17.484
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M20  # 21.1282464668655585, otherSOTA 18.544
+>>>>>>> Stashed changes
 
     edge_sort = convert_str_ary_to_list_as_edge_sort(edge_sort_str)
     edge_sort = th.tensor(edge_sort, dtype=th.long).to(device)
@@ -930,7 +1146,11 @@ def unit_test_edge_sorts_to_log10_multiple_times():
 
     '''get multiple_times'''
     edge_sorts = edge_sort.unsqueeze(0)
+<<<<<<< Updated upstream
     multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts.to(device), if_vec=False)
+=======
+    multiple_times = env.get_log10_multiple_times(edge_sorts=edge_sorts.to(device), if_acc=False)
+>>>>>>> Stashed changes
     multiple_times = multiple_times.cpu().numpy()[0]
     print(f"multiple_times(log10) {multiple_times:20.16f}")
 
@@ -940,6 +1160,7 @@ def unit_test_edge_sorts_to_log10_multiple_times():
 
 
 def unit_test_warm_up():
+<<<<<<< Updated upstream
     gpu_id = 0
     warm_up_size = 2 ** 14  # 2 ** 20
     target_score = -th.inf  # 7.0
@@ -950,28 +1171,87 @@ def unit_test_warm_up():
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
     env = TensorNetworkEnv(nodes_list=nodes_list, ban_edges=ban_edges, device=device)
+=======
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    warm_up_size = 2 ** 6  # 2 ** 14
+    target_score = -th.inf  # 7.0
+    """
+    你可以选择 target_score = 负无穷，然后设置你想要的 warm_up_size ，直接测试仿真环境 并行与否 的耗时
+    也可以选择 warm_up_size = 正无穷，然后设置你想要的 target_score ，直接测试仿真环境 并行与否 的耗时
+    """
+    if_vec = True  # 设置 if_vec = True。可以在有GPU的情况下，高效快速地并行计算乘法次数
+    if_acc = True  # 设置 if_acc = True。这种设置虽然慢，但是它使用int计算，能非常精确且不溢出地算出结果（能避免nan）
+    env_nums = 2 ** 2
+    """
+    在启用 if_vec = True 的情况下，你可以设置 env_nums 来主动设置并行子环境数量。
+    越好的GPU，就可以设置越大的 env_nums，设置到 GPU使用率无法再提高的情况下，会得到一个接近最高性价比的 env_nums
+    """
+
+    # nodes_list, ban_edges = NodesSycamoreN12M14, 0
+    # nodes_list, ban_edges = get_nodes_list_of_tensor_train(100), 100
+    nodes_list, ban_edges = get_nodes_list_and_ban_edges_of_tensor_tree(depth=9)
+
+    """
+    这里你可以选择不同的张量电路无向图，在这里跑不同的任务。注意选择正确的 ban_edges 以及对应的 target_socre
+    """
+
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+
+    env = TensorNetworkEnv(nodes_list=nodes_list, ban_edges=ban_edges, device=device, if_vec=if_vec)
+>>>>>>> Stashed changes
     dim = env.num_edges - env.ban_edges
 
     min_score = th.inf
 
     from time import time as timer
     start_time = timer()
+<<<<<<< Updated upstream
     i = 0
+=======
+>>>>>>> Stashed changes
     for i in range(warm_up_size // env_nums):
         thetas = th.rand((env_nums, dim), dtype=th.float32, device=device)
         thetas = ((thetas - thetas.mean(dim=1, keepdim=True)) / (thetas.std(dim=1, keepdim=True) + 1e-6))
 
+<<<<<<< Updated upstream
         scores = env.get_log10_multiple_times(edge_sorts=thetas.argsort(dim=1))
         min_score = min(scores.min(dim=0)[0].item(), min_score)
         print(f"min_score {min_score:9.3f}    UsedTime {timer() - start_time:9.3f}    search_num {i * env_nums:9.0f}")
         if min_score < target_score:
             break
     print(f"min_score {min_score:9.3f}    UsedTime {timer() - start_time:9.3f}   search_num {i * env_nums:9.0f}")
+=======
+        scores = env.get_log10_multiple_times(edge_sorts=thetas.argsort(dim=1), if_acc=if_acc)
+        min_score = min(scores.min(dim=0)[0].item(), min_score)
+        print(f"MinScore {min_score:16.9f}  UsedTime {timer() - start_time:9.3f}  SearchNum {(i + 1) * env_nums:9.0f}")
+        if min_score < target_score:
+            break
+    """
+    min_score 是这一次 warm_up 搜索到的最优分数
+    UsedTime 是开始训练到此刻的耗时
+    SearchNum 是开始训练到此刻的搜索次数
+
+    实验结果：
+    nodes_list, ban_edges = get_nodes_list_of_tensor_train(100), 100
+    if_acc = False
+
+    if_vec = False       MinScore 30.404030  UsedTime   151.614  SearchNum      4096
+    env_nums = 2 ** 2    MinScore 30.404030  UsedTime    79.989  SearchNum      4096
+    env_nums = 2 ** 4    MinScore 30.404030  UsedTime    55.738  SearchNum      4096
+    env_nums = 2 ** 8    MinScore 30.404030  UsedTime    52.963  SearchNum      4096
+    env_nums = 2 ** 12   MinScore 30.404030  UsedTime    52.031  SearchNum      4096
+    """
+>>>>>>> Stashed changes
 
 
 if __name__ == '__main__':
     # unit_test_get_log10_multiple_times()
     # unit_test_convert_node2s_to_edge_sorts()
     # unit_test_convert_node2s_to_edge_sorts_of_load()
+<<<<<<< Updated upstream
     # unit_test_edge_sorts_to_log10_multiple_times()
     unit_test_warm_up()
+=======
+    unit_test_edge_sorts_to_log10_multiple_times()
+    # unit_test_warm_up()
+>>>>>>> Stashed changes
