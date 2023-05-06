@@ -1026,15 +1026,14 @@ def unit_test_edge_sorts_to_log10_multiple_times():
 
     edge_sort_str = EdgeSortStrH2OSycamoreN12M14  # 5.5765728354277142, otherSOTA 5.83 (5.53)
 
-    # edge_sort_str = EdgeSortStrH2OSycamoreN53M12  # 14.7798258185512630, otherSOTA 12.869
-    # edge_sort_str = EdgeSortStrH2OSycamoreN53M14  # 15.2322678386901487, otherSOTA 14.420
-    # edge_sort_str = EdgeSortStrH2OSycamoreN53M16  # 19.8684635668356293, otherSOTA 17.012
-    # edge_sort_str = EdgeSortStrH2OSycamoreN53M18  # 23.7903614350502544, otherSOTA 17.484
-    # edge_sort_str = EdgeSortStrH2OSycamoreN53M20  # 19.0359245864584423, otherSOTA 18.544
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M12  # 14.7798258185512630, otherSOTA 12.869
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M14  # 15.2322678386901487, otherSOTA 14.420
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M16  # 19.8684635668356293, otherSOTA 17.012
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M18  # 23.7903614350502544, otherSOTA 17.484
+    edge_sort_str = EdgeSortStrH2OSycamoreN53M20  # 19.0359245864584423, otherSOTA 18.544
 
     edge_sort = convert_str_ary_to_list_as_edge_sort(edge_sort_str)
     edge_sort = th.tensor(edge_sort, dtype=th.long).to(device)
-    edge_sort = th.arange(edge_sort.shape[0], device=device)
     """
     edge_sort = th.arange(edge_sort.shape[0], device=device)
     
