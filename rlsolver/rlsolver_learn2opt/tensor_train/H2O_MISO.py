@@ -54,22 +54,29 @@ class ObjectiveTask:
     def get_norm(x):
         return x
 
+    def get_thetas(self, num: int):
+        return None
+
 
 class OptimizerTask(nn.Module):
-    def __init__(self, num, dim, device):
+    def __init__(self, num, dim, device, thetas=None):
         super().__init__()
         self.num = num
         self.dim = dim
         self.device = device
 
         with th.no_grad():
-            thetas = th.randn((self.num, self.dim), requires_grad=True, device=device)
-            thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
-            thetas = thetas.clamp(-3, +3)
+            if thetas is None:
+                thetas = th.randn((self.num, self.dim), requires_grad=True, device=device)
+                thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
+                thetas = thetas.clamp(-3, +3)
+            else:
+                thetas = thetas.clone().detach()
+                assert thetas.shape[0] == num
         self.register_buffer('thetas', thetas.requires_grad_(True))
 
-    def re_init(self, num):
-        self.__init__(num=num, dim=self.dim, device=self.device)
+    def re_init(self, num, thetas=None):
+        self.__init__(num=num, dim=self.dim, device=self.device, thetas=thetas)
 
     def get_outputs(self):
         return self.thetas
@@ -108,13 +115,11 @@ class OptimizerOpti(nn.Module):
         self.activation = nn.Tanh()
         self.recurs1 = nn.GRUCell(inp_dim, hid_dim)
         self.recurs2 = nn.GRUCell(hid_dim, hid_dim)
-        # self.recurs3 = nn.GRUCell(hid_dim, hid_dim)
         self.output = nn.Linear(hid_dim * self.num_rnn, inp_dim)
 
     def forward(self, inp0, hid0):
         hid1 = self.activation(self.recurs1(inp0, hid0[0]))
         hid2 = self.activation(self.recurs2(hid1, hid0[1]))
-        # hid3 = self.activation(self.recurs2(hid2, hid0[2]))
 
         hid = th.cat((hid1, hid2), dim=1)
         out = self.output(hid)
@@ -139,7 +144,9 @@ def opt_loop(
         opt_opti.eval()
         obj_args = obj_task.get_args_for_eval()
         num = obj_task.num_eval
-    opt_task.re_init(num=num)
+
+    thetas = obj_task.get_thetas(num=num)
+    opt_task.re_init(num=num, thetas=thetas)
 
     opt_task.zero_grad()
 
@@ -206,7 +213,7 @@ def opt_loop(
     min_losses, ids = th.min(losses_list, dim=0)
 
     outputs_list = th.stack(outputs_list)
-    best_outputs = outputs_list[ids]
+    best_outputs = outputs_list[ids.squeeze(1), th.arange(num, device=device)]
 
     return best_outputs, min_losses
 
