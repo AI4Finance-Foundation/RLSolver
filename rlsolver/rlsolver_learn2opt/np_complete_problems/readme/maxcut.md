@@ -9,17 +9,17 @@ utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
 
 Format:
 ```
-python main.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) ...
+python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) ...
 ```
 
 If using synthetic data:
 ```
-python main.py #gpu_id (-1: cpu, >=0: gpu) 0 #N #Sparsity 
+python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) 0 #N #Sparsity 
 ```
 
 If using Gset:
 ```
-python main.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
+python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
 ```
 ## Download data using the following link:
 
