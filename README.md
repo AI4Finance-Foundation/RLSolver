@@ -50,7 +50,7 @@ RLSolver
 ├── helloworld
 |   ├──milp
 |   ├──tsp
-|   └──graph_maxcut
+|   └──maxcut
 └── rlsolver (main folder)
     ├── envs
     |   (nonconvex optimizations)
