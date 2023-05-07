@@ -74,7 +74,7 @@ RLSolver
 ## Progress
 
 - [x] MIMO
-- [x] Graph max-cut
+- [x] Maxcut
 - [ ] TSP
 - [ ] MILP
 - [ ] portfolio_management
