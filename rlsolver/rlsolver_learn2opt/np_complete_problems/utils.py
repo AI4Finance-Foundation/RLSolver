@@ -803,3 +803,34 @@ class Opt_net(nn.Module):
     def forward(self, configuration, hidden_state, cell_state):
         x, (h, c) = self.lstm(configuration, (hidden_state, cell_state))
         return self.output(x).sigmoid(), h, c
+
+def gset2npy(file: str, output_file: str):
+    file1 = open(file, 'r')
+    Lines = file1.readlines()
+
+    count = 0
+    for line in Lines:
+        count += 1
+        s = line.split()
+        if count == 1:
+            N = int(s[0])
+            edge = int(s[1])
+            adjacency = th.zeros(N, N)
+        else:
+            i = int(s[0])
+            j = int(s[1])
+            w = int(s[2])
+            adjacency[i - 1, j - 1] = w
+            adjacency[j - 1, i - 1] = w
+    sparsity = edge / (N * N)
+    print("sparsity: ", sparsity)
+    np.save(output_file, adjacency)
+    # adjacency = th.as_tensor(np.load("N800Sparsity0.007.npy"))
+    # print(adjacency.shape, adjacency.sum())
+
+def run_gset2npy():
+    N = 14
+    file = f".data/G{N}.txt"
+    output_file = f"./data/N{N}.npy"
+    gset2npy(file, output_file)
+
