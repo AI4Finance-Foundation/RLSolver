@@ -805,8 +805,6 @@ class Opt_net(nn.Module):
         return self.output(x).sigmoid(), h, c
 
 def gset2npy(file: str, output_file: str):
-    import numpy as np
-    import torch as th
     file1 = open(file, 'r')
     Lines = file1.readlines()
 
