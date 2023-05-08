@@ -677,7 +677,7 @@ def load_test_data(choice: int, device: th.device, N: int=10, sparsity: float=0.
     n = N
     if choice > 0:
         try:
-            gset_txt2npy(choice)
+            maxcut_gset2npy(choice)
             test_data = th.as_tensor(np.load(f"./data/maxcut/gset_{choice}.npy")).to(device)
         except Exception as e:
             test_data = th.zeros(n, n, device=device)
@@ -785,7 +785,7 @@ class Opt_net(nn.Module):
         return self.output(x).sigmoid(), h, c
 
 # for maxcut problem, gset txt to npy
-def gset_txt2npy(id: int):
+def maxcut_gset2npy(id: int):
     file1 = open(f"./data/maxcut/gset_{id}.txt", 'r')
     Lines = file1.readlines()
 
@@ -807,9 +807,9 @@ def gset_txt2npy(id: int):
     np.save(f"./data/maxcut/gset_{id}.npy", adjacency)
 
 
-def run_gset_txt2npy():
+def run_maxcut_gset2npy():
     N = 14
     # file = f".data/gset_{N}.txt"
     # output_file = f"./data/gset__{N}.npy"
-    gset_txt2npy(N)
+    maxcut_gset2npy(N)
 
