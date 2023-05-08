@@ -575,26 +575,6 @@ class LeNet(MetaModule):
         return self.fc_layers(x).squeeze()
 
 
-def gset2npy(id):
-    file1 = open(f"./data/maxcut/gset{id}.txt", 'r')
-    Lines = file1.readlines()
-
-    count = 0
-    for line in Lines:
-        count += 1
-        s = line.split()
-        if count == 1:
-            N = int(s[0])
-            edge = int(s[1])
-            adjacency = th.zeros(N, N)
-        else:
-            i = int(s[0])
-            j = int(s[1])
-            w = int(s[2])
-            adjacency[i - 1, j - 1] = w
-            adjacency[j - 1, i - 1] = w
-    sparsity = edge / (N * N)
-    np.save(f"./data/gset_G{id}.npy", adjacency)
 
 
 def detach_var(v, device):
@@ -692,13 +672,13 @@ def get_cwd(folder_name, N):
 
 # choice 0: use Synthetic data with N and sparsity
 # choice >= 1: use Gset with the ID choice
-def load_test_data(choice, device, N=10, sparsity=0.5):
+def load_test_data(choice: int, device: th.device, N: int=10, sparsity: float=0.5):
     sparsity = sparsity
     n = N
     if choice > 0:
         try:
-            gset2npy(choice)
-            test_data = th.as_tensor(np.load(f"./data/gset_G{choice}.npy")).to(device)
+            gset_txt2npy(choice)
+            test_data = th.as_tensor(np.load(f"./data/maxcut/gset_{choice}.npy")).to(device)
         except Exception as e:
             test_data = th.zeros(n, n, device=device)
             upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
@@ -708,7 +688,7 @@ def load_test_data(choice, device, N=10, sparsity=0.5):
         test_data = th.zeros(n, n, device=device)
         upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
         test_data = upper_triangle + upper_triangle.transpose(-1, -2)
-        np.save(f'./data/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
+        np.save(f'./data/maxcut/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
     return test_data
 
 
@@ -804,8 +784,9 @@ class Opt_net(nn.Module):
         x, (h, c) = self.lstm(configuration, (hidden_state, cell_state))
         return self.output(x).sigmoid(), h, c
 
-def gset2npy(file: str, output_file: str):
-    file1 = open(file, 'r')
+# for maxcut problem, gset txt to npy
+def gset_txt2npy(id: int):
+    file1 = open(f"./data/maxcut/gset_{id}.txt", 'r')
     Lines = file1.readlines()
 
     count = 0
@@ -823,14 +804,12 @@ def gset2npy(file: str, output_file: str):
             adjacency[i - 1, j - 1] = w
             adjacency[j - 1, i - 1] = w
     sparsity = edge / (N * N)
-    print("sparsity: ", sparsity)
-    np.save(output_file, adjacency)
-    # adjacency = th.as_tensor(np.load("N800Sparsity0.007.npy"))
-    # print(adjacency.shape, adjacency.sum())
+    np.save(f"./data/maxcut/gset_{id}.npy", adjacency)
 
-def run_gset2npy():
+
+def run_gset_txt2npy():
     N = 14
-    file = f".data/G{N}.txt"
-    output_file = f"./data/N{N}.npy"
-    gset2npy(file, output_file)
+    # file = f".data/gset_{N}.txt"
+    # output_file = f"./data/gset__{N}.npy"
+    gset_txt2npy(N)
 
