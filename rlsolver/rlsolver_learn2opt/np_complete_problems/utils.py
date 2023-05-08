@@ -576,7 +576,7 @@ class LeNet(MetaModule):
 
 
 def gset2npy(id):
-    file1 = open(f"./data/Gset/G{id}.txt", 'r')
+    file1 = open(f"./data/maxcut/gset{id}.txt", 'r')
     Lines = file1.readlines()
 
     count = 0

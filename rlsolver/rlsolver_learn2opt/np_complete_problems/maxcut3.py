@@ -23,7 +23,7 @@ def train(num_nodes: int,
           hidden_layer_size: int):
     env_maxcut = MaxcutEnv(num_nodes=num_nodes, num_envs=num_envs, device=device, episode_length=episode_length)
 
-    env_maxcut.load_graph(f"./data/maxcut/gset_G{sys.argv[1]}.npy")
+    env_maxcut.load_graph(f"./data/maxcut/gset_{sys.argv[1]}.npy")
     l_num = 1
     h_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
     c_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
