@@ -43,10 +43,6 @@ class ObjectiveTask:
         return self.args
 
     @staticmethod
-    def get_objective(*_args) -> TEN:
-        return th.zeros()
-
-    @staticmethod
     def get_objectives(*_args) -> TEN:
         return th.zeros()
 
@@ -82,29 +78,6 @@ class OptimizerTask(nn.Module):
         return self.thetas
 
 
-class OptimizerOpti3(nn.Module):
-    def __init__(self, inp_dim: int, hid_dim: int):
-        super().__init__()
-        self.inp_dim = inp_dim
-        self.hid_dim = hid_dim
-        self.num_rnn = 3
-
-        self.activation = nn.Tanh()
-        self.recurs1 = nn.GRUCell(inp_dim, hid_dim)
-        self.recurs2 = nn.GRUCell(hid_dim, hid_dim)
-        self.recurs3 = nn.GRUCell(hid_dim, hid_dim)
-        self.output = nn.Linear(hid_dim * self.num_rnn, inp_dim)
-
-    def forward(self, inp0, hid0):
-        hid1 = self.activation(self.recurs1(inp0, hid0[0]))
-        hid2 = self.activation(self.recurs2(hid1, hid0[1]))
-        hid3 = self.activation(self.recurs2(hid2, hid0[2]))
-
-        hid = th.cat((hid1, hid2, hid3), dim=1)
-        out = self.output(hid)
-        return out, (hid1, hid2, hid3)
-
-
 class OptimizerOpti(nn.Module):
     def __init__(self, inp_dim: int, hid_dim: int):
         super().__init__()
@@ -115,15 +88,21 @@ class OptimizerOpti(nn.Module):
         self.activation = nn.Tanh()
         self.recurs1 = nn.GRUCell(inp_dim, hid_dim)
         self.recurs2 = nn.GRUCell(hid_dim, hid_dim)
-        self.output = nn.Linear(hid_dim * self.num_rnn, inp_dim)
+        self.output0 = nn.Linear(hid_dim * self.num_rnn, inp_dim)
+        layer_init_with_orthogonal(self.output0, std=0.1)
 
-    def forward(self, inp0, hid0):
-        hid1 = self.activation(self.recurs1(inp0, hid0[0]))
-        hid2 = self.activation(self.recurs2(hid1, hid0[1]))
+    def forward(self, inp0, hid_):
+        hid1 = self.activation(self.recurs1(inp0, hid_[0]))
+        hid2 = self.activation(self.recurs2(hid1, hid_[1]))
 
         hid = th.cat((hid1, hid2), dim=1)
-        out = self.output(hid)
+        out = self.output0(hid)
         return out, (hid1, hid2)
+
+
+def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
+    th.nn.init.orthogonal_(layer.weight, std)
+    th.nn.init.constant_(layer.bias, bias_const)
 
 
 def opt_loop(
@@ -185,7 +164,8 @@ def opt_loop(
 
         if if_train:
             if iteration % unroll == 0:
-                all_loss = th.min(th.stack(all_losses[iteration - unroll:iteration]), dim=0)[0].mean()
+                # all_loss = th.min(th.stack(all_losses[iteration - unroll:iteration]), dim=0)[0].mean()
+                all_loss = th.stack(all_losses[iteration - unroll:iteration]).mean()
                 opt_base.zero_grad()
                 all_loss.backward()
                 opt_base.step()
