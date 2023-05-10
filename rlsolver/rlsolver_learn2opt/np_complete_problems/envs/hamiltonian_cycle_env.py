@@ -5,7 +5,7 @@ import numpy as np
 from torch import Tensor
 from envs._base_env import _BaseEnv
 # from _base_env import _BaseEnv
-class HamiltonianEnv(_BaseEnv):
+class HamiltonianCycleEnv(_BaseEnv):
     def __init__(self, num_nodes=20, num_envs=128, device=th.device("cuda:0"), episode_length=6):
         self.num_nodes = num_nodes
         self.num_envs = num_envs
@@ -34,7 +34,7 @@ class HamiltonianEnv(_BaseEnv):
         return ((part1 ** 2).sum() + (part2 ** 2).sum() + part3.sum()) / self.num_envs
 
 if __name__ == '__main__':
-    env = HamiltonianEnv()
+    env = HamiltonianCycleEnv()
     env.num_envs = 1
     env.num_nodes = 3
     env.adjacency_matrix = th.Tensor([[0, 1, 0],
