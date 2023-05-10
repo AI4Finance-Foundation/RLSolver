@@ -4,6 +4,7 @@ from copy import deepcopy
 import numpy as np
 from torch import Tensor
 from envs._base_env import _BaseEnv
+# from rlsolver.rlsolver_learn2opt.np_complete_problems.envs._base_env import _BaseEnv
 # from _base_env import _BaseEnv
 class HamiltonianCycleEnv(_BaseEnv):
     def __init__(self, num_nodes=20, num_envs=128, device=th.device("cuda:0"), episode_length=6):
@@ -16,11 +17,11 @@ class HamiltonianCycleEnv(_BaseEnv):
 
 
     # make sure that mu1 and mu2 are different tensors. If they are the same, use get_cut_value_one_tensor
-    def calc_obj_for_two_graphs(self, mu1, mu2):
+    def calc_obj_for_two_graphs(self, mu1: Tensor, mu2: Tensor):
         return self.calc_obj_for_one_graph(mu1) \
                + self.calc_obj_for_one_graph(mu2)
 
-    def calc_obj_for_one_graph(self, mu):
+    def calc_obj_for_one_graph(self, mu: Tensor):
         mu1_roll = mu.roll(shifts=self.num_nodes - 1, dims=1)  # roll
         indices = (self.adjacency_matrix == 0).nonzero(as_tuple=True)
         indices_i = indices[0]  # indices for rows

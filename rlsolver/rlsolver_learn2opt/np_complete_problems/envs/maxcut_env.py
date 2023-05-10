@@ -4,6 +4,8 @@ from copy import deepcopy
 import numpy as np
 from torch import Tensor
 from envs._base_env import _BaseEnv
+# from rlsolver.rlsolver_learn2opt.np_complete_problems.envs._base_env import _BaseEnv
+
 # from _base_env import _BaseEnv
 class MaxcutEnv(_BaseEnv):
     def __init__(self, num_nodes=20, num_envs=128, device=th.device("cuda:0"), episode_length=6):
@@ -16,7 +18,7 @@ class MaxcutEnv(_BaseEnv):
 
 
     # make sure that mu1 and mu2 are different tensors. If they are the same, use calc_obj_for_one_graph
-    def calc_obj_for_two_graphs(self, mu1, mu2):
+    def calc_obj_for_two_graphs(self, mu1: Tensor, mu2: Tensor):
         # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
         #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
         #               self.adjacency_matrix)\
@@ -44,7 +46,7 @@ class MaxcutEnv(_BaseEnv):
                + th.mul(th.matmul(1 - mu1.reshape(-1, self.num_nodes, 1), mu2.reshape(-1, self.num_nodes, 1).transpose(-1, -2)),
                         self.adjacency_matrix)
 
-    def calc_obj_for_one_graph(self, mu):
+    def calc_obj_for_one_graph(self, mu: Tensor):
         # mu1 = mu1.reshape(-1, self.N, 1)
         # mu2 = mu1.reshape(-1, self.N, 1)
         # mu2_1_t = (1 - mu2).transpose(-1, -2)

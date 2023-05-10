@@ -32,5 +32,5 @@ class _BaseEnv():
     def calc_obj_for_two_graphs(self, mu1: Tensor, mu2: Tensor):
         pass
 
-    def calc_obj_for_one_graph(self, mu1: Tensor):
+    def calc_obj_for_one_graph(self, mu: Tensor):
         pass
