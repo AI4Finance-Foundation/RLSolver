@@ -15,7 +15,7 @@ class MaxcutEnv(_BaseEnv):
         self.adjacency_matrix = None
 
 
-    # make sure that mu1 and mu2 are different tensors. If they are the same, use get_cut_value_one_tensor
+    # make sure that mu1 and mu2 are different tensors. If they are the same, use calc_obj_for_one_graph
     def calc_obj_for_two_graphs(self, mu1, mu2):
         # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
         #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
@@ -44,7 +44,7 @@ class MaxcutEnv(_BaseEnv):
                + th.mul(th.matmul(1 - mu1.reshape(-1, self.num_nodes, 1), mu2.reshape(-1, self.num_nodes, 1).transpose(-1, -2)),
                         self.adjacency_matrix)
 
-    def calc_obj_for_one_graph(self, mu1):
+    def calc_obj_for_one_graph(self, mu):
         # mu1 = mu1.reshape(-1, self.N, 1)
         # mu2 = mu1.reshape(-1, self.N, 1)
         # mu2_1_t = (1 - mu2).transpose(-1, -2)
@@ -52,4 +52,4 @@ class MaxcutEnv(_BaseEnv):
         # cut = mu12.flatten().sum(dim=-1) / self.num_env
         # return cut
 
-        return th.mul(th.matmul(mu1.reshape(-1, self.num_nodes, 1), (1 - mu1.reshape(-1, self.num_nodes, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1) / self.num_envs
+        return th.mul(th.matmul(mu.reshape(-1, self.num_nodes, 1), (1 - mu.reshape(-1, self.num_nodes, 1)).transpose(-1, -2)), self.adjacency_matrix).flatten().sum(dim=-1) / self.num_envs
