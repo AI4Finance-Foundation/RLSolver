@@ -22,16 +22,16 @@ class HamiltonianCycleEnv(_BaseEnv):
                + self.calc_obj_for_one_graph(mu2)
 
     def calc_obj_for_one_graph(self, mu: Tensor):
-        mu1_roll = mu.roll(shifts=self.num_nodes - 1, dims=1)  # roll
+        part1 = (1 - mu.sum(dim=0))
+        part2 = (1 - mu.sum(dim=1))
+        mu_roll = mu.roll(shifts=self.num_nodes - 1, dims=1)  # roll
         indices = (self.adjacency_matrix == 0).nonzero(as_tuple=True)
-        indices_i = indices[0]  # indices for rows
-        indices_j = indices[1]  # indices for cols
+        indices_i = indices[0]  # indices for rows in mu
+        indices_j = indices[1]  # indices for rows in mu_roll
         indices_k = (indices_i != indices_j).nonzero(as_tuple=True)  # remove the indices like (0, 0), (1, 1), ...
         indices_i_ = indices_i[indices_k]
         indices_j_ = indices_j[indices_k]
-        part1 = (1 - mu.sum(dim=0))
-        part2 = (1 - mu.sum(dim=1))
-        part3 = th.mul(mu[indices_i_], mu1_roll[indices_j_])
+        part3 = th.mul(mu[indices_i_], mu_roll[indices_j_])
         return ((part1 ** 2).sum() + (part2 ** 2).sum() + part3.sum()) / self.num_envs
 
 if __name__ == '__main__':
