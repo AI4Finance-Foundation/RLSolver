@@ -1,3 +1,3 @@
-这是之前含有bug的代码!!!!
-之前结果的相关记录：
-n53m20          17.078
+This is the previous code containing the bug !!!!
+Related records of previous results:
+n53m20 17.078
