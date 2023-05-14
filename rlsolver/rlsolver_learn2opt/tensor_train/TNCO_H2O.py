@@ -9,7 +9,7 @@ from H2O_MISO import ObjectiveTask, OptimizerTask, OptimizerOpti
 from H2O_MISO import opt_loop
 
 from TNCO_env import TensorNetworkEnv  # get_nodes_list
-from TNCO_env import NodesSycamoreN53M12, NodesSycamoreN53M20, NodesSycamoreN12M14
+from TNCO_env import NodesSycamoreN53M20, NodesSycamoreN12M14
 
 TEN = th.Tensor
 
@@ -22,31 +22,17 @@ BatchSize = 2 ** 11
 
 NumRepeats = 16
 IterMaxStep = 2 ** 12
-IterMinLoss = 0.2 if os.name != 'nt' else 2 ** 4
+IterMinLoss = 0.2
 EmaGamma = 0.99
-NoiseRatio = 0.5
-# Dims = (1024, 512, 256, 512, 256)
-Dims = (1024, 512, 256, 512, 256)
+NoiseRatio = 0.5  # n53m20, 12e4 second, 18.958
+Dims = (512, 256, 512, 256)  # (1024, 512, 256, 512, 256)
 HidDim = 2 ** 10
+TrainSkip = 2  # 4
 
 GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 
-# if GPU_ID in {2, }:
-#     IterMinLoss = 2 ** -1
-#     NumRepeats = 16
-# if GPU_ID in {3, }:
-#     HidDim = 2 ** 7
-#     NumRepeats = 16
-if GPU_ID in {4, }:
-    NumRepeats = 16
-if GPU_ID in {5, }:
-    NumRepeats = 16
-if GPU_ID in {6, }:
-    NumRepeats = 64
-if GPU_ID in {7, }:
-    NumRepeats = 64
-
-if os.name == 'nt':  # todo
+if os.name == 'nt':  # debug in WindowOS NewType
+    IterMinLoss = 4
     NodesList, BanEdges = NodesSycamoreN12M14, 0
 
 
@@ -77,10 +63,10 @@ class ObjModel(nn.Module):
     def __init__(self, inp_dim, out_dim, dims=(256, 256, 256)):
         super().__init__()
         assert out_dim > 0
-        self.net = build_mlp(dims=[inp_dim, *dims, 8], activation=nn.ReLU, if_raw_out=True)  # todo ensemble 8
+        self.net = build_mlp(dims=[inp_dim, *dims, 32], activation=nn.ReLU, if_raw_out=True)
         layer_init_with_orthogonal(self.net[-1], std=0.1)
 
-    def get_output(self, x):  # todo ensemble 8
+    def get_output(self, x):
         return self.net(x)
 
     def forward(self, x):
@@ -164,66 +150,6 @@ class ReplayBuffer:  # for L2O
         self.if_full = False
 
 
-def random_search_from_arange():
-    gpu_id = GPU_ID
-    nodes_list, ban_edges = NodesSycamoreN53M20, 0
-    num = int(2 ** 5)
-    save_path = f'./task_TNCO_{gpu_id:02}'
-    os.makedirs(save_path, exist_ok=True)
-
-    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-    env = TensorNetworkEnv(nodes_list=nodes_list, ban_edges=ban_edges, device=device)
-    dim = env.num_edges - env.ban_edges
-
-    theta = th.arange(dim, device=device).to(th.float32)
-    theta = (theta - theta.mean(dim=-1)) / (theta.std(dim=-1) + 1e-6)
-    thetas0 = theta.repeat(num, 1)
-
-    buffer = ReplayBuffer(max_size=BufferSize, state_dim=dim, gpu_id=gpu_id)
-    buffer.save_or_load_history(cwd=save_path, if_save=False)
-
-    start_time = time.time()
-    for noise_std in [0.05, 0.07, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0]:
-        thetas = thetas0 + th.randn_like(thetas0) * noise_std
-        thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
-        scores = env.get_log10_multiple_times(edge_sorts=thetas.argsort(dim=1)).unsqueeze(1)
-        buffer.update((thetas, scores))
-
-        # scores = buffer.get_cur_ten('scores')
-        min_score = scores.min().item()
-        avg_score = scores.mean().item()
-        print(f"noise_std {noise_std:9.3f}    "
-              f"min_score {min_score:9.3f}    "
-              f"avg_score {avg_score:9.3f} ± {scores.std(dim=0).item():9.3f}    "
-              f"UsedTime {time.time() - start_time:9.0f} sec")
-
-    num_loop = 2 ** 4
-    noise_std = 0.15
-    # scores = buffer.get_cur_ten('scores')
-    # start_time = time.time()
-    # while True:
-    #     keep_score = th.quantile(scores.squeeze(1), q=BufferRate).item()
-    #     ids = (scores < keep_score).nonzero(as_tuple=True)[0]
-    #     thetas = thetas0
-    #     for i in range(num_loop):
-    #         rd_ids = th.randperm(len(ids))[:num]
-    #         thetas = buffer.thetas[ids[rd_ids]] + th.randn_like(thetas) * noise_std
-    #         thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
-    #         scores = env.get_log10_multiple_times(edge_sorts=thetas.argsort(dim=1)).unsqueeze(1)
-    #
-    #         mask = scores.squeeze(1) < keep_score
-    #         buffer.update((thetas[mask], scores[mask]))
-    #         print(f"{i:8}    {scores.min().item():9.5f}")
-    #
-    #     scores = buffer.get_cur_ten('scores')
-    #     min_score = scores.min().item()
-    #     avg_score = scores.mean().item()
-    #     print(f"min_score: {min_score:9.3f}    "
-    #           f"avg_score: {avg_score:9.3f} ± {scores.std(dim=0).item():9.3f}    "
-    #           f"UsedTime {time.time() - start_time:9.0f} sec")
-    #     buffer.save_or_load_history(cwd=save_path, if_save=True)
-
-
 def collect_buffer_history(if_remove: bool = False):
     max_size = 2 ** 18
     save_dir0 = 'task_TNCO'
@@ -290,6 +216,9 @@ class ObjectiveTNCO(ObjectiveTask):
         self.keep_score = -th.inf
         self.best_score = th.inf
 
+        self.train_skip = TrainSkip
+        self.train_count = 0
+
         gpu_id = -1 if self.device.index is None else self.device.index
 
         """init buffer"""
@@ -330,8 +259,11 @@ class ObjectiveTNCO(ObjectiveTask):
             scores = self.get_objectives_without_grad(thetas).unsqueeze(1)  # shape == (warm_up_size, 1)
             self.buffer1.update(items=(thetas, scores))
 
-        self.fast_train_obj_model(iter_max_step=iter_max_step)
-        self.hard_update(self.obj_model0, self.obj_model1)
+        self.train_count += 1
+        if self.train_count == self.train_skip:
+            self.train_count = 0
+            self.fast_train_obj_model(iter_max_step=iter_max_step)
+            self.hard_update(self.obj_model0, self.obj_model1)
         objectives = self.obj_model0(thetas)
         return objectives
 
@@ -401,7 +333,7 @@ class ObjectiveTNCO(ObjectiveTask):
             inputs = th.vstack((inputs1, inputs0))
             labels = th.vstack((labels1, labels0))
             outputs = self.obj_model1.get_output(inputs)
-            loss = self.criterion(outputs, labels.repeat(1, outputs.shape[1]))  # todo ensemble 8
+            loss = self.criterion(outputs, labels.repeat(1, outputs.shape[1]))
 
             self.optimizer.zero_grad()
             loss.backward(retain_graph=True)
