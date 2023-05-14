@@ -46,9 +46,9 @@ Results of **ICML-Optimizing tensor network contraction using reinforcement lear
 |------- | -----|------| ----|------- | -----|------ | -----|------ |
 |Results|OE_greedy: 30.626<br>CTG_Greedy: 30.404<br>CTG_Kahypar: 30.410<br>**RL: 30.404**|OE_greedy: 60.729<br>CTG_Greedy: 60.507<br>CTG_Kahypar: 60.510<br>**RL: 60.507**|OE_greedy: 120.935<br>CTG_Greedy: 120.713<br>CTG_Kahypar: 120.713<br>**RL: 120.713**|OE_greedy:  181.141<br>CTG_Greedy: 180.919<br>CTG_Kahypar: 180.919<br>**RL: 180.919**|OE_greedy: 241.347<br>CTG_Greedy: 241.125<br>CTG_Kahypar: 241.129<br>**RL: 241.125**|OE_greedy: 301.553<br>CTG_Greedy: 301.331<br>CTG_Kahypar: 301.331<br>**RL: 301.331**|OE_greedy: N<br>CTG_Greedy: N<br>CTG_Kahypar: 451.849<br>**RL: 451.846**|OE_greedy: N<br>CTG_Greedy: N<br>CTG_Kahypar: 602.361<br>**RL: 602.361**|
 
-|TR|N=10|N=50|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
+|TR|N=100|N=200|N=400|N=600|N=800|N=1000|N=1500|N=2000|
 |-------| ----|------- | -----|------| ----|------- | -----|------ | -----|------ |
-|Results|OE_greedy: 3.842<br>CTG_Greedy: 3.687<br>CTG_Kahypar: <br>**RL: 3.687**|OE_greedy: 15.875<br>CTG_Greedy: 15.654<br>CTG_Kahypar: <br>**RL: 15.654**|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: <br>**RL: 30.705**|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: <br>**RL: 60.808**|OE_greedy: 121.236<br>CTG_Greedy: 121.014<br>CTG_Kahypar: <br>**RL: 121.014**|OE_greedy: 181.442<br>CTG_Greedy: 181.220<br>CTG_Kahypar: <br>**RL: 181.220**|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: <br>**RL: 241.426**|OE_greedy: 301.854<br>CTG_Greedy: 301.632<br>CTG_Kahypar: <br>**RL: 301.632**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>**RL: 452.147**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>**RL: 602.662**|
+|Results|OE_greedy: 30.927<br>CTG_Greedy: 30.705<br>CTG_Kahypar: <br>**RL: 30.705**|OE_greedy: 61.030<br>CTG_Greedy: 60.808<br>CTG_Kahypar: <br>**RL: 60.808**|OE_greedy: 121.236<br>CTG_Greedy: 121.014<br>CTG_Kahypar: <br>**RL: 121.014**|OE_greedy: 181.442<br>CTG_Greedy: 181.220<br>CTG_Kahypar: <br>**RL: 181.220**|OE_greedy: 241.648<br>CTG_Greedy: 241.426<br>CTG_Kahypar: <br>**RL: 241.426**|OE_greedy: 301.854<br>CTG_Greedy: 301.632<br>CTG_Kahypar: <br>**RL: 301.632**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>**RL: 452.147**|OE_greedy: <br>CTG_Greedy: <br>CTG_Kahypar: <br>**RL: 602.662**|
 
 
 
