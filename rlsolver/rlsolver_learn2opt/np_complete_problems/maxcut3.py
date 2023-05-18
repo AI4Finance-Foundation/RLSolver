@@ -30,7 +30,7 @@ def train(num_nodes: int,
     for epoch in range(100000):
         prev_h, prev_c = h_init.clone(), c_init.clone()
         loss = 0
-        if (epoch + 1) % 50 == 0:
+        if (epoch + 1) % 500 == 0:
             episode_length = max(episode_length - 1, 5)
         loss_list = th.zeros(episode_length * num_envs).to(device)
         x_prev = maxcut_env.reset(True)
