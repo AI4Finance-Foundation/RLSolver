@@ -33,23 +33,23 @@ def train(num_nodes: int,
         if (epoch + 1) % 50 == 0:
             episode_length = max(episode_length - 1, 5)
         loss_list = th.zeros(episode_length * num_envs).to(device)
-        action_prev = maxcut_env.reset()
+        x_prev = maxcut_env.reset(True)
         gamma0 = 0.98
         gamma = gamma0 ** episode_length
         for step in range(episode_length):
-            #print(action_prev.shape)
-            #print(action_prev.reshape(num_env, N, 1).shape)
-            #action, h, c = opt_net(action_prev.reshape(num_env, N, 1), prev_h, prev_c)
-            action, h, c = opt_net(action_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
+            #print(x_prev.shape)
+            #print(x_prev.reshape(num_env, N, 1).shape)
+            #x, h, c = opt_net(x_prev.reshape(num_env, N, 1), prev_h, prev_c)
+            x, h, c = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
 
-            #action = action.reshape(num_env, N)
-            l = maxcut_env.calc_obj_for_one_graph(action.reshape(num_envs, num_nodes))
+            #x = x.reshape(num_env, N)
+            l = maxcut_env.calc_obj_for_one_graph(x.reshape(num_envs, num_nodes))
             loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
             loss -= l.sum()
-            #print(action_prev.shape, action.shape)
-            l = maxcut_env.calc_obj_for_two_graphs_vmap(action_prev.reshape(num_envs, num_nodes), action.reshape(num_envs, num_nodes))
+            #print(x_prev.shape, x.shape)
+            l = maxcut_env.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes), x.reshape(num_envs, num_nodes))
             loss -= 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
-            action_prev = action.detach()
+            x_prev = x.detach()
             #prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
 
@@ -69,18 +69,18 @@ def train(num_nodes: int,
             loss = 0
             #loss_list = []
             loss_list = th.zeros(episode_length * num_envs * 2).to(device)
-            action = maxcut_env.reset()
-            sol = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
+            x = maxcut_env.reset(True)
+            xs = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
             for step in range(episode_length * 2):
-                action, h, c = opt_net(action.detach().reshape(num_envs, 1, num_nodes), h, c)
-                action = action.reshape(num_envs, num_nodes)
-                a = action.detach()
-                a = (a>0.5).to(th.float32)
+                x, h, c = opt_net(x.detach().reshape(num_envs, 1, num_nodes), h, c)
+                x = x.reshape(num_envs, num_nodes)
+                x2 = x.detach()
+                x2 = (x2>0.5).to(th.float32)
                 # print(a)
                 # assert 0
-                l = maxcut_env.calc_obj_for_one_graph(a)
+                l = maxcut_env.calc_obj_for_one_graph(x2)
                 loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
-                sol[num_envs * step: num_envs * (step + 1)] = a.detach()
+                xs[num_envs * step: num_envs * (step + 1)] = x2.detach()
                 #if (step + 6) % 2 == 0:
                     #optimizer.zero_grad()
                     #loss.backward()
@@ -99,8 +99,9 @@ def train(num_nodes: int,
                 os.makedirs(dir)
             with open(file_name, 'wb') as f:
                 # remove_files_less_equal_new_val(dir, front, end, int(val.item()))
-                # print("sol[ind]: ", sol[ind])
-                pkl.dump(sol[ind], f)
+                # print("xs[ind]: ", xs[ind])
+                pkl.dump(xs[ind], f)
+                maxcut_env.best_x = xs[ind]
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
 
 

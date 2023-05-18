@@ -13,6 +13,8 @@ class MaxcutEnv(_BaseEnv):
         self.num_envs = num_envs
         self.device = device
         self.episode_length = episode_length
+        self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
+        self.best_x = None
         self.calc_obj_for_two_graphs_vmap = th.vmap(self.calc_obj_for_two_graphs, in_dims=(0, 0))
         self.adjacency_matrix = None
 

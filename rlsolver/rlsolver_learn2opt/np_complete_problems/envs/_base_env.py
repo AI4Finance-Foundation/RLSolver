@@ -10,16 +10,21 @@ class _BaseEnv():
         self.num_envs = num_envs
         self.device = device
         self.episode_length = episode_length
+        self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
+        self.best_x = None
         self.calc_obj_for_two_graphs_vmap = th.vmap(self.calc_obj_for_two_graphs, in_dims=(0, 0))
         self.adjacency_matrix = None
 
     def load_graph(self, file_name: str):
         self.adjacency_matrix = th.as_tensor(np.load(file_name), device=self.device)
 
-    def reset(self):
-        self.configuration = th.rand(self.num_envs, self.num_nodes).to(self.device)
+    def reset(self, best_x_noise=False, best_x_ratio=0.2):
+        self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
+        if best_x_noise and self.best_x is not None:
+            n = max(1, int(th.floor(best_x_ratio * self.num_envs)))
+            self.x[0: n, :] = self.best_x + th.randn(n, self.num_nodes)
         self.num_steps = 0
-        return self.configuration
+        return self.x
 
 
 
