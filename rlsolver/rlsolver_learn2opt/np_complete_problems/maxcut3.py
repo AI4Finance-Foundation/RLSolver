@@ -33,7 +33,7 @@ def train(num_nodes: int,
         if (epoch + 1) % 50 == 0:
             episode_length = max(episode_length - 1, 5)
         loss_list = th.zeros(episode_length * num_envs).to(device)
-        x_prev = maxcut_env.reset()
+        x_prev = maxcut_env.reset(True)
         gamma0 = 0.98
         gamma = gamma0 ** episode_length
         for step in range(episode_length):
@@ -69,7 +69,7 @@ def train(num_nodes: int,
             loss = 0
             #loss_list = []
             loss_list = th.zeros(episode_length * num_envs * 2).to(device)
-            x = maxcut_env.reset()
+            x = maxcut_env.reset(True)
             xs = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
             for step in range(episode_length * 2):
                 x, h, c = opt_net(x.detach().reshape(num_envs, 1, num_nodes), h, c)
