@@ -20,7 +20,7 @@ class _BaseEnv():
 
     def reset(self, best_x_noise=False, best_x_ratio=0.2):
         self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
-        if best_x_noise:
+        if best_x_noise and self.best_x is not None:
             n = max(1, int(th.floor(best_x_ratio * self.num_envs)))
             self.x[0: n, :] = self.best_x + th.randn(n, self.num_nodes)
         self.num_steps = 0
