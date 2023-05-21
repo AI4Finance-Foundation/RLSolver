@@ -1,4 +1,4 @@
-
+# Generate myhashmap&mycurrent of opt
 import opt_einsum as oe
 import numpy as np
 import math
