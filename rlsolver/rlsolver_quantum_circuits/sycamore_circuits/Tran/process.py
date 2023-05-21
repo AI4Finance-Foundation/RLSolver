@@ -1,5 +1,5 @@
+# Convert the original order into a verifiable order
 import numpy as np
-
 with open('myhashmap.txt', 'r') as f:
     hashmap = f.readline()
     alphas = hashmap.split(',')
