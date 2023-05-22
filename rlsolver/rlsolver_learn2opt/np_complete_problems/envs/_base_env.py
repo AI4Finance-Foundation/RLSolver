@@ -18,11 +18,30 @@ class _BaseEnv():
     def load_graph(self, file_name: str):
         self.adjacency_matrix = th.as_tensor(np.load(file_name), device=self.device)
 
-    def reset(self, best_x_noise=False, best_x_ratio=0.2):
-        self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
-        if best_x_noise and self.best_x is not None:
-            n = max(1, int(best_x_ratio * self.num_envs))
-            self.x[0: n, :] = self.best_x.repeat(n, 1).to(self.device) + th.randn(n, self.num_nodes).to(self.device)
+    def reset(self, best_x=False, sample_ratio_envs=0.2, sample_ratio_nodes=0.2):
+        if best_x and self.best_x is not None:
+            e = max(1, int(sample_ratio_envs * self.num_envs))
+            n = max(1, int(sample_ratio_nodes * self.num_nodes))
+            indices_envs = th.randint(0, self.num_envs, e)  # indices of selected envs/rows
+            indices_nodes = th.randint(0, self.num_nodes, n)
+            # noise = th.randn(n, self.num_nodes).to(self.device)
+            noise = th.rand(self.num_envs, self.num_nodes).to(self.device)
+            mask = th.zeros(self.num_envs, self.num_nodes, dtype=bool)
+            mask[indices_envs, indices_nodes.unsqueeze(1)] = True
+            noise = th.mul(noise, mask).to(self.device)
+
+            mask2 = th.zeros(self.num_envs, self.num_nodes, dtype=bool)
+            mask2[indices_envs, :] = True
+            best_x = th.mul(self.best_x.repeat(self.num_envs, 1), mask2).to(self.device)
+
+            mask3 = th.ones(self.num_envs, self.num_nodes, dtype=bool)
+            mask3[indices_envs, :] = False
+            x = th.mul(th.rand(self.num_envs, self.num_nodes), mask3).to(self.device)
+
+            self.x = x + best_x + noise
+            self.x[0, :] = best_x  # the first row is best_x, no noise
+        else:
+            self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
         self.num_steps = 0
         return self.x
 
