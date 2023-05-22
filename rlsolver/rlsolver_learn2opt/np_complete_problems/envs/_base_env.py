@@ -23,7 +23,6 @@ class _BaseEnv():
             e = max(1, int(sample_ratio_envs * self.num_envs))
             n = max(1, int(sample_ratio_nodes * self.num_nodes))
             indices_envs = th.randint(0, self.num_envs, e)  # indices of selected envs/rows
-            # indices_nodes = th.randint(0, self.num_nodes, n)  # indices of selected nodes/cols
             indices_nodes = th.randint(0, self.num_nodes, n)
             # noise = th.randn(n, self.num_nodes).to(self.device)
             noise = th.rand(self.num_envs, self.num_nodes).to(self.device)
@@ -37,7 +36,7 @@ class _BaseEnv():
 
             mask3 = th.ones(self.num_envs, self.num_nodes, dtype=bool)
             mask3[indices_envs, :] = False
-            x = th.mul(self.x, mask3).to(self.device)
+            x = th.mul(th.rand(self.num_envs, self.num_nodes), mask3).to(self.device)
 
             self.x = x + best_x + noise
             self.x[0, :] = best_x  # the first row is best_x, no noise
