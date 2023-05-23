@@ -253,11 +253,10 @@ class ObjectiveTNCO(ObjectiveTask):
         self.buffer1.save_or_load_history(cwd=self.save_path, if_save=False)
 
         if self.buffer1.cur_size < warm_up_size:  # warm_up
-            noise_stds = (1.5, 1.2, 1.0, 0.5, 0.3, 0.2, 0.1, 0.005, 0.002)
+            noise_stds = (2.0, 1.5, 1.2, 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.002)
+            _warm_up_size = warm_up_size // len(noise_stds)
             for noise_std in noise_stds:
-                thetas, scores = self.random_generate_input_output(
-                    num=warm_up_size // len(noise_stds), noise_std=noise_std
-                )
+                thetas, scores = self.random_generate_input_output(num=_warm_up_size, noise_std=noise_std)
                 self.buffer1.update(items=(thetas, scores))
 
         self.save_and_check_buffer()
@@ -303,15 +302,16 @@ class ObjectiveTNCO(ObjectiveTask):
         scores = th.zeros((num, 1), dtype=th.float32, device=self.device)
         i_iter = tqdm(range(0, num, batch_size), ascii=True)
         for i in i_iter:
-            i_iter.set_description(f"TNCO | random_generate: warm_up {num}  noise {noise_std:.2f}")
+            i_iter.set_description(f"TNCO | warm_up {num}  noise {noise_std:.3f}")
             j = i + batch_size
             scores[i:j, 0] = self.get_objectives_without_grad(thetas[i:j])
 
         min_score = scores.min().item()
         avg_score = scores.mean().item()
-        print(f"TNCO | {'':43}"
+        print(f"TNCO | {'':36}"
               f"min_score {min_score:7.3f}  "
-              f"avg_score {avg_score:7.3f} ± {scores.std(dim=0).item():6.3f}")
+              f"avg_score {avg_score:7.3f} ± {scores.std(dim=0).item():6.3f}"
+              )
         return thetas, scores
 
     def fast_train_obj_model(self, iter_max_step: int):
