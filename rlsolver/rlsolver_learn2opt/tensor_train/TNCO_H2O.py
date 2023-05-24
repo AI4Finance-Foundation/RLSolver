@@ -253,7 +253,7 @@ class ObjectiveTNCO(ObjectiveTask):
         self.buffer1.save_or_load_history(cwd=self.save_path, if_save=False)
 
         if self.buffer1.cur_size < warm_up_size:  # warm_up
-            noise_stds = (2.0, 1.5, 1.2, 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.002)
+            noise_stds = (3.0, 2.0, 1.5, 1.2, 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005)
             _warm_up_size = warm_up_size // len(noise_stds)
             for noise_std in noise_stds:
                 thetas, scores = self.random_generate_input_output(num=_warm_up_size, noise_std=noise_std)
