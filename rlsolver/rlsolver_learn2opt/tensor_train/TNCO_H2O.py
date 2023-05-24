@@ -232,7 +232,7 @@ class ObjectiveTNCO(ObjectiveTask):
         else:
             edge_sort0 = th.arange(dim, device=device)
             edge_sort1 = self.env.convert_node2s_to_edge_sort(node2s=node2s, if_print=False).to(device)
-            edge_sort2 = th.tensor([x for x in edge_sort0 if x not in edge_sort1], device=device)
+            edge_sort2 = th.tensor([x for x in edge_sort0 if x not in edge_sort1], device=device, dtype = th.long)
             edge_sort = th.hstack((edge_sort1, edge_sort2))
             theta = th.zeros(dim, dtype=th.float32, device=device)
             theta[edge_sort] = th.arange(dim, device=device).to(th.float32)
