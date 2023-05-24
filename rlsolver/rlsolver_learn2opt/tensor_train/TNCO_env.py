@@ -561,6 +561,34 @@ EdgeSortStrH2OSycamoreN53M18 = """
  304 334 343  76 239 341 148 335 363 423 382 192 213 191 379 383 294 370 193 369]
 """
 EdgeSortStrH2OSycamoreN53M20 = """
+[614 695 605 656 694 693 691 612 651 654 527 652 571 704 675 665 667 707 718 735 658 534 620 573 734 597 627 682 628
+ 643 625 543 680 581 730 582 642 589 602 749 635 751 752 552 624 743 648 686 712 662 631 585 702 715 737 701 673 724
+ 727 670 728 679 746 639 739 539 594 593 548 672 745 599 617 645 633 705 587 461 501 464 499 541 454 408 533 579 451
+ 494 491 531 525 532 486 622 485 443 609 699 660 576 692 676 677 621 591 575 709 711 629 615 583 721 710 669 505 465
+ 503 584 529 487 535 405 457 449 447 497 495 493 411 366 455 419 608 463 567 521 399 523 439 481 572 442 438 519 395
+ 480 445 403 435 354 440 397 417 520 327 409 232 453 401 315 265 364 356 274 268 318 396 312 374 372 358 319 282 270
+ 317 362 407 267 236 227 313 272  56 324  95 139 179  12  98 100  13 141  57 101 242 188  59  60 275 143 147 190  63
+  66 244 187 107   2 150  16  15   7  17  79 165 125 164 203 123  82 251 214 205 298  35 118  71 117 157  27 198 155
+ 109  41  34 153 154   4 195  69  70 113  67  32 193  30  40   6   1  18   3 146 103  23 145  31  21  61 240 239  75
+ 185 121 159  78 161  36  28   5  22  37 120  29 128  84 111  43 171  45 292 131  88  85  47 129 245 207 329 167   8
+ 209 151 277 191   9 248 199  90 133 174 136  89 215 175 135 253  49 300 322 284 237  94  10  53 177 337 416 137 378
+ 459 375 259 344 332 305 293 221 169 217 303 261 211 257 219 389 308 223 255 347 310 263 225 518 301 477 385 434 393
+ 285 339 424 467 383 249 341 359 287 391 295 516 475 345 429 431 469 511 425 387 471 507 427 509 513 473 557 565  20
+ 649 603   0  11 563  24  14  25  26  19  33  42  39  38  48  44  51  50  54  52  46  55  64  58  62  68  65  73  74
+  76  80  72  77  83  81  87  91  86  93  97  92  96  99 108 105 102 104 112 114 115 106 110 119 126 116 122 130 134
+ 124 127 132 140 142 144 138 148 152 156 160 149 162 158 173 163 168 166 170 172 178 183 181 182 180 176 186 192 184
+ 196 201 197 202 194 206 200 189 208 210 204 216 212 213 222 228 220 218 226 229 234 235 224 231 230 233 241 238 243
+ 247 254 250 246 256 258 264 266 252 260 276 262 273 269 279 280 278 271 283 281 286 294 288 290 291 289 296 299 307
+ 302 304 297 306 311 309 316 314 320 325 326 323 321 328 333 331 330 335 336 334 346 342 338 348 343 349 340 352 350
+ 351 360 361 355 357 353 369 367 365 371 370 363 373 368 377 376 380 382 381 390 379 386 388 384 398 394 404 392 402
+ 400 406 410 412 414 413 415 420 418 421 422 423 430 428 432 426 436 433 458 441 452 446 437 448 456 444 450 462 466
+ 460 468 472 470 474 479 478 483 476 484 482 489 488 498 492 490 500 496 508 506 504 510 502 515 512 517 514 526 522
+ 537 536 524 528 530 540 538 542 544 545 547 546 553 556 555 550 551 554 549 558 559 561 566 560 562 564 570 568 569
+ 588 578 574 577 590 580 592 596 586 598 601 600 595 607 611 604 606 616 610 619 613 626 618 623 630 632 637 634 636
+ 640 638 653 641 650 646 659 647 644 661 655 657 666 663 668 664 674 681 671 687 685 678 683 684 688 690 689 698 696
+ 703 713 706 697 714 700 708 716 723 717 722 720 719 731 725 726 733 729 732 736 738 742 741 740 744 750 753 747 748]
+"""  # 18.7235277948334655
+"""
 [ 16  38   9  23   5  17  14  19  10   8   3   6   1  34  45  33   7  60  29  12  15  55  52  90  48  71  22  35  40
   26  63   4   2  21  68  47  11  69  41  88  84  25  13  49  50   0  73  53  32  72  18  30  54  64  24  44  79  59
   89  42  31  99  82  65  20 100  78  96  43  46 132  67  61 114 124  80  77  37  62  81  70  94  76  56  51 110 101
@@ -889,19 +917,35 @@ class TensorNetworkEnv:
 
         edges_tmp = [set(edges.tolist()) for edges in edges_ary]
         for edges in edges_tmp:
-            edges.discard(-1)
+            edges.discard(-1)  # remove the `-1` from set `edges`
+        # nodes_tmp = [set(nodes.tolist()) for nodes in nodes_ary]
+        # for nodes in nodes_tmp:
+        #     nodes.discard(-1)  # remove the `-1` from set `edges`
 
         edge_sort = []
+        edge_rest = set([i for i in range(self.num_edges - self.ban_edges)])
         for node_i0, node_i1 in node2s:
             edge_i0_set = edges_tmp[node_i0]
             edge_i1_set = edges_tmp[node_i1]
-            print(f"{node_i0:4} {str(edge_i0_set):17}    "
-                  f"{node_i1:4} {str(edge_i1_set):17}    ") if if_print else None
+            # node_i0_set = nodes_tmp[node_i0]
+            # node_i1_set = nodes_tmp[node_i1]
 
             edge_is = edge_i0_set.intersection(edge_i1_set)
             edge_i = sorted(list(edge_is))[0]  # ordered
-            #  edge_i = edge_is.pop()  # disordered
             edge_sort.append(edge_i)
+
+            edge_js = edge_rest.intersection(edge_is - {edge_i, })
+            edge_sort.extend(edge_js)
+
+            print(
+                f"\nlen(edge_js) {len(edge_js):4}    "
+                f"\n{node_i0:4} {str(edge_i0_set)}    "
+                f"\n{node_i1:4} {str(edge_i1_set)}    "
+            ) if if_print else None
+
+            assert isinstance(edge_i, int)
+            edge_rest.discard(edge_i)
+            edge_rest = edge_rest - edge_js
 
             edge_01_set = edge_i0_set.union(edge_i1_set)
             edges_tmp[node_i0] = edge_01_set
@@ -1155,17 +1199,24 @@ def unit_test_random_search_from_history():
         theta = th.arange(dim, device=device).to(th.float32)
     else:
         edge_sort0 = th.arange(dim, device=device)
-        edge_sort1 = env.convert_node2s_to_edge_sort(node2s=node2s, if_print=False).to(device)
-        edge_sort2 = th.tensor([x for x in edge_sort0 if x not in edge_sort1])
+        edge_sort1 = env.convert_node2s_to_edge_sort(node2s=node2s, if_print=True).to(device)
+        edge_sort2 = th.tensor([x for x in edge_sort0 if x not in edge_sort1], dtype=th.long)
         edge_sort = th.hstack((edge_sort1, edge_sort2))
         theta = th.zeros(dim, dtype=th.float32, device=device)
         theta[edge_sort] = th.arange(dim, device=device).to(th.float32)
     theta = (theta - theta.mean(dim=-1)) / (theta.std(dim=-1) + 1e-6)
+    score = env.get_log10_multiple_times(edge_sorts=theta.unsqueeze(0).argsort(dim=1))
+
+    import numpy as np
+    np.set_printoptions(linewidth=120)
+    print(f"scores: {score.item():9.3f}    theta:\n"
+          f"{theta.argsort().cpu().detach().numpy()}")
+
     thetas0 = theta.unsqueeze(0)
 
     best_score = th.inf
     start_time = time.time()
-    noise_std_list = [0.002, 0.005, 0.01, 0.02, 0.05, 0.07, 0.1, 0.2, 0.5, 1.0, 1.2, 1.5]
+    noise_std_list = [0.005, 0.01, 0.02, 0.05, 0.07, 0.1, 0.2, 0.5, 1.0, 1.2, 1.5, 2.0, 3.0]
     for noise_std in noise_std_list:
         thetas = thetas0 + th.randn((num, dim), dtype=th.float32, device=device) * noise_std
         thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
