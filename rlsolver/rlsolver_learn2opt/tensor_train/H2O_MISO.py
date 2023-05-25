@@ -2,7 +2,10 @@ import sys
 import time
 import torch as th
 import torch.nn as nn
-from functorch import vmap
+try:  # ObjectiveMISO requires functorch.vmap
+    from functorch import vmap
+except ImportError:
+    vmap = None  # Run MISO need
 
 TEN = th.Tensor
 

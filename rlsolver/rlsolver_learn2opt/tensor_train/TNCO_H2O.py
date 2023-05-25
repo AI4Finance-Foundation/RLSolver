@@ -222,7 +222,6 @@ class ObjectiveTNCO(ObjectiveTask):
 
         gpu_id = -1 if self.device.index is None else self.device.index
 
-        # 2023-05-22 18:03:14, todo, add historical node2s
         # build `self.historical_theta` before `self.random_generate_input_output`
         from TNCO_env import Node2sSycamoreN53N20COTE2
         node2s = Node2sSycamoreN53N20COTE2
@@ -232,7 +231,7 @@ class ObjectiveTNCO(ObjectiveTask):
         else:
             edge_sort0 = th.arange(dim, device=device)
             edge_sort1 = self.env.convert_node2s_to_edge_sort(node2s=node2s, if_print=False).to(device)
-            edge_sort2 = th.tensor([x for x in edge_sort0 if x not in edge_sort1], device=device)
+            edge_sort2 = th.tensor([x for x in edge_sort0 if x not in edge_sort1], dtype=th.long, device=device)
             edge_sort = th.hstack((edge_sort1, edge_sort2))
             theta = th.zeros(dim, dtype=th.float32, device=device)
             theta[edge_sort] = th.arange(dim, device=device).to(th.float32)
@@ -253,7 +252,7 @@ class ObjectiveTNCO(ObjectiveTask):
         self.buffer1.save_or_load_history(cwd=self.save_path, if_save=False)
 
         if self.buffer1.cur_size < warm_up_size:  # warm_up
-            noise_stds = (3.0, 2.0, 1.5, 1.2, 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005)
+            noise_stds = (1.5, 1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01)
             _warm_up_size = warm_up_size // len(noise_stds)
             for noise_std in noise_stds:
                 thetas, scores = self.random_generate_input_output(num=_warm_up_size, noise_std=noise_std)
