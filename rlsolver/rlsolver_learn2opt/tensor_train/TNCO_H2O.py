@@ -476,7 +476,7 @@ def train_optimizer():
 
         best_results, min_losses = opt_loop(
             obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti, num_opt=num_opt,
-            device=device, unroll=unroll, opt_base=opt_base, if_train=False)
+            device=device, unroll=unroll * 2, opt_base=opt_base, if_train=False)
 
         min_loss, ids = th.min(min_losses, dim=0)
         with th.no_grad():
