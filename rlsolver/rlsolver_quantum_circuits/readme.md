@@ -18,7 +18,7 @@ The file and the transformed txt file are located in sycamore_circuits/sycamore.
 
 |Sycamore_Circuit|m=12|m=14|m=16|m=18|m=20|
 |-------|------- | -----|------ |------ |------ |
-|Results|OE_greedy: 17.494<br>CTG_Greedy: 16.764<br>CTG_Kahypar: 13.107<br>**RL: 14.780**|OE_greedy: 19.378<br>CTG_Greedy: 18.981<br>CTG_Kahypar: 13.851<br>**RL: 15.232**|OE_greedy: 25.588<br>CTG_Greedy: 22.850<br>CTG_Kahypar: 16.711<br>**RL: 18.840**|OE_greedy: 26.492<br>CTG_Greedy: 23.269<br>CTG_Kahypar: 17.383<br>**RL: 18.858**|OE_greedy: 26.190<br>CTG_Greedy: 25.322<br>CTG_Kahypar: 18.525<br>**RL: 18.816**|
+|Results|OE_greedy: 17.494<br>CTG_Greedy: 16.764<br>CTG_Kahypar: 13.107<br>**RL: 14.780**|OE_greedy: 19.378<br>CTG_Greedy: 18.981<br>CTG_Kahypar: 13.851<br>**RL: 15.232**|OE_greedy: 25.588<br>CTG_Greedy: 22.850<br>CTG_Kahypar: 16.711<br>**RL: 18.840**|OE_greedy: 26.492<br>CTG_Greedy: 23.269<br>CTG_Kahypar: 17.383<br>**RL: 18.858**|OE_greedy: 26.492<br>CTG_Greedy: 24.411<br>CTG_Kahypar: 18.525<br>**RL: 18.816**|
 
 - **OE_greedy**: Daniel, G., Gray, J., et al. (2018). Opt\_einsum-a python package for optimizing contraction order for einsum-like expressions. Journal of Open Source Software, 3(26):753
 https://github.com/dgasmith/opt_einsum
