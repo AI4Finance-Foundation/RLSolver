@@ -109,14 +109,15 @@ def train(num_nodes: int,
 
 if __name__ == "__main__":
     import sys
+
     num_nodes = graph_node[sys.argv[1]]
-    hidden_layer_size = 3000
-    learning_rate = 3e-5
-    num_envs = 128
+    hidden_layer_size = 4000
+    learning_rate = 2e-5
+    num_envs = 20
     episode_length = 30
     gpu_id = int(sys.argv[2])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
-    th.manual_seed(10)
+    th.manual_seed(7)
     opt_net = Opt_net(num_nodes, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
 
