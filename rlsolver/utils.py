@@ -19,7 +19,7 @@ def to_var(x, requires_grad=True):
 
 
 def calc_file_name(front: str, id2: int, val: int, end: str):
-    return front + str(id2) + "_" + str(val) + end + "pkl"
+    return front + "_" + str(id2) + "_" + str(val) + end + "pkl"
 
 
 # e.g., gset14_345.pkl, front = "gset", end = ".", new_val = 500, then output is gset14_500.pkl
