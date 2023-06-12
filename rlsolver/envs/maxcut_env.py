@@ -18,8 +18,8 @@ class MaxcutEnv(_BaseEnv):
         self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
         self.adjacency_matrix = None
 
-
-    # make sure that mu1 and mu2 are different tensors. If they are the same, use calc_obj_for_one_graph
+    # make sure that mu1 and mu2 are different tensors. If they are the same, use obj function
+    # calc obj for two graphs
     def reward(self, mu1: Tensor, mu2: Tensor):
         # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
         #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
@@ -48,6 +48,8 @@ class MaxcutEnv(_BaseEnv):
                + th.mul(th.matmul(1 - mu1.reshape(-1, self.num_nodes, 1), mu2.reshape(-1, self.num_nodes, 1).transpose(-1, -2)),
                         self.adjacency_matrix)
 
+
+    # calc obj for one graph
     def obj(self, mu: Tensor):
         # mu1 = mu1.reshape(-1, self.N, 1)
         # mu2 = mu1.reshape(-1, self.N, 1)
