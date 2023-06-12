@@ -15,12 +15,12 @@ class MaxcutEnv(_BaseEnv):
         self.episode_length = episode_length
         self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
         self.best_x = None
-        self.calc_obj_for_two_graphs_vmap = th.vmap(self.calc_obj_for_two_graphs, in_dims=(0, 0))
+        self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
         self.adjacency_matrix = None
 
-
-    # make sure that mu1 and mu2 are different tensors. If they are the same, use calc_obj_for_one_graph
-    def calc_obj_for_two_graphs(self, mu1: Tensor, mu2: Tensor):
+    # make sure that mu1 and mu2 are different tensors. If they are the same, use obj function
+    # calc obj for two graphs
+    def reward(self, mu1: Tensor, mu2: Tensor):
         # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
         #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
         #               self.adjacency_matrix)\
@@ -41,14 +41,16 @@ class MaxcutEnv(_BaseEnv):
         # cut = cut1 + cut2 + cut12
         # return cut
 
-        return self.calc_obj_for_one_graph(mu1) \
-               + self.calc_obj_for_one_graph(mu2) \
+        return self.obj(mu1) \
+               + self.obj(mu2) \
                + th.mul(th.matmul(mu1.reshape(-1, self.num_nodes, 1), (1 - mu2.reshape(-1, self.num_nodes, 1)).transpose(-1, -2)),
                         self.adjacency_matrix) \
                + th.mul(th.matmul(1 - mu1.reshape(-1, self.num_nodes, 1), mu2.reshape(-1, self.num_nodes, 1).transpose(-1, -2)),
                         self.adjacency_matrix)
 
-    def calc_obj_for_one_graph(self, mu: Tensor):
+
+    # calc obj for one graph
+    def obj(self, mu: Tensor):
         # mu1 = mu1.reshape(-1, self.N, 1)
         # mu2 = mu1.reshape(-1, self.N, 1)
         # mu2_1_t = (1 - mu2).transpose(-1, -2)

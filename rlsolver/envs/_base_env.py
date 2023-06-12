@@ -12,7 +12,7 @@ class _BaseEnv():
         self.episode_length = episode_length
         self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
         self.best_x = None
-        self.calc_obj_for_two_graphs_vmap = th.vmap(self.calc_obj_for_two_graphs, in_dims=(0, 0))
+        self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
         self.adjacency_matrix = None
 
     def load_graph(self, file_name: str):
@@ -52,9 +52,11 @@ class _BaseEnv():
         adjacency_matrix = upper_triangle + upper_triangle.transpose(-1, -2)
         return adjacency_matrix # num_env x self.N x self.N
 
-    # make sure that mu1 and mu2 are different tensors. If they are the same, use get_cut_value_one_tensor
-    def calc_obj_for_two_graphs(self, mu1: Tensor, mu2: Tensor):
+    # make sure that mu1 and mu2 are different tensors. If they are the same, use obj function
+    # calc obj for two graphs
+    def reward(self, mu1: Tensor, mu2: Tensor):
         pass
 
-    def calc_obj_for_one_graph(self, mu: Tensor):
+    # calc obj for one graph
+    def obj(self, mu: Tensor):
         pass

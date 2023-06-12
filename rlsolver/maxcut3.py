@@ -43,7 +43,7 @@ def train(num_nodes: int,
             x, h, c = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
 
             #x = x.reshape(num_env, N)
-            l = maxcut_env.calc_obj_for_one_graph(x.reshape(num_envs, num_nodes))
+            l = maxcut_env.obj(x.reshape(num_envs, num_nodes))
             loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
             loss -= l.sum()
             #print(x_prev.shape, x.shape)
@@ -78,7 +78,7 @@ def train(num_nodes: int,
                 x2 = (x2>0.5).to(th.float32)
                 # print(a)
                 # assert 0
-                l = maxcut_env.calc_obj_for_one_graph(x2)
+                l = maxcut_env.obj(x2)
                 loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
                 xs[num_envs * step: num_envs * (step + 1)] = x2.detach()
                 #if (step + 6) % 2 == 0:
