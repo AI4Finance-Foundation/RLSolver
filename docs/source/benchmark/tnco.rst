@@ -1,3 +1,0 @@
-====================
-Tensor Network Contraction Ordering
-==================== 
