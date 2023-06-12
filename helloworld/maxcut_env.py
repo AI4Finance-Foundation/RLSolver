@@ -15,7 +15,7 @@ class MaxcutEnv():
         self.episode_length = episode_length
         self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
         self.best_x = None
-        self.calc_obj_for_two_graphs_vmap = th.vmap(self.calc_obj_for_two_graphs, in_dims=(0, 0))
+        self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
         self.adjacency_matrix = None
 
     def load_graph(self, file_name: str):
@@ -27,35 +27,17 @@ class MaxcutEnv():
         return self.x
 
     # make sure that mu1 and mu2 are different tensors. If they are the same, use calc_obj_for_one_graph
-    def calc_obj_for_two_graphs(self, mu1: Tensor, mu2: Tensor):
-        # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
-        #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
-        #               self.adjacency_matrix)\
-        #            .flatten().sum(dim=-1) \
-        #        + ((mu1-mu2)**2).sum()
-
-        # mu1 = mu1.reshape(self.N, 1)
-        # mu1_1 = 1 - mu1
-        # mu2 = mu2.reshape(-1, self.N, 1)
-        # mu2_t = mu2.transpose(-1, -2)
-        # mu2_1_t = (1 - mu2).transpose(-1, -2)
-        # mu12_ = th.mul(th.matmul(mu1, mu2_1_t), self.adjacency_matrix)
-        # mu1_2 = th.mul(th.matmul(mu1_1, mu2_t), self.adjacency_matrix)
-        # mu12 = th.min(th.ones_like(mu12_), mu12_ + mu1_2)
-        # cut12 = mu12.flatten().sum(dim=-1)
-        # cut1 = self.get_cut_value_one_tensor(mu1)
-        # cut2 = self.get_cut_value_one_tensor(mu2)
-        # cut = cut1 + cut2 + cut12
-        # return cut
-
-        return self.calc_obj_for_one_graph(mu1) \
-               + self.calc_obj_for_one_graph(mu2) \
-               + th.mul(th.matmul(mu1.reshape(-1, self.num_nodes, 1), (1 - mu2.reshape(-1, self.num_nodes, 1)).transpose(-1, -2)),
+    def reward(self, mu1: Tensor, mu2: Tensor):
+        cut1 = self.obj(mu1)
+        cut2 = self.obj(mu2)
+        cut12 = th.mul(th.matmul(mu1.reshape(-1, self.num_nodes, 1), (1 - mu2.reshape(-1, self.num_nodes, 1)).transpose(-1, -2)),
                         self.adjacency_matrix) \
                + th.mul(th.matmul(1 - mu1.reshape(-1, self.num_nodes, 1), mu2.reshape(-1, self.num_nodes, 1).transpose(-1, -2)),
                         self.adjacency_matrix)
+        cut = cut1 + cut2 + cut12
+        return cut
 
-    def calc_obj_for_one_graph(self, mu: Tensor):
+    def obj(self, mu: Tensor):
         # mu1 = mu1.reshape(-1, self.N, 1)
         # mu2 = mu1.reshape(-1, self.N, 1)
         # mu2_1_t = (1 - mu2).transpose(-1, -2)
