@@ -55,7 +55,8 @@ RLSolver
    └──data
    └──envs
    └──result (store output files)
-   └──TNCO
+   └──rlsolver_learn2opt
+      └──tensor_train
    └──graph_partitioning.py
    └──graph_partitioning_gurobi.py
    └──maxcut.py
