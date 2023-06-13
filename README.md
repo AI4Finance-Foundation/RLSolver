@@ -44,24 +44,24 @@ ElegantRL_Solver includes the following environments with the support of massive
 
 ```
 RLSolver
-└── helloworld
-    ├──knapsack
-    ├──tsp
-    └──maxcut
-├── opt_methods
-└── readme
-    ├──hamiltonian_cycle.md
-    ├──maxcut.md
-    ├──tsp.md
-└── rlsolver (main folder)
-    ├──data
-    ├──envs
-    ├──result (store files)
-    └──rlsolver_learn2opt
-       └──tensor_train
-    └──maxcut3.py
-    └──maxcut_gurobi.py
-    └──utils.py
+└──helloworld
+   ├──knapsack
+   ├──tsp
+   └──maxcut
+└──opt_methods
+└──readme
+   └──hamiltonian_cycle.md
+   └──maxcut.md
+   └──tsp.md
+└──rlsolver (main folder)
+   └──data
+   └──envs
+   └──result (store files)
+   └──rlsolver_learn2opt
+      └──tensor_train
+   └──maxcut3.py
+   └──maxcut_gurobi.py
+   └──utils.py
 
 
 ```
