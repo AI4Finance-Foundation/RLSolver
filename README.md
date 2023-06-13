@@ -59,8 +59,12 @@ RLSolver
    └──result (store output files)
    └──rlsolver_learn2opt
       └──tensor_train
+   └──graph_partitioning.py
+   └──graph_partitioning_gurobi.py
    └──maxcut3.py
    └──maxcut_gurobi.py
+   └──tsp.py
+   └──tsp_gurobi.py
    └──utils.py
 
 
