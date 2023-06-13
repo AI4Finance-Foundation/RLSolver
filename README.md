@@ -49,7 +49,7 @@ RLSolver
 |   ├──tsp
 |   └──maxcut
 ├── opt_methods
-├── readme
+└── readme
     ├──hamiltonian_cycle.md
     ├──maxcut.md
     ├──tsp.md
