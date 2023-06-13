@@ -54,14 +54,14 @@ RLSolver
     ├──maxcut.md
     ├──tsp.md
 └── rlsolver (main folder)
-    ├── data
-    |   envs
-    |   result (store files)
-    |── rlsolver_learn2opt
-    |   └──tensor_train
-    └── maxcut3.py
-    └── maxcut_gurobi.py
-    └── utils.py
+    ├──data
+    ├──envs
+    ├──result (store files)
+    └──rlsolver_learn2opt
+       └──tensor_train
+    └──maxcut3.py
+    └──maxcut_gurobi.py
+    └──utils.py
 
 
 ```
