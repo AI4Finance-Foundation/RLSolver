@@ -44,10 +44,10 @@ ElegantRL_Solver includes the following environments with the support of massive
 
 ```
 RLSolver
-├── helloworld
-|   ├──knapsack
-|   ├──tsp
-|   └──maxcut
+└── helloworld
+    ├──knapsack
+    ├──tsp
+    └──maxcut
 ├── opt_methods
 └── readme
     ├──hamiltonian_cycle.md
@@ -70,6 +70,7 @@ RLSolver
 
 - [x] MIMO
 - [x] Maxcut
+- [x] TNCO
 - [ ] TSP
 - [ ] MILP
 - [ ] portfolio_management
