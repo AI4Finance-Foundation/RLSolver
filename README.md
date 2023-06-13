@@ -45,12 +45,12 @@ ElegantRL_Solver includes the following environments with the support of massive
 ```
 RLSolver
 └──helloworld
-   ├──knapsack
-   ├──tsp
+   └──graph_partitioning
    └──maxcut
+   └──tsp
 └──opt_methods
 └──readme
-   └──hamiltonian_cycle.md
+   └──graph_partitioning.md
    └──maxcut.md
    └──tsp.md
 └──rlsolver (main folder)
@@ -61,7 +61,7 @@ RLSolver
       └──tensor_train
    └──graph_partitioning.py
    └──graph_partitioning_gurobi.py
-   └──maxcut3.py
+   └──maxcut.py
    └──maxcut_gurobi.py
    └──tsp.py
    └──tsp_gurobi.py
