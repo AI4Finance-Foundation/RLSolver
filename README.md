@@ -44,29 +44,20 @@ ElegantRL_Solver includes the following environments with the support of massive
 
 ```
 RLSolver
-├── optimal
-|   ├──branch-and-bound.py
-|   └──cutting_plane.py
 ├── helloworld
-|   ├──milp
+|   ├──knapsack
 |   ├──tsp
 |   └──maxcut
+├── opt_methods
 └── rlsolver (main folder)
-    ├── envs
-    |   (nonconvex optimizations)
-    |   ├── learn2optimize
-    |   └── mimo_beamforming 
-    |   (combinatorial optimizations)
-    |   ├── portfolio_management
-    |   ├── quantum_circuits
-    |   ├── vehicle_routing
-    |   ├── virtual_machine_placement
-    |   └── chip_design
-    |── rlsolver_learn2optimize
-    |── rlsolver_mimo_beamforming
-    |── rlsolver_portfolio_management
-    |── rlsolver_quantum_circuits
-    └── utils
+    ├── data
+    |   envs
+    |   result (store files)
+    |── rlsolver_learn2opt
+    |   └──tensor_train
+    └── maxcut3.py
+    └── maxcut_gurobi.py
+    └── utils.py
 
 
 ```
