@@ -56,7 +56,7 @@ RLSolver
 └──rlsolver (main folder)
    └──data
    └──envs
-   └──result (store files)
+   └──result (store output files)
    └──rlsolver_learn2opt
       └──tensor_train
    └──maxcut3.py
