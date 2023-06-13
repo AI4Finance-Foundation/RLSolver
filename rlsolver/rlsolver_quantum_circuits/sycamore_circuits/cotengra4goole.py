@@ -14,7 +14,7 @@ def read_input_array(file_name):
         input_array = ast.literal_eval(data)
     return input_array
 
-input_array = read_input_array('sycmore/n53_m20.txt')
+input_array = read_input_array('sycamore/n53_m20.txt')
 
 def transform_array(input_array):
     transformed_array = []
