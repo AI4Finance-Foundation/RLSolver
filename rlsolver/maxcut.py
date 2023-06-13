@@ -1,189 +1,125 @@
+import os.path
+
 import torch as th
 import torch.nn as nn
-import torch.optim as optim
-from torch.autograd import Variable
-import os
-import copy
-import numpy as np
-from utils import *
-import sys
 from copy import deepcopy
-import time
-def roll_out(N, opt_net, optimizer, best_loss, obj_fun, opt_variable_class, look_ahead_K, optim_it, opt_variable):
-    opt_variable = opt_variable
-    n_params = 0
-    for name, p in opt_variable.all_named_parameters():
-        n_params += int(np.prod(p.shape[-1]))
-    hidden_states = [Variable(th.randn(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
-    cell_states = [Variable(th.randn(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
-    loss_H_ever = []
-    optimizer.zero_grad()
-    loss_H = 0
-    for iteration in range(1, optim_it + 1):
-        loss, l_list = opt_variable(obj_fun)
-        if(min(l_list) < best_loss):
-            best_loss = min(l_list)
-            try:
-                with open(f"./best_label/label_bestloss={int(best_loss)}_batch_id={l_list.index(min(l_list))}.pkl", 'wb') as f:
-                    import pickle as pkl
-                    pkl.dump(opt_variable.theta.detach().cpu().numpy(), f)
-            except Exception as e:
-                os.mkdir('./best_label')
-                with open(f"./best_label/label_bestloss={int(best_loss)}_batch_id={l_list.index(min(l_list))}.pkl", 'wb') as f:
-                    import pickle as pkl
-                    pkl.dump(opt_variable.theta.detach().cpu().numpy(), f)
-        loss_H += loss
-        
-        loss_H_ever = loss_H_ever+l_list      
-        loss.backward(retain_graph=True)
-        offset = 0
-        result_params = {}
-        hidden_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
-        cell_states2 = [Variable(th.zeros(n_params, opt_net.hidden_sz)).to(device) for _ in range(2)]
-        for name, p in opt_variable.all_named_parameters():
-            result_params[name] = th.zeros_like(p, device=device)
-            for i in range(p.shape[0]):
-                cur_sz = int(np.prod(p[i].size()))
-                gradients = detach_var(p.grad[i].view(cur_sz, 1), device)
-                updates, new_hidden, new_cell = opt_net(gradients, [h[offset:offset+cur_sz] for h in hidden_states], [c[offset:offset+cur_sz] for c in cell_states])
-                for i in range(len(new_hidden)):
-                    hidden_states2[i][offset:offset+cur_sz] = new_hidden[i]
-                    cell_states2[i][offset:offset+cur_sz] = new_cell[i]
-                temp = p[i] + updates.view(*p[i].size())
-                result_params[name][i] = temp
-            result_params[name].retain_grad()
-            offset += cur_sz
-        if iteration % look_ahead_K == 0:
-            optimizer.zero_grad()
-            loss_H.backward()
-            optimizer.step()
-            loss_H = 0
-            opt_variable = opt_variable_class(N, device)
-            opt_variable.load_state_dict(result_params)
-            opt_variable.zero_grad()
-            hidden_states = [detach_var(v, device) for v in hidden_states2]
-            cell_states = [detach_var(v, device) for v in cell_states2]
-        else:
-            for name, p in opt_variable.all_named_parameters():
-                rsetattr(opt_variable, name, result_params[name])
-            hidden_states = hidden_states2
-            cell_states = cell_states2
-    return loss_H_ever, opt_variable
+import numpy as np
+from torch import Tensor
+# from rlsolver.rlsolver_learn2opt.np_complete_problems.envs.maxcut_env import MaxcutEnv
+from envs.maxcut_env import MaxcutEnv
 
-def do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class, optim_it, test_data, look_ahead_K, loss):
-    loss = []
-    l = loss
-    target = obj_fun(test_data, device=device)
-    test_loss = 0
-    test_loss = forward_pass(N, opt_net, target, opt_variable_class, optim_it=1, device=device)
-    loss.append(test_loss)
-    loss = np.array(loss)[0] * -1
-    loss_avg_final = loss[-1]
-    print(('{:<25}').format(*[ 'sol*']))
-    print(('{:<25.2f}').format(*[max(best_loss, best_train_loss)]))
-    # wandb.log({"best":round(best_train_loss, 0), "K":look_ahead_K, "training_loss":np.mean(l)})
-    return loss_avg_final, loss
+from utils import Opt_net
+import pickle as pkl
+from utils import calc_file_name
+graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
-def train_opt_net(N, sparsity, opt_net, optimizer, run_id, obj_fun, opt_variable_class, test_every=1, preproc=False, look_ahead_K=10, optim_it=2, lr=0.001, hidden_sz=20, load_net_path=None, save_path=None, N_train_epochs=1000, test_data=None):
-    start_time = time.time()
-    opt_variable = opt_variable_class(N, device).to(device)
-    opt_variable.duplicate_parameters(1)
-    best_net = None
-    loss = np.array([0])
-    best_loss, _ = do_test(N, 0, 0, opt_net, obj_fun, opt_variable_class=opt_variable_class, optim_it=2,  test_data=test_data, look_ahead_K=look_ahead_K, loss=loss)
-    history = { 'test_loss':[], 'train_loss':[] }
-    epoch = 0
-    best_train_loss = 0
-    for epoch in range(1, N_train_epochs+1):
-        running_time = time.time() - start_time
-        print(f"running_time: {running_time: <.0f} seconds")
-        t = deepcopy(test_data)
-        if (epoch+1) % 10 == 0:
-            last_loss = loss[-opt_variable.bs:]
-            best_loss_id= last_loss.index(min(last_loss))
-            print(f'mean loss {np.mean(last_loss)}, best loss {last_loss[best_loss_id]}' )
-            opt_variable.duplicate_parameters(best_loss_id)
-            opt_variable.flip_parameters(0.3)
-            look_ahead_K = max(look_ahead_K-1, 1)
-        loss, opt_variable = roll_out(N, opt_net, optimizer, best_train_loss, obj_fun(t, device=device), opt_variable_class,look_ahead_K, optim_it, opt_variable = opt_variable)
-        history['train_loss'].append(-np.mean(loss))
-        best_train_loss = -np.min(loss) if -np.min(loss) > best_train_loss else best_train_loss
 
-        if epoch % test_every == 0:
-            print('='*60)
-            print('epoch',epoch)
-            loss_test, _ = do_test(N, best_loss, best_train_loss, opt_net, obj_fun, opt_variable_class=opt_variable_class, optim_it=2, test_data=test_data, look_ahead_K=look_ahead_K, loss=loss)
-            history['test_loss'].append(loss)
-            np.save(save_path+'history.npy', history)
-            if loss_test > best_loss:
-                savename = f'epoch{epoch}_loss={loss_test:.2f}'
-                best_loss = loss_test
-                best_net = copy.deepcopy(opt_net.state_dict())
-                with open("best_opt_variable.pkl", 'wb') as f:
-                    import pickle as pkl
-                    pkl.dump(opt_variable, f)
-                th.save(best_net, save_path+f'epoch{epoch}_loss={loss_test:.2f}')
-                best_net_path = save_path+savename
-    return best_loss, best_net_path
+def train(num_nodes: int,
+          num_envs: int,
+          device: th.device,
+          opt_net: Opt_net,
+          optimizer: th.optim,
+          episode_length: int,
+          hidden_layer_size: int):
+    maxcut_env = MaxcutEnv(num_nodes=num_nodes, num_envs=num_envs, device=device, episode_length=episode_length)
 
-if __name__ == '__main__':
-    
-    gpu_id = int(sys.argv[1])
-    choice = int(sys.argv[2])
-    
+    maxcut_env.load_graph(f"./data/maxcut/gset_{sys.argv[1]}.npy")
+    l_num = 1
+    h_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
+    c_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
+    for epoch in range(100000):
+        prev_h, prev_c = h_init.clone(), c_init.clone()
+        loss = 0
+        if (epoch + 1) % 500 == 0:
+            episode_length = max(episode_length - 1, 5)
+        loss_list = th.zeros(episode_length * num_envs).to(device)
+        x_prev = maxcut_env.reset(True)
+        gamma0 = 0.98
+        gamma = gamma0 ** episode_length
+        for step in range(episode_length):
+            #print(x_prev.shape)
+            #print(x_prev.reshape(num_env, N, 1).shape)
+            #x, h, c = opt_net(x_prev.reshape(num_env, N, 1), prev_h, prev_c)
+            x, h, c = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
+
+            #x = x.reshape(num_env, N)
+            l = maxcut_env.obj(x.reshape(num_envs, num_nodes))
+            loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
+            loss -= l.sum()
+            #print(x_prev.shape, x.shape)
+            l = maxcut_env.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes), x.reshape(num_envs, num_nodes))
+            loss -= 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
+            x_prev = x.detach()
+            #prev_h, prev_c = h.detach(), c.detach()
+            gamma /= gamma0
+
+            if (step + 1) % 4 == 0:
+                optimizer.zero_grad()
+                #print(loss)
+                loss.backward(retain_graph=True)
+                optimizer.step()
+                loss = 0
+                #h, c = h_init.clone(), c_init.clone()
+            prev_h, prev_c = h.detach(), c.detach()
+
+        if epoch % 50 == 0:
+            print(f"epoch:{epoch} | train:",  loss_list.max().item())
+            h, c = h_init, c_init
+            # print(h_init.mean(), c_init.mean())
+            loss = 0
+            #loss_list = []
+            loss_list = th.zeros(episode_length * num_envs * 2).to(device)
+            x = maxcut_env.reset(True)
+            xs = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
+            for step in range(episode_length * 2):
+                x, h, c = opt_net(x.detach().reshape(num_envs, 1, num_nodes), h, c)
+                x = x.reshape(num_envs, num_nodes)
+                x2 = x.detach()
+                x2 = (x2>0.5).to(th.float32)
+                # print(a)
+                # assert 0
+                l = maxcut_env.obj(x2)
+                loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
+                xs[num_envs * step: num_envs * (step + 1)] = x2.detach()
+                #if (step + 6) % 2 == 0:
+                    #optimizer.zero_grad()
+                    #loss.backward()
+                    #optimizer.step()
+                    #loss = 0
+                    #h, c = h_init.clone(), c_init.clone()
+            val, ind = loss_list.max(dim=-1)
+            dir = "./result"
+            front = "gset"
+            end = "."
+            id2 = sys.argv[1]
+            file_name = dir + "/" + calc_file_name(front, id2, int(val.item()), end)
+            # print("val: ", int(val.item()))
+            # print("file_name: ", file_name)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            with open(file_name, 'wb') as f:
+                # remove_files_less_equal_new_val(dir, front, end, int(val.item()))
+                # print("xs[ind]: ", xs[ind])
+                pkl.dump(xs[ind], f)
+                maxcut_env.best_x = xs[ind]
+            print(f"epoch:{epoch} | test :",  loss_list.max().item())
+
+
+
+
+if __name__ == "__main__":
+    import sys
+
+    num_nodes = graph_node[sys.argv[1]]
+    hidden_layer_size = 4000
+    learning_rate = 2e-5
+    num_envs = 20
+    episode_length = 30
+    gpu_id = int(sys.argv[2])
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
-    if choice == 0:
-        N = int(sys.argv[3]) # num of nodes
-        sparsity= float(sys.argv[4])    
-        test_graph = load_test_data(choice, device, N, sparsity)
-    else:
-        id = int(sys.argv[3])
-        test_graph = load_test_data(id, device)
-        N = test_graph.size()[0]
-        sparsity = test_graph.sum() / (N * N)
-    optim_it = 100
-    look_ahead_K = 20
-    obj_fun = Obj_fun
-    opt_variable_class = Opt_variable
-    folder_name = "opt_nets"
-    save_path, run_id = get_cwd(folder_name, N)
-    
-    
-    hidden_sz = 40
-    lr = 1e-3
+    th.manual_seed(7)
+    opt_net = Opt_net(num_nodes, hidden_layer_size).to(device)
+    optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
 
-    if_wandb = False
-    config = {
-    }
-    if if_wandb:
-        import wandb
-        wandb.init(
-            project=f'graph_maxcut',
-            entity="sxun",
-            sync_tensorboard=True,
-            config=config,
-            name=f"G14_N800",
-            monitor_gym=True,
-            save_code=True,
-    )
+    train(num_nodes, num_envs, device, opt_net, optimizer, episode_length, hidden_layer_size)
 
-    
-    preproc=False
-    opt_net = Opt_net2(preproc=preproc, hidden_sz=hidden_sz).to(device)
-    optimizer = optim.Adam(opt_net.parameters(), lr=lr)
-    loss, path = train_opt_net(N=N,
-                               sparsity=sparsity,
-                               opt_net=opt_net,
-                               optim_it=optim_it,
-                               optimizer=optimizer,
-                               run_id=run_id,
-                               obj_fun=obj_fun,
-                               opt_variable_class=opt_variable_class,
-                               look_ahead_K=look_ahead_K,
-                               test_every=1,
-                               hidden_sz=hidden_sz,
-                               lr=lr,
-                               load_net_path=None,
-                               save_path=save_path,
-                               N_train_epochs=3000,
-                               test_data=test_graph)
