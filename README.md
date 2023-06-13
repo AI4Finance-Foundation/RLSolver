@@ -45,9 +45,7 @@ ElegantRL_Solver includes the following environments with the support of massive
 ```
 RLSolver
 └──helloworld
-   └──graph_partitioning
    └──maxcut
-   └──tsp
 └──opt_methods
 └──readme
    └──graph_partitioning.md
