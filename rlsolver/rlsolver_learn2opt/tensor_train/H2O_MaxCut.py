@@ -205,95 +205,148 @@ def opt_loop(
 """run"""
 
 
-class BaseEnv:
-    def __init__(self, num_nodes: int = 20, num_envs: int = 128, device: th.device = th.device("cuda:0"),
-                 episode_length: int = 6):
-        self.num_nodes = num_nodes
+class GraphMaxCutEnv:
+    def __init__(self, num_envs=8, device=th.device('cpu')):
+        txt_path = "./graph_set_G14.txt"
+
+        with open(txt_path, 'r') as file:
+            lines = file.readlines()
+            lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
+
+        num_nodes, num_edges = lines[0]
+        edge_to_n0_n1_dist = [(i[0] - 1, i[1] - 1, i[2]) for i in lines[1:]]
+
+        '''
+        n0: index of node0
+        n1: index of node1
+        dt: distance between node0 and node1
+        p0: the probability of node0 is in set, (1-p0): node0 is in another set
+        p1: the probability of node0 is in set, (1-p1): node0 is in another set
+        '''
+
+        n0_to_n1s = [[] for _ in range(num_nodes)]  # 将 node0_id 映射到 node1_id
+        n0_to_dts = [[] for _ in range(num_nodes)]  # 将 mode0_id 映射到 node1_id 与 node0_id 的距离
+        for n0, n1, dist in edge_to_n0_n1_dist:
+            n0_to_n1s[n0].append(n1)
+            n0_to_dts[n0].append(dist)
+        n0_to_n1s = [th.tensor(node1s, dtype=th.long, device=device) for node1s in n0_to_n1s]
+        n0_to_dts = [th.tensor(node1s, dtype=th.long, device=device) for node1s in n0_to_dts]  # dists == 1
+        assert num_nodes == len(n0_to_n1s)
+        assert num_nodes == len(n0_to_dts)
+        assert num_edges == sum([len(n0_to_n1) for n0_to_n1 in n0_to_n1s])
+        assert num_edges == sum([len(n0_to_dt) for n0_to_dt in n0_to_dts])
+
         self.num_envs = num_envs
+        self.num_nodes = len(n0_to_n1s)
+        self.num_edges = sum([len(n0_to_n1) for n0_to_n1 in n0_to_n1s])
+        self.n0_to_n1s = n0_to_n1s
         self.device = device
-        self.episode_length = episode_length
-        self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
-        self.best_x = None
-        self.calc_obj_for_two_graphs_vmap = th.vmap(self.calc_obj_for_two_graphs, in_dims=(0, 0))
-        self.adjacency_matrix = None
-        self.num_steps = None
 
-    def load_graph(self, file_name: str):
-        import numpy as np  # todo not elegant
-        self.adjacency_matrix = th.as_tensor(np.load(file_name), device=self.device)
+        '''为了高性能计算，删掉了 n0_to_n1s 的空item'''
+        v2_ids = [i for i, n1 in enumerate(n0_to_n1s) if n1.shape[0] > 0]
+        self.v2_ids = v2_ids
+        self.v2_n0_to_n1s = [n0_to_n1s[idx] for idx in v2_ids]
+        self.v2_num_nodes = len(v2_ids)
 
-    def reset(self, add_noise_for_best_x=False, sample_ratio_envs=0.2, sample_ratio_nodes=0.2):
-        if add_noise_for_best_x and self.best_x is not None:
-            e = max(1, int(sample_ratio_envs * self.num_envs))
-            n = max(1, int(sample_ratio_nodes * self.num_nodes))
-            indices_envs = th.randint(0, self.num_envs, size=(e,))  # indices of selected envs/rows
-            indices_nodes = th.randint(0, self.num_nodes, size=(n,))
-            # noise = th.randn(n, self.num_nodes).to(self.device)
-            noise = th.rand(self.num_envs, self.num_nodes).to(self.device)
-            mask = th.zeros(self.num_envs, self.num_nodes, dtype=th.bool).to(self.device)
-            mask[indices_envs, indices_nodes.unsqueeze(1)] = True
-            noise = th.mul(noise, mask).to(self.device)
+    def get_objective(self, p0s):
+        assert p0s.shape == (self.num_envs, self.num_nodes)
 
-            mask2 = th.zeros(self.num_envs, self.num_nodes, dtype=th.bool).to(self.device)
-            mask2[indices_envs, :] = True
-            add_noise_for_best_x = th.mul(self.best_x.repeat(self.num_envs, 1), mask2).to(self.device)
+        sum_dts = []
+        for env_i in range(self.num_envs):
+            p0 = p0s[env_i]
+            n0_to_p1 = []
+            for n1 in self.n0_to_n1s:
+                p1 = p0[n1]
+                n0_to_p1.append(p1)
 
-            mask3 = th.ones(self.num_envs, self.num_nodes, dtype=th.bool).to(self.device)
-            mask3[indices_envs, :] = False
-            x = th.mul(th.rand(self.num_envs, self.num_nodes), mask3).to(self.device)
+            sum_dt = []
+            for _p0, _p1 in zip(p0, n0_to_p1):
+                # dt = _p0 * (1-_p1) + _p1 * (1-_p0)  # 等价于以下一行代码
+                dt = _p0 + _p1 - 2 * _p0 * _p1
+                sum_dt.append(dt.sum(dim=0))
+            sum_dt = th.stack(sum_dt).sum(dim=-1)
+            sum_dts.append(sum_dt)
+        sum_dts = th.hstack(sum_dts)
+        return sum_dts
 
-            self.x = x + add_noise_for_best_x + noise
-            self.x[0, :] = self.best_x  # the first row is best_x, no noise
-        else:
-            self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
-        self.num_steps = 0
-        return self.x
+    def get_objectives_v1(self, p0s):  # version 1
+        device = p0s.device
+        num_envs = self.num_envs
 
-    def generate_symmetric_adjacency_matrix(self, sparsity: float):  # sparsity for binary
-        upper_triangle = th.mul(th.rand(self.num_nodes, self.num_nodes).triu(diagonal=1),
-                                (th.rand(self.num_nodes, self.num_nodes) < sparsity).int().triu(diagonal=1))
-        adjacency_matrix = upper_triangle + upper_triangle.transpose(-1, -2)
-        return adjacency_matrix  # num_env x self.N x self.N
+        n0s_to_p1 = []
+        env_is = th.arange(self.num_envs, device=device)
+        for n1 in self.n0_to_n1s:
+            num_n1 = n1.shape[0]
+            if num_n1 == 0:  # 为了高性能计算，可将 n0_to_n1s 的空item 删掉
+                p1s = th.zeros((num_envs, 0), dtype=th.float32, device=device)
+            else:
+                env_js = env_is.repeat(num_n1, 1).T.reshape(num_envs * num_n1)
+                n1s = n1.repeat(num_envs)
+                p1s = p0s[env_js, n1s].reshape(num_envs, num_n1)
+            n0s_to_p1.append(p1s)
 
-    # make sure that mu1 and mu2 are different tensors. If they are the same, use get_cut_value_one_tensor
-    def calc_obj_for_two_graphs(self, mu1: TEN, mu2: TEN):
-        pass
+        num_nodes = self.num_nodes
+        sum_dts = th.zeros((num_envs, num_nodes), dtype=th.float32, device=device)
+        for node_i in range(num_nodes):
+            _p0 = p0s[:, node_i].unsqueeze(1)
+            _p1 = n0s_to_p1[node_i]
 
-    def calc_obj_for_one_graph(self, mu: TEN):
-        pass
+            dt = _p0 + _p1 - 2 * _p0 * _p1
+            sum_dts[:, node_i] = dt.sum(dim=-1)
+        return sum_dts.sum(dim=-1)
 
+    def get_objectives(self, p0s):  # version 2
+        n0s_to_p1 = self.get_n0s_to_p1(p0s)
+        sum_dts = self.get_sum_dts_by_p0s_float(p0s, n0s_to_p1)
+        return sum_dts
 
-class MaxCutEnv(BaseEnv):
-    def __init__(self, num_nodes=20, num_envs=128, device=th.device("cuda:0"), episode_length=6):
-        super(MaxCutEnv, self).__init__(num_nodes, num_envs, device, episode_length)
-        self.adjacency_matrix = None
+    def get_scores(self, p0s):  # version 2
+        n0s_to_p1 = self.get_n0s_to_p1(p0s)
+        sum_dts = self.get_sum_dts_by_p0s_int(p0s, n0s_to_p1)
+        return sum_dts
 
-    # make sure that mu1 and mu2 are different tensors. If they are the same, use calc_obj_for_one_graph
-    def calc_obj_for_two_graphs(self, mu1: TEN, mu2: TEN):
-        obj1 = self.calc_obj_for_one_graph(mu1)
-        obj2 = self.calc_obj_for_one_graph(mu2)
+    def get_n0s_to_p1(self, p0s):
+        n0s_to_p1 = []
+        env_is = th.arange(self.num_envs, device=self.device)
+        for n1 in self.v2_n0_to_n1s:
+            num_n1 = n1.shape[0]
+            env_js = env_is.repeat(num_n1, 1).T.reshape(self.num_envs * num_n1)
+            n1s = n1.repeat(self.num_envs)
+            p1s = p0s[env_js, n1s].reshape(self.num_envs, num_n1)
+            n0s_to_p1.append(p1s)
+        return n0s_to_p1
 
-        mu1_reshaped = mu1.reshape(-1, self.num_nodes, 1)
-        mu2_reshaped = mu2.reshape(-1, self.num_nodes, 1)
-        mu2_transposed = mu2_reshaped.transpose(-1, -2)
-        mu1_complement = 1 - mu1_reshaped
-        mu2_complement = 1 - mu2_reshaped
+    def get_sum_dts_by_p0s_float(self, p0s, n0s_to_p1):
+        v2_p0s = p0s[:, self.v2_ids]
+        v2_num_nodes = len(self.v2_ids)
+        sum_dts = th.zeros((self.num_envs, v2_num_nodes), dtype=th.float32, device=self.device)
+        for node_i in range(v2_num_nodes):
+            _p0 = v2_p0s[:, node_i].unsqueeze(1)
+            _p1 = n0s_to_p1[node_i]
 
-        term1 = mu1_reshaped @ mu2_complement.transpose(-1, -2) * self.adjacency_matrix
-        term2 = mu1_complement @ mu2_transposed * self.adjacency_matrix
+            dt = _p0 + _p1 - 2 * _p0 * _p1
+            sum_dts[:, node_i] = dt.sum(dim=-1)
+        return sum_dts.sum(dim=-1)
 
-        result = obj1 + obj2 + term1 + term2
-        return result
+    def get_sum_dts_by_p0s_int(self, p0s, n0s_to_p1):
+        v2_p0s = p0s[:, self.v2_ids]
+        v2_num_nodes = len(self.v2_ids)
+        sum_dts = th.zeros((self.num_envs, v2_num_nodes), dtype=th.float32, device=self.device)
+        for node_i in range(v2_num_nodes):
+            _p0 = v2_p0s[:, node_i].unsqueeze(1)
+            _p1 = n0s_to_p1[node_i]
 
-    def calc_obj_for_one_graph(self, mu: TEN):
-        mu_reshaped = mu.reshape(-1, self.num_nodes, 1)
-        mu_complement = 1 - mu_reshaped
-        mu_complement_transposed = mu_complement.transpose(-1, -2)
+            dt = _p0 ^ _p1
+            sum_dts[:, node_i] = dt.sum(dim=-1)
+        return sum_dts.sum(dim=-1)
 
-        mu_product = th.matmul(mu_reshaped, mu_complement_transposed)
-        term = th.mul(mu_product, self.adjacency_matrix)
-        cut = term.flatten().sum(dim=-1) / self.num_envs
-        return cut
+    def get_rand_p0s(self):
+        device = self.device
+        return th.rand((self.num_envs, self.num_nodes), dtype=th.float32, device=device)
+
+    @staticmethod
+    def convert_prob_to_bool(p0s, thresh=0.5):
+        return (p0s > thresh).to(th.int8)
 
 
 class ObjectiveMISO(ObjectiveTask):
@@ -303,7 +356,7 @@ class ObjectiveMISO(ObjectiveTask):
         num_nodes = dims
         episode_length = 30
 
-        self.env = MaxCutEnv(num_nodes=num_nodes, num_envs=num_envs, device=device, episode_length=episode_length)
+        self.env = GraphMaxCutEnv(num_envs=num_envs, device=device)
         # https://github.com/AI4Finance-Foundation/ElegantRL_Solver/blob/main/
         # rlsolver/rlsolver_learn2opt/np_complete_problems/envs/maxcut_env.py#L10
 
@@ -327,11 +380,7 @@ class ObjectiveMISO(ObjectiveTask):
         num_envs = self.num
         num_nodes = self.dim
 
-        if h is None:
-            obj = self.env.calc_obj_for_one_graph(x.reshape(num_envs, num_nodes))
-        else:
-            obj = self.env.calc_obj_for_two_graphs_vmap(h.reshape(num_envs, num_nodes), x.reshape(num_envs, num_nodes))
-            obj = obj.sum() * (-0.2)
+        obj = self.env.get_objectives(x.reshape(num_envs, num_nodes))
         return obj
 
     def get_objectives(self, thetas: TEN, hs: TEN) -> TEN:
@@ -407,5 +456,20 @@ def train_optimizer():
     print('training stop')
 
 
+def check_env():
+    th.manual_seed(0)
+    env = GraphMaxCutEnv(num_envs=6)
+
+    p0s = env.get_rand_p0s()
+    print(env.get_objective(p0s))
+    print(env.get_objectives_v1(p0s))
+    print(env.get_objectives(p0s))
+
+    for thresh in th.linspace(0, 1, 32):
+        objs = env.get_objectives(p0s=env.convert_prob_to_bool(p0s, thresh))
+        print(f"{thresh.item():6.3f}  {objs.numpy()}")
+
+
 if __name__ == '__main__':
-    train_optimizer()
+    # train_optimizer()
+    check_env()
