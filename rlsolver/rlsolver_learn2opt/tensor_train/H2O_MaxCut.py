@@ -9,6 +9,12 @@ except ImportError:
     vmap = None  # Run MISO need
 
 TEN = th.Tensor
+MapGraphToNodeEdge = {'g14': (800, 4694),
+                      'g15': (800, 4661),
+                      'g22': (2000, 19990),
+                      'g49': (3000, 6000),
+                      'g50': (3000, 6000),
+                      'g70': (10000, 9999), }
 
 """Learn To Optimize + Hamilton Term
 
@@ -33,182 +39,11 @@ python -c "import functorch; print(functorch.__version__)"
 """
 
 
-class ObjectiveTask:
-    def __init__(self, *args):
-        self.num = None
-        self.num_eval = None
-        self.dims = None
-        self.args = ()
-
-    def get_args_for_train(self):
-        return self.args
-
-    def get_args_for_eval(self):
-        return self.args
-
-    @staticmethod
-    def get_objectives(*_args) -> TEN:
-        return th.zeros()
-
-    @staticmethod
-    def get_norm(x):
-        return x
-
-    def get_thetas(self, num: int):
-        return None
-
-
-class OptimizerTask(nn.Module):
-    def __init__(self, num, dim, device, thetas=None):
-        super().__init__()
-        self.num = num
-        self.dim = dim
-        self.device = device
-
-        with th.no_grad():
-            if thetas is None:
-                thetas = th.randn((self.num, self.dim), requires_grad=True, device=device)
-                thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
-                thetas = thetas.clamp(-3, +3)
-            else:
-                thetas = thetas.clone().detach()
-                assert thetas.shape[0] == num
-        self.register_buffer('thetas', thetas.requires_grad_(True))
-
-    def re_init(self, num, thetas=None):
-        self.__init__(num=num, dim=self.dim, device=self.device, thetas=thetas)
-
-    def get_outputs(self):
-        return self.thetas
-
-
-class OptimizerOpti(nn.Module):
-    def __init__(self, inp_dim: int, hid_dim: int):
-        super().__init__()
-        self.inp_dim = inp_dim
-        self.hid_dim = hid_dim
-        self.num_rnn = 2
-
-        self.activation = nn.Tanh()
-        self.recurs1 = nn.GRUCell(inp_dim, hid_dim)
-        self.recurs2 = nn.GRUCell(hid_dim, hid_dim)
-        self.output0 = nn.Linear(hid_dim * self.num_rnn, inp_dim)
-        layer_init_with_orthogonal(self.output0, std=0.1)
-
-    def forward(self, inp0, hid_):
-        hid1 = self.activation(self.recurs1(inp0, hid_[0]))
-        hid2 = self.activation(self.recurs2(hid1, hid_[1]))
-
-        hid = th.cat((hid1, hid2), dim=1)
-        out = self.output0(hid)
-        return out, (hid1, hid2)
-
-
-def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
-    th.nn.init.orthogonal_(layer.weight, std)
-    th.nn.init.constant_(layer.bias, bias_const)
-
-
-def opt_loop(
-        obj_task: ObjectiveTask,
-        opt_opti: OptimizerOpti,
-        opt_task: OptimizerTask,
-        opt_base: th.optim,
-        num_opt: int,
-        unroll: int,
-        device: th.device,
-        if_train: bool = True,
-):
-    if if_train:
-        opt_opti.train()
-        obj_args = obj_task.get_args_for_train()
-        num = obj_task.num
-    else:
-        opt_opti.eval()
-        obj_args = obj_task.get_args_for_eval()
-        num = obj_task.num_eval
-
-    thetas = obj_task.get_thetas(num=num)
-    opt_task.re_init(num=num, thetas=thetas)
-
-    opt_task.zero_grad()
-
-    hid_dim = opt_opti.hid_dim
-    hid_state1 = [th.zeros((num, hid_dim), device=device) for _ in range(opt_opti.num_rnn)]
-
-    outputs_list = []
-    losses_list = []
-    all_losses = []
-
-    th.set_grad_enabled(True)
-    for iteration in range(1, num_opt + 1):
-        outputs = opt_task.get_outputs()
-        outputs = obj_task.get_norm(outputs)
-
-        losses = obj_task.get_objectives(outputs, *obj_args)
-        loss = losses.mean()
-        loss.backward(retain_graph=True)
-
-        all_losses.append(losses)
-
-        '''record for selecting best output'''
-        outputs_list.append(outputs.clone())
-        losses_list.append(losses.clone())
-
-        '''params update with gradient'''
-        thetas = opt_task.thetas
-        gradients = thetas.grad.detach().clone().requires_grad_(True)
-
-        updates, hid_states2 = opt_opti(gradients, hid_state1)
-
-        result = thetas + updates
-        result = obj_task.get_norm(result)
-        result.retain_grad()
-        result_params = {'thetas': result}
-
-        if if_train:
-            if iteration % unroll == 0:
-                # all_loss = th.min(th.stack(all_losses[iteration - unroll:iteration]), dim=0)[0].mean()
-                all_loss = th.stack(all_losses[iteration - unroll:iteration]).mean()
-                opt_base.zero_grad()
-                all_loss.backward()
-                opt_base.step()
-
-                opt_task.re_init(num=num)
-                opt_task.load_state_dict(result_params)
-                opt_task.zero_grad()
-
-                hid_state1 = [ten.detach().clone().requires_grad_(True) for ten in hid_states2]
-            else:
-                opt_task.thetas = result_params['thetas']
-
-                hid_state1 = hid_states2
-        else:
-            opt_task.re_init(num=num)
-            opt_task.load_state_dict(result_params)
-            opt_task.zero_grad()
-
-            hid_state1 = [ten.detach().clone().requires_grad_(True) for ten in hid_states2]
-
-    th.set_grad_enabled(False)
-
-    '''record for selecting best output'''
-    losses_list = th.stack(losses_list)
-    min_losses, ids = th.min(losses_list, dim=0)
-
-    outputs_list = th.stack(outputs_list)
-    best_outputs = outputs_list[ids.squeeze(1), th.arange(num, device=device)]
-
-    return best_outputs, min_losses
-
-
-"""run"""
-
-
 class GraphMaxCutEnv:
-    def __init__(self, num_envs=8, device=th.device('cpu')):
-        txt_path = "./graph_set_G14.txt"
+    def __init__(self, num_envs=8, graph_key: str = 'g70', device=th.device('cpu')):
+        assert graph_key in MapGraphToNodeEdge
 
+        txt_path = f"./graph_set_{graph_key}.txt"
         with open(txt_path, 'r') as file:
             lines = file.readlines()
             lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
@@ -349,67 +184,186 @@ class GraphMaxCutEnv:
         return (p0s > thresh).to(th.int8)
 
 
-class ObjectiveMISO(ObjectiveTask):
-    def __init__(self, num, dims, device):
-        super(ObjectiveMISO, self).__init__()
-        num_envs = num
-        num_nodes = dims
-        episode_length = 30
+def check_env():
+    th.manual_seed(0)
+    env = GraphMaxCutEnv(num_envs=6, graph_key='g14')
 
-        self.env = GraphMaxCutEnv(num_envs=num_envs, device=device)
-        # https://github.com/AI4Finance-Foundation/ElegantRL_Solver/blob/main/
-        # rlsolver/rlsolver_learn2opt/np_complete_problems/envs/maxcut_env.py#L10
+    p0s = env.get_rand_p0s()
+    print(env.get_objective(p0s))
+    print(env.get_objectives_v1(p0s))
+    print(env.get_objectives(p0s))
 
-        self.num = num
-        self.dim = th.prod(th.tensor(dims)).item()
-        self.args = ()
+    for thresh in th.linspace(0, 1, 32):
+        objs = env.get_objectives(p0s=env.convert_prob_to_bool(p0s, thresh))
+        print(f"{thresh.item():6.3f}  {objs.numpy()}")
+
+
+class ObjectiveTask:
+    def __init__(self, num_envs, num_evals, device):
+        self.num_envs = num_envs
+        self.num_eval = num_evals
         self.device = device
 
-        self.dims = dims
+        self.env = GraphMaxCutEnv(num_envs=num_envs, graph_key='g14', device=device)
+        self.dim = self.env.num_nodes
 
-        self.get_objective_vmap = vmap(self.get_objective, in_dims=(0, 0), out_dims=0)
+    def get_objectives(self, xs) -> TEN:
+        return -self.env.get_objectives(xs)
 
-    def get_args_for_train(self):
-        return self.args
-
-    def get_args_for_eval(self):
-        return self.args
-
-    def get_objective(self, w: TEN, h: TEN, noise: float = 1.) -> TEN:
-        x = w
-        num_envs = self.num
-        num_nodes = self.dim
-
-        obj = self.env.get_objectives(x.reshape(num_envs, num_nodes))
-        return obj
-
-    def get_objectives(self, thetas: TEN, hs: TEN) -> TEN:
-        ws = thetas
-        return self.get_objective_vmap(ws, hs)
+    def get_scores(self, xs) -> TEN:
+        return self.env.get_scores(xs)
 
     @staticmethod
-    def get_norm(x):
-        return x / x.norm(dim=1, keepdim=True)
+    def get_norm(xs):
+        return xs.clip(0, 1)
 
-    @staticmethod
-    def load_from_disk(device):
-        import pickle
-        with open(f'./K8N8Samples=100.pkl', 'rb') as f:
-            h_evals = th.as_tensor(pickle.load(f), dtype=th.cfloat, device=device)
-            assert h_evals.shape == (100, 8, 8)
+    def get_init_xs(self, num: int):
+        return th.rand((num, self.dim), dtype=th.float32, device=self.device)
 
-        h_evals = th.stack((h_evals.real, h_evals.imag), dim=1)
-        assert h_evals.shape == (100, 2, 8, 8)
-        return h_evals
 
-    @staticmethod
-    def get_result_of_mmse(h, p) -> TEN:  # MMSE beamformer
-        h = h[0] + 1j * h[1]
-        k, n = h.shape
-        eye_mat = th.eye(n, dtype=h.dtype, device=h.device)
-        w = th.linalg.solve(eye_mat * k / p + th.conj(th.transpose(h, 0, 1)) @ h, th.conj(th.transpose(h, 0, 1)))
-        w = w / (th.norm(w, dim=0, keepdim=True) * k ** 0.5)  # w.shape == [K, N]
-        return th.stack((w.real, w.imag), dim=0)  # return.shape == [2, K, N]
+class OptimizerTask(nn.Module):
+    def __init__(self, num, dim, device, thetas=None):
+        super().__init__()
+        self.num = num
+        self.dim = dim
+        self.device = device
+
+        with th.no_grad():
+            if thetas is None:
+                thetas = th.randn((self.num, self.dim), requires_grad=True, device=device)
+                thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
+                thetas = thetas.clamp(-3, +3)
+            else:
+                thetas = thetas.clone().detach()
+                assert thetas.shape[0] == num
+        self.register_buffer('thetas', thetas.requires_grad_(True))
+
+    def re_init(self, num, thetas=None):
+        self.__init__(num=num, dim=self.dim, device=self.device, thetas=thetas)
+
+    def get_outputs(self):
+        return self.thetas
+
+
+class OptimizerOpti(nn.Module):
+    def __init__(self, inp_dim: int, hid_dim: int):
+        super().__init__()
+        self.inp_dim = inp_dim
+        self.hid_dim = hid_dim
+        self.num_rnn = 2
+
+        self.activation = nn.Tanh()
+        self.recurs1 = nn.GRUCell(inp_dim, hid_dim)
+        self.recurs2 = nn.GRUCell(hid_dim, hid_dim)
+        self.output0 = nn.Linear(hid_dim * self.num_rnn, inp_dim)
+        layer_init_with_orthogonal(self.output0, std=0.1)
+
+    def forward(self, inp0, hid_):
+        hid1 = self.activation(self.recurs1(inp0, hid_[0]))
+        hid2 = self.activation(self.recurs2(hid1, hid_[1]))
+
+        hid = th.cat((hid1, hid2), dim=1)
+        out = self.output0(hid)
+        return out, (hid1, hid2)
+
+
+def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
+    th.nn.init.orthogonal_(layer.weight, std)
+    th.nn.init.constant_(layer.bias, bias_const)
+
+
+def opt_loop(
+        obj_task: ObjectiveTask,
+        opt_opti: OptimizerOpti,
+        opt_task: OptimizerTask,
+        opt_base: th.optim,
+        num_opt: int,
+        unroll: int,
+        device: th.device,
+        if_train: bool = True,
+):
+    if if_train:
+        opt_opti.train()
+        num = obj_task.num_envs
+    else:
+        opt_opti.eval()
+        num = obj_task.num_eval
+
+    thetas = obj_task.get_init_xs(num=num)
+    opt_task.re_init(num=num, thetas=thetas)
+
+    opt_task.zero_grad()
+
+    hid_dim = opt_opti.hid_dim
+    hid_state1 = [th.zeros((num, hid_dim), device=device) for _ in range(opt_opti.num_rnn)]
+
+    outputs_list = []
+    losses_list = []
+    all_losses = []
+
+    th.set_grad_enabled(True)
+    for iteration in range(1, num_opt + 1):
+        outputs = opt_task.get_outputs()
+        outputs = obj_task.get_norm(outputs)
+
+        losses = obj_task.get_objectives(outputs)
+        loss = losses.mean()
+        loss.backward(retain_graph=True)
+
+        all_losses.append(losses)
+
+        '''record for selecting best output'''
+        outputs_list.append(outputs.clone())
+        losses_list.append(losses.clone())
+
+        '''params update with gradient'''
+        thetas = opt_task.thetas
+        gradients = thetas.grad.detach().clone().requires_grad_(True)
+
+        updates, hid_states2 = opt_opti(gradients, hid_state1)
+
+        result = thetas + updates
+        result = obj_task.get_norm(result)
+        result.retain_grad()
+        result_params = {'thetas': result}
+
+        if if_train:
+            if iteration % unroll == 0:
+                # all_loss = th.min(th.stack(all_losses[iteration - unroll:iteration]), dim=0)[0].mean()
+                all_loss = th.stack(all_losses[iteration - unroll:iteration]).mean()
+                opt_base.zero_grad()
+                all_loss.backward()
+                opt_base.step()
+
+                opt_task.re_init(num=num)
+                opt_task.load_state_dict(result_params)
+                opt_task.zero_grad()
+
+                hid_state1 = [ten.detach().clone().requires_grad_(True) for ten in hid_states2]
+            else:
+                opt_task.thetas = result_params['thetas']
+
+                hid_state1 = hid_states2
+        else:
+            opt_task.re_init(num=num)
+            opt_task.load_state_dict(result_params)
+            opt_task.zero_grad()
+
+            hid_state1 = [ten.detach().clone().requires_grad_(True) for ten in hid_states2]
+
+    th.set_grad_enabled(False)
+
+    '''record for selecting best output'''
+    losses_list = th.stack(losses_list)
+    min_losses, ids = th.min(losses_list, dim=0)
+
+    outputs_list = th.stack(outputs_list)
+    best_outputs = outputs_list[ids, th.arange(num, device=device)]
+
+    return best_outputs, min_losses
+
+
+"""run"""
 
 
 def train_optimizer():
@@ -417,19 +371,18 @@ def train_optimizer():
 
     '''train'''
     train_times = 2 ** 10
-    num = 2 ** 10  # batch_size
+    num = 2 ** 3  # batch_size
     lr = 8e-4
-    unroll = 16  # step of Hamilton Term
-    num_opt = 256
+    unroll = 4  # step of Hamilton Term
+    num_opt = 16
     hid_dim = 2 ** 7
 
     '''eval'''
-    eval_gap = 2 ** 7
+    eval_gap = 32
 
     '''init task'''
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-    dims = (2, 8, 8)
-    obj_task = ObjectiveMISO(num=num, dims=dims, device=device)
+    obj_task = ObjectiveTask(num_envs=num, num_evals=num, device=device)
     dim = obj_task.dim
 
     '''init opti'''
@@ -456,20 +409,6 @@ def train_optimizer():
     print('training stop')
 
 
-def check_env():
-    th.manual_seed(0)
-    env = GraphMaxCutEnv(num_envs=6)
-
-    p0s = env.get_rand_p0s()
-    print(env.get_objective(p0s))
-    print(env.get_objectives_v1(p0s))
-    print(env.get_objectives(p0s))
-
-    for thresh in th.linspace(0, 1, 32):
-        objs = env.get_objectives(p0s=env.convert_prob_to_bool(p0s, thresh))
-        print(f"{thresh.item():6.3f}  {objs.numpy()}")
-
-
 if __name__ == '__main__':
-    # train_optimizer()
-    check_env()
+    train_optimizer()
+    # check_env()
