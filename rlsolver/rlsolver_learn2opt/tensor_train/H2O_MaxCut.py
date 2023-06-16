@@ -358,7 +358,7 @@ def opt_loop(
     min_losses, ids = th.min(losses_list, dim=0)
 
     outputs_list = th.stack(outputs_list)
-    best_outputs = outputs_list[ids.squeeze(1), th.arange(num, device=device)]
+    best_outputs = outputs_list[ids, th.arange(num, device=device)]
 
     return best_outputs, min_losses
 
@@ -371,14 +371,14 @@ def train_optimizer():
 
     '''train'''
     train_times = 2 ** 10
-    num = 2 ** 10  # batch_size
+    num = 2 ** 3  # batch_size
     lr = 8e-4
-    unroll = 16  # step of Hamilton Term
-    num_opt = 256
+    unroll = 4  # step of Hamilton Term
+    num_opt = 16
     hid_dim = 2 ** 7
 
     '''eval'''
-    eval_gap = 2 ** 7
+    eval_gap = 32
 
     '''init task'''
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
