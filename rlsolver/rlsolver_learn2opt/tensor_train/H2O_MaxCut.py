@@ -43,7 +43,7 @@ class GraphMaxCutEnv:
     def __init__(self, num_envs=8, graph_key: str = 'g70', device=th.device('cpu')):
         assert graph_key in MapGraphToNodeEdge
 
-        txt_path = f"./graph_set_{graph_key}.txt"
+        txt_path = f"./gset_{graph_key}.txt"
         with open(txt_path, 'r') as file:
             lines = file.readlines()
             lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
