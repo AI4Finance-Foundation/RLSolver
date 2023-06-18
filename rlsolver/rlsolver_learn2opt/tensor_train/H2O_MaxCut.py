@@ -186,7 +186,7 @@ class GraphMaxCutEnv:
 
 def check_env():
     th.manual_seed(0)
-    env = GraphMaxCutEnv(num_envs=6, graph_key='g14')
+    env = GraphMaxCutEnv(num_envs=6, graph_key='g70')
 
     p0s = env.get_rand_p0s()
     print(env.get_objective(p0s))
