@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import sys
 import time
 import torch as th
@@ -412,3 +413,218 @@ def train_optimizer():
 if __name__ == '__main__':
     train_optimizer()
     # check_env()
+=======
+from H2O_MaxCut import *
+
+
+class OptimizerTask(nn.Module):
+    def __init__(self, thetas):
+        super().__init__()
+        self.thetas = nn.Parameter(thetas.detach(), requires_grad=True)
+
+    def forward(self):
+        return self.thetas
+
+    def do_regularization(self):
+        with th.no_grad():
+            self.thetas[:] = self.thetas.clip(0, 1)
+
+
+class NnSeqBnMLP(nn.Module):
+    def __init__(self, inp_dim, mid_dim, out_dim):
+        super(NnSeqBnMLP, self).__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(inp_dim, mid_dim), nn.BatchNorm1d(mid_dim), nn.ReLU(),
+            nn.Linear(mid_dim, out_dim),
+        )
+        layer_init_with_orthogonal(self.mlp[-1], std=0.1)
+
+    def forward(self, seq):
+        d0, d1, d2 = seq.shape
+        inp = seq.view(d0 * d1, -1)
+        out = self.mlp(inp)
+        return out.view(d0, d1, -1)
+
+
+class OptimizerOpti(nn.Module):
+    def __init__(self, inp_dim, mid_dim, out_dim, num_layers):
+        super().__init__()
+        self.inp_dim = inp_dim
+        self.mid_dim = mid_dim
+        self.out_dim = out_dim
+        self.num_layers = num_layers
+
+        self.rnn = nn.LSTM(inp_dim, mid_dim, num_layers=num_layers)
+        self.mlp = NnSeqBnMLP(inp_dim=mid_dim, mid_dim=mid_dim, out_dim=out_dim)
+
+    def forward(self, inp, hid=None):
+        tmp, hid = self.rnn(inp, hid)
+        out = self.mlp(tmp)
+        return out, hid
+
+
+def train_optimizer_level1():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    num_envs = 2 ** 6
+    graph_key = 'g14'
+    # graph_key = 'g70'
+
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+
+    '''hyper-parameters'''
+    lr = 1e-3
+    opt_num = 2 ** 12
+    eval_gap = 2 ** 6
+
+    '''init task'''
+    env = GraphMaxCutEnv(num_envs=num_envs, graph_key=graph_key, device=device)
+
+    xs = env.get_rand_p0s()
+
+    '''init opti'''
+    opt_task = OptimizerTask(thetas=xs).to(device)
+    opt_base = th.optim.Adam(opt_task.parameters(), lr=lr)
+
+    for i in range(1, opt_num + 1):
+        thetas = opt_task()
+        opt_task.do_regularization()
+
+        obj = env.get_objectives(thetas).mean()
+        all_loss = obj
+
+        opt_base.zero_grad()
+        all_loss.backward()
+        opt_base.step()
+
+        if i % eval_gap == 0:
+            scores = env.get_scores(env.convert_prob_to_bool(thetas))
+            score = scores.max()
+
+            print(f"{i:6}  {obj.item():9.3f}  {score:9.3f}")
+
+
+def train_optimizer_level2():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    num_envs = 2 ** 6
+    graph_key = 'g14'
+    # graph_key = 'g70'
+
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+
+    '''hyper-parameters'''
+    lr = 1e-2
+    mid_dim = 2 ** 4
+    num_layers = 2
+
+    # unroll = 2 ** 3
+    opt_num = 2 ** 12
+    eval_gap = 2 ** 5
+
+    '''init task'''
+    env = GraphMaxCutEnv(num_envs=num_envs, graph_key=graph_key, device=device)
+    dim = env.num_nodes
+
+    xs = env.get_rand_p0s()
+
+    '''init opti'''
+    opt_task = OptimizerTask(thetas=xs).to(device)
+    # opt_opti = OptimizerOpti(inp_dim=dim, mid_dim=mid_dim, out_dim=dim, num_layers=num_layers).to(device)
+    # opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
+
+    for i in range(1, opt_num + 1):
+        thetas = opt_task()
+        opt_task.do_regularization()
+
+        obj = env.get_objectives(thetas).mean()
+        # obj_list.append(obj)
+        # if i % unroll == 0:
+        #     all_loss = th.stack(obj_list[-unroll:]).mean()
+        #
+        #     opt_base.zero_grad()
+        #     all_loss.backward()
+        #     opt_base.step()
+
+        all_loss = obj
+        all_loss.backward()
+
+        thetas.data.add_(-lr * thetas.grad.data)
+        # opt_base.step()
+        # opt_base.zero_grad()
+
+        if i % eval_gap == 0:
+            scores = env.get_scores(env.convert_prob_to_bool(thetas))
+            score = scores.max()
+
+            print(f"{i:6}  {obj.item():9.3f}  {score:9.3f}")
+
+
+def train_optimizer_level3():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    num_envs = 2 ** 6
+    graph_key = 'g14'
+    # graph_key = 'g70'
+
+    # if gpu_id in {7, }:
+    #     graph_key = 'g70'
+    # elif gpu_id in {6, 5, 0, -1}:
+    #     graph_key = 'g14'
+    # else:
+    #     raise ValueError(f"GPU_ID {gpu_id}")
+
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+
+    '''hyper-parameters'''
+    lr = 1e-2
+    mid_dim = 2 ** 4
+    num_layers = 2
+
+    # unroll = 2 ** 3
+    opt_num = 2 ** 12
+    eval_gap = 2 ** 5
+
+    '''init task'''
+    env = GraphMaxCutEnv(num_envs=num_envs, graph_key=graph_key, device=device)
+    dim = env.num_nodes
+
+    '''init opti'''
+    # opt_task = OptimizerTask(thetas=xs).to(device)
+    thetas = env.get_rand_p0s().requires_grad_(True)
+
+    opt_opti = OptimizerOpti(inp_dim=dim, mid_dim=mid_dim, out_dim=dim, num_layers=num_layers).to(device)
+    opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
+
+    hidden = None
+    for i in range(1, opt_num + 1):
+        obj = env.get_objectives(thetas).mean()
+        obj.backward()
+        # obj_list.append(obj)
+        # if i % unroll == 0:
+        #     all_loss = th.stack(obj_list[-unroll:]).mean()
+        #
+        #     opt_base.zero_grad()
+        #     all_loss.backward()
+        #     opt_base.step()
+
+        grad_s = thetas.grad.data
+        update, hidden = opt_opti(grad_s.unsqueeze(0), hidden)
+        update = update.squeeze(0)
+
+        thetas.data = (thetas + update).clip(0, 1)
+
+        opt_base.zero_grad()
+        obj = env.get_objectives(thetas).mean()
+        obj.backward()
+        opt_base.step()
+
+        if i % eval_gap == 0:
+            scores = env.get_scores(env.convert_prob_to_bool(thetas))
+            score = scores.max()
+
+            print(f"{i:6}  {obj.item():9.3f}  {score:9.3f}")
+
+
+if __name__ == '__main__':
+    train_optimizer_level1()
+    # train_optimizer_level2()
+    # train_optimizer_level3()
+>>>>>>> Stashed changes
