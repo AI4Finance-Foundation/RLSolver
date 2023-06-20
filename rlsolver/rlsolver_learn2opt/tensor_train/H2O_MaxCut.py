@@ -80,7 +80,7 @@ class GraphMaxCutEnv:
             sum_dt = th.stack(sum_dt).sum(dim=-1)
             sum_dts.append(sum_dt)
         sum_dts = th.hstack(sum_dts)
-        return sum_dts
+        return -sum_dts
 
     def get_objectives_v1(self, p0s):  # version 1
         device = p0s.device
@@ -106,12 +106,12 @@ class GraphMaxCutEnv:
 
             dt = _p0 + _p1 - 2 * _p0 * _p1
             sum_dts[:, node_i] = dt.sum(dim=-1)
-        return sum_dts.sum(dim=-1)
+        return -sum_dts.sum(dim=-1)
 
     def get_objectives(self, p0s):  # version 2
         n0s_to_p1 = self.get_n0s_to_p1(p0s)
         sum_dts = self.get_sum_dts_by_p0s_float(p0s, n0s_to_p1)
-        return sum_dts
+        return -sum_dts
 
     def get_scores(self, p0s):  # version 2
         n0s_to_p1 = self.get_n0s_to_p1(p0s)
@@ -188,8 +188,7 @@ class OptimizerTask(nn.Module):
         return self.thetas
 
     def do_regularization(self):
-        with th.no_grad():
-            self.thetas[:] = self.thetas.clip(0, 1)
+        self.thetas.data.clamp_(0, 1)
 
 
 class NnSeqBnMLP(nn.Module):
@@ -199,13 +198,30 @@ class NnSeqBnMLP(nn.Module):
             nn.Linear(inp_dim, mid_dim), nn.BatchNorm1d(mid_dim), nn.ReLU(),
             nn.Linear(mid_dim, out_dim),
         )
-        layer_init_with_orthogonal(self.mlp[-1], std=0.1)
 
     def forward(self, seq):
         d0, d1, d2 = seq.shape
         inp = seq.view(d0 * d1, -1)
         out = self.mlp(inp)
         return out.view(d0, d1, -1)
+
+
+class OptimizerOpti0(nn.Module):
+    def __init__(self, inp_dim, mid_dim, out_dim, num_layers):
+        super().__init__()
+        self.inp_dim = inp_dim
+        self.mid_dim = mid_dim
+        self.out_dim = out_dim
+        self.num_layers = num_layers
+
+        self.rnn = nn.LSTM(inp_dim, mid_dim, num_layers=num_layers)
+        self.mlp = nn.Linear(mid_dim, out_dim)
+        # self.mlp = NnSeqBnMLP(inp_dim=mid_dim, mid_dim=mid_dim, out_dim=out_dim)
+
+    def forward(self, inp, hid=None):
+        tmp, hid = self.rnn(inp, hid)
+        out = self.mlp(tmp)
+        return out, hid
 
 
 class OptimizerOpti(nn.Module):
@@ -216,13 +232,22 @@ class OptimizerOpti(nn.Module):
         self.out_dim = out_dim
         self.num_layers = num_layers
 
-        self.rnn = nn.LSTM(inp_dim, mid_dim, num_layers=num_layers)
-        self.mlp = NnSeqBnMLP(inp_dim=mid_dim, mid_dim=mid_dim, out_dim=out_dim)
+        self.rnn0 = nn.LSTM(inp_dim, mid_dim, num_layers=num_layers)
+        self.mlp0 = NnSeqBnMLP(inp_dim=mid_dim, mid_dim=mid_dim, out_dim=out_dim)
+        self.rnn1 = nn.LSTM(1, mid_dim, num_layers=num_layers)
+        self.mlp1 = NnSeqBnMLP(inp_dim=mid_dim, mid_dim=mid_dim, out_dim=1)
 
-    def forward(self, inp, hid=None):
-        tmp, hid = self.rnn(inp, hid)
-        out = self.mlp(tmp)
-        return out, hid
+    def forward(self, inp, hid0=None, hid1=None):
+        tmp0, hid0 = self.rnn0(inp, hid0)
+        out0 = self.mlp0(tmp0)
+
+        d0, d1, d2 = inp.shape
+        inp1 = inp.reshape(d0, d1 * d2, 1)
+        tmp1, hid1 = self.rnn1(inp1, hid1)
+        out1 = self.mlp1(tmp1).view(d0, d1, d2)
+
+        out = out0 + out1
+        return out, hid0, hid1
 
 
 def train_optimizer_level1():
@@ -274,7 +299,7 @@ def train_optimizer_level2():
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
     '''hyper-parameters'''
-    lr = 1e-2
+    lr = 1e-3
     # mid_dim = 2 ** 4
     # num_layers = 2
 
@@ -326,66 +351,57 @@ def train_optimizer_level3():
     graph_key = 'g14'
     # graph_key = 'g70'
 
-    # if gpu_id in {7, }:
-    #     graph_key = 'g70'
-    # elif gpu_id in {6, 5, 0, -1}:
-    #     graph_key = 'g14'
-    # else:
-    #     raise ValueError(f"GPU_ID {gpu_id}")
-
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
     '''hyper-parameters'''
-    lr = 1e-2
+    lr = 1e-3
     mid_dim = 2 ** 4
-    num_layers = 2
+    num_layers = 1
 
     # unroll = 2 ** 3
-    opt_num = 2 ** 12
-    eval_gap = 2 ** 5
+    opt_num = 2 ** 8  # larger is better, until reached memory limit.
+    eval_gap = 2 ** 1
+    train_times = 2 ** 9
 
     '''init task'''
     env = GraphMaxCutEnv(num_envs=num_envs, graph_key=graph_key, device=device)
     dim = env.num_nodes
 
-    '''init opti'''
-    # opt_task = OptimizerTask(thetas=xs).to(device)
-    thetas = env.get_rand_p0s().requires_grad_(True)
+    xs = env.get_rand_p0s()
 
+    '''init opti'''
+    opt_task = OptimizerTask(thetas=xs).to(device)
     opt_opti = OptimizerOpti(inp_dim=dim, mid_dim=mid_dim, out_dim=dim, num_layers=num_layers).to(device)
     opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
 
-    hidden = None
-    for i in range(1, opt_num + 1):
-        obj = env.get_objectives(thetas).mean()
-        obj.backward()
-        # obj_list.append(obj)
-        # if i % unroll == 0:
-        #     all_loss = th.stack(obj_list[-unroll:]).mean()
-        #
-        #     opt_base.zero_grad()
-        #     all_loss.backward()
-        #     opt_base.step()
+    thetas = opt_task.thetas
+    opt_task.do_regularization()
+    obj = env.get_objectives(thetas).mean()
+    obj.backward()
 
-        grad_s = thetas.grad.data
-        update, hidden = opt_opti(grad_s.unsqueeze(0), hidden)
-        update = update.squeeze(0)
+    for j in range(1, train_times + 1):
+        hidden0 = None
+        hidden1 = None
+        for i in range(opt_num):
+            grad_s = thetas.grad.data
+            update, hidden0, hidden1 = opt_opti(grad_s.unsqueeze(0), hidden0, hidden1)
 
-        thetas.data = (thetas + update).clip(0, 1)
+            thetas.data.add_(-lr * (grad_s + update.squeeze(0)))
+            opt_task.do_regularization()
+            obj = env.get_objectives(thetas).mean()
 
-        opt_base.zero_grad()
-        obj = env.get_objectives(thetas).mean()
-        obj.backward()
-        opt_base.step()
+            opt_base.zero_grad()
+            obj.backward()
+            opt_base.step()
 
-        if i % eval_gap == 0:
+        if j % eval_gap == 0:
             scores = env.get_scores(env.convert_prob_to_bool(thetas))
             score = scores.max()
 
-            print(f"{i:6}  {obj.item():9.3f}  {score:9.3f}")
+            print(f"{j:6}  {obj.item():9.3f}  {score:9.3f}")
 
 
 if __name__ == '__main__':
-    train_optimizer_level1()
+    # train_optimizer_level1()
     # train_optimizer_level2()
-    # train_optimizer_level3()
+    train_optimizer_level3()
