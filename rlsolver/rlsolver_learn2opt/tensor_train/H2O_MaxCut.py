@@ -71,8 +71,8 @@ class GraphMaxCutEnv:
 
             sum_dt = []
             for _p0, _p1 in zip(p0, n0_to_p1):
-                # `_p0 * (1-_p1)` node_0 属于这个集合 且 node_1 属于那个集合的概率 
-                # `_p1 * (1-_p0)` node_1 属于这个集合 且 node_0 属于那个集合的概率 
+                # `_p0 * (1-_p1)` node_0 属于这个集合 且 node_1 属于那个集合的概率
+                # `_p1 * (1-_p0)` node_1 属于这个集合 且 node_0 属于那个集合的概率
                 # dt = _p0 * (1-_p1) + _p1 * (1-_p0)  # 等价于以下一行代码，相加计算出了这条边两端的节点分别属于两个集合的概率
                 dt = _p0 + _p1 - 2 * _p0 * _p1
                 # 这个计算没有考虑无向图里节点之间的复杂关系，只能算出的局部梯度，与全局梯度有差别，但是没关系，我们不是直接用梯度去下降
@@ -129,7 +129,7 @@ class GraphMaxCutEnv:
             n0s_to_p1.append(p1s)
         return n0s_to_p1
 
-    def get_sum_dts_by_p0s_float(self, p0s, n0s_to_p1):
+    def get_sum_dts_by_p0s_float(self, p0s, n0s_to_p1):  # 计算节点不一定属于某个集合的分割距离，算出浮点数
         v2_p0s = p0s[:, self.v2_ids]
         v2_num_nodes = len(self.v2_ids)
         sum_dts = th.zeros((self.num_envs, v2_num_nodes), dtype=th.float32, device=self.device)
@@ -141,7 +141,7 @@ class GraphMaxCutEnv:
             sum_dts[:, node_i] = dt.sum(dim=-1)
         return sum_dts.sum(dim=-1)
 
-    def get_sum_dts_by_p0s_int(self, p0s, n0s_to_p1):
+    def get_sum_dts_by_p0s_int(self, p0s, n0s_to_p1):  # 计算节点一定属于某个集合的分割距离，算出正整数
         v2_p0s = p0s[:, self.v2_ids]
         v2_num_nodes = len(self.v2_ids)
         sum_dts = th.zeros((self.num_envs, v2_num_nodes), dtype=th.float32, device=self.device)
