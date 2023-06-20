@@ -1,13 +1,7 @@
-
 import sys
 import time
 import torch as th
 import torch.nn as nn
-
-try:  # ObjectiveMISO requires functorch.vmap
-    from functorch import vmap
-except ImportError:
-    vmap = None  # Run MISO need
 
 TEN = th.Tensor
 MapGraphToNodeEdge = {'g14': (800, 4694),
@@ -17,34 +11,14 @@ MapGraphToNodeEdge = {'g14': (800, 4694),
                       'g50': (3000, 6000),
                       'g70': (10000, 9999), }
 
-"""Learn To Optimize + Hamilton Term
-
-想要使用 pytorch 的 functorch.vmap，就要先安装 functorch
-
-1. 先安装 conda
-
-2. 打开终端并输入以下命令以添加阿里云的镜像源：
-conda config --add channels https://mirrors.aliyun.com/anaconda/pkgs/free/
-conda config --add channels https://mirrors.aliyun.com/anaconda/pkgs/main/
-conda config --add channels https://mirrors.aliyun.com/anaconda/cloud/pytorch/
-conda config --add channels https://mirrors.aliyun.com/anaconda/cloud/conda-forge/
-
-3. 然后，输入以下命令创建一个新的 conda 环境并安装 functorch：
-conda create --name myenv
-conda activate myenv
-conda install pytorch torchvision torchaudio cpuonly -c pytorch
-pip install functorch
-
-4. 最后，运行以下命令以确认是否安装成功：
-python -c "import functorch; print(functorch.__version__)"
-"""
+"""Graph Max Cut Env"""
 
 
 class GraphMaxCutEnv:
     def __init__(self, num_envs=8, graph_key: str = 'g70', device=th.device('cpu')):
         assert graph_key in MapGraphToNodeEdge
 
-        txt_path = f"./gset_{graph_key}.txt"
+        txt_path = f"./graph_set_{graph_key}.txt"
         with open(txt_path, 'r') as file:
             lines = file.readlines()
             lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
@@ -97,8 +71,11 @@ class GraphMaxCutEnv:
 
             sum_dt = []
             for _p0, _p1 in zip(p0, n0_to_p1):
-                # dt = _p0 * (1-_p1) + _p1 * (1-_p0)  # 等价于以下一行代码
+                # `_p0 * (1-_p1)` node_0 属于这个集合 且 node_1 属于那个集合的概率 
+                # `_p1 * (1-_p0)` node_1 属于这个集合 且 node_0 属于那个集合的概率 
+                # dt = _p0 * (1-_p1) + _p1 * (1-_p0)  # 等价于以下一行代码，相加计算出了这条边两端的节点分别属于两个集合的概率
                 dt = _p0 + _p1 - 2 * _p0 * _p1
+                # 这个计算没有考虑无向图里节点之间的复杂关系，只能算出的局部梯度，与全局梯度有差别，但是没关系，我们不是直接用梯度去下降
                 sum_dt.append(dt.sum(dim=0))
             sum_dt = th.stack(sum_dt).sum(dim=-1)
             sum_dts.append(sum_dt)
@@ -187,7 +164,7 @@ class GraphMaxCutEnv:
 
 def check_env():
     th.manual_seed(0)
-    env = GraphMaxCutEnv(num_envs=6, graph_key='g70')
+    env = GraphMaxCutEnv(num_envs=6, graph_key='g14')
 
     p0s = env.get_rand_p0s()
     print(env.get_objective(p0s))
@@ -199,222 +176,7 @@ def check_env():
         print(f"{thresh.item():6.3f}  {objs.numpy()}")
 
 
-class ObjectiveTask:
-    def __init__(self, num_envs, num_evals, device):
-        self.num_envs = num_envs
-        self.num_eval = num_evals
-        self.device = device
-
-        self.env = GraphMaxCutEnv(num_envs=num_envs, graph_key='g14', device=device)
-        self.dim = self.env.num_nodes
-
-    def get_objectives(self, xs) -> TEN:
-        return -self.env.get_objectives(xs)
-
-    def get_scores(self, xs) -> TEN:
-        return self.env.get_scores(xs)
-
-    @staticmethod
-    def get_norm(xs):
-        return xs.clip(0, 1)
-
-    def get_init_xs(self, num: int):
-        return th.rand((num, self.dim), dtype=th.float32, device=self.device)
-
-
-class OptimizerTask(nn.Module):
-    def __init__(self, num, dim, device, thetas=None):
-        super().__init__()
-        self.num = num
-        self.dim = dim
-        self.device = device
-
-        with th.no_grad():
-            if thetas is None:
-                thetas = th.randn((self.num, self.dim), requires_grad=True, device=device)
-                thetas = (thetas - thetas.mean(dim=-1, keepdim=True)) / (thetas.std(dim=-1, keepdim=True) + 1e-6)
-                thetas = thetas.clamp(-3, +3)
-            else:
-                thetas = thetas.clone().detach()
-                assert thetas.shape[0] == num
-        self.register_buffer('thetas', thetas.requires_grad_(True))
-
-    def re_init(self, num, thetas=None):
-        self.__init__(num=num, dim=self.dim, device=self.device, thetas=thetas)
-
-    def get_outputs(self):
-        return self.thetas
-
-
-class OptimizerOpti(nn.Module):
-    def __init__(self, inp_dim: int, hid_dim: int):
-        super().__init__()
-        self.inp_dim = inp_dim
-        self.hid_dim = hid_dim
-        self.num_rnn = 2
-
-        self.activation = nn.Tanh()
-        self.recurs1 = nn.GRUCell(inp_dim, hid_dim)
-        self.recurs2 = nn.GRUCell(hid_dim, hid_dim)
-        self.output0 = nn.Linear(hid_dim * self.num_rnn, inp_dim)
-        layer_init_with_orthogonal(self.output0, std=0.1)
-
-    def forward(self, inp0, hid_):
-        hid1 = self.activation(self.recurs1(inp0, hid_[0]))
-        hid2 = self.activation(self.recurs2(hid1, hid_[1]))
-
-        hid = th.cat((hid1, hid2), dim=1)
-        out = self.output0(hid)
-        return out, (hid1, hid2)
-
-
-def layer_init_with_orthogonal(layer, std=1.0, bias_const=1e-6):
-    th.nn.init.orthogonal_(layer.weight, std)
-    th.nn.init.constant_(layer.bias, bias_const)
-
-
-def opt_loop(
-        obj_task: ObjectiveTask,
-        opt_opti: OptimizerOpti,
-        opt_task: OptimizerTask,
-        opt_base: th.optim,
-        num_opt: int,
-        unroll: int,
-        device: th.device,
-        if_train: bool = True,
-):
-    if if_train:
-        opt_opti.train()
-        num = obj_task.num_envs
-    else:
-        opt_opti.eval()
-        num = obj_task.num_eval
-
-    thetas = obj_task.get_init_xs(num=num)
-    opt_task.re_init(num=num, thetas=thetas)
-
-    opt_task.zero_grad()
-
-    hid_dim = opt_opti.hid_dim
-    hid_state1 = [th.zeros((num, hid_dim), device=device) for _ in range(opt_opti.num_rnn)]
-
-    outputs_list = []
-    losses_list = []
-    all_losses = []
-
-    th.set_grad_enabled(True)
-    for iteration in range(1, num_opt + 1):
-        outputs = opt_task.get_outputs()
-        outputs = obj_task.get_norm(outputs)
-
-        losses = obj_task.get_objectives(outputs)
-        loss = losses.mean()
-        loss.backward(retain_graph=True)
-
-        all_losses.append(losses)
-
-        '''record for selecting best output'''
-        outputs_list.append(outputs.clone())
-        losses_list.append(losses.clone())
-
-        '''params update with gradient'''
-        thetas = opt_task.thetas
-        gradients = thetas.grad.detach().clone().requires_grad_(True)
-
-        updates, hid_states2 = opt_opti(gradients, hid_state1)
-
-        result = thetas + updates
-        result = obj_task.get_norm(result)
-        result.retain_grad()
-        result_params = {'thetas': result}
-
-        if if_train:
-            if iteration % unroll == 0:
-                # all_loss = th.min(th.stack(all_losses[iteration - unroll:iteration]), dim=0)[0].mean()
-                all_loss = th.stack(all_losses[iteration - unroll:iteration]).mean()
-                opt_base.zero_grad()
-                all_loss.backward()
-                opt_base.step()
-
-                opt_task.re_init(num=num)
-                opt_task.load_state_dict(result_params)
-                opt_task.zero_grad()
-
-                hid_state1 = [ten.detach().clone().requires_grad_(True) for ten in hid_states2]
-            else:
-                opt_task.thetas = result_params['thetas']
-
-                hid_state1 = hid_states2
-        else:
-            opt_task.re_init(num=num)
-            opt_task.load_state_dict(result_params)
-            opt_task.zero_grad()
-
-            hid_state1 = [ten.detach().clone().requires_grad_(True) for ten in hid_states2]
-
-    th.set_grad_enabled(False)
-
-    '''record for selecting best output'''
-    losses_list = th.stack(losses_list)
-    min_losses, ids = th.min(losses_list, dim=0)
-
-    outputs_list = th.stack(outputs_list)
-    best_outputs = outputs_list[ids, th.arange(num, device=device)]
-
-    return best_outputs, min_losses
-
-
-"""run"""
-
-
-def train_optimizer():
-    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-
-    '''train'''
-    train_times = 2 ** 10
-    num = 2 ** 3  # batch_size
-    lr = 8e-4
-    unroll = 4  # step of Hamilton Term
-    num_opt = 16
-    hid_dim = 2 ** 7
-
-    '''eval'''
-    eval_gap = 32
-
-    '''init task'''
-    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-    obj_task = ObjectiveTask(num_envs=num, num_evals=num, device=device)
-    dim = obj_task.dim
-
-    '''init opti'''
-    opt_task = OptimizerTask(num=num, dim=dim, device=device)
-    opt_opti = OptimizerOpti(inp_dim=dim, hid_dim=hid_dim).to(device)
-    opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
-
-    '''loop'''
-    print('training start')
-    start_time = time.time()
-    for i in range(train_times + 1):
-        opt_loop(
-            obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
-            num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base, if_train=True)
-
-        if i % eval_gap == 1:
-            best_results, min_losses = opt_loop(
-                obj_task=obj_task, opt_task=opt_task, opt_opti=opt_opti,
-                num_opt=num_opt, device=device, unroll=unroll, opt_base=opt_base, if_train=False)
-
-            time_used = round((time.time() - start_time))
-            print(f"{'H2O':>8} {repr(best_results)} {repr(min_losses)}   "
-                  f"TimeUsed {time_used:9}")
-    print('training stop')
-
-
-if __name__ == '__main__':
-    train_optimizer()
-    # check_env()
-
-from H2O_MaxCut import *
+"""Learn to optimize with Hamilton term"""
 
 
 class OptimizerTask(nn.Module):
@@ -513,8 +275,8 @@ def train_optimizer_level2():
 
     '''hyper-parameters'''
     lr = 1e-2
-    mid_dim = 2 ** 4
-    num_layers = 2
+    # mid_dim = 2 ** 4
+    # num_layers = 2
 
     # unroll = 2 ** 3
     opt_num = 2 ** 12
@@ -522,7 +284,7 @@ def train_optimizer_level2():
 
     '''init task'''
     env = GraphMaxCutEnv(num_envs=num_envs, graph_key=graph_key, device=device)
-    dim = env.num_nodes
+    # dim = env.num_nodes
 
     xs = env.get_rand_p0s()
 
@@ -627,4 +389,3 @@ if __name__ == '__main__':
     train_optimizer_level1()
     # train_optimizer_level2()
     # train_optimizer_level3()
-
