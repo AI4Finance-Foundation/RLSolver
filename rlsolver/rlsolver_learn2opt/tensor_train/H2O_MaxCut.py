@@ -31,7 +31,7 @@ class GraphMaxCutEnv:
         n1: index of node1
         dt: distance between node0 and node1
         p0: the probability of node0 is in set, (1-p0): node0 is in another set
-        p1: the probability of node0 is in set, (1-p1): node0 is in another set
+        p1: the probability of node1 is in set, (1-p1): node1 is in another set
         '''
 
         n0_to_n1s = [[] for _ in range(num_nodes)]  # 将 node0_id 映射到 node1_id
@@ -71,11 +71,11 @@ class GraphMaxCutEnv:
 
             sum_dt = []
             for _p0, _p1 in zip(p0, n0_to_p1):
-                # `_p0 * (1-_p1)` node_0 属于这个集合 且 node_1 属于那个集合的概率
-                # `_p1 * (1-_p0)` node_1 属于这个集合 且 node_0 属于那个集合的概率
+                # `_p0 * (1-_p1)` node_0 属于这个集合 且 node1 属于那个集合的概率
+                # `_p1 * (1-_p0)` node_1 属于这个集合 且 node0 属于那个集合的概率
                 # dt = _p0 * (1-_p1) + _p1 * (1-_p0)  # 等价于以下一行代码，相加计算出了这条边两端的节点分别属于两个集合的概率
                 dt = _p0 + _p1 - 2 * _p0 * _p1
-                # 这个计算没有考虑无向图里节点之间的复杂关系，只能算出的局部梯度，与全局梯度有差别，但是没关系，我们不是直接用梯度去下降
+                # 此计算只能算出的局部梯度，与全局梯度有差别，未考虑无向图里节点间的复杂关系，但是没关系，我们不是直接用梯度去下降
                 sum_dt.append(dt.sum(dim=0))
             sum_dt = th.stack(sum_dt).sum(dim=-1)
             sum_dts.append(sum_dt)
