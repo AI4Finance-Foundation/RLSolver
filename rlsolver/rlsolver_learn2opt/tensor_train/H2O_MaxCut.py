@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 import sys
 import time
 import torch as th
@@ -413,7 +413,7 @@ def train_optimizer():
 if __name__ == '__main__':
     train_optimizer()
     # check_env()
-=======
+
 from H2O_MaxCut import *
 
 
@@ -627,4 +627,4 @@ if __name__ == '__main__':
     train_optimizer_level1()
     # train_optimizer_level2()
     # train_optimizer_level3()
->>>>>>> Stashed changes
+
