@@ -1,12 +1,12 @@
-# ElegantRL_Solver: High-performance RL Solvers
+# ElegantRL_Solver: High-performance GPU-based Solvers for NP-hard and NP-complete Problems
 
-We aim to find high-quality optimum, or even (nearly) global optimum, for nonconvex/nonlinear optimizations (continuous variables) and combinatorial optimizations (discrete variables).
+We aim to showcase the machine learning deliver the best benchmark performance for NP-hard and NP-complete problems.
 
-We provide pretrained neural networks to perform real-time inference for nonconvex optimization problems.
+In the meantime, this repo will also include our codes and tricks when playing with nonconvex and nonlinear optimization problems.
 
 [Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
 
-This project is built on [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
+For deep reinforcement learning algorithms, we use [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
 The following two key technologies are under active development: 
 
@@ -23,17 +23,15 @@ Key references:
 - Makoviychuk, Viktor, et al. "Isaac Gym: High performance GPU based physics simulation for robot learning." Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2). 2021.
 
 - Nair, Vinod, et al. "Solving mixed integer programs using neural networks." arXiv preprint arXiv:2012.13349 (2020).
-
-## News
-- We are currently developing optimization (OPT) environments that utilizes massive parallel simulation on GPU, the first version of which will be available at the end of January 2023. We welcome any suggestions or feedback!"
+- 
 
 ## Environments
 
-ElegantRL_Solver includes the following environments with the support of massively parallel simulation on GPUs.
-* MIMO Beamforming in 5G/6G.
+ElegantRL_Solver will includes the following environments:
 * Classical Simulation of Quantum Circuits.
 * Compressive Sensing.
 * Portfolio Management.
+* MIMO Beamforming in 5G/6G.
 * OR-Gym.
 
 ## Outline
