@@ -75,7 +75,10 @@ RLSolver
 - [ ] TSP
 - [ ] MILP
 - [ ] portfolio_management
+- [ ] quantum_circuits
+
 
 ## Related Repos:
 + [RL4CO](https://github.com/kaist-silab/rl4co)
-- [ ] quantum_circuits
++ [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
++ [Machine Learning for Combinatorial Optimization - NeurIPS 2021 Competition](https://github.com/ds4dm/ml4co-competition)
