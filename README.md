@@ -56,9 +56,9 @@ ElegantRL_Solver will includes the following environments:
   
 ## Solvers may be used
 
-[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
+[Gurobi](https://www.gurobi.com/) (chosen as our comparison solver),  [download/insall](https://www.gurobi.com/downloads/gurobi-software/)
 
-[Gurobi](https://www.gurobi.com/) [download/insall](https://www.gurobi.com/downloads/gurobi-software/)
+[SCIP](https://www.scipopt.org/index.php#welcome) (commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
 
 [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/insall](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
 
