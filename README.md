@@ -44,8 +44,8 @@ ElegantRL_Solver will includes the following environments:
   
 
 ## Benchmarks
-[2023 AAAI Reinforcement Learning for Branch-and-Bound Optimisation using Retrospective Trajectories] [code] (https://github.com/cwfparsonson/retro_branching/tree/master)
-[2021 AAAI Parameterizing Branch-and-Bound Search Trees to Learn Branching Policies] [code](https://github.com/ds4dm/branch-search-trees)
+2023 AAAI Reinforcement Learning for Branch-and-Bound Optimisation using Retrospective Trajectories [code](https://github.com/cwfparsonson/retro_branching/tree/master)
+2021 AAAI Parameterizing Branch-and-Bound Search Trees to Learn Branching Policies [code](https://github.com/ds4dm/branch-search-trees)
 
 ## Outline
 
