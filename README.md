@@ -56,13 +56,13 @@ ElegantRL_Solver will includes the following environments:
   
 ## Solvers may be used
 
-[Gurobi](https://www.gurobi.com/) (chosen as our comparison solver),  [download/insall](https://www.gurobi.com/downloads/gurobi-software/)
+[Gurobi](https://www.gurobi.com/) (the state-of-the-art solver, chosen as our comparison solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/)
 
-[SCIP](https://www.scipopt.org/index.php#welcome) (commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
+[SCIP](https://www.scipopt.org/index.php#welcome) (an open-source solver, its simplex is commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
 
-[CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/insall](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
+[CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
 
-[Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/insall](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
+[Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
 
 ## Outline
 
