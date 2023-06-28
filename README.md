@@ -44,8 +44,17 @@ ElegantRL_Solver will includes the following environments:
   
 
 ## Benchmarks
+* Maxcut
+  
 2023 AAAI Reinforcement Learning for Branch-and-Bound Optimisation using Retrospective Trajectories [code](https://github.com/cwfparsonson/retro_branching/tree/master)
+
 2021 AAAI Parameterizing Branch-and-Bound Search Trees to Learn Branching Policies [code](https://github.com/ds4dm/branch-search-trees)
+
+* TSP
+
+2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem [code](https://github.com/JHL-HUST/VSR-LKH)
+  
+  
 
 ## Outline
 
