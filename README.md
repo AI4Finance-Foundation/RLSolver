@@ -36,6 +36,8 @@ ElegantRL_Solver will includes the following environments:
 * Portfolio Management.
 * MIMO Beamforming in 5G/6G.
 * OR-Gym.
+* Massively parallel environments.
+* Gym-style environments.
 
 ## Datasets
 * Maxcut: [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
@@ -64,9 +66,6 @@ ElegantRL_Solver will includes the following environments:
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
 
-## Outline
-
-- [File Structure](#File-Structure)
 
 ## File Structure
 
@@ -81,7 +80,7 @@ RLSolver
    └──maxcut.md
    └──tsp.md
 └──rlsolver (main folder)
-   └──data
+   └──data (datasets for problems)
    └──envs
    └──result (store output files)
    └──rlsolver_learn2opt
