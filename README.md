@@ -40,7 +40,7 @@ ElegantRL_Solver will includes the following environments:
 ## Datasets
 * Maxcut: [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
-* 
+  
   
 
 ## Benchmarks
@@ -85,6 +85,7 @@ RLSolver
    └──envs
    └──result (store output files)
    └──rlsolver_learn2opt
+      └──mimo
       └──tensor_train
    └──graph_partitioning.py
    └──graph_partitioning_gurobi.py
