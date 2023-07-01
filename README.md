@@ -46,28 +46,28 @@ ElegantRL_Solver will includes the following environments:
   
 
 ## Benchmarks
-* Methods
-** Learn to branch
+
+* Learn to branch
   
 [code](https://github.com/cwfparsonson/retro_branching/tree/master) 2023 AAAI Reinforcement Learning for Branch-and-Bound Optimisation using Retrospective Trajectories 
 
 [code](https://github.com/ds4dm/branch-search-trees) 2021 AAAI Parameterizing Branch-and-Bound Search Trees to Learn Branching Policies
 
-** Learn to cut
+* Learn to cut
 
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
-* Problems
-* 
-** TSP
+
+* RL + algorithm/heuristic
 
 [code](https://github.com/JHL-HUST/VSR-LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
+
   
 ## Solvers may be used
 
-[Gurobi](https://www.gurobi.com/) (the state-of-the-art solver, chosen as our comparison solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/)
+[Gurobi](https://www.gurobi.com/) (chosen as our comparison solver, the state-of-the-art solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/)
 
-[SCIP](https://www.scipopt.org/index.php#welcome) (an open-source solver, its simplex is commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
+[SCIP](https://www.scipopt.org/index.php#welcome) (chosen as our comparison solver, an open-source solver, and its simplex is commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
 
 [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
 
