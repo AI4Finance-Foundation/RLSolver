@@ -69,6 +69,8 @@ ElegantRL_Solver will includes the following environments:
 
 [SCIP](https://www.scipopt.org/index.php#welcome) (chosen as our comparison solver, an open-source solver, and its simplex is commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
 
+## Solvers may be used
+
 [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
