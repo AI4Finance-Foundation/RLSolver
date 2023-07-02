@@ -63,7 +63,7 @@ ElegantRL_Solver will includes the following environments:
 [code](https://github.com/JHL-HUST/VSR-LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
   
-## Solvers may be used
+## Solvers to compare with
 
 [Gurobi](https://www.gurobi.com/) (chosen as our comparison solver, the state-of-the-art solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/)
 
