@@ -44,6 +44,13 @@ ElegantRL_Solver will includes the following environments:
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
   
+## Massively parallel gym-style environments
+
+Important functions 
+
+* reset(): Initialize the variables
+* obj(): Calculate the objective function, i.e., Halmiltonian.
+* reward(mu1: Tensor, mu2: Tensor): Calculate the Halmiltonian of from the graph mu1 to another graph mu2. 
 
 ## Benchmarks
 
@@ -65,9 +72,9 @@ ElegantRL_Solver will includes the following environments:
   
 ## Solvers to compare with
 
-[Gurobi](https://www.gurobi.com/) (chosen as our comparison solver, the state-of-the-art solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/)
+[Gurobi](https://www.gurobi.com/) (the state-of-the-art solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/)
 
-[SCIP](https://www.scipopt.org/index.php#welcome) (chosen as our comparison solver, an open-source solver, and its simplex is commonly used in learn to branch/cut) [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
+[SCIP](https://www.scipopt.org/index.php#welcome) (an open-source solver, and its simplex is commonly used in "learning to branch/cut") [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
 
 ## Solvers may be used
 
