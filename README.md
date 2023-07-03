@@ -76,7 +76,7 @@ Important functions
 
 [SCIP](https://www.scipopt.org/index.php#welcome) (an open-source solver, and its simplex is commonly used in "learning to branch/cut") [download/install](https://scipopt.org/doc/html/md_INSTALL.php)
 
-## Solvers may be used
+## Solvers to compare with
 
 [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
 
