@@ -63,7 +63,7 @@ Inference time of our method is less than 0.001 second.
 
 [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-The gap is calculated by (obj - obj*) / obj*, where obj is the objective value of our method, and obj* is the best objective value over all coparison methods.  
+The gap is calculated by $\frac{(obj - obj*)} { obj*} $, where obj is the objective value of our method, and obj* is the best objective value over all comparison methods.  
 
 | graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
