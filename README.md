@@ -40,7 +40,7 @@ ElegantRL_Solver will includes the following environments:
 * Gym-style environments.
 
 ## Datasets
-* Maxcut: [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
+* Maxcut: [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
   
@@ -82,6 +82,7 @@ Important functions
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
 
+[COPT](https://www.copt.de/) [download/install](https://www.copt.de/)
 
 ## File Structure
 
