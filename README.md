@@ -82,6 +82,7 @@ Important functions
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
 
+[COPT](https://www.copt.de/) [download/install](https://www.copt.de/)
 
 ## File Structure
 
