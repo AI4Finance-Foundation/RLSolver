@@ -81,7 +81,9 @@ Important functions
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html) [manual](https://www.fico.com/fico-xpress-optimization/docs/latest/solver/optimizer/HTML/GUID-3BEAAE64-B07F-302C-B880-A11C2C4AF4F6.html)
 
+## Performance
 
+The ElegantRL_Solver's performance compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/readme), which includes several problems such as maxcut and TSP, and also how to run the codes. 
 
 ## File Structure
 
