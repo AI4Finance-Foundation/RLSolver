@@ -30,14 +30,11 @@ Key references:
 
 ## Environments
 
-ElegantRL_Solver will includes the following environments:
-* Classical Simulation of Quantum Circuits.
-* Compressive Sensing.
-* Portfolio Management.
-* MIMO Beamforming in 5G/6G.
-* OR-Gym.
+ElegantRL_Solver follows the principles:
+* Gym-style environments (not all the same, since there is no action or step).
 * Massively parallel environments.
-* Gym-style environments.
+
+  
 
 ## Datasets
 * Maxcut: [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
@@ -78,11 +75,13 @@ Important functions
 
 ## Other solvers
 
+[COPT](https://www.copt.de/) [download/install](https://www.copt.de/)
+
 [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010)
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html)
 
-[COPT](https://www.copt.de/) [download/install](https://www.copt.de/)
+
 
 ## File Structure
 
@@ -106,6 +105,7 @@ RLSolver
    └──graph_partitioning.py
    └──graph_partitioning_gurobi.py
    └──maxcut.py
+   └──maxcut_H2O.py
    └──maxcut_gurobi.py
    └──tsp.py
    └──tsp_gurobi.py
