@@ -69,9 +69,9 @@ Important functions
   
 ## Solvers to compare with
 
-[Gurobi](https://www.gurobi.com/) (the state-of-the-art solver),  [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html)
+[Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver)
 
-[SCIP](https://www.scipopt.org/index.php#welcome) (an open-source solver, and its simplex is commonly used in "learning to branch/cut") [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/)
+[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (an open-source solver, and its simplex is commonly used in "learn to branch/cut") 
 
 ## Other solvers
 
