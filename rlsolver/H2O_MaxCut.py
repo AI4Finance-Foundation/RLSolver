@@ -4,7 +4,7 @@ import torch as th
 import torch.nn as nn
 
 TEN = th.Tensor
-ThetaG14 = """
+ThetaGset_14 = """
 BYazUs1eWYN9rkM72XZVmSlFWkztsLbW1oQvepFN1ncCSwepfwZqfPkX94Wj72s83xu3ogvwW3OqwCDhlUBqQIVr5PWKK@m9oxFFj4ggJ2Iwz3cQQCWYYhsS
 pl!bxDGo7kLtG3
 """  # 3025
@@ -13,7 +13,7 @@ BHak9ztUcX9XcYhD!w61dHdiNl8SPEc969fwLIK3NChqc1J6uDC5CSuQSgzcifjw6JjyENQ!G0UMBGbV
 3Xay!wxOG70GyL
 """  # 3017
 
-ThetaG70 = """
+ThetaGset_70 = """
 Mk@CGftMyn1hBJtZJ8JboOSf@DJDxG2sSqM68H75c!8TqFWAHT4TaxU2wU8RMCTsD9aP3nUO8EN6Q6nZsiooW!N7iRQvYzw6co8iAdmbDBthJRehiqXj1gzZ
 SwDSCnO4aQcEJtNOAuWNUu1Vjw8B3xP7egjg08!5TtD5A4L@mJmzU@JOU5JXWt5MqRJw8NqRavCN8aJxQXvsaeOKs9MloHShxQc5MR0D4dB9nXE8@By3FwkJ
 HTOu5du!gvbRGQhOjjw@W59zsAc0l7fxApcKU8NRaCBrOYuzoD8qebH0cvSWWE9vc9JJCTv6VrJTXUdLcKKrxJpQEbMdIGcZeQoDG07Wjsz!3tmM3PIpDx5C
@@ -34,18 +34,18 @@ G3WiENwEEjBv3ROzleajhLLaGDz3hSI5FUWco8po3YDaN3Pv9QUiXY!8G7fci7HlvnV8m1pGt8UGdeyz
 
 
 class GraphMaxCutEnv:
-    def __init__(self, graph_key: str = 'g70', gpu_id: int = -1):
+    def __init__(self, graph_key: str = 'gset_70', gpu_id: int = -1):
         device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
         '''read graph from txt'''
-        map_graph_to_node_edge = {'g14': (800, 4694),
-                                  'g15': (800, 4661),
-                                  'g22': (2000, 19990),
-                                  'g49': (3000, 6000),
-                                  'g50': (3000, 6000),
-                                  'g70': (10000, 9999), }
+        map_graph_to_node_edge = {'gset_14': (800, 4694),
+                                  'gset_15': (800, 4661),
+                                  'gset_22': (2000, 19990),
+                                  'gset_49': (3000, 6000),
+                                  'gset_50': (3000, 6000),
+                                  'gset_70': (10000, 9999), }
         assert graph_key in map_graph_to_node_edge
-        txt_path = f"./data/maxcut/gset_{graph_key}.txt"
+        txt_path = f"./data/maxcut/{graph_key}.txt"
         with open(txt_path, 'r') as file:
             lines = file.readlines()
             lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
@@ -216,8 +216,8 @@ def check_env():
     th.manual_seed(0)
     num_envs = 6
 
-    # env = GraphMaxCutEnv(graph_key='g14')
-    env = GraphMaxCutEnv(graph_key='g70')
+    # env = GraphMaxCutEnv(graph_key='gset_14')
+    env = GraphMaxCutEnv(graph_key='gset_70')
 
     probs = env.get_rand_probs(num_envs=num_envs)
     print(env.get_objective(probs))
@@ -244,10 +244,10 @@ def check_env():
 
 
 def check_theta():
-    env = GraphMaxCutEnv(graph_key='g14')
-    best_theta = env.node_prob_str_to_bool(ThetaG14)
-    # env = GraphMaxCutEnv(graph_key='g70')
-    # best_theta = env.node_prob_str_to_bool(ThetaG70)
+    env = GraphMaxCutEnv(graph_key='gset_14')
+    best_theta = env.node_prob_str_to_bool(ThetaGset_14)
+    # env = GraphMaxCutEnv(graph_key='gset_70')
+    # best_theta = env.node_prob_str_to_bool(ThetaGset_70)
 
     print(best_theta.shape)
     best_score = env.get_scores(best_theta.unsqueeze(0)).squeeze(0)
@@ -277,8 +277,8 @@ def check_convert_between_b10_and_b64():
 def convert_between_str_and_bool():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     num_envs = 1
-    graph_key = 'g14'
-    # graph_key = 'g70'
+    graph_key = 'gset_14'
+    # graph_key = 'gset_70'
 
     env = GraphMaxCutEnv(graph_key=graph_key, gpu_id=gpu_id)
 
@@ -324,8 +324,8 @@ class OptimizerOpti(nn.Module):
 def train_optimizer_level1_update_theta_by_grad():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     num_envs = 2 ** 6
-    graph_key = 'g14'
-    # graph_key = 'g70'
+    graph_key = 'gset_14'
+    # graph_key = 'gset_70'
 
     '''hyper-parameters'''
     lr = 1e-3
@@ -367,8 +367,8 @@ def train_optimizer_level1_update_theta_by_grad():
 def train_optimizer_level2_update_theta_by_adam():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     num_envs = 2 ** 4
-    graph_key = 'g14'
-    # graph_key = 'g70'
+    graph_key = 'gset_14'
+    # graph_key = 'gset_70'
 
     '''hyper-parameters'''
     lr = 1e-3
@@ -414,8 +414,8 @@ def train_optimizer_level2_update_theta_by_adam():
 def train_optimizer_level3_update_theta_by_opti():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
     num_envs = 2 ** 4
-    graph_key = 'g14'
-    # graph_key = 'g70'
+    graph_key = 'gset_14'
+    # graph_key = 'gset_70'
 
     '''hyper-parameters'''
     lr = 1e-3
