@@ -58,10 +58,12 @@ Average over 30 runs.
 |N=4000   | | | |  | |
 |N=5000 | |  |  | 3175813 $\pm$, (202s)| |
 
-Inference time of our method is less than 10 seconds.
+Inference time of our method is less than 0.001 second.
 
 
 [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
+
+The gap is calculated by (obj - obj*) / obj*, where obj is the objective value of our method, and obj* is the best objective value over all coparison methods.  
 
 | graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
