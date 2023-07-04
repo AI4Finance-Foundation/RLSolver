@@ -63,7 +63,7 @@ Inference time of our method is less than 10 seconds.
 
 [Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | improvement | 
+| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
 |G14 | 800 | 4694 | 3064| | 2922 | 3061 | 2943  |3056 (24h) | ---| ---| 3025 | -1.27\%|
 |G15 | 800 | 4661 | 3050 | 2938 | 3050 | 2928 | 2990  | ---| ---| | 2965 | -2.78\% | 
