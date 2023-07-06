@@ -62,11 +62,20 @@ Important functions
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
 
-* RL + algorithm/heuristic
+* ML/RL + algorithm/heuristic
 
 [code](https://github.com/JHL-HUST/VSR-LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
-  
+* Classical methods
+  1) Random walk
+  2) Greedy
+  3) $\epsilon$-greedy
+  4) Simulated annealing
+  5) Local search
+  6) Beam search
+  7) Branch-and-bound
+  8) Cutting plane
+
 ## Solvers to compare with
 
 [Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver)
