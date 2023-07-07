@@ -62,11 +62,16 @@ class GraphMaxCutEnv:
 
         n0_to_n1s = [[] for _ in range(num_nodes)]  # 将 node0_id 映射到 node1_id
         n0_to_dts = [[] for _ in range(num_nodes)]  # 将 mode0_id 映射到 node1_id 与 node0_id 的距离
+        adjacency_matrix = th.zeros(num_nodes, num_nodes).to(device)
         for n0, n1, dist in edge_to_n0_n1_dist:
             n0_to_n1s[n0].append(n1)
             n0_to_dts[n0].append(dist)
+            adjacency_matrix[n0][n1] = dist
+            adjacency_matrix[n1][n0] = dist
+
         n0_to_n1s = [th.tensor(node1s, dtype=th.long, device=device) for node1s in n0_to_n1s]
         n0_to_dts = [th.tensor(node1s, dtype=th.long, device=device) for node1s in n0_to_dts]  # dists == 1
+
         assert num_nodes == len(n0_to_n1s)
         assert num_nodes == len(n0_to_dts)
         assert num_edges == sum([len(n0_to_n1) for n0_to_n1 in n0_to_n1s])
@@ -75,6 +80,7 @@ class GraphMaxCutEnv:
         self.num_nodes = len(n0_to_n1s)
         self.num_edges = sum([len(n0_to_n1) for n0_to_n1 in n0_to_n1s])
         self.n0_to_n1s = n0_to_n1s
+        self.adjacency_matrix = adjacency_matrix
         self.device = device
 
         '''为了高性能计算，删掉了 n0_to_n1s 的空item'''
