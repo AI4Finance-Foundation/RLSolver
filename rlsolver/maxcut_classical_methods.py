@@ -126,25 +126,36 @@ def simulated_annealing(init_solution: Tensor, init_temperature: int, num_steps:
     return curr_score, curr_solution, scores
 
 if __name__ == '__main__':
+    # rw: random walk
+    # gr: greedy
+    # sa: simulated_annealing
+    alg_names = ['rw', 'sa']
+
+
     # plot_fig(scores=[1, 2,3], num_steps=3, label='sa')
 
     env = GraphMaxCutEnv(graph_key='gset_14')
 
+
+
     init_solution = th.randint(0, 1+1, (1, env.num_nodes))
 
     # 1) random walk
-    rw_score, rw_solution, rw_scores = random_walk(init_solution=init_solution, num_steps=1000, env=env)
+    if 'rw' in alg_names:
+        rw_score, rw_solution, rw_scores = random_walk(init_solution=init_solution, num_steps=1000, env=env)
 
     # 2) greedy
-    # start_node = random.randint(0, env.num_nodes - 1)
-    # gr_score, gr_solution, gr_scores = greedy(start_node=start_node, init_solution=init_solution, num_steps=10, env=env)
+    if 'gr' in alg_names:
+        start_node = random.randint(0, env.num_nodes - 1)
+        gr_score, gr_solution, gr_scores = greedy(start_node=start_node, init_solution=init_solution, num_steps=10, env=env)
 
     # 3) simulated annealing
-    init_temperature = 300
-    num_steps = 1000
-    sa_score, sa_solution, sa_scores = simulated_annealing(init_solution=init_solution, init_temperature=init_temperature, num_steps=num_steps, env=env)
-    label = 'SA'
-    plot_fig(sa_scores, num_steps, label)
+    if 'sa' in alg_names:
+        init_temperature = 300
+        num_steps = 1000
+        sa_score, sa_solution, sa_scores = simulated_annealing(init_solution=init_solution, init_temperature=init_temperature, num_steps=num_steps, env=env)
+        label = 'SA'
+        plot_fig(sa_scores, num_steps, label)
 
     # scoress = []
     # # scoress.append(rw_scores)
