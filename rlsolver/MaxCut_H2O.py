@@ -89,6 +89,13 @@ class GraphMaxCutEnv:
         self.v2_n0_to_n1s = [n0_to_n1s[idx] for idx in v2_ids]
         self.v2_num_nodes = len(v2_ids)
 
+    def get_neighbor_nodes(self, node: int):
+        res = th.where(self.adjacency_matrix[node] > 0)[0]
+        if len(res) >= 1:
+            print()
+        res = [int(i) for i in res]
+        return res
+
     def get_objective(self, p0s):
         assert p0s.shape[-1] == self.num_nodes
         num_envs = p0s.shape[0]
