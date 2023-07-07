@@ -91,8 +91,6 @@ class GraphMaxCutEnv:
 
     def get_neighbor_nodes(self, node: int):
         res = th.where(self.adjacency_matrix[node] > 0)[0]
-        if len(res) >= 1:
-            print()
         res = [int(i) for i in res]
         return res
 
