@@ -82,7 +82,7 @@ Important functions
 
 [SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (an open-source solver, and its simplex is commonly used in "learn to branch/cut") 
 
-[Biq Mac Solver](https://biqmac.aau.at/) (only for binary quadratic or maxcut)
+[BiqMac](https://biqmac.aau.at/) (only for binary quadratic or maxcut)
 
 ## Other solvers
 
