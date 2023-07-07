@@ -13,9 +13,27 @@ from MaxCut_H2O import GraphMaxCutEnv
 from utils import Opt_net
 import pickle as pkl
 from utils import calc_file_name
+import matplotlib.pyplot as plt
+
 graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
+def plot_fig(scores: List[int], num_steps: int, label: str):
+    # fig = plt.figure()
+    x = list(range(num_steps))
+    dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
+    plt.plot(x, scores, dic['0'])
+    plt.legend([label], loc=0)
+    plt.savefig(label + '.png')
+    plt.show()
 
+def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
+    num = len(scoress)
+    x = list(range(num_steps))
+    dic = {'0': 'ro', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
+    for i in range(num):
+        plt(x, scoress[i], dic[str(i)], labels[i])
+    plt.legend(labels, loc=0)
+    plt.show()
 def random_walk(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
     curr_solution: Tensor = copy.deepcopy(init_solution)
     init_score = int(-env.get_objective(curr_solution)[0])
@@ -29,7 +47,7 @@ def random_walk(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (
 
     print("score, init_score of random_walk", score, init_score)
     print("scores: ", scores)
-    return score, curr_solution
+    return score, curr_solution, scores
 
 
 
@@ -76,7 +94,7 @@ def greedy(start_node: int, init_solution: Tensor, num_steps: int, env: GraphMax
             return curr_score, curr_solution
     print("score, init_score of greedy", curr_score, init_score)
     print("scores: ", scores)
-    return curr_score, curr_solution
+    return curr_score, curr_solution, scores
 
 
 def simulated_annealing(init_solution: Tensor, init_temperature: int, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
@@ -105,21 +123,46 @@ def simulated_annealing(init_solution: Tensor, init_temperature: int, num_steps:
                 curr_score = new_score
     print("score, init_score of simulated_annealing", curr_score, init_score)
     print("scores: ", scores)
-    return curr_score, curr_solution
+    return curr_score, curr_solution, scores
 
 if __name__ == '__main__':
+    # rw: random walk
+    # gr: greedy
+    # sa: simulated_annealing
+    alg_names = ['rw', 'sa']
+
+
+    # plot_fig(scores=[1, 2,3], num_steps=3, label='sa')
+
     env = GraphMaxCutEnv(graph_key='gset_14')
+
+
 
     init_solution = th.randint(0, 1+1, (1, env.num_nodes))
 
-    rw_score, rw_solution = random_walk(init_solution=init_solution, num_steps=1000, env=env)
+    # 1) random walk
+    if 'rw' in alg_names:
+        rw_score, rw_solution, rw_scores = random_walk(init_solution=init_solution, num_steps=1000, env=env)
 
-    start_node = random.randint(0, env.num_nodes - 1)
-    gr_score, gr_solution = greedy(start_node=start_node, init_solution=init_solution, num_steps=10, env=env)
+    # 2) greedy
+    if 'gr' in alg_names:
+        start_node = random.randint(0, env.num_nodes - 1)
+        gr_score, gr_solution, gr_scores = greedy(start_node=start_node, init_solution=init_solution, num_steps=10, env=env)
 
-    init_temperature = 2000
-    num_steps = 1000
-    sa_score, sa_solution = simulated_annealing(init_solution=init_solution, init_temperature=init_temperature, num_steps=num_steps, env=env)
+    # 3) simulated annealing
+    if 'sa' in alg_names:
+        init_temperature = 300
+        num_steps = 1000
+        sa_score, sa_solution, sa_scores = simulated_annealing(init_solution=init_solution, init_temperature=init_temperature, num_steps=num_steps, env=env)
+        label = 'SA'
+        plot_fig(sa_scores, num_steps, label)
 
+    # scoress = []
+    # # scoress.append(rw_scores)
+    # # scoress.append(gr_scores)
+    # scoress.append(sa_scores)
+    # # labels = ['rw', 'gr', 'sa']
+    # labels = ['RW', 'GR', 'SA']
+    # plot(scoress, num_steps: int, labels: List[str])
 
 
