@@ -37,12 +37,13 @@ def greedy(init_solution: Tensor, env: GraphMaxCutEnv) -> (int, Tensor):
         tmp_solutions = []
         tmp_scores = []
         tmp_nodes = []
-        nodes_to_visit = []
+        nodes_to_visit = set()
         for k in range(len(visited)):
             if visited[k] == 1:
-                will_visit = env.n0_to_n1s[k]
+                will_visit = env.get_neighbor_nodes(k)
                 to_visit = [item for item in will_visit if visited[item] == 0]
-                nodes_to_visit.extend(to_visit)
+                nodes_to_visit = nodes_to_visit | set(to_visit)
+        nodes_to_visit = list(nodes_to_visit)
         for j in range(len(nodes_to_visit)):
             node = int(nodes_to_visit[j])
             if visited[node] == 0:
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     init_solution = th.randint(0, 1+1, (1, env.num_nodes))
     rw_score, rw_solution = random_walk(init_solution=init_solution, num_steps=10000, env=env)
 
-    gre_score, gre_solution = greedy(init_solution=init_solution, env=env)
+    gr_score, gr_solution = greedy(init_solution=init_solution, env=env)
 
 
 
