@@ -81,6 +81,7 @@ class GraphMaxCutEnv:
         self.num_edges = sum([len(n0_to_n1) for n0_to_n1 in n0_to_n1s])
         self.n0_to_n1s = n0_to_n1s
         self.adjacency_matrix = adjacency_matrix
+        self.sparsity = self.num_edges / (self.num_nodes * self.num_nodes)
         self.device = device
 
         '''为了高性能计算，删掉了 n0_to_n1s 的空item'''
