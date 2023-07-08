@@ -1,5 +1,6 @@
 # comparison methods for maxcut: random walk, greedy, epsilon greedy, simulated annealing
 import copy
+import time
 
 import torch as th
 import torch.nn as nn
@@ -35,6 +36,8 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
     plt.legend(labels, loc=0)
     plt.show()
 def random_walk(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
+    print('random_walk')
+    start_time = time.time()
     curr_solution: Tensor = copy.deepcopy(init_solution)
     init_score = int(-env.get_objective(curr_solution)[0])
     length = len(curr_solution[0])
@@ -47,11 +50,15 @@ def random_walk(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (
 
     print("score, init_score of random_walk", score, init_score)
     print("scores: ", scores)
+    running_duration = time.time() - start_time
+    print('running_duration: ', running_duration)
     return score, curr_solution, scores
 
 
 
 def greedy(start_node: int, init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
+    print('greedy')
+    start_time = time.time()
     nodes = list(range(env.num_nodes))
     visited = [start_node]
     # curr_solution: Tensor = th.zeros((1, env.num_nodes))
@@ -94,10 +101,14 @@ def greedy(start_node: int, init_solution: Tensor, num_steps: int, env: GraphMax
             return curr_score, curr_solution
     print("score, init_score of greedy", curr_score, init_score)
     print("scores: ", scores)
+    running_duration = time.time() - start_time
+    print('running_duration: ', running_duration)
     return curr_score, curr_solution, scores
 
 
 def simulated_annealing(init_solution: Tensor, init_temperature: int, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
+    print('simulated_annealing')
+    start_time = time.time()
     curr_solution: Tensor = copy.deepcopy(init_solution)
     curr_score = int(-env.get_objective(curr_solution)[0])
     init_score = curr_score
@@ -123,6 +134,8 @@ def simulated_annealing(init_solution: Tensor, init_temperature: int, num_steps:
                 curr_score = new_score
     print("score, init_score of simulated_annealing", curr_score, init_score)
     print("scores: ", scores)
+    running_duration = time.time() - start_time
+    print('running_duration: ', running_duration)
     return curr_score, curr_solution, scores
 
 if __name__ == '__main__':
@@ -151,8 +164,8 @@ if __name__ == '__main__':
 
     # 3) simulated annealing
     if 'sa' in alg_names:
-        init_temperature = 300
-        num_steps = 1000
+        init_temperature = 40
+        num_steps = 320000
         sa_score, sa_solution, sa_scores = simulated_annealing(init_solution=init_solution, init_temperature=init_temperature, num_steps=num_steps, env=env)
         label = 'SA'
         plot_fig(sa_scores, num_steps, label)
