@@ -16,7 +16,7 @@ import pickle as pkl
 from utils import calc_file_name
 import matplotlib.pyplot as plt
 
-graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
+# graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
 def plot_fig(scores: List[int], num_steps: int, label: str):
     # fig = plt.figure()
