@@ -80,6 +80,7 @@ def greedy(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, 
         index = scores.index(best_score)
         best_solution = solutions[index]
         if best_score >= curr_score:
+            curr_score = best_score
             curr_solution = best_solution
     print("score, init_score of greedy", curr_score, init_score)
     print("scores: ", scores)
@@ -124,8 +125,8 @@ if __name__ == '__main__':
     # RW: random walk
     # GR: greedy
     # SA: simulated_annealing
-    alg_names = ['RW', 'GR']
-    # alg_names = ['RW', 'GR', 'SA']
+    # alg_names = ['RW', 'GR']
+    alg_names = ['RW', 'GR', 'SA']
 
 
     # plot_fig(scores=[1, 2,3], num_steps=3, label='sa')
