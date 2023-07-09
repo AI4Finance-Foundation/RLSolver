@@ -56,49 +56,31 @@ def random_walk(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (
 
 
 
-def greedy(start_node: int, init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
+def greedy(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, Tensor):
     print('greedy')
     start_time = time.time()
     nodes = list(range(env.num_nodes))
-    visited = [start_node]
     # curr_solution: Tensor = th.zeros((1, env.num_nodes))
     curr_solution: Tensor = init_solution
     curr_score: int = int(-env.get_objective(curr_solution)[0])
     init_score = curr_score
-    scores = []
-    for iteration in range(env.num_nodes - 1):
+    for iteration in range(env.num_nodes):
         if iteration >= num_steps:
             break
         print("iteration in greedy: ", iteration)
-        tmp_solutions = []
-        tmp_scores = []
-        tmp_nodes = []
-        nodes_to_visit = set()
-        for k in range(len(visited)):
-            will_visit = env.get_neighbor_nodes(k)
-            to_visit = [item for item in will_visit if item not in visited]
-            nodes_to_visit = nodes_to_visit | set(to_visit)
-        nodes_to_visit = list(nodes_to_visit)
-        for j in range(len(nodes_to_visit)):
-            node = int(nodes_to_visit[j])
-            tmp_solution = copy.deepcopy(curr_solution)
-            tmp_solution[0, node] = (tmp_solution[0, node] + 1) % 2
-            tmp_score = int(-env.get_objective(tmp_solution)[0])
-            tmp_scores.append(tmp_score)
-            tmp_solutions.append(tmp_solution)
-            tmp_nodes.append(node)
-        if len(tmp_scores) >= 1:
-            best_tmp_score = max(tmp_scores)
-            scores.append(best_tmp_score)
-            index = tmp_scores.index(best_tmp_score)
-            best_tmp_solution = tmp_solutions[index]
-            best_tmp_node = tmp_nodes[index]
-            if best_tmp_score > curr_score:
-                curr_score = best_tmp_score
-                curr_solution = best_tmp_solution
-                visited.append(best_tmp_node)
-        else:
-            return curr_score, curr_solution
+        scores = []
+        solutions = []
+        for node in nodes:
+            new_solution = copy.deepcopy(curr_solution)
+            new_solution[0, node] = (new_solution[0, node] + 1) % 2
+            new_score = int(-env.get_objective(new_solution)[0])
+            scores.append(new_score)
+            solutions.append(new_solution)
+        best_score = max(scores)
+        index = scores.index(best_score)
+        best_solution = solutions[index]
+        if best_score >= curr_score:
+            curr_solution = best_solution
     print("score, init_score of greedy", curr_score, init_score)
     print("scores: ", scores)
     running_duration = time.time() - start_time
@@ -142,7 +124,8 @@ if __name__ == '__main__':
     # RW: random walk
     # GR: greedy
     # SA: simulated_annealing
-    alg_names = ['RW', 'SA']
+    alg_names = ['RW', 'GR']
+    # alg_names = ['RW', 'GR', 'SA']
 
 
     # plot_fig(scores=[1, 2,3], num_steps=3, label='sa')
@@ -161,8 +144,7 @@ if __name__ == '__main__':
     # 2) greedy
     alg_name = 'GR'
     if alg_name in alg_names:
-        start_node = random.randint(0, env.num_nodes - 1)
-        gr_score, gr_solution, gr_scores = greedy(start_node=start_node, init_solution=init_solution, num_steps=10, env=env)
+        gr_score, gr_solution, gr_scores = greedy(init_solution=init_solution, num_steps=10, env=env)
 
     # 3) simulated annealing
     alg_name = 'SA'
