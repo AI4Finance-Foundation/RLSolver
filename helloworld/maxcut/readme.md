@@ -13,9 +13,9 @@ For example, gest_14,
 
 800 4694 # the number of nodes is 800, and the number of edges is 4694
 
-1 7 1 # the edge connecting node 1 and 7, and the weight is 1
+1 7 1 # the edge connects node 1 and 7 with the weight is 1
 
-1 10 1 # the edge connecting node 1 and 10, and the weight is 1
+1 10 1 # the edge connects node 1 and 10 with the weight is 1
 
 ...
 
