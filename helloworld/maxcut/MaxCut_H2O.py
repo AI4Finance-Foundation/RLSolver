@@ -32,7 +32,7 @@ G3WiENwEEjBv3ROzleajhLLaGDz3hSI5FUWco8po3YDaN3Pv9QUiXY!8G7fci7HlvnV8m1pGt8UGdeyz
 
 """Graph Max Cut Env"""
 
-from env.maxcut_env2 import GraphMaxCutEnv
+from env.maxcut_env2 import MaxCutEnv2
 
 
 
@@ -43,7 +43,7 @@ def check_env():
     num_envs = 6
 
     # env = GraphMaxCutEnv(graph_key='gset_14')
-    env = GraphMaxCutEnv(graph_key='gset_70')
+    env = MaxCutEnv2(graph_key='gset_70')
 
     probs = env.get_rand_probs(num_envs=num_envs)
     print(env.get_objective(probs))
@@ -70,7 +70,7 @@ def check_env():
 
 
 def check_theta():
-    env = GraphMaxCutEnv(graph_key='gset_14')
+    env = MaxCutEnv2(graph_key='gset_14')
     best_theta = env.node_prob_str_to_bool(ThetaGset_14)
     # env = GraphMaxCutEnv(graph_key='gset_70')
     # best_theta = env.node_prob_str_to_bool(ThetaGset_70)
@@ -88,7 +88,7 @@ def convert_between_str_and_bool():
     graph_key = 'gset_14'
     # graph_key = 'gset_70'
 
-    env = GraphMaxCutEnv(graph_key=graph_key, gpu_id=gpu_id)
+    env = MaxCutEnv2(graph_key=graph_key, gpu_id=gpu_id)
 
     x_prob = env.get_rand_probs(num_envs=num_envs)[0]
     x_bool = env.convert_prob_to_bool(x_prob)
@@ -141,7 +141,7 @@ def train_optimizer_level1_update_theta_by_grad():
     eval_gap = 2 ** 6
 
     '''init task'''
-    env = GraphMaxCutEnv(graph_key=graph_key, gpu_id=gpu_id)
+    env = MaxCutEnv2(graph_key=graph_key, gpu_id=gpu_id)
     probs = env.get_rand_probs(num_envs=num_envs)
     probs.requires_grad_(True)
 
@@ -184,7 +184,7 @@ def train_optimizer_level2_update_theta_by_adam():
     eval_gap = 2 ** 6
 
     '''init task'''
-    env = GraphMaxCutEnv(graph_key=graph_key, gpu_id=gpu_id)
+    env = MaxCutEnv2(graph_key=graph_key, gpu_id=gpu_id)
     probs = env.get_rand_probs(num_envs=num_envs)
     probs.requires_grad_(True)
 
@@ -236,7 +236,7 @@ def train_optimizer_level3_update_theta_by_opti():
     eval_gap = 2 ** 1
 
     '''init task'''
-    env = GraphMaxCutEnv(graph_key=graph_key, gpu_id=gpu_id)
+    env = MaxCutEnv2(graph_key=graph_key, gpu_id=gpu_id)
     dim = env.num_nodes
     probs = env.get_rand_probs(num_envs=num_envs)
     probs.requires_grad_(True)
