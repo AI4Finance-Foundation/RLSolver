@@ -10,7 +10,16 @@ import os
 from collections import OrderedDict
 import collections.abc as container_abcs
 import functools
+import torch as th
+import torch.nn as nn
+from copy import deepcopy
+import numpy as np
+from torch import Tensor
+from typing import List
+import random
+from utils import Opt_net
 
+import matplotlib.pyplot as plt
 
 
 def calc_file_name(front: str, id2: int, val: int, end: str):
@@ -94,3 +103,11 @@ def maxcut_gset2npy(id: int):
 
 
 
+def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
+    num = len(scoress)
+    x = list(range(num_steps))
+    dic = {'0': 'ro', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
+    for i in range(num):
+        plt(x, scoress[i], dic[str(i)], labels[i])
+    plt.legend(labels, loc=0)
+    plt.show()
