@@ -44,6 +44,17 @@ def bin_int_to_str(decimal: bin):
     return base
 
 
+def bin_str_to_int(base: str):
+    base_digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@"
+    base_len = len(base)
+    base_num = len(base_digits)
+
+    decimal = 0
+    for i in range(base_len):
+        digit = base_digits.index(base[i])
+        power = base_len - 1 - i
+        decimal += digit * (base_num ** power)
+    return decimal
 
 class GraphMaxCutEnv:
     def __init__(self, graph_key: str = 'gset_70', gpu_id: int = -1):

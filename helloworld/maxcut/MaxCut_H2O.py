@@ -36,17 +36,6 @@ from env.maxcut_env2 import GraphMaxCutEnv
 
 
 
-def bin_str_to_int(base: str):
-    base_digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@"
-    base_len = len(base)
-    base_num = len(base_digits)
-
-    decimal = 0
-    for i in range(base_len):
-        digit = base_digits.index(base[i])
-        power = base_len - 1 - i
-        decimal += digit * (base_num ** power)
-    return decimal
 
 
 def check_env():
