@@ -10,7 +10,7 @@ from torch import Tensor
 from typing import List
 import random
 from env.maxcut_env import MaxcutEnv
-from MaxCut_H2O import GraphMaxCutEnv
+from env import GraphMaxCutEnv
 from utils import Opt_net
 import pickle as pkl
 from utils import calc_file_name
@@ -44,7 +44,9 @@ def random_walk(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (
     scores = []
     for i in range(num_steps):
         index = random.randint(0, length - 1)
+        # Here, 0 denotes the 0-th env, since the dim is 1 * env.num_nodes, where 1 dentoes the num of envs.
         curr_solution[0, index] = (curr_solution[0, index] + 1) % 2
+        # calc the obj
         score = int(-env.get_objective(curr_solution)[0])
         scores.append(score)
 
@@ -72,7 +74,9 @@ def greedy(init_solution: Tensor, num_steps: int, env: GraphMaxCutEnv) -> (int, 
         solutions = []
         for node in nodes:
             new_solution = copy.deepcopy(curr_solution)
+            # Here, 0 denotes the 0-th env, since the dim is 1 * env.num_nodes, where 1 dentoes the num of envs.
             new_solution[0, node] = (new_solution[0, node] + 1) % 2
+            # calc the obj
             new_score = int(-env.get_objective(new_solution)[0])
             scores.append(new_score)
             solutions.append(new_solution)
@@ -98,10 +102,13 @@ def simulated_annealing(init_solution: Tensor, init_temperature: int, num_steps:
     length = len(curr_solution[0])
     scores = []
     for k in range(num_steps):
+        # The temperature decreases
         temperature = init_temperature * (1 - (k + 1) / num_steps)
         index = random.randint(0, length - 1)
         new_solution = copy.deepcopy(curr_solution)
+        # Here, 0 denotes the 0-th env, since the dim is 1 * env.num_nodes, where 1 dentoes the num of envs.
         new_solution[0, index] = (new_solution[0, index] + 1) % 2
+        # calc the obj
         new_score = int(-env.get_objective(new_solution)[0])
         scores.append(new_score)
         delta_e = curr_score - new_score
@@ -134,7 +141,8 @@ if __name__ == '__main__':
     env = GraphMaxCutEnv(graph_key='gset_14')
 
 
-
+    # Initialize the solution, 0 or 1 for each node, with the size env.num_nodes
+    # The dim is 1 * env.num_nodes, where 1 dentoes the num of envs. In maxcut_env, we use this format for Massively Parallel Environments
     init_solution = th.randint(0, 1+1, (1, env.num_nodes))
 
     # 1) random walk
