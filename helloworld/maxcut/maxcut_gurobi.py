@@ -14,20 +14,20 @@ from torch import Tensor
 from typing import List
 import random
 from env.maxcut_env import MaxcutEnv
-from MaxCut_H2O import GraphMaxCutEnv
+from MaxCut_H2O import MaxCutEnv2
 
 
 
 RESULT_GUROBI_DIR = 'gurobi_result'
 RESULT_DIR = 'gurobi_result'
 
-def write_result_gurobi(model, env: GraphMaxCutEnv):
+def write_result_gurobi(model, env: MaxCutEnv2):
     file_name = RESULT_GUROBI_DIR + "_NUM_NODES=" + str(env.num_nodes) + "_" + str(env.num_edges) + ".txt"
     with open(file_name, 'w', encoding="UTF-8") as file:
         file.write(f"obj when NUM_NODES={env.num_nodes} NUM_EDGES={env.num_edges}: {model.objVal}")
 
 
-def run_using_gurobi(env: GraphMaxCutEnv):
+def run_using_gurobi(env: MaxCutEnv2):
     model = Model("maxcut")
     node_indices = list(range(env.num_nodes))
     import pickle as pkl
@@ -80,7 +80,7 @@ def run_using_gurobi(env: GraphMaxCutEnv):
 
 if __name__ == '__main__':
     import sys
-    env = GraphMaxCutEnv(graph_key='gset_14')
+    env = MaxCutEnv2(graph_key='gset_14')
 
     run_using_gurobi(env)
     pass
