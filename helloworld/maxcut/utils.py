@@ -50,7 +50,16 @@ def write_result(result: Tensor, filename: str='result/result.txt'):
         for i in range(N):
             file.write(f'{i} {int(result[i])}\n')
 
-
+def generate_symmetric_adjacency_matrix(num_nodes:int, density: float, weight_low=0, weight_high=2): # sparsity for binary
+    # upper_triangle = th.mul(th.rand(num_nodes, num_nodes).triu(diagonal=1),
+    #                         (th.rand(num_nodes, num_nodes) < sparsity).int().triu(diagonal=1))
+    upper_triangle = torch.triu((th.rand(num_nodes, num_nodes) < density).int(), diagonal=1)
+    upper_triangle2 = th.mul(th.randint(weight_low, weight_high, (num_nodes, num_nodes)), upper_triangle)
+    adjacency_matrix = upper_triangle2 + upper_triangle2.transpose(-1, -2)
+    return adjacency_matrix
+    
+def write_symmetric_adjacency_matrix(adjacency_matrix: Tensor, filename: str='data/graph.txt'):
+    pass
 
 
 def calc_file_name(front: str, id2: int, val: int, end: str):
@@ -147,3 +156,4 @@ if __name__ == '__main__':
     read_as_nxgraph('data/gset_14.txt')
     result = Tensor([0, 1, 0, 1, 0, 1, 1])
     write_result(result)
+    adj_matrix = generate_symmetric_adjacency_matrix(10, 0.9)
