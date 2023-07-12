@@ -17,9 +17,32 @@ import numpy as np
 from torch import Tensor
 from typing import List
 import random
-from utils import Opt_net
-
+import networkx as nx
 import matplotlib.pyplot as plt
+
+from torch import Tensor
+
+# read graph file, e.g., gset_14.txt
+def read_as_nxgraph(filename: str) -> nx.Graph():
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
+    num_nodes, num_edges = lines[0]
+    edge_to_n0_n1_dist = [(i[0] - 1, i[1] - 1, i[2]) for i in lines[1:]]
+    g = nx.Graph()
+    nodes = list(range(num_nodes))
+    g.add_nodes_from(nodes)
+    for item in lines[1: ]:
+        g.add_edge(item[0] - 1, item[1] - 1, weight=item[2])
+    # nx.draw(g, with_labels=False)
+    # plt.savefig('result/graph.png')
+    # plt.show()
+    return g
+
+
+
+
+
 
 
 def calc_file_name(front: str, id2: int, val: int, end: str):
@@ -111,3 +134,8 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
         plt(x, scoress[i], dic[str(i)], labels[i])
     plt.legend(labels, loc=0)
     plt.show()
+
+if __name__ == '__main__':
+    read_as_nxgraph('data/gset_14.txt')
+    result = Tensor([0, 1, 0, 1, 0, 1, 1])
+    write_result(result)
