@@ -15,20 +15,19 @@ import torch.nn as nn
 from copy import deepcopy
 import numpy as np
 from torch import Tensor
-from typing import List
+from typing import List, Union
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
 
 from torch import Tensor
 
-# read graph file, e.g., gset_14.txt
-def read_as_nxgraph(filename: str) -> nx.Graph():
+# read graph file, e.g., gset_14.txt, as networkx.Graph
+def read_as_networkx_graph(filename: str) -> nx.Graph():
     with open(filename, 'r') as file:
         lines = file.readlines()
         lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
     num_nodes, num_edges = lines[0]
-    edge_to_n0_n1_dist = [(i[0] - 1, i[1] - 1, i[2]) for i in lines[1:]]
     g = nx.Graph()
     nodes = list(range(num_nodes))
     g.add_nodes_from(nodes)
@@ -39,10 +38,11 @@ def read_as_nxgraph(filename: str) -> nx.Graph():
     # plt.show()
     return g
 
-
-def write_result(result: Tensor, filename: str='result/result.txt'):
-    assert len(result.shape) == 1
-    N = result.shape[0]
+# write a tensor/list/np.array (dim: 1) to a txt file.
+def write_result(result: Union[Tensor, List, np.array], filename: str='result/result.txt'):
+    # assert len(result.shape) == 1
+    # N = result.shape[0]
+    N = len(result)
     directory = filename.split('/')[0]
     if not os.path.exists(directory):
         os.mkdir(directory)
@@ -50,15 +50,27 @@ def write_result(result: Tensor, filename: str='result/result.txt'):
         for i in range(N):
             file.write(f'{i} {int(result[i])}\n')
 
-def generate_symmetric_adjacency_matrix(num_nodes:int, density: float, weight_low=0, weight_high=2): # sparsity for binary
-    # upper_triangle = th.mul(th.rand(num_nodes, num_nodes).triu(diagonal=1),
-    #                         (th.rand(num_nodes, num_nodes) < sparsity).int().triu(diagonal=1))
+# weight_low (inclusive) and weight_high (exclusive) are the low and high int values for weight, and should be int.
+# write the graph to file, the node starts from 1, not 0. The first node index < the second node index. The non-zero weight will be written.
+def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes:int, density: float, weight_low=0, weight_high=2, filename: str='data/graph.txt'): # sparsity for binary
     upper_triangle = torch.triu((th.rand(num_nodes, num_nodes) < density).int(), diagonal=1)
     upper_triangle2 = th.mul(th.randint(weight_low, weight_high, (num_nodes, num_nodes)), upper_triangle)
     adjacency_matrix = upper_triangle2 + upper_triangle2.transpose(-1, -2)
-    return adjacency_matrix
-    
-def write_symmetric_adjacency_matrix(adjacency_matrix: Tensor, filename: str='data/graph.txt'):
+    g = nx.Graph()
+    nodes = list(range(num_nodes))
+    g.add_nodes_from(nodes)
+    with open(filename, 'w', encoding="UTF-8") as file:
+        for j in range(len(adjacency_matrix)):
+            for i in range(0, j):
+                weight = int(adjacency_matrix[i, j])
+                g.add_edge(i, j, weight=weight)
+                if weight != 0:
+                    file.write(f'{i + 1} {j + 1} {weight}\n')
+    return adjacency_matrix, g
+
+
+
+def write_symmetric_adjacency_matrix(adjacency_matrix: Union[Tensor, List, np.array], filename: str='data/graph.txt'):
     pass
 
 
@@ -153,7 +165,11 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
     plt.show()
 
 if __name__ == '__main__':
-    read_as_nxgraph('data/gset_14.txt')
-    result = Tensor([0, 1, 0, 1, 0, 1, 1])
+    read_as_networkx_graph('data/gset_14.txt')
+    # result = Tensor([0, 1, 0, 1, 0, 1, 1])
+    # write_result(result)
+    # result = [0, 1, 0, 1, 0, 1, 1]
+    # write_result(result)
+    result = np.array([0, 1, 0, 1, 0, 1, 1])
     write_result(result)
-    adj_matrix = generate_symmetric_adjacency_matrix(10, 0.9)
+    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(10, 0.9)
