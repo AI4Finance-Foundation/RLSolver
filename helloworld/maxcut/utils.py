@@ -40,7 +40,15 @@ def read_as_nxgraph(filename: str) -> nx.Graph():
     return g
 
 
-
+def write_result(result: Tensor, filename: str='result/result.txt'):
+    assert len(result.shape) == 1
+    N = result.shape[0]
+    directory = filename.split('/')[0]
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+    with open(filename, 'w', encoding="UTF-8") as file:
+        for i in range(N):
+            file.write(f'{i} {int(result[i])}\n')
 
 
 
