@@ -47,11 +47,6 @@ class _BaseEnv():
 
 
 
-    def generate_symmetric_adjacency_matrix(self, sparsity: float): # sparsity for binary
-        upper_triangle = th.mul(th.rand(self.num_nodes, self.num_nodes).triu(diagonal=1), (th.rand(self.num_nodes, self.num_nodes) < sparsity).int().triu(diagonal=1))
-        adjacency_matrix = upper_triangle + upper_triangle.transpose(-1, -2)
-        return adjacency_matrix # num_env x self.N x self.N
-
     # make sure that mu1 and mu2 are different tensors. If they are the same, use obj function
     # calc obj for two graphs
     def reward(self, mu1: Tensor, mu2: Tensor):
