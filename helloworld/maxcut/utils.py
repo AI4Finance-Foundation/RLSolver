@@ -55,7 +55,7 @@ def generate_symmetric_adjacency_matrix(num_nodes:int, density: float): # sparsi
     #                         (th.rand(num_nodes, num_nodes) < sparsity).int().triu(diagonal=1))
     upper_triangle = torch.triu((th.rand(num_nodes, num_nodes) < density).int(), diagonal=1)
     adjacency_matrix = upper_triangle + upper_triangle.transpose(-1, -2)
-    return adjacency_matrix  # num_env x self.N x self.N num_env x self.N x self.N
+    return adjacency_matrix
     
 def write_symmetric_adjacency_matrix(adjacency_matrix: Tensor, filename: str='data/graph.txt'):
     pass
