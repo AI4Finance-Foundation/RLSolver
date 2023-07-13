@@ -160,6 +160,13 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
     plt.legend(labels, loc=0)
     plt.show()
 
+def plot_fig(scores: List[int], label: str):
+    x = list(range(len(scores)))
+    dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
+    plt.plot(x, scores, dic['0'])
+    plt.legend([label], loc=0)
+    plt.savefig('result/' + label + '.png')
+    plt.show()
 
 if __name__ == '__main__':
     graph1 = read_as_networkx_graph('data/gset_14.txt')
