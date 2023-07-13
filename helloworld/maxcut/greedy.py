@@ -49,9 +49,9 @@ def greedy(init_solution: Union[List[int], np.array], num_steps: int, graph: nx.
 
 
 if __name__ == '__main__':
-    graph = read_as_networkx_graph('data/syn_5_5.txt')
-    init_solution = [0, 0, 0, 0, 0]
-    num_steps = 10
+    graph = read_as_networkx_graph('data/syn_30_111.txt')
+    init_solution = [0] * graph.number_of_nodes()
+    num_steps = 30
     alg_name = 'GR'
     gr_score, gr_solution, gr_scores = greedy(init_solution, num_steps, graph)
     write_result(gr_solution)
