@@ -12,11 +12,8 @@ import collections.abc as container_abcs
 import functools
 import torch as th
 import torch.nn as nn
-from copy import deepcopy
 import numpy as np
-from torch import Tensor
 from typing import List, Union
-import random
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -116,28 +113,6 @@ def rgetattr(obj, attr, *args):
     return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
-# # choice 0: use Synthetic data with N and sparsity
-# # choice >= 1: use Gset with the ID choice
-# def load_test_data(choice: int, device: th.device, N: int=10, sparsity: float=0.5):
-#     sparsity = sparsity
-#     n = N
-#     if choice > 0:
-#         try:
-#             maxcut_gset2npy(choice)
-#             test_data = th.as_tensor(np.load(f"./data/maxcut/gset_{choice}.npy")).to(device)
-#         except Exception as e:
-#             test_data = th.zeros(n, n, device=device)
-#             upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
-#             test_data = upper_triangle + upper_triangle.transpose(-1, -2)
-#             np.save(f'./data/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
-#     else:
-#         test_data = th.zeros(n, n, device=device)
-#         upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
-#         test_data = upper_triangle + upper_triangle.transpose(-1, -2)
-#         np.save(f'./data/maxcut/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
-#     return test_data
-
-
 class Opt_net(nn.Module):
     def __init__(self, N, hidden_layers):
         super(Opt_net, self).__init__()
@@ -160,6 +135,13 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
     plt.legend(labels, loc=0)
     plt.show()
 
+def plot_fig(scores: List[int], label: str):
+    x = list(range(len(scores)))
+    dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
+    plt.plot(x, scores, dic['0'])
+    plt.legend([label], loc=0)
+    plt.savefig('result/' + label + '.png')
+    plt.show()
 
 if __name__ == '__main__':
     graph1 = read_as_networkx_graph('data/gset_14.txt')
@@ -170,6 +152,6 @@ if __name__ == '__main__':
     # write_result(result)
     result = [1, 0, 1, 0, 1]
     write_result(result)
-    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(11, 0.9)
+    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(30, 0.5)
     obj_maxcut(result, graph2)
     print()
