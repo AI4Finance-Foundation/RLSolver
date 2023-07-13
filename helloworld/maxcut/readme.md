@@ -37,6 +37,7 @@ python xxx.py
 
 | Algorithms | File| Command | 
 |---|----------|----|
+|maxcut (ours) | maxcut.py | python maxcut.py|
 |random walk | random_walk.py | python random_walk.py|
 | greedy | greedy.py | python greedy.py|
 | simulated annealing| simulated_annealing.py | python simulated_annealing.py|
