@@ -51,15 +51,15 @@ python maxcut_gurobi.py
 
 Results will be stored in .txt file. The first column is the node, and the second column is the label of classified set. 
 
-0 1  # node 0 in set 1
-
-1 0  # node 1 in set 0
+1 2  # node 1 in set 2
 
 2 1  # node 2 in set 1
 
-3 0  # node 3 in set 0
+3 2  # node 3 in set 2
 
 4 1  # node 4 in set 1
+
+5 2  # node 5 in set 2
 
 ## Experiment Results
 
