@@ -1,11 +1,15 @@
 # Maxcut
 ## File structure
 ```python
-maxcut3.py  #main functions: main, train_opt_net
+data # the dataset
+env # the environment for training
+maxcut.py  #main functions: main, train_opt_net
 maxcut_gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
-utils.py # utils file, including opt_net, opt_variable, obj_fun, etc.
+utils.py # utils file, including opt_net, obj, etc.
 ```
-## Load data
+## Read data
+
+We use the function read_as_networkx_graph(filename) in utils.py to read the data, which returns a networkx graph. 
 
 With respect to gset, the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge.
 
@@ -35,20 +39,12 @@ If using Gset:
 ```
 python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
 ```
-## Download data using the following link:
-
-```
-https://drive.google.com/drive/folders/13tTd73NahyX2_WU9cFL0BhoZc-MIbtxc?usp=sharing
-```
-
-## Download the label found by us using the following link:
-
-```
-https://drive.google.com/drive/folders/1W-NwXVnDhKbRnWS3qh54m0WL8J_xx-6s?usp=sharing
-```
 
 
-## Run Gurobi with command 
+
+## Run using Gurobi
+
+We can use a state-of-the-art solver Gurobi to solve the graph maxcut problem.
 
 ```
 python opt_gurobi.py #N #Sparsity #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset)
