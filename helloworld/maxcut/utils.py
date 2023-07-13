@@ -163,7 +163,7 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
 
 if __name__ == '__main__':
     graph1 = read_as_networkx_graph('data/gset_14.txt')
-    graph2 = read_as_networkx_graph('data/syn_5_6.txt')
+    graph2 = read_as_networkx_graph('data/syn_5_5.txt')
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])
     # write_result(result)
     # result = [0, 1, 0, 1, 0, 1, 1]
