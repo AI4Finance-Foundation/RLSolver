@@ -21,6 +21,7 @@ from torch import Tensor
 
 
 # read graph file, e.g., gset_14.txt, as networkx.Graph
+# The nodes in file start from 1, but the nodes start from 0 in our codes.
 def read_txt_as_networkx_graph(filename: str, plot_fig: bool = True) -> nx.Graph():
     with open(filename, 'r') as file:
         lines = file.readlines()
@@ -52,6 +53,7 @@ def obj_maxcut(result: Union[Tensor, List[int], np.array], graph: nx.Graph):
 
 
 # write a tensor/list/np.array (dim: 1) to a txt file.
+# The nodes start from 0, and the label of classified set is 0 or 1 in our codes, but the nodes written to file start from 1, and the label is 1 or 2
 def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/result.txt'):
     # assert len(result.shape) == 1
     # N = result.shape[0]
@@ -61,7 +63,7 @@ def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/
         os.mkdir(directory)
     with open(filename, 'w', encoding="UTF-8") as file:
         for i in range(N):
-            file.write(f'{i} {int(result[i])}\n')
+            file.write(f'{i + 1} {int(result[i] + 1)}\n')
 
 
 
