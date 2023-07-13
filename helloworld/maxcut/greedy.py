@@ -1,7 +1,7 @@
 # comparison methods for maxcut: random walk, greedy, epsilon greedy, simulated annealing
 import copy
 import time
-
+from typing import List, Union
 import torch as th
 import torch.nn as nn
 from copy import deepcopy
@@ -28,7 +28,7 @@ def plot_fig(scores: List[int], label: str):
     plt.show()
 
 
-def greedy(init_solution: Tensor, num_steps: int, env: MaxCutEnv2) -> (int, Tensor):
+def greedy(init_solution: Tensor, num_steps: int, env: MaxCutEnv2) -> (int, Union[List[int], np.array], List[int]):
     print('greedy')
     start_time = time.time()
     nodes = list(range(env.num_nodes))
@@ -57,6 +57,7 @@ def greedy(init_solution: Tensor, num_steps: int, env: MaxCutEnv2) -> (int, Tens
             curr_solution = best_solution
     print("score, init_score of greedy", curr_score, init_score)
     print("scores: ", scores)
+    print("solution: ", curr_solution)
     running_duration = time.time() - start_time
     print('running_duration: ', running_duration)
     return curr_score, curr_solution, scores
