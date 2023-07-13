@@ -1,11 +1,12 @@
 # Maxcut
 ## File structure
 ```python
-data # the dataset
+data # the dataset (.txt), and the figure of the graph (.png)
 env # the environment for training
+result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib
 maxcut.py  #main functions: main, train_opt_net
 maxcut_gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
-utils.py # utils file, including opt_net, obj, etc.
+utils.py # utils file, including opt_net, obj, read, write, etc.
 ```
 ## Read data
 
@@ -43,7 +44,7 @@ python xxx.py
 We can use a state-of-the-art solver Gurobi to solve the graph maxcut problem.
 
 ```
-python opt_gurobi.py 
+python maxcut_gurobi.py 
 ```
 
 
