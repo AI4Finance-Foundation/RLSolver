@@ -168,7 +168,7 @@ if __name__ == '__main__':
     # write_result(result)
     # result = [0, 1, 0, 1, 0, 1, 1]
     # write_result(result)
-    result = np.array([1, 0, 1, 0, 1])
+    result = [1, 0, 1, 0, 1]
     write_result(result)
     adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(11, 0.9)
     obj_maxcut(result, graph2)
