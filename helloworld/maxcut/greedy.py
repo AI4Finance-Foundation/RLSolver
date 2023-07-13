@@ -2,61 +2,46 @@
 import copy
 import time
 from typing import List, Union
-import torch as th
-import torch.nn as nn
-from copy import deepcopy
 import numpy as np
-from torch import Tensor
 from typing import List
-import random
-from env.maxcut_env import MaxcutEnv
-from env.maxcut_env2 import MaxCutEnv2
-from utils import Opt_net
-import pickle as pkl
-from utils import calc_file_name
-import matplotlib.pyplot as plt
-
-# graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
-
-def plot_fig(scores: List[int], label: str):
-    # fig = plt.figure()
-    x = list(range(len(scores)))
-    dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
-    plt.plot(x, scores, dic['0'])
-    plt.legend([label], loc=0)
-    plt.savefig(label + '.png')
-    plt.show()
+import networkx as nx
+from utils import read_as_networkx_graph
+from utils import obj_maxcut
+from utils import write_result
+from utils import plot_fig
 
 
-def greedy(init_solution: Tensor, num_steps: int, env: MaxCutEnv2) -> (int, Union[List[int], np.array], List[int]):
+def greedy(init_solution: Union[List[int], np.array], num_steps: int, graph: nx.Graph) -> (int, Union[List[int], np.array], List[int]):
     print('greedy')
     start_time = time.time()
-    nodes = list(range(env.num_nodes))
-    curr_solution: Tensor = copy.deepcopy(init_solution)
-    curr_score: int = int(-env.get_objective(curr_solution)[0])
+    num_nodes = len(init_solution)
+    nodes = list(range(num_nodes))
+    curr_solution = copy.deepcopy(init_solution)
+    curr_score: int = obj_maxcut(curr_solution, graph)
     init_score = curr_score
-    for iteration in range(env.num_nodes):
+    scores = []
+    for iteration in range(num_nodes):
         if iteration >= num_steps:
             break
         print("iteration in greedy: ", iteration)
-        scores = []
-        solutions = []
+        traversal_scores = []
+        traversal_solutions = []
         for node in nodes:
             new_solution = copy.deepcopy(curr_solution)
-            # Here, 0 denotes the 0-th env, since the dim is 1 * env.num_nodes, where 1 dentoes the num of envs.
-            new_solution[0, node] = (new_solution[0, node] + 1) % 2
+            new_solution[node] = (new_solution[node] + 1) % 2
             # calc the obj
-            new_score = int(-env.get_objective(new_solution)[0])
-            scores.append(new_score)
-            solutions.append(new_solution)
-        best_score = max(scores)
-        index = scores.index(best_score)
-        best_solution = solutions[index]
+            new_score = obj_maxcut(new_solution, graph)
+            traversal_scores.append(new_score)
+            traversal_solutions.append(new_solution)
+        best_score = max(traversal_scores)
+        index = traversal_scores.index(best_score)
+        best_solution = traversal_solutions[index]
         if best_score >= curr_score:
+            scores.append(best_score)
             curr_score = best_score
             curr_solution = best_solution
     print("score, init_score of greedy", curr_score, init_score)
-    print("scores: ", scores)
+    print("scores: ", traversal_scores)
     print("solution: ", curr_solution)
     running_duration = time.time() - start_time
     print('running_duration: ', running_duration)
@@ -64,21 +49,14 @@ def greedy(init_solution: Tensor, num_steps: int, env: MaxCutEnv2) -> (int, Unio
 
 
 if __name__ == '__main__':
-    # RW: random walk
-    # GR: greedy
-    # SA: simulated_annealing
-    # alg_names = ['RW', 'GR']
-    # alg_names = ['RW', 'GR', 'SA']
-
-
-    env = MaxCutEnv2(graph_key='gset_14')
-
-    # Initialize the solution, 0 or 1 for each node, with the size env.num_nodes
-    # The dim is 1 * env.num_nodes, where 1 dentoes the num of envs. In maxcut_env, we use this format for Massively Parallel Environments
-    init_solution = th.randint(0, 1 + 1, (1, env.num_nodes))
-
+    graph = read_as_networkx_graph('data/syn_5_5.txt')
+    init_solution = [0, 0, 0, 0, 0]
+    num_steps = 10
     alg_name = 'GR'
-    gr_score, gr_solution, gr_scores = greedy(init_solution=init_solution, num_steps=10, env=env)
+    gr_score, gr_solution, gr_scores = greedy(init_solution, num_steps, graph)
+    write_result(gr_solution)
+    obj = obj_maxcut(gr_solution, graph)
+    print('obj: ', obj)
     plot_fig(gr_scores, alg_name)
 
 
