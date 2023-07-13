@@ -40,6 +40,18 @@ def read_as_networkx_graph(filename: str) -> nx.Graph():
     return g
 
 
+def obj_maxcut(result: Union[Tensor, List[int], np.array], graph: nx.Graph):
+    num_nodes = len(result)
+    cut = 0
+    adj_matrix = nx.adj_matrix(graph)
+    for i in range(num_nodes):
+        for j in range(i + 1, num_nodes):
+            if result[i] != result[j]:
+                cut += adj_matrix[(i, j)]
+    # print('obj: ', cut)
+    return cut
+
+
 # write a tensor/list/np.array (dim: 1) to a txt file.
 def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/result.txt'):
     # assert len(result.shape) == 1
@@ -59,7 +71,7 @@ def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/
 # If writing the graph, the name of file will be revised, e.g., graph.txt will be revised to graph_n_m.txt, where n is num_nodes, and m is num_edges.
 def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                                                                  density: float,
-                                                                 filename: str = 'data/graph.txt',
+                                                                 filename: str = 'data/syn.txt',
                                                                  weight_low=0,
                                                                  weight_high=2):
     upper_triangle = torch.triu((th.rand(num_nodes, num_nodes) < density).int(), diagonal=1)
@@ -70,16 +82,14 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
     g.add_nodes_from(nodes)
     num_edges = int(th.count_nonzero(adjacency_matrix) / 2)
     new_filename = filename.split('.')[0] + '_' + str(num_nodes) + '_' + str(num_edges) + '.txt'
-    number_of_edges = 0
     with open(new_filename, 'w', encoding="UTF-8") as file:
+        file.write(f'{num_nodes} {num_edges} \n')
         for j in range(num_nodes):
             for i in range(0, j):
                 weight = int(adjacency_matrix[i, j])
                 g.add_edge(i, j, weight=weight)
                 if weight != 0:
-                    number_of_edges += 1
                     file.write(f'{i + 1} {j + 1} {weight}\n')
-    assert num_edges == number_of_edges
     return adjacency_matrix, g
 
 
@@ -152,11 +162,14 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
 
 
 if __name__ == '__main__':
-    read_as_networkx_graph('data/gset_14.txt')
+    graph1 = read_as_networkx_graph('data/gset_14.txt')
+    graph2 = read_as_networkx_graph('data/syn_5_6.txt')
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])
     # write_result(result)
     # result = [0, 1, 0, 1, 0, 1, 1]
     # write_result(result)
-    result = np.array([0, 1, 0, 1, 0, 1, 1])
+    result = np.array([1, 0, 1, 0, 1])
     write_result(result)
-    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(5, 0.9)
+    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(11, 0.9)
+    obj_maxcut(result, graph2)
+    print()
