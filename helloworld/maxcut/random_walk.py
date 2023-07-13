@@ -5,7 +5,6 @@ import networkx as nx
 import numpy as np
 from typing import List, Union
 import random
-import matplotlib.pyplot as plt
 from utils import read_as_networkx_graph
 from utils import obj_maxcut
 from utils import write_result
@@ -38,6 +37,7 @@ if __name__ == '__main__':
     # graph1 = read_as_networkx_graph('data/gset_14.txt')
     graph = read_as_networkx_graph('data/syn_5_5.txt')
     init_solution = [1, 0, 1, 0, 1]
+    # init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
     rw_score, rw_solution, rw_scores = random_walk(init_solution=init_solution, num_steps=1000, graph=graph)
     write_result(rw_solution)
     obj = obj_maxcut(rw_solution, graph)

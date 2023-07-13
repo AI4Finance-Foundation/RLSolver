@@ -12,11 +12,8 @@ import collections.abc as container_abcs
 import functools
 import torch as th
 import torch.nn as nn
-from copy import deepcopy
 import numpy as np
-from torch import Tensor
 from typing import List, Union
-import random
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -116,28 +113,6 @@ def rgetattr(obj, attr, *args):
     return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
-# # choice 0: use Synthetic data with N and sparsity
-# # choice >= 1: use Gset with the ID choice
-# def load_test_data(choice: int, device: th.device, N: int=10, sparsity: float=0.5):
-#     sparsity = sparsity
-#     n = N
-#     if choice > 0:
-#         try:
-#             maxcut_gset2npy(choice)
-#             test_data = th.as_tensor(np.load(f"./data/maxcut/gset_{choice}.npy")).to(device)
-#         except Exception as e:
-#             test_data = th.zeros(n, n, device=device)
-#             upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
-#             test_data = upper_triangle + upper_triangle.transpose(-1, -2)
-#             np.save(f'./data/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
-#     else:
-#         test_data = th.zeros(n, n, device=device)
-#         upper_triangle = th.mul(th.ones(n, n).triu(diagonal=1), (th.rand(n, n) < sparsity).int().triu(diagonal=1))
-#         test_data = upper_triangle + upper_triangle.transpose(-1, -2)
-#         np.save(f'./data/maxcut/N{n}Sparsity{sparsity}.npy', test_data.cpu().numpy())
-#     return test_data
-
-
 class Opt_net(nn.Module):
     def __init__(self, N, hidden_layers):
         super(Opt_net, self).__init__()
@@ -177,6 +152,6 @@ if __name__ == '__main__':
     # write_result(result)
     result = [1, 0, 1, 0, 1]
     write_result(result)
-    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(11, 0.9)
+    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(30, 0.5)
     obj_maxcut(result, graph2)
     print()
