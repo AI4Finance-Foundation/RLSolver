@@ -9,7 +9,7 @@ utils.py # utils file, including opt_net, obj, etc.
 ```
 ## Read data
 
-We use the function read_as_networkx_graph(filename) in utils.py to read the data, which returns a networkx graph. 
+We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a networkx graph. 
 
 With respect to gset, the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge.
 
@@ -23,23 +23,19 @@ For example, gest_14,
 
 ...
 
-## Run our method with command 
+## Run algorithms with command 
 
 Format:
 ```
-python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset) ...
+python xxx.py
 ```
 
-If using synthetic data:
-```
-python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) 0 #N #Sparsity 
-```
 
-If using Gset:
-```
-python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
-```
-
+| Algorithms | File| Command | 
+|---|----------|----|
+|random walk | random_walk.py | python random_walk.py|
+| greedy | greedy.py | python greedy.py|
+| simulated annealing| simulated_annealing.py | python simulated_annealing.py|
 
 
 ## Run using Gurobi
@@ -47,7 +43,7 @@ python maxcut3.py #gpu_id (-1: cpu, >=0: gpu) 1 #GsetId
 We can use a state-of-the-art solver Gurobi to solve the graph maxcut problem.
 
 ```
-python opt_gurobi.py #N #Sparsity #gpu_id (-1: cpu, >=0: gpu) #choice (0: Synthetic data, 1: Gset)
+python opt_gurobi.py 
 ```
 
 
@@ -61,6 +57,8 @@ Average over 30 runs.
  
 |Maxcut |Gurobi, (1 h)| Gurobi, (5 h) | Gurobi, (10 h) | Ours|improvement |
 |-------|------|----| ---- |---- |--|
+|N=20   | 67 (5s) $\pm$  | || 71, (36s)  | +5.97%, (0.139x) |
+|N=30   | 132 (10s) $\pm$  | || 135, (93s)  | +2.27%, (0.108x) |
 |N=100   | 1408 $\pm$  | || 1415, (33s)  | +0.49%, (60.6x) |
 |N=1000   |  128508 $\pm$  || | 129714, (119s) | +0.94%, (36.97x) |
 |N=2000   | 503890   |507628 | |  | | 
