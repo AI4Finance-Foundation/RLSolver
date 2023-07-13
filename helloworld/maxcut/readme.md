@@ -4,9 +4,12 @@
 data # the dataset (.txt), and the figure of the graph (.png)
 env # the environment for training
 result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib
+utils.py # utils file, including opt_net, obj, read, write, etc.
 maxcut.py  #main functions: main, train_opt_net
 maxcut_gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
-utils.py # utils file, including opt_net, obj, read, write, etc.
+random_walk.py
+greedy.py
+simulated_annealing.py
 ```
 ## Read data
 
