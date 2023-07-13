@@ -56,6 +56,7 @@ def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/
 
 # weight_low (inclusive) and weight_high (exclusive) are the low and high int values for weight, and should be int.
 # If writing the graph to file, the node starts from 1, not 0. The first node index < the second node index. Only the non-zero weight will be written.
+# If writing the graph, the name of file will be revised, e.g., graph.txt will be revised to graph_n_m.txt, where n is num_nodes, and m is num_edges.
 def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                                                                  density: float,
                                                                  filename: str = 'data/graph.txt',
@@ -67,11 +68,17 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
     g = nx.Graph()
     nodes = list(range(num_nodes))
     g.add_nodes_from(nodes)
-    with open(filename, 'w', encoding="UTF-8") as file:
+
+    for j in range(len(adjacency_matrix)):
+        for i in range(0, j):
+            weight = int(adjacency_matrix[i, j])
+            g.add_edge(i, j, weight=weight)
+
+    new_filename = filename.split('.')[0] + '_' + str(nx.number_of_nodes(g)) + '_' + str(nx.number_of_edges(g)) + '.txt'
+    with open(new_filename, 'w', encoding="UTF-8") as file:
         for j in range(len(adjacency_matrix)):
             for i in range(0, j):
-                weight = int(adjacency_matrix[i, j])
-                g.add_edge(i, j, weight=weight)
+                weight = g.get_edge_data(i, j)['weight']
                 if weight != 0:
                     file.write(f'{i + 1} {j + 1} {weight}\n')
     return adjacency_matrix, g
