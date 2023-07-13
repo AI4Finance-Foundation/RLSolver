@@ -68,19 +68,18 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
     g = nx.Graph()
     nodes = list(range(num_nodes))
     g.add_nodes_from(nodes)
-
-    for j in range(len(adjacency_matrix)):
-        for i in range(0, j):
-            weight = int(adjacency_matrix[i, j])
-            g.add_edge(i, j, weight=weight)
-
-    new_filename = filename.split('.')[0] + '_' + str(nx.number_of_nodes(g)) + '_' + str(nx.number_of_edges(g)) + '.txt'
+    num_edges = int(th.count_nonzero(adjacency_matrix) / 2)
+    new_filename = filename.split('.')[0] + '_' + str(num_nodes) + '_' + str(num_edges) + '.txt'
+    number_of_edges = 0
     with open(new_filename, 'w', encoding="UTF-8") as file:
-        for j in range(len(adjacency_matrix)):
+        for j in range(num_nodes):
             for i in range(0, j):
-                weight = g.get_edge_data(i, j)['weight']
+                weight = int(adjacency_matrix[i, j])
+                g.add_edge(i, j, weight=weight)
                 if weight != 0:
+                    number_of_edges += 1
                     file.write(f'{i + 1} {j + 1} {weight}\n')
+    assert num_edges == number_of_edges
     return adjacency_matrix, g
 
 
@@ -160,4 +159,4 @@ if __name__ == '__main__':
     # write_result(result)
     result = np.array([0, 1, 0, 1, 0, 1, 1])
     write_result(result)
-    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(10, 0.9)
+    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(5, 0.9)
