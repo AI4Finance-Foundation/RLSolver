@@ -21,7 +21,7 @@ from torch import Tensor
 
 
 # read graph file, e.g., gset_14.txt, as networkx.Graph
-def read_as_networkx_graph(filename: str) -> nx.Graph():
+def read_txt_as_networkx_graph(filename: str, plot_fig: bool = True) -> nx.Graph():
     with open(filename, 'r') as file:
         lines = file.readlines()
         lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
@@ -31,9 +31,11 @@ def read_as_networkx_graph(filename: str) -> nx.Graph():
     g.add_nodes_from(nodes)
     for item in lines[1:]:
         g.add_edge(item[0] - 1, item[1] - 1, weight=item[2])
-    # nx.draw(g, with_labels=False)
-    # plt.savefig('result/graph.png')
-    # plt.show()
+    if plot_fig:
+        nx.draw_networkx(g)
+        fig_filename = filename.split('.')[0] + '.png'
+        plt.savefig(fig_filename)
+        plt.show()
     return g
 
 
@@ -144,8 +146,8 @@ def plot_fig(scores: List[int], label: str):
     plt.show()
 
 if __name__ == '__main__':
-    graph1 = read_as_networkx_graph('data/gset_14.txt')
-    graph2 = read_as_networkx_graph('data/syn_5_5.txt')
+    graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
+    graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])
     # write_result(result)
     # result = [0, 1, 0, 1, 0, 1, 1]

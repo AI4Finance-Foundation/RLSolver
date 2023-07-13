@@ -6,7 +6,7 @@ import numpy as np
 from typing import List
 import random
 import networkx as nx
-from utils import read_as_networkx_graph
+from utils import read_txt_as_networkx_graph
 from utils import obj_maxcut
 from utils import write_result
 from utils import plot_fig
@@ -45,7 +45,7 @@ def simulated_annealing(init_solution: Union[List[int], np.array], init_temperat
     return curr_score, curr_solution, scores
 
 if __name__ == '__main__':
-    graph = read_as_networkx_graph('data/syn_30_111.txt')
+    graph = read_txt_as_networkx_graph('data/syn_30_111.txt')
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
 
     init_temperature = 5
