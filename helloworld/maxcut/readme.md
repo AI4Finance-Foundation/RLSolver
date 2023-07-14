@@ -11,11 +11,10 @@ random_walk.py
 greedy.py
 simulated_annealing.py
 ```
-## Read data
 
-We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a networkx graph. 
+## Dataset
 
-With respect to gset, the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge.
+With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, gset and synthetic (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
 
 For example, gest_14, 
 
@@ -27,15 +26,21 @@ For example, gest_14,
 
 ...
 
+## Read data
+
+We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a networkx graph. 
+
+
+
 ## Run algorithms with command 
 
 Format:
 ```
-python xxx.py
+python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 ```
 
 
-| Algorithms | File| Command | 
+| Algorithm | File| Command | 
 |---|----------|----|
 |maxcut (ours) | maxcut.py | python maxcut.py|
 |random walk | random_walk.py | python random_walk.py|
