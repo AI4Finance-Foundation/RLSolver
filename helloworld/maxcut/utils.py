@@ -77,8 +77,6 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                                                                  filename: str = 'data/syn.txt',
                                                                  weight_low=0,
                                                                  weight_high=2):
-    if num_edges == 50:
-        print()
     if weight_low == 0:
         weight_low += 1
     adjacency_matrix = []
@@ -106,7 +104,6 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                 else:
                     indices2.append((i, j))
     if len(indices1) > len(indices2):
-        print()
         indices1 = []
         indices2 = []
         new_adjacency_matrix = copy.deepcopy(adjacency_matrix)
@@ -122,7 +119,7 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
     if len(indices1) <= len(indices2):
         num_set_0 = len(indices2) - num_edges
         if num_set_0 < 0:
-            print()
+            raise ValueError("wrong num_set_0")
         while True:
             all_ind_set_0 = list(range(0, len(indices2)))
             np.random.shuffle(all_ind_set_0)
@@ -144,12 +141,10 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                     break
             if satisfy:
                 break
-            else:
-                print()
         for (i, j) in indices2_set_0:
             adjacency_matrix[i][j] = 0
         if len(new_indices2) != num_edges:
-            print()
+            raise ValueError("wrong new_indices2")
         for i in range(num_nodes):
             for j in range(i + 1, num_nodes):
                 if (j, i) in new_indices2:
