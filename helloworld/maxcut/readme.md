@@ -28,11 +28,11 @@ Take gset_14 as an example,
 
 ## Generate synthetic data
 
-If you want to generate a graph with n nodes and m edgea, you can use the function generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m), which returns the adjacency_matrix and a networkx graph, and the graph will be written to a file syn_n_m.txt. 
+If you want to generate a graph with n nodes and m edgea, you can use the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__, which returns the adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file syn_n_m.txt. 
 
 ## Read data
 
-We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a graph with the type [networkx](https://networkx.org/documentation/stable/reference/introduction.html). We can access the nodes and edges by graph.nodes graph.edges, respectively. 
+We use the function __read_txt_as_networkx_graph(filename)__ in utils.py to read the data, which returns a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph. We can access the nodes and edges by graph.nodes and graph.edges, respectively. 
 
 
 ## Run algorithms
@@ -61,7 +61,7 @@ python maxcut_gurobi.py
 
 ## Store results
 
-Results will be stored in .txt file. The first column is the node, and the second column is the label of classified set. 
+Results will be stored in result.txt file. The first column is the node, and the second column is the label of classified set. 
 
 1 2  # node 1 in set 2
 
@@ -72,6 +72,8 @@ Results will be stored in .txt file. The first column is the node, and the secon
 4 1  # node 4 in set 1
 
 5 2  # node 5 in set 2
+
+If using gurobi, more files will be generated, e.g., result.lp, result.mps for easy check. 
 
 ## Experiment Results
 
