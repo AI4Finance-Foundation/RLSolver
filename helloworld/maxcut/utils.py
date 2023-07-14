@@ -45,7 +45,7 @@ def read_txt_as_networkx_graph(filename: str, plot_fig: bool = True) -> nx.Graph
 def obj_maxcut(result: Union[Tensor, List[int], np.array], graph: nx.Graph):
     num_nodes = len(result)
     cut = 0
-    adj_matrix = nx.adj_matrix(graph)
+    adj_matrix = nx.adjacency_matrix(graph)
     for i in range(num_nodes):
         for j in range(i + 1, num_nodes):
             if result[i] != result[j]:
