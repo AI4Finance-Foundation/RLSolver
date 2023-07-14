@@ -3,7 +3,7 @@ gset_n.txt: gset dataset
 syn_n_m.txt: synthetic data with n nodes and m edges
 
 
-For example, gest_14,
+Take gset_14 as an example,
 
 800 4694 # the number of nodes is 800, and the number of edges is 4694
 
