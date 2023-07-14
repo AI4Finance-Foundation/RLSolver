@@ -51,12 +51,14 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 | simulated annealing| simulated_annealing.py | python simulated_annealing.py|
 
 
-## Run using Gurobi
+## Run using solvers
 
-We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. 
+We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) or a well-known open-source solver [Scip](https://scipopt.org/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. Scip should also be installed if you choose it.
 
 ```
-python maxcut_gurobi.py 
+python maxcut_gurobi.py
+
+python maxcut_scip.py 
 ```
 
 ## Store results
