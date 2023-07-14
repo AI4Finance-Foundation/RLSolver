@@ -35,7 +35,7 @@ def random_walk(init_solution: Union[List[int], np.array], num_steps: int, graph
 
 if __name__ == '__main__':
     # graph1 = read_as_networkx_graph('data/gset_14.txt')
-    graph = read_txt_as_networkx_graph('data/syn_30_111.txt')
+    graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
     # init_solution = [1, 0, 1, 0, 1]
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
     rw_score, rw_solution, rw_scores = random_walk(init_solution=init_solution, num_steps=1000, graph=graph)
