@@ -48,7 +48,7 @@ def run_using_gurobi(filename: str):
 
     graph = read_txt_as_networkx_graph(filename)
 
-    adjacency_matrix = nx.adj_matrix(graph)
+    adjacency_matrix = nx.adjacency_matrix(graph)
     num_nodes = nx.number_of_nodes(graph)
     nodes = list(range(num_nodes))
 
