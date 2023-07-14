@@ -28,7 +28,7 @@ Take gset_14 as an example,
 
 ## Generate synthetic data
 
-If you want to generate a graph with n nodes and m edgea, you can use the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__, which returns the adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file syn_n_m.txt. 
+If you want to generate a graph with n nodes and m edges, you can use the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__, which returns the adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file syn_n_m.txt of the folder 'data'. 
 
 ## Read data
 
@@ -53,7 +53,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 ## Run using Gurobi
 
-We can use a state-of-the-art solver Gurobi to solve the graph maxcut problem.
+We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. 
 
 ```
 python maxcut_gurobi.py 
@@ -61,7 +61,7 @@ python maxcut_gurobi.py
 
 ## Store results
 
-Results will be stored in result.txt file. The first column is the node, and the second column is the label of classified set. 
+Results will be written to a file result.txt in the folder 'result'. The first column is the node, and the second column is the label of classified set. For example, 
 
 1 2  # node 1 in set 2
 
@@ -73,13 +73,13 @@ Results will be stored in result.txt file. The first column is the node, and the
 
 5 2  # node 5 in set 2
 
-If using gurobi, more files will be generated, e.g., result.lp, result.mps for easy check. 
+If using gurobi, more files will be generated (e.g., result.lp and result.mps) for easy check. 
 
 ## Experiment Results
 
 In the following experiments, we use GPU during training by default. 
 
-Synthetic data at sparsity = 0.5
+Synthetic data at density = 0.5
 
 Average over 30 runs.
  
