@@ -14,7 +14,7 @@ simulated_annealing.py
 
 ## Dataset
 
-With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, gset and synthetic (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
+With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, __gset__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
 
 For example, gest_14, 
 
@@ -28,7 +28,7 @@ For example, gest_14,
 
 ## Read data
 
-We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a networkx graph. 
+We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a graph with the type [networkx](https://networkx.org/documentation/stable/reference/introduction.html). We can access the nodes and edges by graph.nodes graph.edges, respectively. 
 
 
 
@@ -42,7 +42,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 | Algorithm | File| Command | 
 |---|----------|----|
-|maxcut (ours) | maxcut.py | python maxcut.py|
+|maxcut, MaxCut_H2O (ours) | maxcut.py, MaxCut_H2O.py | python maxcut.py, python MaxCut_H2O|
 |random walk | random_walk.py | python random_walk.py|
 | greedy | greedy.py | python greedy.py|
 | simulated annealing| simulated_annealing.py | python simulated_annealing.py|
