@@ -1,3 +1,5 @@
+import copy
+
 import torch
 import torch as th
 import torch.nn as nn
@@ -71,23 +73,96 @@ def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/
 # If writing the graph to file, the node starts from 1, not 0. The first node index < the second node index. Only the non-zero weight will be written.
 # If writing the graph, the name of file will be revised, e.g., graph.txt will be revised to graph_n_m.txt, where n is num_nodes, and m is num_edges.
 def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
-                                                                 density: float,
+                                                                 num_edges: int,
                                                                  filename: str = 'data/syn.txt',
                                                                  weight_low=0,
                                                                  weight_high=2):
-    upper_triangle = torch.triu((th.rand(num_nodes, num_nodes) < density).int(), diagonal=1)
-    upper_triangle2 = th.mul(th.randint(weight_low, weight_high, (num_nodes, num_nodes)), upper_triangle)
-    adjacency_matrix = upper_triangle2 + upper_triangle2.transpose(-1, -2)
+    if weight_low == 0:
+        weight_low += 1
+    adjacency_matrix = []
+    num_edges_per_row = int(np.ceil(2 * num_edges / num_nodes))
+    for i in range(num_nodes):
+        indices = []
+        while True:
+            all_indices = list(range(0, num_nodes))
+            np.random.shuffle(all_indices)
+            indices = all_indices[: num_edges_per_row]
+            if i not in indices:
+                break
+        row = [0] * num_nodes
+        weights = np.random.randint(weight_low, weight_high, size=num_edges_per_row)
+        for k in range(len(indices)):
+            row[indices[k]] = weights[k]
+        adjacency_matrix.append(row)
+    indices1 = []
+    indices2 = []
+    for i in range(num_nodes):
+        for j in range(num_nodes):
+            if adjacency_matrix[i][j] != 0:
+                if i < j:
+                    indices1.append((i, j))
+                else:
+                    indices2.append((i, j))
+    if len(indices1) > len(indices2):
+        indices1 = []
+        indices2 = []
+        new_adjacency_matrix = copy.deepcopy(adjacency_matrix)
+        for i in range(num_nodes):
+            for j in range(num_nodes):
+                new_adjacency_matrix[i][j] = adjacency_matrix[j][i]
+                if new_adjacency_matrix[i][j] != 0:
+                    if i < j:
+                        indices1.append((i, j))
+                    else:
+                        indices2.append((i, j))
+        adjacency_matrix = new_adjacency_matrix
+    if len(indices1) <= len(indices2):
+        num_set_0 = len(indices2) - num_edges
+        if num_set_0 < 0:
+            raise ValueError("wrong num_set_0")
+        while True:
+            all_ind_set_0 = list(range(0, len(indices2)))
+            np.random.shuffle(all_ind_set_0)
+            ind_set_0 = all_ind_set_0[: num_set_0]
+            indices2_set_0 = [indices2[k] for k in ind_set_0]
+            new_indices2 = set([indices2[k] for k in range(len(indices2)) if k not in ind_set_0])
+            # for k in range(len(indices2)):
+            #     if k not in ind_set_0:
+            #         new_indices2.add(indices2[k])
+            my_list = list(range(num_nodes))
+            my_set: set = set()
+            satisfy = True
+            for i, j in new_indices2:
+                my_set.add(i)
+                my_set.add(j)
+            for item in my_list:
+                if item not in my_set:
+                    satisfy = False
+                    break
+            if satisfy:
+                break
+        for (i, j) in indices2_set_0:
+            adjacency_matrix[i][j] = 0
+        if len(new_indices2) != num_edges:
+            raise ValueError("wrong new_indices2")
+        for i in range(num_nodes):
+            for j in range(i + 1, num_nodes):
+                if (j, i) in new_indices2:
+                    adjacency_matrix[i][j] = adjacency_matrix[j][i]
+                else:
+                    adjacency_matrix[i][j] = 0
+
+
     g = nx.Graph()
     nodes = list(range(num_nodes))
     g.add_nodes_from(nodes)
-    num_edges = int(th.count_nonzero(adjacency_matrix) / 2)
+    num_edges = len(new_indices2)
     new_filename = filename.split('.')[0] + '_' + str(num_nodes) + '_' + str(num_edges) + '.txt'
     with open(new_filename, 'w', encoding="UTF-8") as file:
         file.write(f'{num_nodes} {num_edges} \n')
-        for j in range(num_nodes):
-            for i in range(0, j):
-                weight = int(adjacency_matrix[i, j])
+        for i in range(num_nodes):
+            for j in range(i + 1, num_nodes):
+                weight = int(adjacency_matrix[i][j])
                 g.add_edge(i, j, weight=weight)
                 if weight != 0:
                     file.write(f'{i + 1} {j + 1} {weight}\n')
@@ -149,20 +224,24 @@ def plot_fig(scores: List[int], label: str):
 
 if __name__ == '__main__':
     graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
-    graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
+
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])
     # write_result(result)
     # result = [0, 1, 0, 1, 0, 1, 1]
     # write_result(result)
     result = [1, 0, 1, 0, 1]
     write_result(result)
-    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(30, 0.5)
-    obj_maxcut(result, graph2)
+    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(5, 5)
+    graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
+    obj_maxcut(result, graph)
 
     num_datasets = 1
-    num_nodess = [20, 30, 50, 100, 400, 800, 1000, 2000, 3000, 4000, 5000, 10000]
-    density = 0.5
-    for _ in range(num_datasets):
-        for num_nodes in num_nodess:
-            generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, density)
+    # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 240543), (10000, 100457)]
+    num_nodes_edges = [(100, 460)]
+
+    # density = 0.005
+    for num_nodes, num_edges in num_nodes_edges:
+        # max_num = int(np.ceil(num_nodes * num_nodes * density / 2) * 0.8)
+        # num_edges = min(num_edges, max_num)
+        generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, num_edges)
     print()

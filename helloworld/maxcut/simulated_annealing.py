@@ -45,7 +45,7 @@ def simulated_annealing(init_solution: Union[List[int], np.array], init_temperat
     return curr_score, curr_solution, scores
 
 if __name__ == '__main__':
-    graph = read_txt_as_networkx_graph('data/syn_30_111.txt')
+    graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
 
     init_temperature = 5
