@@ -14,7 +14,7 @@ simulated_annealing.py
 
 ## Dataset
 
-With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, __gset__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
+With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
 
 Take gset_14 as an example,
 
