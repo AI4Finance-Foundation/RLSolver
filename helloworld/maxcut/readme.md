@@ -16,7 +16,7 @@ simulated_annealing.py
 
 With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, __gset__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
 
-For example, gest_14, 
+Take gset_14 as an example,
 
 800 4694 # the number of nodes is 800, and the number of edges is 4694
 
@@ -26,13 +26,16 @@ For example, gest_14,
 
 ...
 
+## Generate synthetic data
+
+If you want to generate a graph with n nodes and m edgea, you can use the function generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m), which returns the adjacency_matrix and a networkx graph, and the graph will be written to a file syn_n_m.txt. 
+
 ## Read data
 
 We use the function read_txt_as_networkx_graph(filename) in utils.py to read the data, which returns a graph with the type [networkx](https://networkx.org/documentation/stable/reference/introduction.html). We can access the nodes and edges by graph.nodes graph.edges, respectively. 
 
 
-
-## Run algorithms with command 
+## Run algorithms
 
 Format:
 ```
