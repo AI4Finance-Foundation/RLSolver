@@ -170,6 +170,7 @@ class GraphMaxCutEnv:
     def node_prob_to_bool(probs, thresh=0.5):
         return probs > thresh
 
+
 def draw_adj_matrix():
     env = GraphMaxCutEnv(graph_name='syn_20_42')
     ary = (env.adjacency_matrix != -1).to(th.int).data.cpu().numpy()
