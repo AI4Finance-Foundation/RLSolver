@@ -158,4 +158,11 @@ if __name__ == '__main__':
     write_result(result)
     adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(30, 0.5)
     obj_maxcut(result, graph2)
+
+    num_datasets = 1
+    num_nodess = [20, 30, 50, 100, 400, 800, 1000, 2000, 3000, 4000, 5000, 10000]
+    density = 0.5
+    for _ in range(num_datasets):
+        for num_nodes in num_nodess:
+            generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, density)
     print()
