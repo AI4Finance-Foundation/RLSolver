@@ -59,13 +59,13 @@ def obj_maxcut(result: Union[Tensor, List[int], np.array], graph: nx.Graph):
 def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/result.txt'):
     # assert len(result.shape) == 1
     # N = result.shape[0]
-    N = len(result)
+    num_nodes = len(result)
     directory = filename.split('/')[0]
     if not os.path.exists(directory):
         os.mkdir(directory)
     with open(filename, 'w', encoding="UTF-8") as file:
-        for i in range(N):
-            file.write(f'{i + 1} {int(result[i] + 1)}\n')
+        for node in range(num_nodes):
+            file.write(f'{node + 1} {int(result[node] + 1)}\n')
 
 
 # genete a graph, and output a symmetric_adjacency_matrix and networkx_graph. The graph will be written to a file.
@@ -76,7 +76,7 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                                                                  num_edges: int,
                                                                  filename: str = 'data/syn.txt',
                                                                  weight_low=0,
-                                                                 weight_high=2):
+                                                                 weight_high=2) -> (List[List[int]], nx.Graph):
     if weight_low == 0:
         weight_low += 1
     adjacency_matrix = []
@@ -121,7 +121,7 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                         indices2.append((i, j))
         adjacency_matrix = new_adjacency_matrix
     # We first set some elements of indices2 0 so that |indices2| = num_edges,
-    # then, fill the adjacency_matrix so that the symmetric elements are the same
+    # then, fill the adjacency_matrix so that the symmetric elements along diagonal are the same
     if len(indices1) <= len(indices2):
         num_set_0 = len(indices2) - num_edges
         if num_set_0 < 0:
@@ -132,9 +132,6 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
             ind_set_0 = all_ind_set_0[: num_set_0]
             indices2_set_0 = [indices2[k] for k in ind_set_0]
             new_indices2 = set([indices2[k] for k in range(len(indices2)) if k not in ind_set_0])
-            # for k in range(len(indices2)):
-            #     if k not in ind_set_0:
-            #         new_indices2.add(indices2[k])
             my_list = list(range(num_nodes))
             my_set: set = set()
             satisfy = True
@@ -159,13 +156,11 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                     adjacency_matrix[i][j] = adjacency_matrix[j][i]
                 else:
                     adjacency_matrix[i][j] = 0
-
     # create a networkx graph
     g = nx.Graph()
     nodes = list(range(num_nodes))
     g.add_nodes_from(nodes)
     num_edges = len(new_indices2)
-
     # create a new filename, and write the graph to the file.
     new_filename = filename.split('.')[0] + '_' + str(num_nodes) + '_' + str(num_edges) + '.txt'
     with open(new_filename, 'w', encoding="UTF-8") as file:
@@ -177,8 +172,6 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                 if weight != 0:
                     file.write(f'{i + 1} {j + 1} {weight}\n')
     return adjacency_matrix, g
-
-
 
 def calc_file_name(front: str, id2: int, val: int, end: str):
     return front + "_" + str(id2) + "_" + str(val) + end + "pkl"
@@ -234,6 +227,7 @@ def plot_fig(scores: List[int], label: str):
 
 if __name__ == '__main__':
     graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
+    graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
 
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])
     # write_result(result)
@@ -241,16 +235,16 @@ if __name__ == '__main__':
     # write_result(result)
     result = [1, 0, 1, 0, 1]
     write_result(result)
-    adj_matrix, graph = generate_write_symmetric_adjacency_matrix_and_networkx_graph(5, 5)
-    graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
-    obj_maxcut(result, graph)
+    adj_matrix, graph3 = generate_write_symmetric_adjacency_matrix_and_networkx_graph(6, 8)
+    graph4 = read_txt_as_networkx_graph('data/syn_6_8.txt')
+    obj_maxcut(result, graph4)
 
-    # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 240543), (10000, 100457)]
-    num_nodes_edges = [(100, 460)]
-
-    # density = 0.005
+    # generate synthetic data
+    # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 50543), (10000, 100457)]
+    num_nodes_edges = [(3000, 25695), (4000, 38654), (5000, 50543),  (6000, 73251), (7000, 79325), (8000, 83647), (9000, 96324), (10000, 100457), (13000, 18634), (16000, 19687), (20000, 26358)]
+    # num_nodes_edges = [(100, 460)]
+    num_datasets = 1
     for num_nodes, num_edges in num_nodes_edges:
-        # max_num = int(np.ceil(num_nodes * num_nodes * density / 2) * 0.8)
-        # num_edges = min(num_edges, max_num)
-        generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, num_edges)
+        for n in range(num_datasets):
+            generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, num_edges + n)
     print()

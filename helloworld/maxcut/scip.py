@@ -13,8 +13,8 @@ import numpy as np
 from torch import Tensor
 from typing import List
 import random
-from env.maxcut_env import MaxcutEnv
-from MaxCut_H2O import MaxCutEnv2
+from env.env import MaxcutEnv
+from learn_to_anneal_2 import MaxCutEnv2
 
 import copy
 import time
