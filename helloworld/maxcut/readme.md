@@ -29,7 +29,7 @@ Take gset_14 as an example,
 
 ## Generate synthetic data
 
-If you want to generate a graph with n nodes and m edges, you can use the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__ in utils.py, which returns the adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file syn_n_m.txt of the folder "data". 
+If the above dataset is not satisfied, you can generate a graph with n nodes and m edges, i.e., using the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__ in utils.py. It returns an adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file "syn_n_m.txt" of the folder "data". 
 
 ## Read data
 
@@ -45,7 +45,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 | Algorithm | File| Command | 
 |---|----------|----|
-|learn_to_anneal (ours) | learn_to_anneal.py | python learn_to_anneal_1.py, python learn_to_anneal_2.py|
+|learn_to_anneal (ours) | learn_to_anneal_1.py \\ learn_to_anneal_2.py | python learn_to_anneal_1.py, \\ python learn_to_anneal_2.py|
 |random walk | random_walk.py | python random_walk.py|
 | greedy | greedy.py | python greedy.py|
 | simulated annealing| simulated_annealing.py | python simulated_annealing.py|
