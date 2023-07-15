@@ -10,7 +10,7 @@ For deep reinforcement learning algorithms, we use [ElegantRL](https://github.co
 
 The following two key technologies are under active development: 
 
-- **Massively parallel simuations** of gym-environments on GPU, using thousands of CUDA cores and tensor cores.
+- **Massively parallel sampling** of Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
 
 - **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
 
@@ -28,33 +28,32 @@ Key references:
 
   
 
-## Environments
+## Monte Carlo simulation
 
 ElegantRL_Solver follows the principles:
-* Gym-style environments (not all the same, since there is no action or step).
-* Massively parallel environments.
+* High efficiency simulations
+* Massively parallel sampling.
 
-  
+
+Important functions: 
+
+* reset(): Initialize the variables
+* obj(): Calculate the objective function, i.e., Halmiltonian.
+* reward(mu1: Tensor, mu2: Tensor): Calculate the Halmiltonian of from the graph mu1 to another graph mu2. 
 
 ## Datasets
 * Maxcut:
   
-  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
+  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/), which is opened by Standford. 
   
   [Syn](https://drive.google.com/drive/folders/1KN-1IEH4lGbaSNii2v2hB7aKTabb88N1?usp=sharing), which is the synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py
   
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
   
-## Massively parallel gym-style environments
-
-Important functions 
-
-* reset(): Initialize the variables
-* obj(): Calculate the objective function, i.e., Halmiltonian.
-* reward(mu1: Tensor, mu2: Tensor): Calculate the Halmiltonian of from the graph mu1 to another graph mu2. 
 
 ## Benchmarks
+
 
 * Learn to branch
   
@@ -71,6 +70,7 @@ Important functions
 
 [code](https://github.com/JHL-HUST/VSR-LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
+
 * Classical methods
   1) Random walk
   2) Greedy
@@ -83,9 +83,9 @@ Important functions
 
 ## Solvers to compare with
 
-[Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver)
+[Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license__ for free.)
 
-[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (an open-source solver, and its simplex is commonly used in "learn to branch/cut") 
+[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __free__.) 
 
 [BiqMac](https://biqmac.aau.at/) (only for binary quadratic or maxcut)
 
@@ -108,11 +108,11 @@ ElegantRL_Solver
 └──helloworld
    └──maxcut
         └──data
-        └──env
+        └──mc_sim
         └──result
-        └──maxcut.py
-        └──maxcut_gurobi.py
-        └──maxcut_scip.py
+        └──learn_to_anneal.py (ours)
+        └──gurobi.py
+        └──scip.py
         └──random_walk.py
         └──greedy.py
         └──simulated_annealing.py
@@ -124,7 +124,7 @@ ElegantRL_Solver
    └──tsp.md
 └──rlsolver (main folder)
    └──data (datasets for problems)
-   └──envs
+   └──mc_sim
    └──result (store output files)
    └──rlsolver_learn2opt
       └──mimo
