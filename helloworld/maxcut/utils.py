@@ -245,7 +245,6 @@ if __name__ == '__main__':
     graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
     obj_maxcut(result, graph)
 
-    num_datasets = 1
     # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 240543), (10000, 100457)]
     num_nodes_edges = [(100, 460)]
 
