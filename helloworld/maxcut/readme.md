@@ -45,7 +45,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 | Algorithm | File| Command | 
 |---|----------|----|
-|learn_to_anneal (ours) | learn_to_anneal_1.py \\ learn_to_anneal_2.py | python learn_to_anneal_1.py, \\ python learn_to_anneal_2.py|
+|learn_to_anneal (ours) | learn_to_anneal_1.py \ learn_to_anneal_2.py | python learn_to_anneal_1.py, \ python learn_to_anneal_2.py|
 |random walk | random_walk.py | python random_walk.py|
 | greedy | greedy.py | python greedy.py|
 | simulated annealing| simulated_annealing.py | python simulated_annealing.py|
