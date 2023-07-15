@@ -87,7 +87,7 @@ Important functions:
 
 [SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __free__.) 
 
-[BiqMac](https://biqmac.aau.at/) (only for binary quadratic or maxcut)
+[BiqMac](https://biqmac.aau.at/) (only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.)
 
 ## Other solvers
 
