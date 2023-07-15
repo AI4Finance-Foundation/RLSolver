@@ -38,10 +38,10 @@ ElegantRL_Solver follows the principles:
 
 ## Datasets
 * Maxcut:
-* 
+  
   [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
   
-  [syn](https://drive.google.com/drive/folders/1KN-1IEH4lGbaSNii2v2hB7aKTabb88N1?usp=sharing), which is the synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py
+  [Syn](https://drive.google.com/drive/folders/1KN-1IEH4lGbaSNii2v2hB7aKTabb88N1?usp=sharing), which is the synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py
   
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
@@ -104,10 +104,19 @@ The ElegantRL_Solver's performance compared with other methods or solvers is pre
 ## File Structure
 
 ```
-RLSolver
+ElegantRL_Solver
 └──helloworld
-   └──maxcut.py
-   └──maxcut_env.py
+   └──maxcut
+        └──data
+        └──env
+        └──result
+        └──maxcut.py
+        └──maxcut_gurobi.py
+        └──maxcut_scip.py
+        └──random_walk.py
+        └──greedy.py
+        └──simulated_annealing.py
+        └──utils.py
 └──opt_methods
 └──readme
    └──graph_partitioning.md
