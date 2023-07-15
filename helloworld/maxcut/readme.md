@@ -5,8 +5,9 @@ data # the dataset (.txt), and the figure of the graph (.png)
 env # the environment for training
 result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib
 utils.py # utils file, including opt_net, obj, read, write, etc.
-maxcut.py  #main functions: main, train_opt_net
-maxcut_gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
+learn_to_anneal.py  # our algorithm
+gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
+scip.py # run scip for reference performance, scip should be installed 
 random_walk.py
 greedy.py
 simulated_annealing.py
@@ -28,12 +29,11 @@ Take gset_14 as an example,
 
 ## Generate synthetic data
 
-If you want to generate a graph with n nodes and m edges, you can use the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__, which returns the adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file syn_n_m.txt of the folder 'data'. 
+If you want to generate a graph with n nodes and m edges, you can use the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__ in utils.py, which returns the adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file syn_n_m.txt of the folder "data". 
 
 ## Read data
 
 We use the function __read_txt_as_networkx_graph(filename)__ in utils.py to read the data, which returns a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph. We can access the nodes and edges by graph.nodes and graph.edges, respectively. 
-
 
 ## Run algorithms
 
@@ -45,7 +45,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 | Algorithm | File| Command | 
 |---|----------|----|
-|maxcut, MaxCut_H2O (ours) | maxcut.py, MaxCut_H2O.py | python maxcut.py, python MaxCut_H2O|
+|learn_to_anneal (ours) | learn_to_anneal.py | python learn_to_anneal_1.py, python learn_to_anneal_2.py|
 |random walk | random_walk.py | python random_walk.py|
 | greedy | greedy.py | python greedy.py|
 | simulated annealing| simulated_annealing.py | python simulated_annealing.py|
@@ -56,9 +56,9 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) or a well-known open-source solver [Scip](https://scipopt.org/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. Scip should also be installed if you choose it.
 
 ```
-python maxcut_gurobi.py
+python gurobi.py
 
-python maxcut_scip.py 
+python scip.py 
 ```
 
 ## Store results
@@ -75,7 +75,7 @@ Results will be written to a file result.txt in the folder 'result'. The first c
 
 5 2  # node 5 in set 2
 
-If using gurobi, more files will be generated (e.g., result.lp and result.mps) for easy check. 
+If using gurobi or scip, more files will be generated (e.g., result.lp and result.mps) for easy check. 
 
 ## Experiment Results
 
@@ -100,9 +100,9 @@ Average over 30 runs.
 |syn_4000_38654   | | | |  | |
 |syn_5000_50543 | |  |  | 3175813 $\pm$, (202s)| |
 |syn_6000_73251   |   | ||   |  |
-|   |   | ||   |  |
-|   |   | ||   |  |
-|   |   | ||   |  |
+|syn_7000_79325   |   | ||   |  |
+|syn_8000_83647   |   | ||   |  |
+|syn_9000_96324   |   | ||   |  |
 |   |   | ||   |  |
 
 Inference time of our method is less than 0.001 second.
