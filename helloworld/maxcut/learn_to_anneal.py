@@ -6,7 +6,7 @@ from copy import deepcopy
 import numpy as np
 from torch import Tensor
 # from rlsolver.rlsolver_learn2opt.np_complete_problems.env.maxcut_env import MaxcutEnv
-from env.maxcut_env import MaxcutEnv
+from env.env import MaxcutEnv
 
 from utils import Opt_net
 import pickle as pkl

@@ -32,7 +32,7 @@ G3WiENwEEjBv3ROzleajhLLaGDz3hSI5FUWco8po3YDaN3Pv9QUiXY!8G7fci7HlvnV8m1pGt8UGdeyz
 
 """Graph Max Cut Env"""
 
-from env.maxcut_env2 import MaxCutEnv2
+from env.env2 import MaxCutEnv2
 
 
 
