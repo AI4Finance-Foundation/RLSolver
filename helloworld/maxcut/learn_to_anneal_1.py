@@ -5,8 +5,8 @@ import torch.nn as nn
 from copy import deepcopy
 import numpy as np
 from torch import Tensor
-# from rlsolver.rlsolver_learn2opt.np_complete_problems.env.maxcut_env import MaxcutEnv
-from env.env import MaxcutEnv
+# from rlsolver.rlsolver_learn2opt.np_complete_problems.env.maxcut_env import MCSim
+from mc_sim.mc_sim import MCSim
 
 from utils import Opt_net
 import pickle as pkl
@@ -21,7 +21,7 @@ def train(num_nodes: int,
           optimizer: th.optim,
           episode_length: int,
           hidden_layer_size: int):
-    maxcut_env = MaxcutEnv(num_nodes=num_nodes, num_envs=num_envs, device=device, episode_length=episode_length)
+    maxcut_env = MCSim(num_nodes=num_nodes, num_envs=num_envs, device=device, episode_length=episode_length)
 
     maxcut_env.load_graph(f"./data/gset_{sys.argv[1]}.npy")
     l_num = 1
