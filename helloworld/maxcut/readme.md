@@ -2,22 +2,22 @@
 ## File structure
 ```python
 data # the dataset (.txt), and the figure of the graph (.png)
-env # the environment for training
-result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib
+mc_sim # the Monte Carlo simulation.
+result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib.
 utils.py # utils file, including opt_net, obj, read, write, etc.
-learn_to_anneal.py  # our algorithm
-gurobi.py # run Gurobi for reference performance, Gurobi should be installed and its license is required
-scip.py # run scip for reference performance, scip should be installed 
-random_walk.py
-greedy.py
-simulated_annealing.py
+learn_to_anneal.py  # our algorithm.
+gurobi.py # solve max by utilizing Gurobi, which should be installed and the license is required.
+scip.py # solve max by utilizing Scip, which should be installed .
+random_walk.py # the random walk method
+greedy.py # the greedy method
+simulated_annealing.py # the simulated annealing method
 ```
 
 ## Dataset
 
 With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges)
 
-Take gset_14 as an example,
+Take gset_14.txt as an example,
 
 800 4694 # the number of nodes is 800, and the number of edges is 4694
 
@@ -41,7 +41,6 @@ Format:
 ```
 python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 ```
-
 
 | Algorithm | File| Command | 
 |---|----------|----|
@@ -79,11 +78,8 @@ If using Gurobi or Scip, more files will be generated (e.g., result.lp and resul
 
 ## Experiment Results
 
-In the following experiments, we use GPU during training by default. 
+In the following experiments, we use GPU during training by default. We 
 
-Synthetic data at density = 0.5
-
-Average over 30 runs.
  
 |Maxcut |Gurobi, (1 h)| Gurobi, (5 h) | Gurobi, (10 h) | Ours|improvement |
 |-------|------|----| ---- |---- |--|
@@ -108,7 +104,7 @@ Average over 30 runs.
 Inference time of our method is less than 0.001 second.
 
 
-[Gset dataset at Stanford](https://web.stanford.edu/~yyye/yyye/Gset/)
+[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
 
 The gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
 
