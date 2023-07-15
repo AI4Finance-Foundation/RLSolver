@@ -37,7 +37,7 @@ ElegantRL_Solver follows the principles:
   
 
 ## Datasets
-* Maxcut: [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
+* Maxcut: [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) [syn](https://drive.google.com/drive/folders/1KN-1IEH4lGbaSNii2v2hB7aKTabb88N1?usp=sharing) (synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py)
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
   
