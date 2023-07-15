@@ -68,10 +68,10 @@ def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/
             file.write(f'{i + 1} {int(result[i] + 1)}\n')
 
 
-
+# genete a graph, and output a symmetric_adjacency_matrix and networkx_graph. The graph will be written to a file.
 # weight_low (inclusive) and weight_high (exclusive) are the low and high int values for weight, and should be int.
 # If writing the graph to file, the node starts from 1, not 0. The first node index < the second node index. Only the non-zero weight will be written.
-# If writing the graph, the name of file will be revised, e.g., graph.txt will be revised to graph_n_m.txt, where n is num_nodes, and m is num_edges.
+# If writing the graph, the file name will be revised, e.g., syn.txt will be revised to syn_n_m.txt, where n is num_nodes, and m is num_edges.
 def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                                                                  num_edges: int,
                                                                  filename: str = 'data/syn.txt',
@@ -80,6 +80,7 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
     if weight_low == 0:
         weight_low += 1
     adjacency_matrix = []
+    # generate adjacency_matrix where each row has num_edges_per_row edges
     num_edges_per_row = int(np.ceil(2 * num_edges / num_nodes))
     for i in range(num_nodes):
         indices = []
@@ -94,8 +95,9 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
         for k in range(len(indices)):
             row[indices[k]] = weights[k]
         adjacency_matrix.append(row)
-    indices1 = []
-    indices2 = []
+    # the num of edges of the generated adjacency_matrix may not be the specified, so we revise it.
+    indices1 = []  # num of non-zero weights for i < j
+    indices2 = []  # num of non-zero weights for i > j
     for i in range(num_nodes):
         for j in range(num_nodes):
             if adjacency_matrix[i][j] != 0:
@@ -103,6 +105,8 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                     indices1.append((i, j))
                 else:
                     indices2.append((i, j))
+    # if |indices1| > |indices2|, we get the new adjacency_matrix by swapping symmetric elements
+    # based on adjacency_matrix so that |indices1| < |indices2|
     if len(indices1) > len(indices2):
         indices1 = []
         indices2 = []
@@ -116,6 +120,8 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                     else:
                         indices2.append((i, j))
         adjacency_matrix = new_adjacency_matrix
+    # We first set some elements of indices2 0 so that |indices2| = num_edges,
+    # then, fill the adjacency_matrix so that the symmetric elements are the same
     if len(indices1) <= len(indices2):
         num_set_0 = len(indices2) - num_edges
         if num_set_0 < 0:
@@ -132,6 +138,7 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
             my_list = list(range(num_nodes))
             my_set: set = set()
             satisfy = True
+            # check if all nodes exist in new_indices2. If yes, the condition is satisfied, and iterate again otherwise.
             for i, j in new_indices2:
                 my_set.add(i)
                 my_set.add(j)
@@ -145,6 +152,7 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
             adjacency_matrix[i][j] = 0
         if len(new_indices2) != num_edges:
             raise ValueError("wrong new_indices2")
+        # fill elements of adjacency_matrix based on new_indices2
         for i in range(num_nodes):
             for j in range(i + 1, num_nodes):
                 if (j, i) in new_indices2:
@@ -152,11 +160,13 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                 else:
                     adjacency_matrix[i][j] = 0
 
-
+    # create a networkx graph
     g = nx.Graph()
     nodes = list(range(num_nodes))
     g.add_nodes_from(nodes)
     num_edges = len(new_indices2)
+
+    # create a new filename, and write the graph to the file.
     new_filename = filename.split('.')[0] + '_' + str(num_nodes) + '_' + str(num_edges) + '.txt'
     with open(new_filename, 'w', encoding="UTF-8") as file:
         file.write(f'{num_nodes} {num_edges} \n')
@@ -235,7 +245,6 @@ if __name__ == '__main__':
     graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
     obj_maxcut(result, graph)
 
-    num_datasets = 1
     # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 240543), (10000, 100457)]
     num_nodes_edges = [(100, 460)]
 
