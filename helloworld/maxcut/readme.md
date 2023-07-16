@@ -15,7 +15,7 @@ simulated_annealing.py # the simulated annealing method
 
 ## Dataset
 
-With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. We have two types of datasets, __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges. The syn data is stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) and [Baidu Wangpan] (https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) with CODE 2fw9)
+With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. There are two types of datasets, __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges. The synthetic data is stored in the "data" folder of this repo. If users need more synthetic data, please refer to the link [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for Chinese users). 
 
 Take gset_14.txt as an example,
 
