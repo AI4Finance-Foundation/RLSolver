@@ -225,6 +225,22 @@ def plot_fig(scores: List[int], label: str):
     plt.savefig('result/' + label + '.png')
     plt.show()
 
+def calc_txt_files_with_prefix(directory: str, prefix: str):
+    res = []
+    files = os.listdir(directory)
+    for file in files:
+        if prefix in file and '.txt' in file:
+            res.append(directory + '/' + file)
+    return res
+
+# if the file name is 'data/syn_10_27.txt', the return is 'result/syn_10_27'
+def calc_result_file_name(file: str):
+    new_file = copy.deepcopy(file)
+    if 'data' in new_file:
+        new_file = new_file.replace('data', 'result')
+    new_file = new_file.split('.')[0]
+    return new_file
+
 if __name__ == '__main__':
     graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
     graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
@@ -240,11 +256,18 @@ if __name__ == '__main__':
     obj_maxcut(result, graph4)
 
     # generate synthetic data
-    # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 50543), (10000, 100457)]
-    num_nodes_edges = [(3000, 25695), (4000, 38654), (5000, 50543),  (6000, 73251), (7000, 79325), (8000, 83647), (9000, 96324), (10000, 100457), (13000, 18634), (16000, 19687), (20000, 26358)]
-    # num_nodes_edges = [(100, 460)]
-    num_datasets = 1
-    for num_nodes, num_edges in num_nodes_edges:
-        for n in range(num_datasets):
-            generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, num_edges + n)
+    generate_data = False
+    if generate_data:
+        # num_nodes_edges = [(20, 50), (30, 110), (50, 190), (100, 460), (200, 1004), (400, 1109), (800, 2078), (1000, 4368), (2000, 9386), (3000, 11695), (4000, 25654), (5000, 50543), (10000, 100457)]
+        num_nodes_edges = [(3000, 25695), (4000, 38654), (5000, 50543),  (6000, 73251), (7000, 79325), (8000, 83647), (9000, 96324), (10000, 100457), (13000, 18634), (16000, 19687), (20000, 26358)]
+        # num_nodes_edges = [(100, 460)]
+        num_datasets = 1
+        for num_nodes, num_edges in num_nodes_edges:
+            for n in range(num_datasets):
+                generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, num_edges + n)
+        print()
+
+    directory = 'data'
+    prefix = 'syn_10_'
+    files = calc_txt_files_with_prefix(directory, prefix)
     print()
