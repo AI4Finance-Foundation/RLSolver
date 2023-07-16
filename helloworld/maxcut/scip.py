@@ -36,19 +36,20 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
     if not os.path.exists(directory):
         os.mkdir(directory)
     if running_duration is None:
-        file = filename + '.txt'
+        new_filename = filename + '.txt'
     else:
-        file = filename + '_' + str(int(running_duration)) + '.txt'
-    with open(file, 'w', encoding="UTF-8") as file:
-        file.write(f"obj: {model.getObjVal()}\n")
+        new_filename = filename + '_' + str(int(running_duration)) + '.txt'
+    with open(new_filename, 'w', encoding="UTF-8") as new_file:
+        new_file.write(f"obj: {model.getObjVal()}\n")
         vars = model.getVars()
-        file.write('values of vars: \n')
+        new_file.write('values of vars: \n')
         for var in vars:
-            file.write(f'{var.name}: {model.getVal(var)}\n')
-    model.writeLP(f"{filename}.lp")
-    model.writeStatistics(f"{filename}.sta")
-    model.writeBestSol(f"{filename}.sol")
+            new_file.write(f'{var.name}: {model.getVal(var)}\n')
+    model.writeLP(f"{new_filename}.lp")
+    model.writeStatistics(f"{new_filename}.sta")
+    model.writeBestSol(f"{new_filename}.sol")
     # model.writeSol(f"{filename}.sol")
+    print()
 
 def run_using_scip(filename: str, time_limit: int):
     start_time = time.time()

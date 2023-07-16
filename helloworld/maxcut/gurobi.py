@@ -36,19 +36,19 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
     if not os.path.exists(directory):
         os.mkdir(directory)
     if running_duration is None:
-        file = filename + '.txt'
+        new_filename = filename + '.txt'
     else:
-        file = filename + '_' + str(int(running_duration)) + '.txt'
-    with open(file, 'w', encoding="UTF-8") as file:
-        file.write(f"obj: {model.objVal}\n")
+        new_filename = filename + '_' + str(int(running_duration)) + '.txt'
+    with open(new_filename, 'w', encoding="UTF-8") as new_file:
+        new_file.write(f"obj: {model.objVal}\n")
         vars = model.getVars()
-        file.write('values of vars: \n')
+        new_file.write('values of vars: \n')
         for var in vars:
-            file.write(f'{var.VarName}: {var.x}\n')
-    model.write(f"{filename}.mst")
-    model.write(f"{filename}.lp")
-    model.write(f"{filename}.mps")
-    model.write(f"{filename}.sol")
+            new_file.write(f'{var.VarName}: {var.x}\n')
+    model.write(f"{new_filename}.mst")
+    model.write(f"{new_filename}.lp")
+    model.write(f"{new_filename}.mps")
+    model.write(f"{new_filename}.sol")
 
 def run_using_gurobi(filename: str, time_limit: int):
     model = Model("maxcut")
