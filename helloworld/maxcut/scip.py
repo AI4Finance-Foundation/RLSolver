@@ -27,6 +27,7 @@ from utils import write_result
 from utils import plot_fig
 from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
+from utils import calc_avg_std_of_obj
 
 # If running_duration (seconds) is not None, the new file name should include it.
 def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
@@ -36,11 +37,13 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
     if not os.path.exists(directory):
         os.mkdir(directory)
     if running_duration is None:
-        new_filename = filename + '.txt'
+        new_filename = filename
     else:
-        new_filename = filename + '_' + str(int(running_duration)) + '.txt'
-    with open(new_filename, 'w', encoding="UTF-8") as new_file:
+        new_filename = filename + '_' + str(int(running_duration))
+    with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
         new_file.write(f"obj: {model.getObjVal()}\n")
+        new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
+
         vars = model.getVars()
         new_file.write('values of vars: \n')
         for var in vars:
@@ -51,7 +54,7 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
     # model.writeSol(f"{filename}.sol")
     print()
 
-def run_using_scip(filename: str, time_limit: int):
+def run_using_scip(filename: str, time_limit: int, plot_fig: bool = False):
     start_time = time.time()
     model = Model("maxcut")
 
@@ -93,10 +96,17 @@ def run_using_scip(filename: str, time_limit: int):
 
     scores = [model.getObjVal()]
     alg_name = 'Scip'
-    plot_fig(scores, alg_name)
+    if plot_fig:
+        plot_fig(scores, alg_name)
     print()
 
-
+def run_scip_over_multiple_files(prefix: str, time_limits: List[int], directory_data: str = 'data', directory_result: str = 'result'):
+    files = calc_txt_files_with_prefix(directory_data, prefix)
+    for i in range(len(files)):
+        print(f'The {i}-th file: {files[i]}')
+        for j in range(len(time_limits)):
+            run_using_scip(files[i], time_limits[j])
+    calc_avg_std_of_obj(directory_result, prefix)
 
 if __name__ == '__main__':
     import sys
@@ -105,14 +115,9 @@ if __name__ == '__main__':
         filename = 'data/syn_30_110.txt'
         run_using_scip(filename)
     else:
-        directory = 'data'
-        prefix = 'syn_300_'
-        files = calc_txt_files_with_prefix(directory, prefix)
-        for i in range(len(files)):
-            print(f'The {i}-th file: {files[i]}')
-            time_limits = [6, 6 * 5, 6 * 10]
-            for j in range(len(time_limits)):
-                run_using_scip(files[i], time_limits[j])
+        prefix = 'syn_100_'
+        time_limits = [3600, 3600 * 5, 3600 * 10]
+        run_scip_over_multiple_files(prefix, time_limits)
 
     pass
 
