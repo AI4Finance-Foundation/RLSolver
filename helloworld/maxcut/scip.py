@@ -13,8 +13,7 @@ import numpy as np
 from torch import Tensor
 from typing import List
 import random
-from env.env import MaxcutEnv
-from learn_to_anneal_2 import MaxCutEnv2
+
 
 import copy
 import time
@@ -26,12 +25,20 @@ from utils import read_txt_as_networkx_graph
 from utils import obj_maxcut
 from utils import write_result
 from utils import plot_fig
+from utils import calc_txt_files_with_prefix
+from utils import calc_result_file_name
 
-def write_result_of_scip(model, filename='result/result'):
+# If running_duration (seconds) is not None, the new file name should include it.
+def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
+    if filename.split('/')[0] == 'data':
+        filename = calc_result_file_name(filename)
     directory = filename.split('/')[0]
     if not os.path.exists(directory):
         os.mkdir(directory)
-    file = filename + '.txt'
+    if running_duration is None:
+        file = filename + '.txt'
+    else:
+        file = filename + '_' + str(int(running_duration)) + '.txt'
     with open(file, 'w', encoding="UTF-8") as file:
         file.write(f"obj: {model.getObjVal()}\n")
         vars = model.getVars()
@@ -43,7 +50,8 @@ def write_result_of_scip(model, filename='result/result'):
     model.writeBestSol(f"{filename}.sol")
     # model.writeSol(f"{filename}.sol")
 
-def run_using_scip(filename: str):
+def run_using_scip(filename: str, time_limit: int):
+    start_time = time.time()
     model = Model("maxcut")
 
     graph = read_txt_as_networkx_graph(filename)
@@ -61,7 +69,6 @@ def run_using_scip(filename: str):
             y[(i, j)] = model.addVar(vtype='B', name=f"y[{i}][{j}]")
     model.setObjective(quicksum(quicksum(adjacency_matrix[(i, j)] * y[(i, j)] for i in range(0, j)) for j in nodes),
                     'maximize')
-    #model.setParam('TimeLimit', 10)
 
     # constrs
     for j in nodes:
@@ -69,11 +76,13 @@ def run_using_scip(filename: str):
             model.addCons(y[(i, j)] - x[i] - x[j] <= 0, name='C0a_' + str(i) + '_' + str(j))
             model.addCons(y[(i, j)] + x[i] + x[j] <= 2, name='C0b_' + str(i) + '_' + str(j))
 
+    model.setRealParam("limits/time", time_limit)
     model.optimize()
 
 
-    if model.getStatus() == "optimal":
-        write_result_of_scip(model)
+    # if model.getStatus() == "optimal":
+    running_duration = time.time() - start_time
+    write_result_of_scip(model, filename, time_limit)
 
 
     print('obj:', model.getObjVal())
@@ -90,8 +99,19 @@ def run_using_scip(filename: str):
 
 if __name__ == '__main__':
     import sys
-    filename = 'data/syn_30_110.txt'
-    run_using_scip(filename)
+    select_single_file = False
+    if select_single_file:
+        filename = 'data/syn_30_110.txt'
+        run_using_scip(filename)
+    else:
+        directory = 'data'
+        prefix = 'syn_300_'
+        files = calc_txt_files_with_prefix(directory, prefix)
+        for i in range(len(files)):
+            print(f'The {i}-th file: {files[i]}')
+            time_limits = [6, 6 * 5, 6 * 10]
+            for j in range(len(time_limits)):
+                run_using_scip(files[i], time_limits[j])
 
     pass
 
