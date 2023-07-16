@@ -78,28 +78,29 @@ If using Gurobi or Scip, more files will be generated (e.g., result.lp and resul
 
 ## Experiment Results
 
-In the following experiments, we use GPU during training by default. We 
+In the following experiments, we use GPU during training by default. 
 
  
 |Maxcut |Gurobi, (1 h)| Gurobi, (5 h) | Gurobi, (10 h) | Ours|improvement |
 |-------|------|----| ---- |---- |--|
-|syn_20_50   | 67 (5s) $\pm$  | || 71, (36s)  | +5.97%, (0.139x) |
-|syn_30_110   | 132 (10s) $\pm$  | || 135, (93s)  | +2.27%, (0.108x) |
+|syn_10_21   |   | ||   |  |
+|syn_20_50   |  (s) $\pm$  | || , (s)  | +5.97%, (0.139x) |
+|syn_30_110   |  (10s) $\pm$  | || , (93s)  | +2.27%, (0.108x) |
 |syn_50_190   |   | ||   |  |
-|syn_100_460  | 1408 $\pm$  | || 1415, (33s)  | +0.49%, (60.6x) |
-|syn_200_1004   |   | ||   |  |
-|syn_400_2109   |   | ||   |  |
-|syn_800_4078   |   | ||   |  |
-|syn_1000_6368   |  128508 $\pm$  || | 129714, (119s) | +0.94%, (36.97x) |
-|syn_2000_13386   | 503890   |507628 | |  | | 
-|syn_3000_25695   |  1125568 | 1129810| |  | |
+|syn_60_198   |   | ||   |  |
+|syn_100_460  |  $\pm$  | || , (33s)  | +0.49%, (60.6x) |
+|syn_300_2036   |   | ||   |  |
+|syn_600_3214   |   | ||   |  |
+|syn_1000_6368   |   $\pm$  || | , (119s) | +0.94%, (36.97x) |
+|syn_2000_13386   |    | | |  | | 
+|syn_3000_25695   |   | | |  | |
 |syn_4000_38654   | | | |  | |
-|syn_5000_50543 | |  |  | 3175813 $\pm$, (202s)| |
+|syn_5000_50543 | |  |  |  $\pm$, (202s)| |
 |syn_6000_73251   |   | ||   |  |
 |syn_7000_79325   |   | ||   |  |
 |syn_8000_83647   |   | ||   |  |
 |syn_9000_96324   |   | ||   |  |
-|   |   | ||   |  |
+|syn_10000_100457   |   | ||   |  |
 
 Inference time of our method is less than 0.001 second.
 
