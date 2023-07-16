@@ -24,7 +24,7 @@ from torch import Tensor
 
 # read graph file, e.g., gset_14.txt, as networkx.Graph
 # The nodes in file start from 1, but the nodes start from 0 in our codes.
-def read_txt_as_networkx_graph(filename: str, plot_fig: bool = True) -> nx.Graph():
+def read_txt_as_networkx_graph(filename: str, plot_fig: bool = False) -> nx.Graph():
     with open(filename, 'r') as file:
         lines = file.readlines()
         lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
@@ -218,9 +218,10 @@ def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
     plt.show()
 
 def plot_fig(scores: List[int], label: str):
+    plt.figure()
     x = list(range(len(scores)))
     dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
-    plt.plot(x, scores, dic['0'])
+    plt.plot(x, scores)
     plt.legend([label], loc=0)
     plt.savefig('result/' + label + '.png')
     plt.show()
@@ -240,6 +241,23 @@ def calc_result_file_name(file: str):
         new_file = new_file.replace('data', 'result')
     new_file = new_file.split('.')[0]
     return new_file
+
+# prefix like 'syn_50_'
+def calc_avg_std_of_obj(directory: str, prefix: str):
+    objs = []
+    files = calc_txt_files_with_prefix(directory, prefix)
+    for i in range(len(files)):
+        with open(files[i], 'r') as file:
+            line = file.readline()
+            assert 'obj' in line
+            obj = float(line.split(' ')[1].split('\n')[0])
+            objs.append(obj)
+    avg = np.average(objs)
+    std = np.std(objs)
+    print(f'{directory} {prefix}: avg {avg}, std {std}')
+    return avg, std
+
+
 
 if __name__ == '__main__':
     graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
@@ -270,4 +288,8 @@ if __name__ == '__main__':
     directory = 'data'
     prefix = 'syn_10_'
     files = calc_txt_files_with_prefix(directory, prefix)
+
+    directory = 'result'
+    prefix = 'syn_10_'
+    avg, std = calc_avg_std_of_obj(directory, prefix)
     print()
