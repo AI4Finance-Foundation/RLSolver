@@ -7,7 +7,7 @@ result # store the result, including the solution (.txt), and the figure (.png) 
 utils.py # utils file, including opt_net, obj, read, write, etc.
 learn_to_anneal.py  # our algorithm.
 gurobi.py # solve max by utilizing Gurobi, which should be installed and the license is required.
-scip.py # solve max by utilizing Scip, which should be installed .
+scip.py # solve max by utilizing SCIP, which should be installed .
 random_walk.py # the random walk method
 greedy.py # the greedy method
 simulated_annealing.py # the simulated annealing method
@@ -52,7 +52,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 ## Run using solvers
 
-We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) or a well-known open-source solver [Scip](https://scipopt.org/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. Scip should also be installed if you choose it.
+We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) or a well-known open-source solver [SCIP](https://scipopt.org/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. SCIP should also be installed if you choose it.
 
 ```
 python gurobi.py
@@ -74,7 +74,7 @@ Results will be written to a file result.txt in the folder 'result'. The first c
 
 5 2  # node 5 in set 2
 
-If using Gurobi or Scip, more files will be generated (e.g., result.lp and result.mps) for easy check. 
+If using Gurobi or SCIP, more files will be generated (e.g., result.lp and result.mps) for easy check. 
 
 ## Experiment Results
 
