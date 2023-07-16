@@ -44,9 +44,9 @@ Important functions:
 ## Datasets
 * Maxcut:
   
-  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/), which is opened by Standford. 
+  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford. 
   
-  [Syn](https://drive.google.com/drive/folders/1KN-1IEH4lGbaSNii2v2hB7aKTabb88N1?usp=sharing), which is the synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py
+  __Syn__ is the synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py. The synthetic data is stored in the "data" folder of this repo. If users need more synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for Chinese users). 
   
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
