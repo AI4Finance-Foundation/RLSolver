@@ -27,7 +27,7 @@ from utils import write_result
 from utils import plot_fig
 from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
-
+from utils import calc_avg_std_of_obj
 # If running_duration (seconds) is not None, the new file name should include it.
 def write_result_gurobi(model, filename: str = 'result/result', running_duration: int = None):
     if filename.split('/')[0] == 'data':
@@ -38,9 +38,13 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
     if running_duration is None:
         new_filename = filename + '.txt'
     else:
-        new_filename = filename + '_' + str(int(running_duration)) + '.txt'
-    with open(new_filename, 'w', encoding="UTF-8") as new_file:
+        new_filename = filename + '_' + str(int(running_duration))
+    with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
         new_file.write(f"obj: {model.objVal}\n")
+        # new_file.write(f"time_limit: {time_limit}\n")
+        time_limit = model.getParamInfo("TIME_LIMIT")
+        new_file.write(f"time_limit: {time_limit}\n")
+
         vars = model.getVars()
         new_file.write('values of vars: \n')
         for var in vars:
@@ -50,7 +54,7 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
     model.write(f"{new_filename}.mps")
     model.write(f"{new_filename}.sol")
 
-def run_using_gurobi(filename: str, time_limit: int):
+def run_using_gurobi(filename: str, time_limit: int, plot_fig: bool = False):
     model = Model("maxcut")
 
     graph = read_txt_as_networkx_graph(filename)
@@ -82,7 +86,7 @@ def run_using_gurobi(filename: str, time_limit: int):
         sys.exit()
 
     elif model.getAttr('SolCount') >= 1:  # get the SolCount:
-        write_result_gurobi(model, time_limit)
+        write_result_gurobi(model, filename, time_limit)
 
     num_vars = model.getAttr(GRB.Attr.NumVars)
     num_constrs = model.getAttr(GRB.Attr.NumConstrs)
@@ -98,16 +102,33 @@ def run_using_gurobi(filename: str, time_limit: int):
     #     print("Exception!")
 
     scores = [model.getObjective().getValue()]
-    alg_name = 'gurobi'
-    plot_fig(scores, alg_name)
+    alg_name = 'Gurobi'
+    if plot_fig:
+        plot_fig(scores, alg_name)
     print()
 
-
+def run_gurobi_over_multiple_files(prefixes: List[str], time_limits: List[int], directory_data: str = 'data', directory_result: str = 'result'):
+    for prefix in prefixes:
+        files = calc_txt_files_with_prefix(directory_data, prefix)
+        for i in range(len(files)):
+            print(f'The {i}-th file: {files[i]}')
+            for j in range(len(time_limits)):
+                run_using_gurobi(files[i], time_limits[j])
+    for prefix in prefixes:
+        calc_avg_std_of_obj(directory_result, prefix)
 
 if __name__ == '__main__':
     import sys
-    filename = 'data/syn_30_110.txt'
-    run_using_gurobi(filename)
+
+    select_single_file = False
+    if select_single_file:
+        filename = 'data/syn_30_110.txt'
+        run_using_gurobi(filename)
+    else:
+        prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_',
+                    'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
+        time_limits = [3600, 3600 * 5, 3600 * 10]
+        run_gurobi_over_multiple_files(prefixes, time_limits)
 
     pass
 

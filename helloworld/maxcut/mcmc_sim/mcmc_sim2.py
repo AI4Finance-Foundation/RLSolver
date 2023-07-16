@@ -56,7 +56,7 @@ def bin_str_to_int(base: str):
         decimal += digit * (base_num ** power)
     return decimal
 
-class MCSim2:
+class MCMCSim2:
     def __init__(self, graph_key: str = 'gset_70', gpu_id: int = -1):
         device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
 
