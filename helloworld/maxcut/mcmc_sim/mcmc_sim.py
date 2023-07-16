@@ -5,7 +5,7 @@ import numpy as np
 from torch import Tensor
 # from rlsolver.rlsolver_learn2opt.np_complete_problems.env._base_env import _BaseEnv
 
-class MCSim():
+class MCMCSim():
     def __init__(self, num_nodes=20, num_envs=128, device=th.device("cuda:0"), episode_length=6):
         self.num_nodes = num_nodes
         self.num_envs = num_envs
