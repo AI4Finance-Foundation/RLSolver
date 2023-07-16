@@ -13,8 +13,7 @@ import numpy as np
 from torch import Tensor
 from typing import List
 import random
-from env.env import MaxcutEnv
-from learn_to_anneal_2 import MaxCutEnv2
+
 
 import copy
 import time
@@ -26,12 +25,20 @@ from utils import read_txt_as_networkx_graph
 from utils import obj_maxcut
 from utils import write_result
 from utils import plot_fig
+from utils import calc_txt_files_with_prefix
+from utils import calc_result_file_name
 
-def write_result(model, filename='result/result'):
+# If running_duration (seconds) is not None, the new file name should include it.
+def write_result_gurobi(model, filename: str = 'result/result', running_duration: int = None):
+    if filename.split('/')[0] == 'data':
+        filename = calc_result_file_name(filename)
     directory = filename.split('/')[0]
     if not os.path.exists(directory):
         os.mkdir(directory)
-    file = filename + '.txt'
+    if running_duration is None:
+        file = filename + '.txt'
+    else:
+        file = filename + '_' + str(int(running_duration)) + 's.txt'
     with open(file, 'w', encoding="UTF-8") as file:
         file.write(f"obj: {model.objVal}\n")
         vars = model.getVars()
@@ -43,7 +50,7 @@ def write_result(model, filename='result/result'):
     model.write(f"{filename}.mps")
     model.write(f"{filename}.sol")
 
-def run_using_gurobi(filename: str):
+def run_using_gurobi(filename: str, time_limit: int):
     model = Model("maxcut")
 
     graph = read_txt_as_networkx_graph(filename)
@@ -56,14 +63,14 @@ def run_using_gurobi(filename: str):
     y = model.addVars(num_nodes, num_nodes, vtype=GRB.BINARY, name="y")
     model.setObjective(quicksum(quicksum(adjacency_matrix[(i, j)] * y[(i, j)] for i in range(0, j)) for j in nodes),
                     GRB.MAXIMIZE)
-    #model.setParam('TimeLimit', 10)
+
 
     # constrs
     for j in nodes:
         for i in range(0, j):
             model.addConstr(y[(i, j)] - x[i] - x[j] <= 0, name='C0a_' + str(i) + '_' + str(j))
             model.addConstr(y[(i, j)] + x[i] + x[j] <= 2, name='C0b_' + str(i) + '_' + str(j))
-
+    model.setParam('TimeLimit', time_limit)
     model.optimize()
 
     if model.status == GRB.INFEASIBLE:
@@ -75,7 +82,7 @@ def run_using_gurobi(filename: str):
         sys.exit()
 
     elif model.getAttr('SolCount') >= 1:  # get the SolCount:
-        write_result(model)
+        write_result_gurobi(model, time_limit)
 
     num_vars = model.getAttr(GRB.Attr.NumVars)
     num_constrs = model.getAttr(GRB.Attr.NumConstrs)
