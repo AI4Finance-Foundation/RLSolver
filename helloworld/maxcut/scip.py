@@ -100,13 +100,15 @@ def run_using_scip(filename: str, time_limit: int, plot_fig: bool = False):
         plot_fig(scores, alg_name)
     print()
 
-def run_scip_over_multiple_files(prefix: str, time_limits: List[int], directory_data: str = 'data', directory_result: str = 'result'):
-    files = calc_txt_files_with_prefix(directory_data, prefix)
-    for i in range(len(files)):
-        print(f'The {i}-th file: {files[i]}')
-        for j in range(len(time_limits)):
-            run_using_scip(files[i], time_limits[j])
-    calc_avg_std_of_obj(directory_result, prefix)
+def run_scip_over_multiple_files(prefixes: List[str], time_limits: List[int], directory_data: str = 'data', directory_result: str = 'result'):
+    for prefix in prefixes:
+        files = calc_txt_files_with_prefix(directory_data, prefix)
+        for i in range(len(files)):
+            print(f'The {i}-th file: {files[i]}')
+            for j in range(len(time_limits)):
+                run_using_scip(files[i], time_limits[j])
+    for prefix in prefixes:
+        calc_avg_std_of_obj(directory_result, prefix)
 
 if __name__ == '__main__':
     import sys
@@ -115,9 +117,10 @@ if __name__ == '__main__':
         filename = 'data/syn_30_110.txt'
         run_using_scip(filename)
     else:
-        prefix = 'syn_100_'
+        prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_',
+                    'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
         time_limits = [3600, 3600 * 5, 3600 * 10]
-        run_scip_over_multiple_files(prefix, time_limits)
+        run_scip_over_multiple_files(prefixes, time_limits)
 
     pass
 
