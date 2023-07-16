@@ -38,7 +38,7 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
     if running_duration is None:
         file = filename + '.txt'
     else:
-        file = filename + '_' + str(int(running_duration)) + 's.txt'
+        file = filename + '_' + str(int(running_duration)) + '.txt'
     with open(file, 'w', encoding="UTF-8") as file:
         file.write(f"obj: {model.objVal}\n")
         vars = model.getVars()
