@@ -89,7 +89,7 @@ If using Gurobi or SCIP, more files will be generated (e.g., result.lp and resul
 In the following experiments, we use GPU during training by default. 
 
  
-|Maxcut |Gurobi (1 h)| Gurobi (5 h) | Gurobi (10 h) | SCIP (1 h)| SCIP (5 h) | SCIP (10 h) |Ours|improvement |
+|Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
 |syn_10   |   | ||   |  |||   |  |
 |syn_50   |   | ||   |  |||   |  |
