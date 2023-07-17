@@ -91,19 +91,19 @@ In the following experiments, we use GPU during training by default.
  
 |Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
-|syn_10   |   | ||   |  |||   |  |
-|syn_50   |   | ||   |  |||   |  |
-|syn_100  |  $\pm$  | || , (33s)  | +0.49%, (60.6x) |||   |  |
-|syn_300   |   | ||   |  |||   |  |
-|syn_500   |   | ||   |  |||   |  |
-|syn_700   |   | ||   |  |||   |  |
-|syn_900   |   $\pm$  || | , (119s) | +0.94%, (36.97x) |||   |  |
-|syn_1000   |   | ||   |  |||   |  |
-|syn_3000   |   | ||   |  |||   |  |
-|syn_5000   |   | ||   |  |||   |  |
-|syn_7000   |   | ||   |  |||   |  |
-|syn_9000   |   | ||   |  |||   |  |
-|syn_10000   |   | ||   |  |||   |  |
+|syn_10   | 20.80 $\pm$ 2.71  | $\pm$ | $\pm$ |  $\pm$  |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
+|syn_50   | 138.75 $\pm$ 4.28  |  $\pm$ | $\pm$ |  $\pm$   |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
+|syn_100  |  342.2 $\pm$ 4.33 |  $\pm$ | $\pm$ |  $\pm$ , (33s)  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_300   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_500   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_700   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_900   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_1000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_3000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_5000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_7000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_9000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_10000 |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 
 Inference time of our method is less than 0.001 second.
 
