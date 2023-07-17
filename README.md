@@ -1,6 +1,6 @@
 # ElegantRL_Solver: High-performance GPU-based Solvers for NP-hard and NP-complete Problems
 
-We aim to showcase the machine learning deliver the best benchmark performance for NP-hard and NP-complete problems.
+We aim to showcase that the machine learning or reinforcement learning deliver the best benchmark performance for NP-hard and NP-complete problems.
 
 In the meantime, this repo will also include our codes and tricks when playing with nonconvex and nonlinear optimization problems.
 
@@ -31,8 +31,8 @@ Key references:
 ## Markov chain Monte Carlo simulation
 
 ElegantRL_Solver follows the principles:
-* High efficiency simulations
 * Massively parallel sampling.
+* Multiple practical tricks to improve the performance.
 
 Important functions: 
 
@@ -43,12 +43,11 @@ Important functions:
 ## Datasets
 * Maxcut:
   
-  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford. 
+  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford university. The number of nodes is from 800 to 10000. 
   
-  __Syn__ is the synthetic data by calling the function generate_write_symmetric_adjacency_matrix_and_networkx_graph in utils.py. The synthetic data is stored in the "data" folder of this repo. If users need more synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for Chinese users). 
+  __Syn__ is the synthetic data by calling the function generate_write_ in utils.py. The number of nodes is from 10 to 10000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need the full synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for Chinese users). Our experiments are obtained based on the full synthetic data.
   
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
-  
   
 
 ## Benchmarks
@@ -84,9 +83,8 @@ Important functions:
 
 [Gurobi](https://www.gurobi.com/) ([download/install](https://www.gurobi.com/downloads/gurobi-software/)) [manual](https://www.gurobi.com/documentation/current/refman/index.html) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. We recommend to use Gurobi if users have licenses, since its performance is the best.
 
-[SCIP](https://www.scipopt.org/index.php#welcome) ([download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/)) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __open-source and free__. Its performance is no as good as Gurobi. If users do not have Gurobi licenses, we recommend to use SCIP. 
+[SCIP](https://www.scipopt.org/index.php#welcome) ([download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/)) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __open-source and free__. Although its performance is no as good as Gurobi, we recommend to use SCIP if users do not have Gurobi licenses, . 
 
-[BiqMac](https://biqmac.aau.at/) is a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.
 
 ## Other solvers
 
@@ -95,6 +93,8 @@ Important functions:
 [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010) [manual](https://www.ibm.com/docs/en/SSSA5P_12.8.0/ilog.odms.studio.help/pdf/usrcplex.pdf)
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html) [manual](https://www.fico.com/fico-xpress-optimization/docs/latest/solver/optimizer/HTML/GUID-3BEAAE64-B07F-302C-B880-A11C2C4AF4F6.html)
+
+[BiqMac](https://biqmac.aau.at/) is a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.
 
 ## Performance
 
