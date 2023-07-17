@@ -239,7 +239,7 @@ def calc_txt_files_with_prefix_suffix(directory: str, prefix: str, suffix: str):
     files = os.listdir(directory)
     new_suffix = '_' + suffix + '.txt'
     for file in files:
-        if prefix in file and '.txt' in file and new_suffix in file:
+        if prefix in file and new_suffix in file:
             res.append(directory + '/' + file)
     return res
 
@@ -253,6 +253,7 @@ def calc_result_file_name(file: str):
 
 # For example, syn_10_21_3600.txt, the prefix is 'syn_10_', time_limit is 3600 (seconds).
 def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
+    init_time_limit = copy.deepcopy(time_limit)
     objs = []
     suffix = str(time_limit)
     files = calc_txt_files_with_prefix_suffix(directory, prefix, suffix)
@@ -265,29 +266,38 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     avg = np.average(objs)
     std = np.std(objs)
     print(f'{directory} prefix {prefix}, suffix {suffix}: avg {avg}, std {std}')
+    if time_limit != init_time_limit:
+        print()
     return {(prefix, time_limit): (avg, std)}
 
 def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[int]):
     res = []
-    for prefix in prefixes:
-        for time_limit in time_limits:
-            avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
+    for i in range(len(prefixes)):
+        for k in range(len(time_limits)):
+            avg_std = calc_avg_std_of_obj(directory, prefixes[i], int(time_limits[k]))
             res.append(avg_std)
     return res
 
 if __name__ == '__main__':
-    graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
-    graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
+    read_txt = False
+    if read_txt:
+        graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
+        graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
 
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])
     # write_result(result)
     # result = [0, 1, 0, 1, 0, 1, 1]
     # write_result(result)
-    result = [1, 0, 1, 0, 1]
-    write_result(result)
-    adj_matrix, graph3 = generate_write_symmetric_adjacency_matrix_and_networkx_graph(6, 8)
-    graph4 = read_txt_as_networkx_graph('data/syn_6_8.txt')
-    obj_maxcut(result, graph4)
+    write_result_ = False
+    if write_result_:
+        result = [1, 0, 1, 0, 1]
+        write_result(result)
+
+    generate_read = False
+    if generate_read:
+        adj_matrix, graph3 = generate_write_symmetric_adjacency_matrix_and_networkx_graph(6, 8)
+        graph4 = read_txt_as_networkx_graph('data/syn_6_8.txt')
+        obj_maxcut(result, graph4)
 
     # generate synthetic data
     generate_data = False
@@ -301,17 +311,15 @@ if __name__ == '__main__':
                 generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes, num_edges + n)
         print()
 
-    directory = 'data'
-    prefix = 'syn_10_'
-    files = calc_txt_files_with_prefix(directory, prefix)
 
-    directory = 'result'
-    prefix = 'syn_10_'
-    time_limit = 3600
-    avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
+    # directory = 'result'
+    # prefix = 'syn_10_'
+    # time_limit = 3600
+    # avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
 
-    prefixes = ['syn_10_']
-    time_limits = [3600]
-    avgs_stds = calc_avg_std_of_objs(directory, prefixes, time_limits)
+    directory_result = 'result'
+    prefixes = ['syn_10_', 'syn_50_', 'syn_100_']
+    time_limits = [0.5 * 3600]
+    avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
 
     print()
