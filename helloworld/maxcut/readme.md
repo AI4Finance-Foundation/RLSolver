@@ -2,7 +2,7 @@
 ## File structure
 ```python
 data # the dataset (.txt), and the figure of the graph (.png)
-mc_sim # the Monte Carlo simulation.
+mcmc_sim # the Markov chain Monte Carlo simulation.
 result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib.
 utils.py # utils file, including opt_net, obj, read, write, etc.
 learn_to_anneal.py  # our algorithm.
@@ -37,7 +37,7 @@ Take gset_14.txt as an example,
 
 ## Generate synthetic data
 
-If the above dataset is not satisfied, you can generate a graph with n nodes and m edges, i.e., using the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__ in utils.py. It returns an adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file "syn_n_m.txt" of the folder "data". 
+If the above dataset is not satisfied, you can generate a graph with n nodes and m edges, i.e., using the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__ in utils.py. It returns an adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file "syn_n_m.txt" in the folder "data". 
 
 ## Read data
 
@@ -60,7 +60,7 @@ python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
 
 ## Run using solvers
 
-We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) or a well-known open-source solver [SCIP](https://scipopt.org/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. SCIP should also be installed if you choose it.
+We can use a state-of-the-art solver [Gurobi](https://www.gurobi.com/) or a well-known open-source solver [SCIP](https://scipopt.org/) to solve the graph maxcut problem. Gurobi should be installed and its license is required. SCIP should also be installed if you choose it. We recommend to use Gurobi since its performance is best except that you do not have a license. 
 
 ```
 python gurobi.py
@@ -91,19 +91,19 @@ In the following experiments, we use GPU during training by default.
  
 |Maxcut |Gurobi (1 h)| Gurobi (5 h) | Gurobi (10 h) | SCIP (1 h)| SCIP (5 h) | SCIP (10 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
-|syn_10_21   |   | ||   |  |||   |  |
-|syn_50_176   |   | ||   |  |||   |  |
-|syn_100_460  |  $\pm$  | || , (33s)  | +0.49%, (60.6x) |||   |  |
-|syn_300_2036   |   | ||   |  |||   |  |
-|syn_500_3624   |   | ||   |  |||   |  |
-|syn_700_4036   |   | ||   |  |||   |  |
-|syn_900_5122   |   $\pm$  || | , (119s) | +0.94%, (36.97x) |||   |  |
-|syn_1000_6368   |   | ||   |  |||   |  |
-|syn_3000_25695   |   | ||   |  |||   |  |
-|syn_5000_50543   |   | ||   |  |||   |  |
-|syn_7000_79325   |   | ||   |  |||   |  |
-|syn_9000_96324   |   | ||   |  |||   |  |
-|syn_10000_100457   |   | ||   |  |||   |  |
+|syn_10   |   | ||   |  |||   |  |
+|syn_50   |   | ||   |  |||   |  |
+|syn_100  |  $\pm$  | || , (33s)  | +0.49%, (60.6x) |||   |  |
+|syn_300   |   | ||   |  |||   |  |
+|syn_500   |   | ||   |  |||   |  |
+|syn_700   |   | ||   |  |||   |  |
+|syn_900   |   $\pm$  || | , (119s) | +0.94%, (36.97x) |||   |  |
+|syn_1000   |   | ||   |  |||   |  |
+|syn_3000   |   | ||   |  |||   |  |
+|syn_5000   |   | ||   |  |||   |  |
+|syn_7000   |   | ||   |  |||   |  |
+|syn_9000   |   | ||   |  |||   |  |
+|syn_10000   |   | ||   |  |||   |  |
 
 Inference time of our method is less than 0.001 second.
 
