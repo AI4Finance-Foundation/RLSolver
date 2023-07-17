@@ -82,11 +82,11 @@ Important functions:
 
 ## Solvers to compare with
 
-[Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license__ for free.). We recommend to use Gurobi if users have licenses, since its performance is the best.
+[Gurobi](https://www.gurobi.com/) ([download/install](https://www.gurobi.com/downloads/gurobi-software/)) [manual](https://www.gurobi.com/documentation/current/refman/index.html) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. We recommend to use Gurobi if users have licenses, since its performance is the best.
 
-[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __free__.). Its performance is no as good as Gurobi. 
+[SCIP](https://www.scipopt.org/index.php#welcome) ([download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/)) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __open-source and free__. Its performance is no as good as Gurobi. If users do not have Gurobi licenses, we recommend to use SCIP. 
 
-[BiqMac](https://biqmac.aau.at/) (only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.)
+[BiqMac](https://biqmac.aau.at/) is a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.
 
 ## Other solvers
 
