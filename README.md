@@ -83,9 +83,9 @@ Important functions:
 
 ## Solvers to compare with
 
-[Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license__ for free.)
+[Gurobi](https://www.gurobi.com/) [download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html) (the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license__ for free.). We recommend to use Gurobi if users have licenses, since its performance is the best.
 
-[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __free__.) 
+[SCIP](https://www.scipopt.org/index.php#welcome) [download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/) (a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have the license of Gurobi, SCIP is a good choice since it is __free__.). Its performance is no as good as Gurobi. 
 
 [BiqMac](https://biqmac.aau.at/) (only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.)
 
@@ -108,7 +108,7 @@ ElegantRL_Solver
 └──helloworld
    └──maxcut
         └──data
-        └──mc_sim
+        └──mcmc_sim
         └──result
         └──learn_to_anneal.py (ours)
         └──gurobi.py
@@ -124,7 +124,7 @@ ElegantRL_Solver
    └──tsp.md
 └──rlsolver (main folder)
    └──data (datasets for problems)
-   └──mc_sim
+   └──mcmc_sim
    └──result (store output files)
    └──rlsolver_learn2opt
       └──mimo
