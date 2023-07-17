@@ -234,6 +234,15 @@ def calc_txt_files_with_prefix(directory: str, prefix: str):
             res.append(directory + '/' + file)
     return res
 
+def calc_txt_files_with_prefix_suffix(directory: str, prefix: str, suffix: str):
+    res = []
+    files = os.listdir(directory)
+    new_suffix = '_' + suffix + '.txt'
+    for file in files:
+        if prefix in file and '.txt' in file and new_suffix in file:
+            res.append(directory + '/' + file)
+    return res
+
 # if the file name is 'data/syn_10_27.txt', the return is 'result/syn_10_27'
 def calc_result_file_name(file: str):
     new_file = copy.deepcopy(file)
@@ -242,10 +251,11 @@ def calc_result_file_name(file: str):
     new_file = new_file.split('.')[0]
     return new_file
 
-# prefix like 'syn_50_'
-def calc_avg_std_of_obj(directory: str, prefix: str):
+# For example, syn_10_21_3600.txt, the prefix is 'syn_10_', time_limit is 3600 (seconds).
+def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     objs = []
-    files = calc_txt_files_with_prefix(directory, prefix)
+    suffix = str(time_limit)
+    files = calc_txt_files_with_prefix_suffix(directory, prefix, suffix)
     for i in range(len(files)):
         with open(files[i], 'r') as file:
             line = file.readline()
@@ -254,10 +264,16 @@ def calc_avg_std_of_obj(directory: str, prefix: str):
             objs.append(obj)
     avg = np.average(objs)
     std = np.std(objs)
-    print(f'{directory} {prefix}: avg {avg}, std {std}')
-    return avg, std
+    print(f'{directory} prefix {prefix}, suffix {suffix}: avg {avg}, std {std}')
+    return {(prefix, time_limit): (avg, std)}
 
-
+def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[int]):
+    res = []
+    for prefix in prefixes:
+        for time_limit in time_limits:
+            avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
+            res.append(avg_std)
+    return res
 
 if __name__ == '__main__':
     graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
@@ -291,5 +307,11 @@ if __name__ == '__main__':
 
     directory = 'result'
     prefix = 'syn_10_'
-    avg, std = calc_avg_std_of_obj(directory, prefix)
+    time_limit = 3600
+    avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
+
+    prefixes = ['syn_10_']
+    time_limits = [3600]
+    avgs_stds = calc_avg_std_of_objs(directory, prefixes, time_limits)
+
     print()
