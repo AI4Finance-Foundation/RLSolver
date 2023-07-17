@@ -28,6 +28,7 @@ from utils import plot_fig
 from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
 from utils import calc_avg_std_of_obj
+from utils import calc_avg_std_of_objs
 
 # If running_duration (seconds) is not None, the new file name should include it.
 def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
@@ -107,9 +108,8 @@ def run_scip_over_multiple_files(prefixes: List[str], time_limits: List[int], di
             print(f'The {i}-th file: {files[i]}')
             for j in range(len(time_limits)):
                 run_using_scip(files[i], time_limits[j])
-    for prefix in prefixes:
-        calc_avg_std_of_obj(directory_result, prefix)
-
+    directory = 'result'
+    calc_avg_std_of_objs(directory, prefixes, time_limits)
 if __name__ == '__main__':
     import sys
     select_single_file = False
@@ -121,6 +121,7 @@ if __name__ == '__main__':
                     'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
         time_limits = [3600, 3600 * 5, 3600 * 10]
         run_scip_over_multiple_files(prefixes, time_limits)
-
+        directory = 'result'
+        avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
     pass
 
