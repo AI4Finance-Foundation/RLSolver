@@ -91,8 +91,8 @@ In the following experiments, we use GPU during training by default.
  
 |Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
-|syn_10   | 20.80 $\pm$ 2.71  | $\pm$ | $\pm$ |  $\pm$  |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
-|syn_50   | 138.75 $\pm$ 4.28  |  $\pm$ | $\pm$ |  $\pm$   |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
+|syn_10   | 20.80 $\pm$ 2.71  | $\pm$ | $\pm$ |  20.80 $\pm$ 2.71  |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
+|syn_50   | 138.75 $\pm$ 4.28  |  $\pm$ | $\pm$ |  138.75 $\pm$ 4.28   |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
 |syn_100  |  342.2 $\pm$ 4.33 |  $\pm$ | $\pm$ |  $\pm$ , (33s)  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
 |syn_300   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_500   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
