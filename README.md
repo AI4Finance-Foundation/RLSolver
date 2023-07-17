@@ -81,18 +81,18 @@ Important functions:
 
 ## Solvers to compare with
 
-[Gurobi](https://www.gurobi.com/) ([download/install](https://www.gurobi.com/downloads/gurobi-software/) [manual](https://www.gurobi.com/documentation/current/refman/index.html)) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. We recommend to use Gurobi if users have licenses, since its performance is the best.
+[Gurobi](https://www.gurobi.com/) ([install](https://www.gurobi.com/downloads/gurobi-software/)) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. We recommend to use Gurobi if users have licenses, since its performance is the best.
 
-[SCIP](https://www.scipopt.org/index.php#welcome) ([download/install](https://scipopt.org/doc/html/md_INSTALL.php) [manual](https://www.scipopt.org/doc/html/)) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have Gurobi licenses, SCIP is a good choice since it is __open-source and free__. Although its performance is not as good as Gurobi, we recommend to use SCIP if users do not have Gurobi licenses. 
+[SCIP](https://www.scipopt.org/index.php#welcome) ([install](https://scipopt.org/doc/html/md_INSTALL.php)) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have Gurobi licenses, SCIP is a good choice since it is __open-source and free__. Although its performance is not as good as Gurobi, we recommend to use SCIP if users do not have Gurobi licenses. 
 
 
 ## Other solvers
 
-[COPT](https://www.copt.de/) [download/install](https://www.copt.de/) [manual](https://arxiv.org/pdf/2208.14314.pdf)
+[COPT](https://www.copt.de/) [install](https://www.copt.de/) [manual](https://arxiv.org/pdf/2208.14314.pdf)
 
-[CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [download/install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010) [manual](https://www.ibm.com/docs/en/SSSA5P_12.8.0/ilog.odms.studio.help/pdf/usrcplex.pdf)
+[CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer) [install](https://www.ibm.com/support/pages/downloading-ibm-ilog-cplex-optimization-studio-2010) [manual](https://www.ibm.com/docs/en/SSSA5P_12.8.0/ilog.odms.studio.help/pdf/usrcplex.pdf)
 
-[Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [download/install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html) [manual](https://www.fico.com/fico-xpress-optimization/docs/latest/solver/optimizer/HTML/GUID-3BEAAE64-B07F-302C-B880-A11C2C4AF4F6.html)
+[Xpress](https://www.fico.com/en/products/fico-xpress-optimization) [install](https://www.fico.com/fico-xpress-optimization/docs/latest/installguide/dhtml/chapinst1.html) [manual](https://www.fico.com/fico-xpress-optimization/docs/latest/solver/optimizer/HTML/GUID-3BEAAE64-B07F-302C-B880-A11C2C4AF4F6.html)
 
 [BiqMac](https://biqmac.aau.at/) is a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.
 
