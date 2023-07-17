@@ -28,12 +28,11 @@ Key references:
 
   
 
-## Monte Carlo simulation
+## Markov chain Monte Carlo simulation
 
 ElegantRL_Solver follows the principles:
 * High efficiency simulations
 * Massively parallel sampling.
-
 
 Important functions: 
 
