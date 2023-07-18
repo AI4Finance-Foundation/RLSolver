@@ -92,9 +92,9 @@ __Syn__ dataset. We use the whole synthetic data. For graphs with n nodes, there
  
 |Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
-|syn_10   | 20.80 $\pm$ 2.71  | $\pm$ | $\pm$ |  20.80 $\pm$ 2.71  |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
-|syn_50   | 138.75 $\pm$ 4.28  |  $\pm$ | $\pm$ |  138.75 $\pm$ 4.28   |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
-|syn_100  |  342.2 $\pm$ 4.33 |  $\pm$ | $\pm$ |  $\pm$ , (33s)  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_10   | 20.80 $\pm$ 2.71 (0.01s) | $\pm$ | $\pm$ |  20.80 $\pm$ 2.71  |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
+|syn_50   | 138.75 $\pm$ 4.28 (0.14s)  |  $\pm$ | $\pm$ |  138.75 $\pm$ 4.28   |  $\pm$  | $\pm$ | $\pm$ |  $\pm$   |  |
+|syn_100  |  342.2 $\pm$ 4.33 (131.07s)|  $\pm$ | $\pm$ |  $\pm$ , (33s)  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
 |syn_300   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_500   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_700   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
@@ -105,6 +105,8 @@ __Syn__ dataset. We use the whole synthetic data. For graphs with n nodes, there
 |syn_7000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_9000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_10000 |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+
+The first row illustrates the limited time for solvers. The running duration is exactly the limited time if we do not write duration, and is the written duration otherwise. 
 
 Inference time of our method is less than 0.001 second.
 
