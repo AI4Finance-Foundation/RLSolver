@@ -11,19 +11,23 @@ from mcmc_sim.mcmc_sim import MCMCSim
 from utils import Opt_net
 import pickle as pkl
 from utils import calc_file_name
-graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
+from utils import read_txt_as_networkx_graph
+from utils import write_result
+# graph_node = {"14":800, "15":800, "22":2000, "49":3000, "50":3000, "55":5000, "70":10000  }
 
 
-def train(num_nodes: int,
+def train(
+          filename: str,
+          num_nodes: int,
           num_envs: int,
           device: th.device,
           opt_net: Opt_net,
           optimizer: th.optim,
           episode_length: int,
           hidden_layer_size: int):
-    maxcut_env = MCMCSim(num_nodes=num_nodes, num_envs=num_envs, device=device, episode_length=episode_length)
+    maxcut_env = MCMCSim(filename=filename, num_envs=num_envs, device=device, episode_length=episode_length)
 
-    maxcut_env.load_graph(f"./data/gset_{sys.argv[1]}.npy")
+
     l_num = 1
     h_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
     c_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
@@ -88,38 +92,35 @@ def train(num_nodes: int,
                     #loss = 0
                     #h, c = h_init.clone(), c_init.clone()
             val, ind = loss_list.max(dim=-1)
-            dir = "./result"
-            front = "gset"
-            end = "."
-            id2 = sys.argv[1]
-            file_name = dir + "/" + calc_file_name(front, id2, int(val.item()), end)
-            # print("val: ", int(val.item()))
-            # print("file_name: ", file_name)
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            with open(file_name, 'wb') as f:
-                # remove_files_less_equal_new_val(dir, front, end, int(val.item()))
-                # print("xs[ind]: ", xs[ind])
-                pkl.dump(xs[ind], f)
-                maxcut_env.best_x = xs[ind]
+            # dir = "./result"
+            # front = "gset"
+            # end = "."
+            # id2 = sys.argv[1]
+            # file_name = dir + "/" + calc_file_name(front, id2, int(val.item()), end)
+            file_name = filename.replace("data", "result")
+            file_name = file_name.replace(".txt", "_" + str(int(val.item())) + ".txt")
+            write_result(xs[ind], file_name)
+            maxcut_env.best_x = xs[ind]
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
-
 
 
 
 if __name__ == "__main__":
     import sys
 
-    num_nodes = graph_node[sys.argv[1]]
+    filename = 'data/gset_14.txt'
+    gpu_id = -1
+    graph = read_txt_as_networkx_graph(filename)
+    num_nodes = graph.number_of_nodes()
     hidden_layer_size = 4000
     learning_rate = 2e-5
     num_envs = 20
     episode_length = 30
-    gpu_id = int(sys.argv[2])
+
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
     th.manual_seed(7)
     opt_net = Opt_net(num_nodes, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
 
-    train(num_nodes, num_envs, device, opt_net, optimizer, episode_length, hidden_layer_size)
+    train(filename, num_nodes, num_envs, device, opt_net, optimizer, episode_length, hidden_layer_size)
 

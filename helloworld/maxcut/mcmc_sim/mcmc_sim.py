@@ -3,18 +3,23 @@ import torch.nn as nn
 from copy import deepcopy
 import numpy as np
 from torch import Tensor
+# from functorch import vmap
 # from rlsolver.rlsolver_learn2opt.np_complete_problems.env._base_env import _BaseEnv
-
+from utils import read_txt_as_networkx_graph
+import networkx as nx
 class MCMCSim():
-    def __init__(self, num_nodes=20, num_envs=128, device=th.device("cuda:0"), episode_length=6):
-        self.num_nodes = num_nodes
+    def __init__(self, filename: str, num_envs=128, device=th.device("cuda:0"), episode_length=6):
+        self.graph = read_txt_as_networkx_graph(filename)
+        self.num_nodes = self.graph.number_of_nodes()
+        self.num_edges = self.graph.number_of_edges()
         self.num_envs = num_envs
         self.device = device
-        self.episode_length = episode_length
         self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
+        adj = nx.to_numpy_matrix(self.graph)
+        self.adjacency_matrix = Tensor(adj)
+        self.episode_length = episode_length
         self.best_x = None
         self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
-        self.adjacency_matrix = None
 
 
     def reset(self, add_noise_for_best_x=False, sample_ratio_envs=0.6, sample_ratio_nodes=0.7):
