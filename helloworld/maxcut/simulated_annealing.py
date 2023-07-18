@@ -45,19 +45,19 @@ def simulated_annealing(init_solution: Union[List[int], np.array], init_temperat
 
 if __name__ == '__main__':
     # read data
-    graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
+    graph = read_txt_as_networkx_graph('data/syn_50_176.txt')
 
     # run alg
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
-    init_temperature = 5
-    num_steps = 4000
+    init_temperature = 4
+    num_steps = 8000
     sa_score, sa_solution, sa_scores = simulated_annealing(init_solution, init_temperature, num_steps, graph)
 
     # write result
     write_result(sa_solution)
-    alg_name = 'SA'
 
     # plot fig
+    alg_name = 'SA'
     plot_fig(sa_scores, alg_name)
 
 
