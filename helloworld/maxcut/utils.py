@@ -252,6 +252,7 @@ def calc_result_file_name(file: str):
     return new_file
 
 # For example, syn_10_21_3600.txt, the prefix is 'syn_10_', time_limit is 3600 (seconds).
+# The running_duration will also be included.
 def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     init_time_limit = copy.deepcopy(time_limit)
     objs = []
@@ -263,9 +264,12 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
             assert 'obj' in line
             obj = float(line.split(' ')[1].split('\n')[0])
             objs.append(obj)
+            line2 = file.readline()
+            running_duation_ = line2.split('running_duation:')
+            running_duation = running_duation_[1] if len(running_duation_) >= 2 else None
     avg = np.average(objs)
     std = np.std(objs)
-    print(f'{directory} prefix {prefix}, suffix {suffix}: avg {avg}, std {std}')
+    print(f'{directory} prefix {prefix}, suffix {suffix}: avg {avg}, std {std}, running_duation {running_duation}')
     if time_limit != init_time_limit:
         print()
     return {(prefix, time_limit): (avg, std)}

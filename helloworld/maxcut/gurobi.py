@@ -40,8 +40,10 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
         new_filename = filename + '.txt'
     else:
         new_filename = filename + '_' + str(int(running_duration))
+    print('model.Runtime', model.Runtime)
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
         new_file.write(f"obj: {model.objVal}\n")
+        new_file.write(f"running_duation: {model.Runtime}\n")
         # new_file.write(f"time_limit: {time_limit}\n")
         time_limit = model.getParamInfo("TIME_LIMIT")
         new_file.write(f"time_limit: {time_limit}\n")
@@ -126,8 +128,8 @@ if __name__ == '__main__':
         filename = 'data/syn_30_110.txt'
         run_using_gurobi(filename)
     else:
-        # prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
+        # prefixes = ['syn_10_']
         # time_limits = [0.5 * 3600, 1 * 3600]
         time_limits = [0.5 * 3600]
         run_gurobi_over_multiple_files(prefixes, time_limits)
