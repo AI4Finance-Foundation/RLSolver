@@ -52,15 +52,18 @@ def greedy(init_solution: Union[List[int], np.array], num_steps: int, graph: nx.
 if __name__ == '__main__':
     # read data
     graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
+
+    # run alg
     init_solution = [0] * graph.number_of_nodes()
     num_steps = 30
     alg_name = 'GR'
-    # run alg
     gr_score, gr_solution, gr_scores = greedy(init_solution, num_steps, graph)
+
     # write result
     write_result(gr_solution)
     obj = obj_maxcut(gr_solution, graph)
     print('obj: ', obj)
+    
     # plot fig
     plot_fig(gr_scores, alg_name)
 

@@ -1,18 +1,7 @@
 import copy
-
-import torch
-import torch as th
-import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
 from torch.autograd import Variable
-import operator
-from itertools import islice
 import os
-from collections import OrderedDict
-import collections.abc as container_abcs
 import functools
-import torch as th
 import torch.nn as nn
 import numpy as np
 from typing import List, Union

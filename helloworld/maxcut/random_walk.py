@@ -37,15 +37,18 @@ if __name__ == '__main__':
     # read data
     # graph1 = read_as_networkx_graph('data/gset_14.txt')
     graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
+
+    # run alg
     # init_solution = [1, 0, 1, 0, 1]
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
-    # run alg
     rw_score, rw_solution, rw_scores = random_walk(init_solution=init_solution, num_steps=1000, graph=graph)
+
     # write result
     write_result(rw_solution)
     obj = obj_maxcut(rw_solution, graph)
     print('obj: ', obj)
     alg_name = 'RW'
+
     # plot fig
     plot_fig(rw_scores, alg_name)
 

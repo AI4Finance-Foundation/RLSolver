@@ -1,36 +1,15 @@
-import numpy as np
-import torch as th
+
 from pyscipopt import Model, quicksum, multidict
-import sys
 import os
-import copy
 import time
-
-import torch as th
-import torch.nn as nn
-from copy import deepcopy
-import numpy as np
-from torch import Tensor
-from typing import List
-import random
-
-
-import copy
-import time
-from typing import List, Union
-import numpy as np
 from typing import List
 import networkx as nx
 from utils import read_txt_as_networkx_graph
-from utils import obj_maxcut
-from utils import write_result
-from utils import plot_fig
 from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
-from utils import calc_avg_std_of_obj
 from utils import calc_avg_std_of_objs
 
-# If running_duration (seconds) is not None, the new file name should include it.
+# running_duration (seconds) is included.
 def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
     if filename.split('/')[0] == 'data':
         filename = calc_result_file_name(filename)
@@ -111,7 +90,6 @@ def run_scip_over_multiple_files(prefixes: List[str], time_limits: List[int], di
     directory = 'result'
     calc_avg_std_of_objs(directory, prefixes, time_limits)
 if __name__ == '__main__':
-    import sys
     select_single_file = False
     if select_single_file:
         filename = 'data/syn_30_110.txt'

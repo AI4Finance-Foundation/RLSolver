@@ -1,4 +1,3 @@
-# comparison methods for maxcut: random walk, greedy, epsilon greedy, simulated annealing
 import copy
 import time
 from typing import List, Union
@@ -48,14 +47,16 @@ if __name__ == '__main__':
     # read data
     graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
 
+    # run alg
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))
     init_temperature = 5
     num_steps = 4000
-    # run alg
     sa_score, sa_solution, sa_scores = simulated_annealing(init_solution, init_temperature, num_steps, graph)
+
     # write result
     write_result(sa_solution)
     alg_name = 'SA'
+
     # plot fig
     plot_fig(sa_scores, alg_name)
 
