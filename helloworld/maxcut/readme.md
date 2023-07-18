@@ -16,7 +16,7 @@ simulated_annealing.py # the simulated annealing method
 # Work flow
 <a target="\_blank">
 	<div align="center">
-		<img src=fig/work_flow.pdf width="75%"/>
+		<img src=fig/work_flow.png width="75%"/>
 	</div>
 </a>
 
