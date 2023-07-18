@@ -94,7 +94,7 @@ Important functions:
 
 [Xpress](https://www.fico.com/en/products/fico-xpress-optimization): an extraordinarily powerful, field-installable Solver Engine.
 
-[BiqMac](https://biqmac.aau.at/): a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.
+[BiqMac](https://biqmac.aau.at/) ([download](https://biqmac.aau.at/)): a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed.
 
 ## Performance
 
