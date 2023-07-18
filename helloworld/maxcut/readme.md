@@ -16,7 +16,7 @@ simulated_annealing.py # the simulated annealing method
 # Work flow
 <a target="\_blank">
 	<div align="center">
-		<img src=fig/work_flow.png width="75%"/>
+		<img src=fig/work_flow.png width="90%"/>
 	</div>
 </a>
 
@@ -124,5 +124,5 @@ The gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objecti
 
 
 
-## Workflow
+
  
