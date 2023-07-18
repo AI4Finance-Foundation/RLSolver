@@ -51,7 +51,7 @@ def greedy(init_solution: Union[List[int], np.array], num_steps: int, graph: nx.
 
 if __name__ == '__main__':
     # read data
-    graph = read_txt_as_networkx_graph('data/syn_30_110.txt')
+    graph = read_txt_as_networkx_graph('data/syn_50_176.txt')
 
     # run alg
     init_solution = [0] * graph.number_of_nodes()

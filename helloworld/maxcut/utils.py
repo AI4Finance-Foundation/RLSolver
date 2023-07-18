@@ -210,7 +210,7 @@ def plot_fig(scores: List[int], label: str):
     plt.figure()
     x = list(range(len(scores)))
     dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
-    plt.plot(x, scores)
+    plt.plot(x, scores, dic['0'])
     plt.legend([label], loc=0)
     plt.savefig('result/' + label + '.png')
     plt.show()

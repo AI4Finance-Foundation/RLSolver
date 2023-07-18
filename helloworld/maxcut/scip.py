@@ -8,6 +8,7 @@ from utils import read_txt_as_networkx_graph
 from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
 from utils import calc_avg_std_of_objs
+from utils import plot_fig
 
 # running_duration (seconds) is included.
 def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
@@ -34,7 +35,7 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
     # model.writeSol(f"{filename}.sol")
     print()
 
-def run_using_scip(filename: str, time_limit: int, plot_fig: bool = False):
+def run_using_scip(filename: str, time_limit: int = None, plot_fig_: bool = False):
     start_time = time.time()
     model = Model("maxcut")
 
@@ -59,8 +60,8 @@ def run_using_scip(filename: str, time_limit: int, plot_fig: bool = False):
         for i in range(0, j):
             model.addCons(y[(i, j)] - x[i] - x[j] <= 0, name='C0a_' + str(i) + '_' + str(j))
             model.addCons(y[(i, j)] + x[i] + x[j] <= 2, name='C0b_' + str(i) + '_' + str(j))
-
-    model.setRealParam("limits/time", time_limit)
+    if time_limit is not None:
+        model.setRealParam("limits/time", time_limit)
     model.optimize()
 
 
@@ -72,11 +73,9 @@ def run_using_scip(filename: str, time_limit: int, plot_fig: bool = False):
     print('obj:', model.getObjVal())
 
 
-
-
     scores = [model.getObjVal()]
-    alg_name = 'Scip'
-    if plot_fig:
+    alg_name = 'SCIP'
+    if plot_fig_:
         plot_fig(scores, alg_name)
     print()
 
@@ -90,10 +89,10 @@ def run_scip_over_multiple_files(prefixes: List[str], time_limits: List[int], di
     directory = 'result'
     calc_avg_std_of_objs(directory, prefixes, time_limits)
 if __name__ == '__main__':
-    select_single_file = False
+    select_single_file = True
     if select_single_file:
-        filename = 'data/syn_30_110.txt'
-        run_using_scip(filename)
+        filename = 'data/syn_50_176.txt'
+        run_using_scip(filename, None, True)
     else:
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
         # prefixes = ['syn_10_']
