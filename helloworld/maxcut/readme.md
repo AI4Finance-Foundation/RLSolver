@@ -23,7 +23,7 @@ simulated_annealing.py # the simulated annealing method
 
 ## Dataset
 
-With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. There are two types of datasets, __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __synthetic__ (prefix is syn, e.g., syn_n_m.txt with n nodes and m edges. The synthetic data is stored in the "data" folder of this repo. If users need more synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for Chinese users). 
+With respect to datasest (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. There are two datasets: __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __Syn__ (e.g., syn_n_m.txt with n nodes and m edges, which are in the "data" folder of this repo. If users need more synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for Chinese users). 
 
 Take gset_14.txt as an example,
 
@@ -37,7 +37,7 @@ Take gset_14.txt as an example,
 
 ## Generate synthetic data
 
-If the above dataset is not satisfied, you can generate a graph with n nodes and m edges, i.e., using the function __generate_write_symmetric_adjacency_matrix_and_networkx_graph(n, m)__ in utils.py. It returns an adjacency_matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file "syn_n_m.txt" in the folder "data". 
+If the above datasets are not satisfied, users can generate a graph with n nodes and m edges, i.e., using the function __generate_write__ in utils.py. It returns an adjacency matrix and a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph, and the graph will be written to a file "syn_n_m.txt" in the folder "data". 
 
 ## Read data
 
@@ -70,7 +70,7 @@ python scip.py
 
 ## Store results
 
-Results will be written to a file result.txt in the folder 'result'. The first column is the node, and the second column is the label of classified set. For example, 
+Results will be written to a file result.txt in the folder "result". The first column is the node, and the second column is the label of classified set. For example, 
 
 1 2  # node 1 in set 2
 
@@ -82,12 +82,13 @@ Results will be written to a file result.txt in the folder 'result'. The first c
 
 5 2  # node 5 in set 2
 
-If using Gurobi or SCIP, more files will be generated (e.g., result.lp and result.mps) for easy check. 
+If using Gurobi or SCIP, the generated files have their own formats (e.g., result.lp and result.mps) for easy check, which are very different from that by running algorithms. 
 
 ## Experiment Results
 
 In the following experiments, we use GPU during training by default. 
 
+__Syn__ dataset. We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
  
 |Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
