@@ -33,7 +33,8 @@ def train(
     c_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
     for epoch in range(100000):
         prev_h, prev_c = h_init.clone(), c_init.clone()
-        loss = 0
+        loss = th.FloatTensor(1)
+        loss.requires_grad_(True)
         if (epoch + 1) % 500 == 0:
             episode_length = max(episode_length - 1, 5)
         loss_list = th.zeros(episode_length * num_envs).to(device)
@@ -46,18 +47,26 @@ def train(
             #x, h, c = opt_net(x_prev.reshape(num_env, N, 1), prev_h, prev_c)
             x, h, c = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
 
-            #x = x.reshape(num_env, N)
-            l = mcmc_sim.obj(x.reshape(num_envs, num_nodes))
-            loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
-            loss -= l.sum()
-            #print(x_prev.shape, x.shape)
-            l = mcmc_sim.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes), x.reshape(num_envs, num_nodes))
-            loss -= 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
+            if (step + 1) % 5 == 0:
+                num_samples = 10
+                for _ in range(num_samples):
+                    x_binary = (x > th.rand(x.shape)).to(th.float32)
+                    # x = x.reshape(num_env, N)
+                    l = mcmc_sim.obj(x_binary.reshape(num_envs, num_nodes))
+                    l.requires_grad_(True)
+                    loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
+                    loss = loss - l.sum()
+                    # print(x_prev.shape, x.shape)
+                    l = mcmc_sim.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes),
+                                                              x_binary.reshape(num_envs, num_nodes))
+                    l.requires_grad_(True)
+                    loss = loss - 0.2 * l.sum()  # max(0.05, (500-epoch) / 500) * l.sum()
+                # loss = loss / num_samples
             x_prev = x.detach()
-            #prev_h, prev_c = h.detach(), c.detach()
+                # prev_h, prev_c = h.detach(), c.detach()
             gamma /= gamma0
 
-            if (step + 1) % 4 == 0:
+            if (step + 1) % 5 == 0:
                 optimizer.zero_grad()
                 #print(loss)
                 loss.backward(retain_graph=True)
@@ -109,7 +118,7 @@ if __name__ == "__main__":
     num_nodes = graph.number_of_nodes()
     hidden_layer_size = 4000
     learning_rate = 2e-5
-    num_envs = 20
+    num_envs = 1
     episode_length = 30
 
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
