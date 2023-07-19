@@ -41,7 +41,7 @@ If the above datasets are not satisfied, users can generate a graph with n nodes
 
 ## Read data
 
-We use the function __read_txt_as_networkx_graph(filename)__ in utils.py to read the data, which returns a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph. We can access the nodes and edges by graph.nodes and graph.edges, respectively. 
+We use the function __read_txt__ in utils.py to read the data, which returns a [networkx](https://networkx.org/documentation/stable/reference/introduction.html) graph. We can access the nodes and edges by graph.nodes and graph.edges, respectively. 
 
 ## Run algorithms
 
