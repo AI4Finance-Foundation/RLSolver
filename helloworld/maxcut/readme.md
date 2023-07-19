@@ -5,7 +5,7 @@ data # the dataset (.txt), and the figure of the graph (.png)
 mcmc_sim # the Markov chain Monte Carlo simulation.
 result # store the result, including the solution (.txt), and the figure (.png) drawn by matplotlib.
 utils.py # utils file, including opt_net, obj, read, write, etc.
-learn_to_anneal.py  # our algorithm.
+learn_to_anneal_x.py  # our algorithm. x denotes the version. 
 gurobi.py # solve max by utilizing Gurobi, which should be installed and the license is required.
 scip.py # solve max by utilizing SCIP, which should be installed .
 random_walk.py # the random walk method
@@ -89,6 +89,8 @@ If using Gurobi or SCIP, the generated files have their own formats (e.g., resul
 In the following experiments, we use GPU during training by default. 
 
 __Syn__ dataset. We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
+
+ The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers.  
  
 |Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
@@ -113,7 +115,7 @@ Inference time of our method is less than 0.001 second.
 
 [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-The gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
+The improvement or gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
 
 | graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
