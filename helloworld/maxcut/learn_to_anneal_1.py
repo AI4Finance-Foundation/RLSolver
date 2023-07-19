@@ -25,7 +25,7 @@ def train(
           optimizer: th.optim,
           episode_length: int,
           hidden_layer_size: int):
-    maxcut_env = MCMCSim(filename=filename, num_envs=num_envs, device=device, episode_length=episode_length)
+    mcmc_sim = MCMCSim(filename=filename, num_envs=num_envs, device=device, episode_length=episode_length)
 
 
     l_num = 1
@@ -37,7 +37,7 @@ def train(
         if (epoch + 1) % 500 == 0:
             episode_length = max(episode_length - 1, 5)
         loss_list = th.zeros(episode_length * num_envs).to(device)
-        x_prev = maxcut_env.reset(True)
+        x_prev = mcmc_sim.reset(True)
         gamma0 = 0.98
         gamma = gamma0 ** episode_length
         for step in range(episode_length):
@@ -47,11 +47,11 @@ def train(
             x, h, c = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
 
             #x = x.reshape(num_env, N)
-            l = maxcut_env.obj(x.reshape(num_envs, num_nodes))
+            l = mcmc_sim.obj(x.reshape(num_envs, num_nodes))
             loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
             loss -= l.sum()
             #print(x_prev.shape, x.shape)
-            l = maxcut_env.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes), x.reshape(num_envs, num_nodes))
+            l = mcmc_sim.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes), x.reshape(num_envs, num_nodes))
             loss -= 0.2 * l.sum()#max(0.05, (500-epoch) / 500) * l.sum()
             x_prev = x.detach()
             #prev_h, prev_c = h.detach(), c.detach()
@@ -73,7 +73,7 @@ def train(
             loss = 0
             #loss_list = []
             loss_list = th.zeros(episode_length * num_envs * 2).to(device)
-            x = maxcut_env.reset(True)
+            x = mcmc_sim.reset(True)
             xs = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
             for step in range(episode_length * 2):
                 x, h, c = opt_net(x.detach().reshape(num_envs, 1, num_nodes), h, c)
@@ -82,7 +82,7 @@ def train(
                 x2 = (x2>0.5).to(th.float32)
                 # print(a)
                 # assert 0
-                l = maxcut_env.obj(x2)
+                l = mcmc_sim.obj(x2)
                 loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
                 xs[num_envs * step: num_envs * (step + 1)] = x2.detach()
                 #if (step + 6) % 2 == 0:
@@ -92,15 +92,10 @@ def train(
                     #loss = 0
                     #h, c = h_init.clone(), c_init.clone()
             val, ind = loss_list.max(dim=-1)
-            # dir = "./result"
-            # front = "gset"
-            # end = "."
-            # id2 = sys.argv[1]
-            # file_name = dir + "/" + calc_file_name(front, id2, int(val.item()), end)
             file_name = filename.replace("data", "result")
             file_name = file_name.replace(".txt", "_" + str(int(val.item())) + ".txt")
             write_result(xs[ind], file_name)
-            maxcut_env.best_x = xs[ind]
+            mcmc_sim.best_x = xs[ind]
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
 
 
