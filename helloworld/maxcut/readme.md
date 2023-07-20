@@ -88,7 +88,7 @@ If using Gurobi or SCIP, the generated files have their own formats (e.g., resul
 
 In the following experiments, we use GPU during training by default. 
 
-### __Syn__ dataset. 
+### 1) __Syn__ 
 
 We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
 
@@ -113,9 +113,9 @@ In the following table, the first row illustrates the limited time for solvers. 
 
 
 
-### [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
+### 2) Gset
 
-The gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
+[Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Stanford university. In the following table, the gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
 
 | graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
