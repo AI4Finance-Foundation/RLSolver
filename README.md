@@ -5,10 +5,6 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 In the meantime, this repo includes our codes and tricks for solving nonconvex and NP-complete optimization problems. We provide open datasets and benchmarks, including calssical methods, our algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance. We encourage users to try RL/ML tricks based on the datasets and benchmarks, and we can communicate with each other by github issues. 
 
 
-## Benchmark
-
-[Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
-
 For deep RL algorithms, we use [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
 
 The following two key technologies are under active development: 
@@ -55,6 +51,7 @@ Important functions:
 
 ## Benchmarks
 
+[Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
 
 * Learn to branch
   
