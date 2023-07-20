@@ -17,6 +17,7 @@ class MCMCSim():
         self.x = th.rand(self.num_envs, self.num_nodes).to(self.device)
         adj = nx.to_numpy_array(self.graph)
         self.adjacency_matrix = Tensor(adj)
+        self.adjacency_matrix = self.adjacency_matrix.to(self.device)
         self.episode_length = episode_length
         self.best_x = None
         self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
