@@ -50,7 +50,7 @@ def train(
             if (step + 1) % 5 == 0:
                 num_samples = 10
                 for _ in range(num_samples):
-                    x_binary = (x > th.rand(x.shape)).to(th.float32)
+                    x_binary = (x > th.rand_like(x)).to(th.float32)
                     # x = x.reshape(num_env, N)
                     l = mcmc_sim.obj(x_binary.reshape(num_envs, num_nodes))
                     l.requires_grad_(True)
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     import sys
 
     filename = 'data/gset_14.txt'
-    gpu_id = -1
+    gpu_id = 2
     graph = read_txt_as_networkx_graph(filename)
     num_nodes = graph.number_of_nodes()
     hidden_layer_size = 4000
