@@ -104,7 +104,7 @@ if __name__ == "__main__":
     import sys
 
     filename = 'data/gset_14.txt'
-    gpu_id = -1
+    gpu_id = 5
     graph = read_txt_as_networkx_graph(filename)
     num_nodes = graph.number_of_nodes()
     hidden_layer_size = 4000
