@@ -88,9 +88,11 @@ If using Gurobi or SCIP, the generated files have their own formats (e.g., resul
 
 In the following experiments, we use GPU during training by default. 
 
-__Syn__ dataset. We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
+### __Syn__ dataset. 
 
- The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers.  
+We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
+
+In the following table, the first row illustrates the limited time for solvers. The running duration is exactly the limited time if we do not write duration, and is the written duration otherwise. The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers. The inference time of our method is less than 0.001 second.
  
 |Maxcut |Gurobi (0.5 h)| Gurobi (0.75 h) | Gurobi (1 h) | SCIP (0.5 h)| SCIP (0.75 h) | SCIP (1 h) |Ours|improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|
@@ -108,14 +110,12 @@ __Syn__ dataset. We use the whole synthetic data. For graphs with n nodes, there
 |syn_9000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_10000 |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 
-The first row illustrates the limited time for solvers. The running duration is exactly the limited time if we do not write duration, and is the written duration otherwise. 
-
-Inference time of our method is less than 0.001 second.
 
 
-[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
 
-The improvement or gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
+### [Gset](https://web.stanford.edu/~yyye/yyye/Gset/)
+
+The gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
 
 | graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
