@@ -102,7 +102,7 @@ In the following table, the first row illustrates the limited time for solvers. 
 |syn_300   |  1407.05 $\pm$ 8.55 | $\pm$  | $\pm$ |   1345.45 $\pm$ 18.49  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_500   | 2480.95 $\pm$ 15.22| $\pm$  | $\pm$ |   2325.70 $\pm$ 15.54 |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_700   |  2857.65 $\pm$ 11.96| $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
-|syn_900   |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_900   |  3629.45 $\pm$ 12.06 | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_1000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_3000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_5000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
