@@ -23,8 +23,9 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
         new_filename = filename + '_' + str(int(running_duration))
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
         new_file.write(f"obj: {model.getObjVal()}\n")
-        new_file.write(f"gap: {model.getGap()}\n")
         new_file.write(f"running_duation: {model.getTotalTime()}\n")
+        new_file.write(f"gap: {model.getGap()}\n")
+        # new_file.write(f"obj_bound: {model.}\n")
         new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
         vars = model.getVars()
         new_file.write('values of vars: \n')
