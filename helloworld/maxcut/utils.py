@@ -241,10 +241,12 @@ def calc_result_file_name(file: str):
     return new_file
 
 # For example, syn_10_21_3600.txt, the prefix is 'syn_10_', time_limit is 3600 (seconds).
-# The running_duration will also be included.
+# The gap and running_duration are also be calculated.
 def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     init_time_limit = copy.deepcopy(time_limit)
     objs = []
+    gaps = []
+    running_duations = []
     suffix = str(time_limit)
     files = calc_txt_files_with_prefix_suffix(directory, prefix, suffix)
     for i in range(len(files)):
@@ -254,14 +256,21 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
             obj = float(line.split(' ')[1].split('\n')[0])
             objs.append(obj)
             line2 = file.readline()
-            running_duation_ = line2.split('running_duation:')
-            running_duation = running_duation_[1] if len(running_duation_) >= 2 else None
-    avg = np.average(objs)
-    std = np.std(objs)
-    print(f'{directory} prefix {prefix}, suffix {suffix}: avg {avg}, std {std}, running_duation {running_duation}')
+            gap_ = line2.split('gap:')
+            gap = float(gap_[1]) if len(gap_) >= 2 else None
+            gaps.append(gap)
+            line3 = file.readline()
+            running_duation_ = line3.split('running_duation:')
+            running_duation = float(running_duation_[1]) if len(running_duation_) >= 2 else None
+            running_duations.append(running_duation)
+    avg_obj = np.average(objs)
+    std_obj = np.std(objs)
+    avg_gap = np.average(gaps)
+    avg_running_duation = np.average(running_duations)
+    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_gap {avg_gap}, avg_running_duation {avg_running_duation}')
     if time_limit != init_time_limit:
         print()
-    return {(prefix, time_limit): (avg, std)}
+    return {(prefix, time_limit): (avg_obj, std_obj)}
 
 def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[int]):
     res = []
