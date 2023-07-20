@@ -88,7 +88,23 @@ If using Gurobi or SCIP, the generated files have their own formats (e.g., resul
 
 In the following experiments, we use GPU during training by default. 
 
-### 1) __Syn__ 
+
+### 1) __Gset__
+
+[Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Stanford university. In the following table, the gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
+
+| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
+|---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
+|G14 | 800 | 4694 | __3064__| | 2922 | 3061 | 2943  |3056 (24h) | ---| ---| 3025 | -1.27\%|
+|G15 | 800 | 4661 | __3050__ | 2938 | __3050__ | 2928 | 2990  | ---| ---| | 2965 | -2.78\% | 
+|G22 | 2000 | 19990 |__13359__ | 12960 | __13359__ | 13028 | 13181  | |---| ---| 12991 |  -2.75\% | 
+|G49 | 3000 | 6000 | __6000__ | __6000__ | __6000__ | __6000__ | 5918  | ---| --- | --- | 5790|  -3.50\% | 
+|G50 | 3000 | 6000 | __5880__ | __5880__ | __5880__ | __5880__ | 5820  | ---| --- | --- | 5720|  -2.72\% | 
+|G55 | 5000 | 12468 | __10294__ | 9960 | 10236 | 10116 | 10138  | ---| --- | ---  |9890 |  -3.92\% | 
+|G70 | 10000 | 9999 |__9541__ | 9456 | 9458 | - | 9421  | ---| --- | --- |9163 | -3.96\% | 
+
+
+### 2) __Syn__ 
 
 We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
 
@@ -109,24 +125,6 @@ In the following table, the first row illustrates the limited time for solvers. 
 |syn_7000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_9000  |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
 |syn_10000 |  $\pm$ | $\pm$  | $\pm$ |   $\pm$  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
-
-
-
-
-### 2) Gset
-
-[Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Stanford university. In the following table, the gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
-
-| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (1 h) | Gurobi (5 h) | Gurobi (10 h) | Ours | Gap | 
-|---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----|
-|G14 | 800 | 4694 | __3064__| | 2922 | 3061 | 2943  |3056 (24h) | ---| ---| 3025 | -1.27\%|
-|G15 | 800 | 4661 | __3050__ | 2938 | __3050__ | 2928 | 2990  | ---| ---| | 2965 | -2.78\% | 
-|G22 | 2000 | 19990 |__13359__ | 12960 | __13359__ | 13028 | 13181  | |---| ---| 12991 |  -2.75\% | 
-|G49 | 3000 | 6000 | __6000__ | __6000__ | __6000__ | __6000__ | 5918  | ---| --- | --- | 5790|  -3.50\% | 
-|G50 | 3000 | 6000 | __5880__ | __5880__ | __5880__ | __5880__ | 5820  | ---| --- | --- | 5720|  -2.72\% | 
-|G55 | 5000 | 12468 | __10294__ | 9960 | 10236 | 10116 | 10138  | ---| --- | ---  |9890 |  -3.92\% | 
-|G70 | 10000 | 9999 |__9541__ | 9456 | 9458 | - | 9421  | ---| --- | --- |9163 | -3.96\% | 
-
 
 
 
