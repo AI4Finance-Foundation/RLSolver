@@ -42,9 +42,9 @@ Important functions:
 ## Datasets
 * Maxcut:
   
-  [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford university, and is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
+  1) [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford university, and is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
   
-  __Syn__ is the synthetic data by calling the function generate_write_ in utils.py. The number of nodes is from 10 to 10000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need the whole synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for China users). The results of experiments are obtained based on the whole synthetic data.
+  2) __Syn__ is the synthetic data by calling the function generate_write_ in utils.py. The number of nodes is from 10 to 10000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need the whole synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL) or [Baidu Wangpan](https://pan.baidu.com/s/1QUAAd5rs93fpc2Ixgtm8lw) (CODE 2fw9 for China users). The results of experiments are obtained based on the whole synthetic data.
   
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
