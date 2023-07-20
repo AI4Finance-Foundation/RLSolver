@@ -2,7 +2,7 @@
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. Take the graph maxcut problem as an example, when the number of nodes is up to 10000, conventional methods may require too much time. RL with the help of GPU computing can help us to obtain high-quality solutions within short time. 
 
-In the meantime, this repo will also include our codes and tricks when playing with nonconvex and NP-complete optimization problems.
+In the meantime, this repo will also include our codes and tricks for solving nonconvex and NP-complete optimization problems. We provide open datasets and benchmarks, including calssical methods, our algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance. We encourage users to try RL/ML tricks based on the datasets and benchmarks, and we can communicate with each other by github issues. 
 
 [Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
 
