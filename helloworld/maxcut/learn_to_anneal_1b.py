@@ -57,10 +57,10 @@ def train(
                     loss_list[num_envs * (step):num_envs * (step + 1)] = l.detach()
                     loss = loss - l.sum()
                     # print(x_prev.shape, x.shape)
-                    l = mcmc_sim.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes),
-                                                              x_binary.reshape(num_envs, num_nodes))
-                    l.requires_grad_(True)
-                    loss = loss - 0.2 * l.sum()  # max(0.05, (500-epoch) / 500) * l.sum()
+                    # l = mcmc_sim.calc_obj_for_two_graphs_vmap(x_prev.reshape(num_envs, num_nodes),
+                    #                                           x_binary.reshape(num_envs, num_nodes))
+                    # l.requires_grad_(True)
+                    # loss = loss - 0.2 * l.sum()  # max(0.05, (500-epoch) / 500) * l.sum()
                 # loss = loss / num_samples
             x_prev = x.detach()
                 # prev_h, prev_c = h.detach(), c.detach()
