@@ -23,6 +23,7 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
         new_filename = filename + '_' + str(int(running_duration))
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
         new_file.write(f"obj: {model.getObjVal()}\n")
+        new_file.write(f"gap: {model.getGap()}\n")
         new_file.write(f"running_duation: {model.getTotalTime()}\n")
         new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
         vars = model.getVars()
@@ -41,7 +42,7 @@ def run_using_scip(filename: str, time_limit: int = None, plot_fig_: bool = Fals
 
     graph = read_txt_as_networkx_graph(filename)
 
-    adjacency_matrix = nx.adjacency_matrix(graph)
+    adjacency_matrix = nx.to_numpy_array(graph)
     num_nodes = nx.number_of_nodes(graph)
     nodes = list(range(num_nodes))
 
@@ -92,7 +93,12 @@ if __name__ == '__main__':
     select_single_file = True
     if select_single_file:
         filename = 'data/syn_50_176.txt'
-        run_using_scip(filename, None, True)
+        time_limits = [0.5 * 3600]
+        run_using_scip(filename, time_limit=time_limits[0], plot_fig_=True)
+        directory = 'result'
+        prefixes = ['syn_50_']
+        avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
+
     else:
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
         # prefixes = ['syn_10_']
