@@ -255,19 +255,22 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
             assert 'obj' in line
             obj = float(line.split(' ')[1].split('\n')[0])
             objs.append(obj)
+
             line2 = file.readline()
-            gap_ = line2.split('gap:')
-            gap = float(gap_[1]) if len(gap_) >= 2 else None
-            gaps.append(gap)
-            line3 = file.readline()
-            running_duation_ = line3.split('running_duation:')
+            running_duation_ = line2.split('running_duation:')
             running_duation = float(running_duation_[1]) if len(running_duation_) >= 2 else None
             running_duations.append(running_duation)
+
+            line3 = file.readline()
+            gap_ = line3.split('gap:')
+            gap = float(gap_[1]) if len(gap_) >= 2 else None
+            gaps.append(gap)
+
     avg_obj = np.average(objs)
     std_obj = np.std(objs)
-    avg_gap = np.average(gaps)
     avg_running_duation = np.average(running_duations)
-    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_gap {avg_gap}, avg_running_duation {avg_running_duation}')
+    avg_gap = np.average(gaps)
+    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duation {avg_running_duation}, avg_gap {avg_gap}')
     if time_limit != init_time_limit:
         print()
     return {(prefix, time_limit): (avg_obj, std_obj)}
