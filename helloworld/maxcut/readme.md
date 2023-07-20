@@ -47,15 +47,15 @@ We use the function __read_txt__ in utils.py to read the data, which returns a [
 
 Format:
 ```
-python alg_xxx.py  # alg_xxx.py is the file name of the algorithm
+python xxx.py  # xxx.py is the file name of the algorithm
 ```
 
-| Algorithm | File| Command | 
-|---|----------|----|
-|learn_to_anneal (ours) | learn_to_anneal_1.py <br/> learn_to_anneal_2.py | python learn_to_anneal_1.py, <br/> python learn_to_anneal_2.py|
-|random walk | random_walk.py | python random_walk.py|
-| greedy | greedy.py | python greedy.py|
-| simulated annealing| simulated_annealing.py | python simulated_annealing.py|
+| Algorithm | File| 
+|---|----------|
+|learn_to_anneal (ours) | learn_to_anneal_1.py <br/> learn_to_anneal_2.py | 
+|random walk | random_walk.py | 
+| greedy | greedy.py | 
+| simulated annealing| simulated_annealing.py | 
 
 
 ## Run using solvers
