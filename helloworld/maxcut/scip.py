@@ -1,4 +1,4 @@
-
+import numpy as np
 from pyscipopt import Model, quicksum, multidict
 import os
 import time
@@ -25,7 +25,7 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
         new_file.write(f"obj: {model.getObjVal()}\n")
         new_file.write(f"running_duation: {model.getTotalTime()}\n")
         new_file.write(f"gap: {model.getGap()}\n")
-        # new_file.write(f"obj_bound: {model.}\n")
+        new_file.write(f"obj_bound: {np.Inf}\n")
         new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
         vars = model.getVars()
         new_file.write('values of vars: \n')
