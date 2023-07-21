@@ -246,6 +246,7 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     init_time_limit = copy.deepcopy(time_limit)
     objs = []
     gaps = []
+    obj_bounds = []
     running_duations = []
     suffix = str(time_limit)
     files = calc_txt_files_with_prefix_suffix(directory, prefix, suffix)
@@ -266,11 +267,17 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
             gap = float(gap_[1]) if len(gap_) >= 2 else None
             gaps.append(gap)
 
+            line4 = file.readline()
+            obj_bound_ = line4.split('obj_bound:')
+            obj_bound = float(obj_bound_[1]) if len(obj_bound_) >= 2 else None
+            obj_bounds.append(obj_bound)
+
     avg_obj = np.average(objs)
     std_obj = np.std(objs)
     avg_running_duation = np.average(running_duations)
     avg_gap = np.average(gaps)
-    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duation {avg_running_duation}, avg_gap {avg_gap}')
+    avg_obj_bound = np.average(obj_bounds)
+    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duation {avg_running_duation}, avg_gap {avg_gap}, avg_obj_bound {avg_obj_bound}')
     if time_limit != init_time_limit:
         print()
     return {(prefix, time_limit): (avg_obj, std_obj)}
