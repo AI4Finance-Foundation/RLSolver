@@ -22,7 +22,7 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
         new_file.write(f"obj: {model.objVal}\n")
         new_file.write(f"running_duation: {model.Runtime}\n")
         new_file.write(f"gap: {model.MIPGap}\n")
-        # new_file.write(f"obj_bound: {model.ObjBound}\n")
+        new_file.write(f"obj_bound: {model.ObjBound}\n")
         # new_file.write(f"time_limit: {time_limit}\n")
         time_limit = model.getParamInfo("TIME_LIMIT")
         new_file.write(f"time_limit: {time_limit}\n")
