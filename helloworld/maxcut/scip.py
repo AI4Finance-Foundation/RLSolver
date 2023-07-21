@@ -22,10 +22,17 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
     else:
         new_filename = filename + '_' + str(int(running_duration))
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
-        new_file.write(f"obj: {model.getObjVal()}\n")
+        obj = model.getObjVal()
+        new_file.write(f"obj: {obj}\n")
         new_file.write(f"running_duation: {model.getTotalTime()}\n")
-        new_file.write(f"gap: {model.getGap()}\n")
-        new_file.write(f"obj_bound: {np.Inf}\n")
+        gap = model.getGap()
+        new_file.write(f"gap: {gap}\n")
+        # calc obj_bound
+        if model.getObjectiveSense() == "maximize":
+            obj_bound = obj * (1 + gap)
+        else:
+            obj_bound = obj * (1 - gap)
+        new_file.write(f"obj_bound: {obj_bound}\n")
         new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
         vars = model.getVars()
         new_file.write('values of vars: \n')
