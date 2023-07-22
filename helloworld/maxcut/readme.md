@@ -110,11 +110,21 @@ We use the whole synthetic data. For graphs with n nodes, there are 20 datasets,
 
 In the following table, the first row illustrates the limited time for solvers. The running duration is exactly the limited time if we do not write duration, and is the written duration otherwise. We see that, when the number of nodes is not larger than 100, the optimal solutions are obtained, and the running duraton is less than 0.5 hour. The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers. The inference time of our method is less than 0.001 second.
  
-|Datasets |Gurobi (0.5 h) |Gurobi (1 h)  |Gurobi (10 h)  | SCIP (0.5 h) |SCIP (1 h)  | SCIP (10 h)  |Ours|Improvement |
-|-------|------|----| ---- |------|----| ---- |---- |---- |
-| | Obj| Gap| Obj| Gap|Obj| Gap|Obj| Gap|Obj| Gap|Obj| Gap|Obj| |
+|Datasets |Gurobi (0.5 h)| Gap |Gurobi (1 h) | Gap |Gurobi (10 h) |Gap | SCIP (0.5 h)| Gap |SCIP (1 h) |Gap | SCIP (10 h) |Gap |Ours|Improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|---- |---- |--|---- |---- |--|
 |syn_10   | 20.80 $\pm$ 2.71 (0.01s) | | $\pm$ |  | $\pm$ | | 20.80 $\pm$ 2.71 (0.32s)  | | $\pm$  |  | $\pm$ | |$\pm$ |  |
+|syn_50   | 138.75 $\pm$ 4.28 (0.14s)  | | $\pm$ |  | $\pm$ | | 138.75 $\pm$ 4.28 (6.60s)  | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |
+|syn_100  |  342.20 $\pm$ 4.33 (131.07s)| | $\pm$ |  | $\pm$ | | 342.20 $\pm$ 4.33 (805.31s)  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_300   |  1407.05 $\pm$ 8.55 | | $\pm$ |  | $\pm$ | |   1345.45 $\pm$ 18.49  |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_500   | 2480.95 $\pm$ 15.22| | $\pm$ |  | $\pm$ | |   2325.70 $\pm$ 15.54 |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  $\pm$  |
+|syn_700   |  2857.65 $\pm$ 11.96| | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_900   |  3629.45 $\pm$ 12.06| | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_1000  |   | | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_3000  |    | | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_5000  |    | | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_7000  |   | | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_9000  |   | | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
+|syn_10000 |   | | $\pm$ |  | $\pm$ | |   |  $\pm$  | $\pm$ | $\pm$ |   $\pm$  |  |
 
 
 
