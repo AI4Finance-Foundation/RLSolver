@@ -110,9 +110,11 @@ We use the whole synthetic data. For graphs with n nodes, there are 20 datasets,
 
 In the following table, the first row illustrates the limited time for solvers. The running duration is exactly the limited time if we do not write duration, and is the written duration otherwise. We see that, when the number of nodes is not larger than 100, the optimal solutions are obtained, and the running duraton is less than 0.5 hour. The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers. The inference time of our method is less than 0.001 second.
  
-|Datasets |Gurobi (0.5 h)| Gap |Gurobi (1 h) | Gap |Gurobi (10 h) |Gap | SCIP (0.5 h)| Gap |SCIP (1 h) |Gap | SCIP (10 h) |Gap |Ours|Improvement |
+|Datasets |Gurobi (0.5 h) |Gurobi (1 h)  |Gurobi (10 h)  | SCIP (0.5 h) |SCIP (1 h)  | SCIP (10 h)  |Ours|Improvement |
+|-------|------|----| ---- |------|----| ---- |---- |
+| | Obj| Gap| Obj| Gap|Obj| Gap|Obj| Gap|Obj| Gap|Obj| Gap|Obj| |
 |-------|------|----| ---- |------|----| ---- |---- |--|---- |---- |--|---- |---- |--|
-|syn_10   | 20.80 $\pm$ 2.71 (0.01s) | | $\pm$ |  | $\pm$ | | 20.80 $\pm$ 2.71 (0.32s)  | | $\pm$  |  | $\pm$ | |$\pm$ | 
+|syn_10   | 20.80 $\pm$ 2.71 (0.01s) | | $\pm$ |  | $\pm$ | | 20.80 $\pm$ 2.71 (0.32s)  | | $\pm$  |  | $\pm$ | |$\pm$ |  |
 
 
 
