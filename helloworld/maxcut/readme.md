@@ -112,7 +112,7 @@ In the following table, the first row illustrates the limited time for solvers. 
  
 |Datasets |Gurobi (0.5 h)| Gap |Gurobi (1 h) | Gap |Gurobi (10 h) |Gap | SCIP (0.5 h)| Gap |SCIP (1 h) |Gap | SCIP (10 h) |Gap |Ours|Improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|---- |---- |--|
-|syn_10   | 20.80 $\pm$ 2.71 (0.01s) | | $\pm$ || $\pm$ | | 20.80 $\pm$ 2.71 (0.32s)  | | $\pm$  || $\pm$ | |$\pm$ | | $\pm$   |  |
+|syn_10   | 20.80 $\pm$ 2.71 (0.01s) | | $\pm$ |  | $\pm$ | | 20.80 $\pm$ 2.71 (0.32s)  | | $\pm$  |  | $\pm$ | |$\pm$ | 
 
 
 
