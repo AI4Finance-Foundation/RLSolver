@@ -6,7 +6,7 @@ import torch.nn as nn
 import numpy as np
 from typing import List, Union
 import networkx as nx
-import matplotlib.pyplot as plt
+
 
 from torch import Tensor
 
@@ -24,6 +24,7 @@ def read_txt_as_networkx_graph(filename: str, plot_fig: bool = False) -> nx.Grap
     for item in lines[1:]:
         g.add_edge(item[0] - 1, item[1] - 1, weight=item[2])
     if plot_fig:
+        import matplotlib.pyplot as plt
         nx.draw_networkx(g)
         fig_filename = filename.split('.')[0] + '.png'
         plt.savefig(fig_filename)
@@ -197,16 +198,17 @@ class Opt_net(nn.Module):
         return self.output(x).sigmoid(), h, c
 
 
-def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
-    num = len(scoress)
-    x = list(range(num_steps))
-    dic = {'0': 'ro', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
-    for i in range(num):
-        plt(x, scoress[i], dic[str(i)], labels[i])
-    plt.legend(labels, loc=0)
-    plt.show()
+# def plot_figs(scoress: List[List[int]], num_steps: int, labels: List[str]):
+#     num = len(scoress)
+#     x = list(range(num_steps))
+#     dic = {'0': 'ro', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
+#     for i in range(num):
+#         plt(x, scoress[i], dic[str(i)], labels[i])
+#     plt.legend(labels, loc=0)
+#     plt.show()
 
 def plot_fig(scores: List[int], label: str):
+    import matplotlib.pyplot as plt
     plt.figure()
     x = list(range(len(scores)))
     dic = {'0': 'ro-', '1': 'gs', '2': 'b^', '3': 'c>', '4': 'm<', '5': 'yp'}
@@ -330,7 +332,8 @@ if __name__ == '__main__':
     # avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
 
     directory_result = 'result'
-    prefixes = ['syn_10_', 'syn_50_', 'syn_100_']
+    prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
+    # prefixes = ['syn_10_', 'syn_50_', 'syn_100_']
     time_limits = [0.5 * 3600]
     avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
 
