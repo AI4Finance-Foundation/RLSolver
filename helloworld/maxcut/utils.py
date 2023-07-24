@@ -330,7 +330,8 @@ if __name__ == '__main__':
     # avg_std = calc_avg_std_of_obj(directory, prefix, time_limit)
 
     directory_result = 'result'
-    prefixes = ['syn_10_', 'syn_50_', 'syn_100_']
+    prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
+    # prefixes = ['syn_10_', 'syn_50_', 'syn_100_']
     time_limits = [0.5 * 3600]
     avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
 
