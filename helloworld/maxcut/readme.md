@@ -122,7 +122,7 @@ In the following table, the first row illustrates the limited time for solvers. 
 |syn_1000  |  4436.55 $\pm$ 16.10 | 15.92\%| $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   | |  
 |syn_3000  | 17108.45 $\pm$ 24.31 | 37.13\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_5000  | 30334.45 $\pm$ 355.00 | 55.11\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
-|syn_7000  | $\pm$  |\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
+|syn_7000  | 47325.15 $\pm$ 555.25 | 59.90\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_9000  | $\pm$  |\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_10000 | $\pm$  |\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 
