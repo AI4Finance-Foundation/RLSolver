@@ -110,22 +110,22 @@ We use the whole synthetic data. For graphs with n nodes, there are 20 datasets,
 
 In the following table, the first row illustrates the limited time for solvers. The average running duration is exactly the limited time if we do not write the average duration. We see that, when the number of nodes is not larger than 100, the optimal solutions are obtained, and the average running duraton is much less than 0.5 hour. The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers. The inference time of our method is less than 0.001 second.
  
+
 |Datasets |Gurobi (0.5 h)| Gap |Gurobi (1 h) | Gap |Gurobi (10 h) |Gap | SCIP (0.5 h)| Gap |SCIP (1 h) |Gap | SCIP (10 h) |Gap |Ours|Improvement |
 |-------|------|----| ---- |------|----| ---- |---- |--|---- |---- |--|---- |---- |--|
 |syn_10   | 20.80 $\pm$ 2.71 (0.01s) | 0| $\pm$ |  | $\pm$ | | 20.80 $\pm$ 2.71 (0.16s)  | 0| $\pm$  |  | $\pm$ | |$\pm$ | |  
 |syn_50   | 138.75 $\pm$ 4.28 (0.14s)  | 0| $\pm$ |  | $\pm$ | | 138.75 $\pm$ 4.28 (10.34s)  | 0| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_100  |  342.20 $\pm$ 4.33 (131.07s)|0 | $\pm$ |  | $\pm$ | | 342.20 $\pm$ 4.33 (597.42s) |0 | $\pm$  || $\pm$ || $\pm$ ||  $\pm$    |  
-|syn_300   |  1407.05 $\pm$ 8.55 | 9.30\%| $\pm$ |  | $\pm$ | |   1344.35 $\pm$ 17.82  | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
-|syn_500   | 2480.95 $\pm$ 15.22| 13.80\%| $\pm$ |  | $\pm$ | |   2325.70 $\pm$ 15.54   | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
-|syn_700   |  2857.65 $\pm$ 11.91| 13.27\%| $\pm$ |  | $\pm$ | |   $\pm$    | \%| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   | |  
-|syn_900   |  3631.60 $\pm$ 12.72| 14.15\% | $\pm$ | \% | $\pm$ | \%|   $\pm$    | \%| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
+|syn_300   |  1407.05 $\pm$ 8.55 | 9.30\%| $\pm$ |  | $\pm$ | |   1344.35 $\pm$ 17.82  | 38.95\%| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
+|syn_500   | 2480.95 $\pm$ 15.22| 13.80\%| $\pm$ |  | $\pm$ | |   2327.55 $\pm$ 16.84   | 46.30\%| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
+|syn_700   |  2857.65 $\pm$ 11.91| 13.27\%| $\pm$ |  | $\pm$ | |  2667.55 $\pm$ 23.31   | 44.01\%| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   | |  
+|syn_900   |  3631.60 $\pm$ 12.72| 14.15\% | $\pm$ | \% | $\pm$ | \%|  3393.7 $\pm$ 32.30   | 44.48\%| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_1000  |  4436.55 $\pm$ 16.10 | 15.92\%| $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   | |  
 |syn_3000  | 17108.45 $\pm$ 24.31 | 37.13\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_5000  | 30334.45 $\pm$ 355.00 | 55.11\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_7000  | 47325.15 $\pm$ 555.25 | 59.90\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_9000  | $\pm$  |\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
-|syn_10000 | $\pm$  |\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
-
+|syn_10000 | $\pm$  |\% | $\pm$ |  | $\pm$ | |   $\pm$    | | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  | 
 
 
 
