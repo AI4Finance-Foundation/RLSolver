@@ -62,7 +62,7 @@ Important functions:
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
 
-* ML/RL + algorithm/heuristic
+* RL/ML + heuristic
   
 [code](https://github.com/Hanjun-Dai/graph_comb_opt) 2017 NeurIPS Learning Combinatorial Optimization Algorithms over Graphs
 
@@ -110,7 +110,7 @@ ElegantRL_Solver
         └──data
         └──mcmc_sim
         └──result
-        └──learn_to_anneal.py (ours)
+        └──learn_to_anneal_x.py (ours)
         └──gurobi.py
         └──scip.py
         └──random_walk.py
@@ -152,7 +152,7 @@ ElegantRL_Solver
 - [ ] quantum_circuits
 
 
-## Related websites:
+## Related websites
 
 + [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
