@@ -51,7 +51,6 @@ Important functions:
 
 ## Benchmarks
 
-[Benchmark](http://plato.asu.edu/bench.html) for combinatorial optimization problems.
 
 * Learn to branch
   
@@ -80,6 +79,7 @@ Important functions:
   6) Beam search
   7) Branch-and-bound
   8) Cutting plane
+
 
 ## Solvers to compare with
 
@@ -153,7 +153,8 @@ ElegantRL_Solver
 - [ ] quantum_circuits
 
 
-## Related Repos:
-+ [RL4CO](https://github.com/kaist-silab/rl4co)
+## Related websites:
+
++ [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
 + [Machine Learning for Combinatorial Optimization - NeurIPS 2021 Competition](https://github.com/ds4dm/ml4co-competition)
