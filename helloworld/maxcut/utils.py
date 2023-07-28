@@ -303,7 +303,7 @@ def read_write_solver_result(filename: str, new_filename: str):
             if 'x[' in line:
                 find_x = True
                 node = int(line.split('x[')[1].split(']')[0])
-                value = int(line.split(':')[1])
+                value = int(line.split(':')[1].split('\n')[0])
                 nodes.append(node)
                 values.append(value)
             if find_x and 'x[' not in line:
@@ -364,8 +364,8 @@ if __name__ == '__main__':
     time_limits = [0.5 * 3600]
     avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
 
-    filename = 'syn_10_21_1800.txt'
-    new_filename = 'syn_10_21_1800_new.txt'
+    filename = 'result/syn_10_21_1800.txt'
+    new_filename = 'result/syn_10_21_1800_new.txt'
     read_write_solver_result(filename, new_filename)
 
     print()
