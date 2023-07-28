@@ -84,7 +84,7 @@ Results will be written to a file result.txt in the folder "result". The first c
 
 If using Gurobi or SCIP, the generated files have their own formats (e.g., result.lp and result.mps) for easy check, which are very different from that by running algorithms. 
 
-The partial results are stored in the folder "result" in this repo, the whole results are in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp). 
+The partial results are stored in the folder "result" in this repo, the whole results are in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
 
 ## Experiment Results
 
