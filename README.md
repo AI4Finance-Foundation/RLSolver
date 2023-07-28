@@ -24,7 +24,12 @@ Key references:
 
 - Makoviychuk, Viktor, et al. "Isaac Gym: High performance GPU based physics simulation for robot learning." Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2). 2021.
 
-  
+# Work flow
+<a target="\_blank">
+	<div align="center">
+		<img src=fig/work_flow.png width="90%"/>
+	</div>
+</a>  
 
 ## Markov chain Monte Carlo simulation
 
@@ -97,18 +102,16 @@ Important functions:
 
 [BiqMac](https://biqmac.aau.at/) ([download](https://biqmac.aau.at/)): a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed. If users use it, we recommend to [download](https://biqmac.aau.at/) the sources and run it by local computers. 
 
-# Work flow
-<a target="\_blank">
-	<div align="center">
-		<img src=fig/work_flow.png width="90%"/>
-	</div>
-</a>
 
-## Results and performance
 
-The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/helloworld/maxcut).
+## Store results 
 
 The partial results are stored in the folder "result" in this repo. The whole results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
+
+## Performance
+The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/helloworld/maxcut).
+
+
 
 ## File Structure
 
