@@ -97,6 +97,13 @@ Important functions:
 
 [BiqMac](https://biqmac.aau.at/) ([download](https://biqmac.aau.at/)): a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed. If users use it, we recommend to [download](https://biqmac.aau.at/) the sources and run it by local computers. 
 
+# Work flow
+<a target="\_blank">
+	<div align="center">
+		<img src=fig/work_flow.png width="90%"/>
+	</div>
+</a>
+
 ## Performance
 
 The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/helloworld/maxcut).
