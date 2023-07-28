@@ -225,10 +225,10 @@ def calc_txt_files_with_prefix(directory: str, prefix: str):
             res.append(directory + '/' + file)
     return res
 
-def calc_sta_files_with_prefix_suffix(directory: str, prefix: str, suffix: str):
+def calc_files_with_prefix_suffix(directory: str, prefix: str, suffix: str, extension: str = '.sta'):
     res = []
     files = os.listdir(directory)
-    new_suffix = '_' + suffix + '.sta'
+    new_suffix = '_' + suffix + extension
     for file in files:
         if prefix in file and new_suffix in file:
             res.append(directory + '/' + file)
@@ -251,7 +251,7 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     obj_bounds = []
     running_duations = []
     suffix = str(time_limit)
-    files = calc_sta_files_with_prefix_suffix(directory, prefix, suffix)
+    files = calc_files_with_prefix_suffix(directory, prefix, suffix)
     for i in range(len(files)):
         with open(files[i], 'r') as file:
             line = file.readline()
@@ -318,7 +318,7 @@ def fetch_node(line: str):
 # 1 2
 # 2 1
 # 3 2
-def transfer_solver_result(filename: str, new_filename: str):
+def transfer_write_solver_result(filename: str, new_filename: str):
     # assert '.txt' in filename
     nodes = []
     values = []
@@ -339,12 +339,19 @@ def transfer_solver_result(filename: str, new_filename: str):
         for i in range(len(nodes)):
             file.write(f'{nodes[i] + 1} {values[i] + 1}\n')
 
+# For example, syn_10_21_3600.sov, the prefix is 'syn_10_', time_limit is 3600 (seconds).
+# extension is '.txt' or '.sta'
+def transfer_write_solver_results(directory: str, prefixes: List[str], time_limits: List[int], from_extension: str, to_extension: str):
+    for i in range(len(prefixes)):
+        for k in range(len(time_limits)):
+            suffix = str(int(time_limits[k]))
+            files = calc_files_with_prefix_suffix(directory, prefixes[i], suffix, from_extension)
+            for filename in files:
+                new_filename = filename.split('.')[0] + to_extension
+                transfer_write_solver_result(filename, new_filename)
 
-def transfer_solver_results(filenames: List[str], suffix: List[str]):
-    suf = '.' + filenames[0].split('.')[1]  # e.g., .txt
-    for filename in filenames:
-        new_filename = filename.split(suf)[0] + suffix + suf
-        transfer_solver_result(filename, new_filename)
+
+
 
 
 if __name__ == '__main__':
@@ -394,6 +401,10 @@ if __name__ == '__main__':
 
     filename = 'result/syn_10_21_1800.sta'
     new_filename = 'result/syn_10_21_1800.txt'
-    transfer_solver_result(filename, new_filename)
+    transfer_write_solver_result(filename, new_filename)
+
+    from_extension = '.sov'
+    to_extension = '.txt'
+    transfer_write_solver_results(directory_result, prefixes, time_limits, from_extension, to_extension)
 
     print()
