@@ -282,7 +282,7 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duation {avg_running_duation}, avg_gap {avg_gap}, avg_obj_bound {avg_obj_bound}')
     if time_limit != init_time_limit:
         print()
-    return {(prefix, time_limit): (avg_obj, std_obj)}
+    return {(prefix, time_limit): (avg_obj, std_obj, avg_running_duation, avg_gap, avg_obj_bound)}
 
 def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[int]):
     res = []
@@ -392,8 +392,8 @@ if __name__ == '__main__':
     time_limits = [0.5 * 3600]
     avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
 
-    filename = 'result/syn_10_21_1800.txt'
-    new_filename = 'result/syn_10_21_1800_new.txt'
+    filename = 'result/syn_10_21_1800.sta'
+    new_filename = 'result/syn_10_21_1800.txt'
     transfer_solver_result(filename, new_filename)
 
     print()
