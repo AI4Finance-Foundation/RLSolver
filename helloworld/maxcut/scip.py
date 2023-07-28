@@ -9,7 +9,8 @@ from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
 from utils import calc_avg_std_of_objs
 from utils import plot_fig
-
+from utils import fetch_node
+from utils import float_to_binary
 # running_duration (seconds) is included.
 def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
     if filename.split('/')[0] == 'data':
@@ -21,7 +22,21 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
         new_filename = filename
     else:
         new_filename = filename + '_' + str(int(running_duration))
+
+    vars = model.getVars()
+    nodes: List[int] = []
+    values: List[int] = []
+    for var in vars:
+        node = fetch_node(var.name)
+        if node is None:
+            break
+        value = float_to_binary(model.getVal(var))
+        nodes.append(node)
+        values.append(value)
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
+        for i in range(len(nodes)):
+            new_file.write(f"{nodes[i] + 1} {values[i] + 1}\n")
+    with open(f"{new_filename}.sta", 'w', encoding="UTF-8") as new_file:
         obj = model.getObjVal()
         new_file.write(f"obj: {obj}\n")
         new_file.write(f"running_duation: {model.getTotalTime()}\n")
@@ -34,12 +49,11 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
             obj_bound = obj * (1 - gap)
         new_file.write(f"obj_bound: {obj_bound}\n")
         new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
-        vars = model.getVars()
         new_file.write('values of vars: \n')
         for var in vars:
             new_file.write(f'{var.name}: {model.getVal(var)}\n')
     model.writeLP(f"{new_filename}.lp")
-    model.writeStatistics(f"{new_filename}.sta")
+    model.writeStatistics(f"{new_filename}.sts")
     model.writeBestSol(f"{new_filename}.sol")
     # model.writeSol(f"{filename}.sol")
     print()
@@ -109,7 +123,7 @@ if __name__ == '__main__':
 
     else:
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
-        # prefixes = ['syn_10_']
+        # prefixes = ['syn_50_']
         # time_limits = [0.5 * 3600, 1 * 3600]
         time_limits = [0.5 * 3600]
         run_scip_over_multiple_files(prefixes, time_limits)

@@ -225,10 +225,10 @@ def calc_txt_files_with_prefix(directory: str, prefix: str):
             res.append(directory + '/' + file)
     return res
 
-def calc_txt_files_with_prefix_suffix(directory: str, prefix: str, suffix: str):
+def calc_sta_files_with_prefix_suffix(directory: str, prefix: str, suffix: str):
     res = []
     files = os.listdir(directory)
-    new_suffix = '_' + suffix + '.txt'
+    new_suffix = '_' + suffix + '.sta'
     for file in files:
         if prefix in file and new_suffix in file:
             res.append(directory + '/' + file)
@@ -251,7 +251,7 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     obj_bounds = []
     running_duations = []
     suffix = str(time_limit)
-    files = calc_txt_files_with_prefix_suffix(directory, prefix, suffix)
+    files = calc_sta_files_with_prefix_suffix(directory, prefix, suffix)
     for i in range(len(files)):
         with open(files[i], 'r') as file:
             line = file.readline()
@@ -282,7 +282,7 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duation {avg_running_duation}, avg_gap {avg_gap}, avg_obj_bound {avg_obj_bound}')
     if time_limit != init_time_limit:
         print()
-    return {(prefix, time_limit): (avg_obj, std_obj)}
+    return {(prefix, time_limit): (avg_obj, std_obj, avg_running_duation, avg_gap, avg_obj_bound)}
 
 def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[int]):
     res = []
@@ -292,8 +292,34 @@ def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[
             res.append(avg_std)
     return res
 
-def read_write_solver_result(filename: str, new_filename: str):
-    assert '.txt' in filename
+# transfer flot to binary. For example, 1e-7 -> 0, 1 + 1e-8 -> 1
+def float_to_binary(value: float) -> int:
+    if abs(value) < 1e-4:
+        value = 0
+    elif abs(value - 1) < 1e-4:
+        value = 1
+    else:
+        raise ValueError('wrong value')
+    return value
+
+def fetch_node(line: str):
+    if 'x[' in line:
+        node = int(line.split('x[')[1].split(']')[0])
+    else:
+        node = None
+    return node
+
+# transfer result file,
+# e.g.,
+# x[0]: 1.0
+# x[1]: 0.0
+# x[2]: 1.0
+# to
+# 1 2
+# 2 1
+# 3 2
+def transfer_solver_result(filename: str, new_filename: str):
+    # assert '.txt' in filename
     nodes = []
     values = []
     with open(filename, 'r') as file:
@@ -304,25 +330,21 @@ def read_write_solver_result(filename: str, new_filename: str):
                 find_x = True
                 node = int(line.split('x[')[1].split(']')[0])
                 value = float(line.split(':')[1].split('\n')[0])
-                if abs(value) < 1e-4:
-                    value = 0
-                elif abs(value - 1) < 1e-4:
-                    value = 1
-                else:
-                    raise ValueError('wrong value')
+                value = float_to_binary(value)
                 nodes.append(node)
                 values.append(value)
             if find_x and 'x[' not in line:
                 break
     with open(new_filename, 'w', encoding="UTF-8") as file:
         for i in range(len(nodes)):
-            file.write(f'{nodes[i] + 1} {int(values[i] + 1)}\n')
+            file.write(f'{nodes[i] + 1} {values[i] + 1}\n')
 
 
-def read_write_solver_results(filenames: List[str], suffix: List[str]):
+def transfer_solver_results(filenames: List[str], suffix: List[str]):
+    suf = '.' + filenames[0].split('.')[1]  # e.g., .txt
     for filename in filenames:
-        new_filename = filename.split('.txt')[0] + suffix + '.txt'
-        read_write_solver_result(filename, new_filename)
+        new_filename = filename.split(suf)[0] + suffix + suf
+        transfer_solver_result(filename, new_filename)
 
 
 if __name__ == '__main__':
@@ -370,8 +392,8 @@ if __name__ == '__main__':
     time_limits = [0.5 * 3600]
     avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
 
-    filename = 'result/syn_10_21_1800.txt'
-    new_filename = 'result/syn_10_21_1800_new.txt'
-    read_write_solver_result(filename, new_filename)
+    filename = 'result/syn_10_21_1800.sta'
+    new_filename = 'result/syn_10_21_1800.txt'
+    transfer_solver_result(filename, new_filename)
 
     print()
