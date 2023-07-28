@@ -292,6 +292,33 @@ def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[
             res.append(avg_std)
     return res
 
+def read_write_solver_result(filename: str, new_filename: str):
+    assert '.txt' in filename
+    nodes = []
+    values = []
+    with open(filename, 'r') as file:
+        find_x = False
+        while True:
+            line = file.readline()
+            if 'x[' in line:
+                find_x = True
+                node = int(line.split('x[')[1].split(']')[0])
+                value = int(line.split(':')[1])
+                nodes.append(node)
+                values.append(value)
+            if find_x and 'x[' not in line:
+                break
+    with open(new_filename, 'w', encoding="UTF-8") as file:
+        for i in range(len(nodes)):
+            file.write(f'{nodes[i] + 1} {int(values[i] + 1)}\n')
+
+
+def read_write_solver_results(filenames: List[str], suffix: List[str]):
+    for filename in filenames:
+        new_filename = filename.split('.txt')[0] + suffix + '.txt'
+        read_write_solver_result(filename, new_filename)
+
+
 if __name__ == '__main__':
     read_txt = False
     if read_txt:
@@ -336,5 +363,9 @@ if __name__ == '__main__':
     # prefixes = ['syn_10_', 'syn_50_', 'syn_100_']
     time_limits = [0.5 * 3600]
     avgs_stds = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
+
+    filename = 'syn_10_21_1800.txt'
+    new_filename = 'syn_10_21_1800_new.txt'
+    read_write_solver_result(filename, new_filename)
 
     print()
