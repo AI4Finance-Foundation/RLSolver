@@ -303,7 +303,13 @@ def read_write_solver_result(filename: str, new_filename: str):
             if 'x[' in line:
                 find_x = True
                 node = int(line.split('x[')[1].split(']')[0])
-                value = int(line.split(':')[1].split('\n')[0])
+                value = float(line.split(':')[1].split('\n')[0])
+                if abs(value) < 1e-4:
+                    value = 0
+                elif abs(value - 1) < 1e-4:
+                    value = 1
+                else:
+                    raise ValueError('wrong value')
                 nodes.append(node)
                 values.append(value)
             if find_x and 'x[' not in line:
