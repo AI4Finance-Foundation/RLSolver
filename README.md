@@ -104,9 +104,11 @@ Important functions:
 	</div>
 </a>
 
-## Performance
+## Results and performance
 
 The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/helloworld/maxcut).
+
+The partial results are stored in the folder "result" in this repo. The whole results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
 
 ## File Structure
 
