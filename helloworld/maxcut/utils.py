@@ -350,8 +350,14 @@ def transfer_write_solver_results(directory: str, prefixes: List[str], time_limi
                 new_filename = filename.split('.')[0] + to_extension
                 transfer_write_solver_result(filename, new_filename)
 
-
-
+# e.g., rename 'txt' files in directory to 'sta'
+def rename_files(directory: str, orig: str, dest: str):
+    files = os.listdir(directory)
+    for file in files:
+        filename = directory + '/' + file
+        if orig in filename:
+            new_filename = filename.replace(orig, dest)
+            os.rename(filename, new_filename)
 
 
 if __name__ == '__main__':
