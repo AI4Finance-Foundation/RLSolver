@@ -125,7 +125,7 @@ In the following table, the first row illustrates the limited time for solvers. 
 |syn_5000  | 30334.45 $\pm$ 355.00 | 55.11\% | $\pm$ |  | $\pm$ | |   -    | -| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_7000  | 47325.15 $\pm$ 555.25 | 59.90\% | $\pm$ |  | $\pm$ | |   -    |- | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
 |syn_9000  | 57692.75 $\pm$ 594.53 | 60.68\% | $\pm$ |  | $\pm$ | |   -    |- | $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
-|syn_10000 | $\pm$  |\% | $\pm$ |  | $\pm$ | |   -    | -| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  | 
+|syn_10000 | 60689.75 $\pm$ 483.62 | 60.22\% | $\pm$ |  | $\pm$ | |   -    | -| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  | 
 
 
 
