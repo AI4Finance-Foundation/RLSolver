@@ -94,11 +94,11 @@ The partial results are stored in the folder "result" in this repo. The whole re
 
 In the following experiments, we use GPU during training by default. 
 
-When use solvers, "gap" is calculated based on the objective of its solution and the best bound. When we use our method, "gap-best" is calculated based on the objective of our solution and the best one over other methods. To distinguish them, we use "gap-best" for our method. Therefore, we may see that the solution of solvers is better than ours, but the "gap" of solvers is larger than "gap-best" of our method, which is caused by different calculations.
+When use solvers, "gap" is calculated based on the objective of its solution and the best bound. When we use our method, "gap_best" is calculated based on the objective of our solution and the best one over other methods. To distinguish them, we use "gap-best" for our method. The "gap_best" is calculated by $gap\_best = \frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods. Therefore, we may see that the solution of solvers is better than ours, but the "gap" of solvers is larger than "gap-best" of our method, which is caused by different calculations.
 
 1) __Gset__
 
-[Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Stanford university. In the following table, the gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
+[Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Stanford university. 
 
 | graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (0.5 h) | Gap | Gurobi (1 h) |Gap | Gurobi (10 h) |Gap | Ours | Gap-best | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----| ---| ----|----|
@@ -116,10 +116,10 @@ When use solvers, "gap" is calculated based on the objective of its solution and
 
 We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
 
-In the following table, the first row illustrates the limited time for solvers. The average running duration is exactly the limited time if we do not write the average duration. We see that, when the number of nodes is not larger than 100, the optimal solutions are obtained, and the average running duraton is much less than 0.5 hour. The improvement is calculated by $\frac{obj - obj'} { obj'}$, where $obj$ is the average objective value of our method, and $obj'$ is the average objective value of solvers. The inference time of our method is less than 0.001 second.
+In the following table, the first row illustrates the limited time for solvers. The average running duration is exactly the limited time if we do not write the average duration. We see that, when the number of nodes is not larger than 100, the optimal solutions are obtained, and the average running duraton is much less than 0.5 hour. The inference time of our method is less than 0.001 second.
  
 
-|Datasets |Gurobi (0.5 h)| Gap |Gurobi (1 h) | Gap |Gurobi (10 h) |Gap | SCIP (0.5 h)| Gap |SCIP (1 h) |Gap | SCIP (10 h) |Gap |Ours|Improvement |
+|Datasets |Gurobi (0.5 h)| Gap |Gurobi (1 h) | Gap |Gurobi (10 h) |Gap | SCIP (0.5 h)| Gap |SCIP (1 h) |Gap | SCIP (10 h) |Gap |Ours|Gap-best |
 |-------|------|----| ---- |------|----| ---- |---- |--|---- |---- |--|---- |---- |--|
 |syn_10   | 20.80 $\pm$ 2.71 (0.01s) | 0| $\pm$ |  | $\pm$ | | 20.80 $\pm$ 2.71 (0.16s)  | 0| $\pm$  |  | $\pm$ | |$\pm$ | |  
 |syn_50   | 138.75 $\pm$ 4.28 (0.14s)  | 0| $\pm$ |  | $\pm$ | | 138.75 $\pm$ 4.28 (10.34s)  | 0| $\pm$  || $\pm$ || $\pm$ ||  $\pm$   |  |  
