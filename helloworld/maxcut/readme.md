@@ -99,7 +99,7 @@ In the following experiments, we use GPU during training by default.
 
 [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Stanford university. In the following table, the gap is calculated by $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods.  
 
-| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (0.5 h) | Gap | Gurobi (1 h) |Gap | Gurobi (10 h) |Gap | Ours | Gap | 
+| graph | #nodes| #edges | BLS | DSDP | KHLWG | RUN-CSP | PI-GNN | Gurobi (0.5 h) | Gap | Gurobi (1 h) |Gap | Gurobi (10 h) |Gap | Ours | Gap-best | 
 |---|----------|----|---|-----|-----|--------|----------|------| ---| ---| ----|----| ---| ----|----|
 |G14 | 800 | 4694 | __3064__| | 2922 | 3061 | 2943  |3034 | 4.15%|---| ---|---|---| 3029 | -1.14\%|
 |G15 | 800 | 4661 | __3050__ | 2938 | __3050__ | 2928 | 2990  | 3016| 4.31%|---|---| ---| | 2995 | -1.80\% | 
