@@ -94,7 +94,7 @@ The partial results are stored in the folder "result" in this repo. The whole re
 
 In the following experiments, we use GPU during training by default. 
 
-When use solvers, "gap" is calculated based on the objective of its solution and the best bound. When we use our method, "gap_best" is calculated based on the objective of our solution and the best one over other methods. To distinguish them, we use "gap-best" for our method. The "gap_best" is calculated by gap_best = $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods. Therefore, we may see that the solution of solvers is better than ours, but the "gap" of solvers is larger than "gap-best" of our method, which is caused by different calculations.
+When use solvers, "gap" is calculated based on the objective of its solution and the best bound. When we use our method, "gap_best" is calculated based on the objective of our solution and the best one over other methods. To distinguish them, we use "gap-best" for our method. gap_best = $\frac{obj - obj*} { obj*}$, where $obj$ is the objective value of our method, and $obj*$ is the best objective value over all comparison methods. Therefore, we may see that the solution of solvers is better than ours, but the "gap" of solvers is larger than "gap-best" of our method, which is caused by different calculations.
 
 1) __Gset__
 
