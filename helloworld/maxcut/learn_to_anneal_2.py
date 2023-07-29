@@ -18,7 +18,7 @@ from mcmc_sim import MCMCSim2
 
 def search_by_grad():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_envs = 2 ** 6
+    num_samples = 2 ** 6
     graph_name = 'g70'
 
     '''hyper-parameters'''
@@ -27,8 +27,8 @@ def search_by_grad():
     eval_gap = 2
 
     '''init task'''
-    env = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
-    probs = env.get_rand_probs(num_envs=num_envs)
+    mcmc_sim = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
+    probs = mcmc_sim.get_rand_probs(num_samples=num_samples)
     probs.requires_grad_(True)
 
     '''loop'''
@@ -39,15 +39,15 @@ def search_by_grad():
         for i in range(1, opt_num + 1):
             p_bar.update(1)
             p_bar.set_description("current max score:{}, history max score:{}".format(current_score, best_score))
-            obj = env.step(probs).mean()
+            obj = mcmc_sim.step(probs).mean()
             obj.backward()
 
             grads = probs.grad.data
             probs.data.add_(-lr * grads).clip_(0, 1)
 
             if i % eval_gap == 0:
-                decision = env.make_decision(probs)
-                scores = env.get_score(decision)
+                decision = mcmc_sim.make_decision(probs)
+                scores = mcmc_sim.get_score(decision)
                 current_score = scores.max().item()
                 max_score, max_id = th.max(scores, dim=0)
                 if max_score > best_score:
@@ -56,12 +56,12 @@ def search_by_grad():
 
     print()
     print(f"best_score {best_score}")
-    env.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
+    mcmc_sim.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
 
 
 def search_by_adam():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_envs = 2 ** 4
+    num_samples = 2 ** 4
     graph_name = 'G14'
     # graph_name = 'g70'
 
@@ -71,8 +71,8 @@ def search_by_adam():
     eval_gap = 2
 
     '''init task'''
-    env = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
-    probs = env.get_rand_probs(num_envs=num_envs)
+    mcmc_sim = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
+    probs = mcmc_sim.get_rand_probs(num_samples=num_samples)
     probs.requires_grad_(True)
 
     '''init opti'''
@@ -85,7 +85,7 @@ def search_by_adam():
         for i in range(1, opt_num + 1):
             p_bar.update(1)
             p_bar.set_description("current max score:{}, history max score:{}".format(current_score, best_score))
-            obj = env.step(probs).mean()
+            obj = mcmc_sim.step(probs).mean()
             optim.zero_grad()
             obj.backward()
             optim.step()
@@ -93,8 +93,8 @@ def search_by_adam():
             probs.data.clip_(0, 1)
 
             if i % eval_gap == 0:
-                decision = env.make_decision(probs)
-                scores = env.get_score(decision)
+                decision = mcmc_sim.make_decision(probs)
+                scores = mcmc_sim.get_score(decision)
                 current_score = scores.max().item()
                 max_score, max_id = th.max(scores, dim=0)
                 if max_score > best_score:
@@ -103,7 +103,7 @@ def search_by_adam():
 
     print()
     print(f"best_score {best_score}")
-    env.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
+    mcmc_sim.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
 
 
 class OptimizerLSTM(nn.Module):
@@ -134,7 +134,7 @@ class OptimizerLSTM(nn.Module):
 
 def search_by_optimizer_optimizee():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_envs = 2 ** 6
+    num_samples = 2 ** 6
     graph_name = 'G14'
     # graph_name = 'g70'
 
@@ -145,13 +145,13 @@ def search_by_optimizer_optimizee():
     seq_len = 2 ** 5
     reset_gap = 2 ** 6
 
-    opt_num = int(2 ** 16 / num_envs)
+    opt_num = int(2 ** 16 / num_samples)
     eval_gap = 2 ** 1
 
     '''init task'''
-    env = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
-    dim = env.num_nodes
-    probs = env.get_rand_probs(num_envs=num_envs)
+    mcmc_sim = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
+    dim = mcmc_sim.num_nodes
+    probs = mcmc_sim.get_rand_probs(num_samples=num_samples)
     probs.requires_grad_(True)
     obj = None
     hidden0 = None
@@ -170,7 +170,7 @@ def search_by_optimizer_optimizee():
             p_bar.update(1)
             p_bar.set_description("current max score:{}, history max score:{}".format(current_score, best_score))
             if i % reset_gap == 0:
-                probs = env.get_rand_probs(num_envs=num_envs)
+                probs = mcmc_sim.get_rand_probs(num_samples=num_samples)
                 probs.requires_grad_(True)
                 obj = None
                 hidden0 = None
@@ -180,7 +180,7 @@ def search_by_optimizer_optimizee():
             updates = []
 
             for j in range(seq_len):
-                obj = env.step(probs).mean()
+                obj = mcmc_sim.step(probs).mean()
                 obj.backward()
 
                 grad_s = probs.grad.data
@@ -193,7 +193,7 @@ def search_by_optimizer_optimizee():
 
             updates = th.stack(updates, dim=0)
             prob_ = (prob_ + updates.mean(0)).clip(0, 1)
-            obj_ = env.step(prob_).mean()
+            obj_ = mcmc_sim.step(prob_).mean()
 
             opt_base.zero_grad()
             obj_.backward()
@@ -202,8 +202,8 @@ def search_by_optimizer_optimizee():
             probs.data[:] = prob_
 
             if i % eval_gap == 0:
-                decision = env.make_decision(probs)
-                scores = env.get_score(decision)
+                decision = mcmc_sim.make_decision(probs)
+                scores = mcmc_sim.get_score(decision)
                 current_score = scores.max().item()
                 max_score, max_id = th.max(scores, dim=0)
                 if max_score > best_score:
@@ -211,7 +211,7 @@ def search_by_optimizer_optimizee():
 
     print()
     print(f"best_score {best_score}")
-    env.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
+    mcmc_sim.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
 
 
 class AutoRegressiveModel(nn.Module):
@@ -259,7 +259,7 @@ class AutoRegressiveModel(nn.Module):
 
 def search_by_auto_regressive_model():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_envs = 2 ** 8
+    num_samples = 2 ** 8
     # graph_name, num_limit = 'G14', sys.maxsize
     graph_name, num_limit = 'G14', 28
 
@@ -267,15 +267,15 @@ def search_by_auto_regressive_model():
     lr = 1e-3
     mid_dim = 2 ** 8
     num_layers = 1
-    opt_num = int(2 ** 24 / num_envs)
+    opt_num = int(2 ** 24 / num_samples)
     eval_gap = 2 ** 4
 
     alpha_period = 2 ** 10
     alpha_weight = 1.0
 
     '''init task'''
-    env = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
-    dim = env.num_nodes
+    mcmc_sim = MCMCSim2(graph_name=graph_name, gpu_id=gpu_id)
+    dim = mcmc_sim.num_nodes
 
     '''init opti'''
     device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
@@ -291,8 +291,8 @@ def search_by_auto_regressive_model():
             p_bar.set_description("current max score:{}, history max score:{}".format(current_score, best_score))
 
             alpha = (math.cos(i * math.pi / alpha_period) + 1) / 2
-            samples, logprobs, entropies = model.sample(dim, num_envs, True, device=device)
-            scores = env.get_score(samples).detach().to(th.float32)
+            samples, logprobs, entropies = model.sample(dim, num_samples, True, device=device)
+            scores = mcmc_sim.get_score(samples).detach().to(th.float32)
             scores = (scores - scores.min()) / (scores.std() + 1e-4)
 
             obj_probs = logprobs.exp()
@@ -303,8 +303,8 @@ def search_by_auto_regressive_model():
             opt_base.step()
 
             if i % eval_gap == 0:
-                _samples, _, _ = model.sample(dim, num_envs, False, device=device)
-                _scores = env.get_score(_samples)
+                _samples, _, _ = model.sample(dim, num_samples, False, device=device)
+                _scores = mcmc_sim.get_score(_samples)
 
                 samples = th.vstack((samples, _samples))
                 scores = th.hstack((scores, _scores))
@@ -315,7 +315,7 @@ def search_by_auto_regressive_model():
                 best_score = max_score
     print()
     print(f"best_score {best_score}")
-    env.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
+    mcmc_sim.write_result(decision[0].cpu().numpy(), f'result/{graph_name}.txt')
 
 
 if __name__ == '__main__':

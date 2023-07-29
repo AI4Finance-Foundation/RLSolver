@@ -23,9 +23,9 @@ class MCMCSim2:
 
     def step(self, probs: th.Tensor):
         assert probs.shape[-1] == self.num_nodes
-        num_envs = probs.shape[0]
+        num_samples = probs.shape[0]
         sum_dts = []
-        for env_i in range(num_envs):
+        for env_i in range(num_samples):
             env_probs = probs[env_i]
             map_node_to_probs = []
             for node_id in range(self.num_nodes):
@@ -46,9 +46,9 @@ class MCMCSim2:
         sum_dts = th.hstack(sum_dts)
         return -sum_dts
 
-    def get_rand_probs(self, num_envs: int):
+    def get_rand_probs(self, num_samples: int):
         # generate random probability for each node, mainly for initilization
-        return th.rand((num_envs, self.num_nodes), dtype=th.float32, device=self.device)
+        return th.rand((num_samples, self.num_nodes), dtype=th.float32, device=self.device)
 
     @staticmethod
     def make_decision(prob: th.Tensor, thresh=0.5):
@@ -57,11 +57,11 @@ class MCMCSim2:
 
     def get_score(self, decisions: th.Tensor):
         # get the score of the decision
-        num_envs = decisions.shape[0]
-        env_ids = th.arange(num_envs, dtype=self.int_type, device=self.device)
-        # unsqueeze(1) is to make the shape of env_ids to (num_envs, 1), so that it can be broadcasted to (num_envs, num_edges)
-        p0 = decisions[env_ids.unsqueeze(1), self.map_edge_to_n0_n1_dt[:, 0].repeat(num_envs, 1)]
-        p1 = decisions[env_ids.unsqueeze(1), self.map_edge_to_n0_n1_dt[:, 1].repeat(num_envs, 1)]
+        num_samples = decisions.shape[0]
+        env_ids = th.arange(num_samples, dtype=self.int_type, device=self.device)
+        # unsqueeze(1) is to make the shape of env_ids to (num_samples, 1), so that it can be broadcasted to (num_samples, num_edges)
+        p0 = decisions[env_ids.unsqueeze(1), self.map_edge_to_n0_n1_dt[:, 0].repeat(num_samples, 1)]
+        p1 = decisions[env_ids.unsqueeze(1), self.map_edge_to_n0_n1_dt[:, 1].repeat(num_samples, 1)]
         return (p0 ^ p1).sum(1)
 
     def read_txt_as_adjacency_matrix(self, filename: str) -> np.array:
