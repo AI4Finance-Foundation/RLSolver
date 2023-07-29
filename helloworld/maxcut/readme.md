@@ -94,6 +94,7 @@ The partial results are stored in the folder "result" in this repo. The whole re
 
 In the following experiments, we use GPU during training by default. 
 
+When use solvers, "gap" is calculated based on the objective of its solution and the best bound. When we use our method, "gap-best" is calculated based on the objective of our solution and the best one over other methods. Therefore, to distinguish them, we use "gap-best".
 
 1) __Gset__
 
@@ -108,6 +109,7 @@ In the following experiments, we use GPU during training by default.
 |G50 | 3000 | 6000 | __5880__ | __5880__ | __5880__ | __5880__ | 5820  |__5880__|0|__5880__|0| __5880__|0 | 5720|  -2.72\% | 
 |G55 | 5000 | 12468 | __10294__ | 9960 | 10236 | 10116 | 10138  | 10103 | 15.39\%|---| ---|--- | ---  |10017 |  -2.69\% | 
 |G70 | 10000 | 9999 |__9541__ | 9456 | 9458 | - | 9421  | 9489 | 2.41\% |---|---| ---| --- |9358 | -1.92\% | 
+
 
 
 2) __Syn__ 
