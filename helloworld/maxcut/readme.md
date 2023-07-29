@@ -82,7 +82,7 @@ Results will be written to a file result.txt in the folder "result". The first c
 
 5 2  # node 5 in set 2
 
-If using Gurobi or SCIP, the generated files have their own formats (e.g., result.lp and result.mps) for easy check, which are very different from that by running algorithms. 
+If using Gurobi or SCIP, the generated files have their own formats (e.g., result.lp and result.sol) for easy check, which are very different from that by running algorithms. 
 
 The partial results are stored in the folder "result" in this repo. The whole results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
 
