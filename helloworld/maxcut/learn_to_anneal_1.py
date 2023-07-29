@@ -25,14 +25,14 @@ def train(
           optimizer: th.optim,
           episode_length: int,
           hidden_layer_size: int):
-    mcmc_sim = MCMCSim(filename=filename, num_envs=num_envs, device=device, episode_length=episode_length)
+    mcmc_sim = MCMCSim(filename=filename, num_samples=num_envs, device=device, episode_length=episode_length)
 
 
-    l_num = 1
-    h_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
-    c_init = th.zeros(l_num, num_envs, hidden_layer_size).to(device)
+    num_layers = 1
+    init_hidden = th.zeros(num_layers, num_envs, hidden_layer_size).to(device)
+    init_cell = th.zeros(num_layers, num_envs, hidden_layer_size).to(device)
     for epoch in range(100000):
-        prev_h, prev_c = h_init.clone(), c_init.clone()
+        prev_hidden, prev_cell = init_hidden.clone(), init_cell.clone()
         loss = 0
         if (epoch + 1) % 500 == 0:
             episode_length = max(episode_length - 1, 5)
@@ -44,7 +44,7 @@ def train(
             #print(x_prev.shape)
             #print(x_prev.reshape(num_env, N, 1).shape)
             #x, h, c = opt_net(x_prev.reshape(num_env, N, 1), prev_h, prev_c)
-            x, h, c = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_h, prev_c)
+            x, hidden, cell = opt_net(x_prev.reshape(num_envs, 1, num_nodes), prev_hidden, prev_cell)
 
             #x = x.reshape(num_env, N)
             l = mcmc_sim.obj(x.reshape(num_envs, num_nodes))
@@ -64,11 +64,11 @@ def train(
                 optimizer.step()
                 loss = 0
                 #h, c = h_init.clone(), c_init.clone()
-            prev_h, prev_c = h.detach(), c.detach()
+            prev_hidden, prev_cell = hidden.detach(), cell.detach()
 
         if epoch % 50 == 0:
             print(f"epoch:{epoch} | train:",  loss_list.max().item())
-            h, c = h_init, c_init
+            hidden, cell = init_hidden, init_cell
             # print(h_init.mean(), c_init.mean())
             loss = 0
             #loss_list = []
@@ -76,7 +76,7 @@ def train(
             x = mcmc_sim.reset(True)
             xs = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
             for step in range(episode_length * 2):
-                x, h, c = opt_net(x.detach().reshape(num_envs, 1, num_nodes), h, c)
+                x, hidden, cell = opt_net(x.detach().reshape(num_envs, 1, num_nodes), hidden, cell)
                 x = x.reshape(num_envs, num_nodes)
                 x2 = x.detach()
                 x2 = (x2>0.5).to(th.float32)
@@ -91,11 +91,11 @@ def train(
                     #optimizer.step()
                     #loss = 0
                     #h, c = h_init.clone(), c_init.clone()
-            val, ind = loss_list.max(dim=-1)
+            val, idx = loss_list.max(dim=-1)
             file_name = filename.replace("data", "result")
             file_name = file_name.replace(".txt", "_" + str(int(val.item())) + ".txt")
-            write_result(xs[ind], file_name)
-            mcmc_sim.best_x = xs[ind]
+            write_result(xs[idx], file_name)
+            mcmc_sim.best_x = xs[idx]
             print(f"epoch:{epoch} | test :",  loss_list.max().item())
 
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     num_nodes = graph.number_of_nodes()
     hidden_layer_size = 4000
     learning_rate = 2e-5
-    num_envs = 20
+    num_samples = 20
     episode_length = 30
 
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
@@ -117,5 +117,5 @@ if __name__ == "__main__":
     opt_net = Opt_net(num_nodes, hidden_layer_size).to(device)
     optimizer = th.optim.Adam(opt_net.parameters(), lr=learning_rate)
 
-    train(filename, num_nodes, num_envs, device, opt_net, optimizer, episode_length, hidden_layer_size)
+    train(filename, num_nodes, num_samples, device, opt_net, optimizer, episode_length, hidden_layer_size)
 
