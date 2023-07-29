@@ -56,7 +56,7 @@ def train():
     N = graph_node[sys.argv[1]]
     hidden_layer_size = config.hidden_layer_size
     learning_rate = config.learning_rate
-    num_env = config.num_envs
+    num_env = config.num_samples
     episode_length = config.episode_length
     gpu_id = 0
     device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
