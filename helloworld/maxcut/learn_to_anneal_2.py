@@ -14,7 +14,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from typing import Union, List
-from mcmc_sim import MCMCSim2
+from mcmc_sim.mcmc_sim2 import MCMCSim2
 
 def search_by_grad():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
