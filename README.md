@@ -40,8 +40,8 @@ ElegantRL_Solver follows the principles:
 Important functions: 
 
 * reset(): Initialize the variables
-* obj(): Calculate the objective function, i.e., Halmiltonian.
-* reward(mu1: Tensor, mu2: Tensor): Calculate the Halmiltonian of from the graph mu1 to another graph mu2. 
+* obj(mu: Tensor): Calculate the objective value (i.e., Halmiltonian) of the graph mu
+* obj2(mu1: Tensor, mu2: Tensor): Calculate the objective value (i.e., Halmiltonian) of from the graph mu1 to another graph mu2. 
 
 ## Datasets
 * Maxcut:
