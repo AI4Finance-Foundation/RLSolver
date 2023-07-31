@@ -21,7 +21,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
         prev_h, prev_c = h_init.clone(), c_init.clone()
         loss = 0
         loss_list = th.zeros(episode_length * num_env).to(device)
-        action_prev = env_maxcut.reset()
+        action_prev = env_maxcut.init()
         gamma0 = 0.98
         gamma = gamma0 ** episode_length
         for step in range(episode_length):
@@ -57,7 +57,7 @@ def train(N, num_env, device, opt_net, optimizer, episode_length, hidden_layer_s
             loss = 0
             #loss_list = []
             loss_list = th.zeros(episode_length * num_env * 2).to(device)
-            action = env_maxcut.reset()
+            action = env_maxcut.init()
             for step in range(episode_length * 2):
                 action, h, c = opt_net(action.detach().reshape(num_env, 1, N), h, c)
                 action = action.reshape(num_env, N)

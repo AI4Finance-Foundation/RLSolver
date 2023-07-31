@@ -20,10 +20,10 @@ class MCMCSim():
         self.adjacency_matrix = self.adjacency_matrix.to(self.device)
         self.episode_length = episode_length
         self.best_x = None
-        self.calc_obj_for_two_graphs_vmap = th.vmap(self.reward, in_dims=(0, 0))
+        self.calc_obj_for_two_graphs_vmap = th.vmap(self.obj2, in_dims=(0, 0))
 
 
-    def reset(self, add_noise_for_best_x=False, sample_ratio_envs=0.6, sample_ratio_nodes=0.7):
+    def init(self, add_noise_for_best_x=False, sample_ratio_envs=0.6, sample_ratio_nodes=0.7):
         if add_noise_for_best_x and self.best_x is not None:
             e = max(1, int(sample_ratio_envs * self.num_samples))
             n = max(1, int(sample_ratio_nodes * self.num_nodes))
@@ -54,7 +54,7 @@ class MCMCSim():
 
     # make sure that mu1 and mu2 are different tensors. If they are the same, use obj function
     # calc obj for two graphs
-    def reward(self, mu1: Tensor, mu2: Tensor):
+    def obj2(self, mu1: Tensor, mu2: Tensor):
         # return th.mul(th.matmul(mu1.reshape(self.N, 1), \
         #                         (1 - mu2.reshape(-1, self.N, 1)).transpose(-1, -2)), \
         #               self.adjacency_matrix)\

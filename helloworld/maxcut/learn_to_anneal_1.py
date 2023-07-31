@@ -37,7 +37,7 @@ def train(
         if (epoch + 1) % 500 == 0:
             episode_length = max(episode_length - 1, 5)
         loss_list = th.zeros(episode_length * num_envs).to(device)
-        x_prev = mcmc_sim.reset(True)
+        x_prev = mcmc_sim.init(True)
         gamma0 = 0.98
         gamma = gamma0 ** episode_length
         for step in range(episode_length):
@@ -73,7 +73,7 @@ def train(
             loss = 0
             #loss_list = []
             loss_list = th.zeros(episode_length * num_envs * 2).to(device)
-            x = mcmc_sim.reset(True)
+            x = mcmc_sim.init(True)
             xs = th.zeros(episode_length * num_envs * 2, num_nodes).to(device)
             for step in range(episode_length * 2):
                 x, hidden, cell = opt_net(x.detach().reshape(num_envs, 1, num_nodes), hidden, cell)

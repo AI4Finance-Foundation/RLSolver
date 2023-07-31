@@ -11,7 +11,7 @@ def train_curriculum_learning(policy_net_maxcut, optimizer, save_path, device, N
     test_cut_value = 0
     for epoch in range(num_epochs):
         obj_value = 0
-        state = env_maxcut.reset()
+        state = env_maxcut.init()
         while(True):
             action = policy_net_maxcut(state)
             next_state, reward, done = env_maxcut.step(action)

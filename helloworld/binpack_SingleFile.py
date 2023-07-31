@@ -168,7 +168,7 @@ class AgentDQN(AgentBase):
             ary_action = action.detach().cpu().numpy()
             ary_state, reward, done, _ = env.step(ary_action)
             if done:
-                ary_state = env.reset().flatten()
+                ary_state = env.init().flatten()
             ary_state = torch.as_tensor(ary_state, dtype=torch.float32, device=self.device).flatten()
             states[i] = ary_state
             actions[i] = action
@@ -246,7 +246,7 @@ def train_agent(args: Config):
 
     env = build_env(args.env_class, args.env_args)
     agent = args.agent_class(args.net_dims, args.state_dim, args.action_dim, gpu_id=0, args=args)
-    agent.states = env.reset()
+    agent.states = env.init()
     buffer = ReplayBuffer(gpu_id=0, max_size=args.buffer_size,
                           state_dim=args.state_dim, action_dim=1 if args.if_discrete else args.action_dim, )
     buffer_items = agent.explore_env(env, args.horizon_len * args.eval_times, if_random=True)
@@ -310,7 +310,7 @@ class Evaluator:
 
 def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int):  # cumulative_rewards and episode_steps
     device = next(actor.parameters()).device  # net.parameters() is a Python generator.
-    state = env.reset().flatten()
+    state = env.init().flatten()
     episode_steps = 0
     cumulative_returns = 0.0  # sum of rewards in an episode
     for episode_steps in range(12345):
@@ -353,7 +353,7 @@ env_config = {'N': 5,
               'item_values': np.array([2, 4, 2, 1, 10]),
               'mask': False}
 env = or_gym.make('Knapsack-v0', env_config=env_config)  
-initial_state = env.reset()
+initial_state = env.init()
 
 
 env_config = {'N': 5,
