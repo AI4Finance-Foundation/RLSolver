@@ -45,7 +45,7 @@ def simulated_annealing(init_solution: Union[List[int], np.array], init_temperat
 
 if __name__ == '__main__':
     # read data
-    graph = read_txt_as_networkx_graph('data/syn_50_176.txt')
+    graph = read_txt_as_networkx_graph('data/syn/syn_50_176.txt')
 
     # run alg
     init_solution = list(np.random.randint(0, 2, graph.number_of_nodes()))

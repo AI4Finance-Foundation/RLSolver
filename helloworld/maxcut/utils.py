@@ -240,6 +240,7 @@ def calc_result_file_name(file: str):
     if 'data' in new_file:
         new_file = new_file.replace('data', 'result')
     new_file = new_file.split('.')[0]
+    new_file = new_file.split('/')[0] + '/' + new_file.split('/')[-1]
     return new_file
 
 # For example, syn_10_21_3600.txt, the prefix is 'syn_10_', time_limit is 3600 (seconds).
@@ -363,7 +364,7 @@ def rename_files(directory: str, orig: str, dest: str):
 if __name__ == '__main__':
     read_txt = False
     if read_txt:
-        graph1 = read_txt_as_networkx_graph('data/gset_14.txt')
+        graph1 = read_txt_as_networkx_graph('data/gset/gset_14.txt')
         graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
 
     # result = Tensor([0, 1, 0, 1, 0, 1, 1])

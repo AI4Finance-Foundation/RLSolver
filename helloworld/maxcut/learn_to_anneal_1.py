@@ -103,7 +103,7 @@ def train(
 if __name__ == "__main__":
     import sys
 
-    filename = 'data/gset_14.txt'
+    filename = 'data/gset/gset_14.txt'
     gpu_id = 5
     graph = read_txt_as_networkx_graph(filename)
     num_nodes = graph.number_of_nodes()
