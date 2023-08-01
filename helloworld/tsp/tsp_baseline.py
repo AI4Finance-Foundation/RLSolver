@@ -59,11 +59,11 @@ def load_dataset(filename):
         return pickle.load(f)
     
 def solve_gurobi(directory, name, loc, disable_cache=False, timeout=None, gap=None):
-    # Lazy import so we do not need to have gurobi installed to run this script
+    # Lazy import so we do not need to have syn_gurobi installed to run this script
     
 
     try:
-        problem_filename = os.patorch.join(directory, "{}.gurobi{}{}.pkl".format(
+        problem_filename = os.patorch.join(directory, "{}.syn_gurobi{}{}.pkl".format(
             name, "" if timeout is None else "t{}".format(timeout), "" if gap is None else "gap{}".format(gap)))
 
         if os.patorch.isfile(problem_filename) and not disable_cache:
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("method",
-                        help="Name of the method to evaluate, 'nn', 'gurobi' or '(nearest|random|farthest)_insertion'")
+                        help="Name of the method to evaluate, 'nn', 'syn_gurobi' or '(nearest|random|farthest)_insertion'")
     parser.add_argument("datasets", nargs='+', help="Filename of the dataset(s) to evaluate")
     parser.add_argument("-f", action='store_true', help="Set true to overwrite")
     parser.add_argument("-o", default=None, help="Name of the results file to write")
