@@ -36,7 +36,7 @@ def random_walk(init_solution: Union[List[int], np.array], num_steps: int, graph
 if __name__ == '__main__':
     # read data
     # graph1 = read_as_networkx_graph('data/gset_14.txt')
-    graph = read_txt_as_networkx_graph('data/syn_50_176.txt')
+    graph = read_txt_as_networkx_graph('data/syn/syn_50_176.txt')
 
     # run alg
     # init_solution = [1, 0, 1, 0, 1]
