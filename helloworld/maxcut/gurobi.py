@@ -43,9 +43,9 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
         # new_file.write(f"time_limit: {time_limit}\n")
         time_limit = model.getParamInfo("TIME_LIMIT")
         new_file.write(f"time_limit: {time_limit}\n")
-        vars = model.getVars()
     with open(f"{new_filename}.sov", 'w', encoding="UTF-8") as new_file:
         new_file.write('values of vars: \n')
+        vars = model.getVars()
         for var in vars:
             new_file.write(f'{var.VarName}: {var.x}\n')
     model.write(f"{new_filename}.mst")
