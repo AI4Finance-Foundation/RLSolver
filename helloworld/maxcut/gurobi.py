@@ -2,6 +2,7 @@ from gurobipy import *
 import os
 from typing import List
 import networkx as nx
+import sys
 from utils import read_txt_as_networkx_graph
 from utils import calc_txt_files_with_prefix
 from utils import calc_result_file_name
@@ -117,8 +118,6 @@ def run_gurobi_over_multiple_files(prefixes: List[str], time_limits: List[int], 
     avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
 
 if __name__ == '__main__':
-    import sys
-
     select_single_file = True
     if select_single_file:
         filename = 'data/syn/syn_50_176.txt'
@@ -129,10 +128,11 @@ if __name__ == '__main__':
         avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
     else:
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
-        # prefixes = ['syn_50_']
+        # prefixes = ['syn_10_']
         # time_limits = [0.5 * 3600, 1 * 3600]
         time_limits = [0.5 * 3600]
-        run_gurobi_over_multiple_files(prefixes, time_limits)
+        directory_data = 'data/syn'
+        run_gurobi_over_multiple_files(prefixes, time_limits, directory_data)
         directory = 'result'
         avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
 

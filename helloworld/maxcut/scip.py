@@ -124,10 +124,11 @@ if __name__ == '__main__':
 
     else:
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
-        # prefixes = ['syn_50_']
+        # prefixes = ['syn_10_']
         # time_limits = [0.5 * 3600, 1 * 3600]
         time_limits = [0.5 * 3600]
-        run_scip_over_multiple_files(prefixes, time_limits)
+        directory_data = 'data/syn'
+        run_scip_over_multiple_files(prefixes, time_limits, directory_data)
         directory = 'result'
         avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
     pass
