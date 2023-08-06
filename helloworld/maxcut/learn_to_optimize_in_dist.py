@@ -77,8 +77,6 @@ def load_graph(graph_name: str):
         g_type, num_nodes = graph_name.split('_')
         num_nodes = int(num_nodes)
         graph, num_nodes, num_edges = generate_graph(num_nodes=num_nodes, g_type=g_type)
-    elif isinstance(graph_name, tuple):
-        graph, num_nodes, num_edges = graph_name
     else:
         raise ValueError(f"graph_name {graph_name}")
     return graph, num_nodes, num_edges
@@ -159,13 +157,16 @@ def check_adjacency_matrix_vector():
 
 
 class GraphMaxCutSimulator:  # Markov Chain Monte Carlo Simulator
-    def __init__(self, graph_name: str = 'powerlaw_64', gpu_id: int = -1):
+    def __init__(self, graph_name: str = 'powerlaw_64', gpu_id: int = -1, graph_tuple=None):
         device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
         int_type = th.int32
         self.device = device
         self.int_type = int_type
 
-        graph, num_nodes, num_edges = load_graph(graph_name=graph_name)
+        if graph_tuple:
+            graph, num_nodes, num_edges = graph_tuple
+        else:
+            graph, num_nodes, num_edges = load_graph(graph_name=graph_name)
 
         # 建立邻接矩阵，不预先保存索引的邻接矩阵不适合GPU并行
         '''
@@ -445,114 +446,35 @@ class OptimizerLSTM(nn.Module):
         return out, hid0, hid1
 
 
-class UniqueBuffer:  # for GraphMaxCut
-    def __init__(self, max_size: int, num_nodes: int, gpu_id: int = 0):
-        self.max_size = max_size
-        self.device = th.device(f"cuda:{gpu_id}" if (th.cuda.is_available() and (gpu_id >= 0)) else "cpu")
+class OptimizerLSTM2(nn.Module):
+    def __init__(self, inp_dim, mid_dim, out_dim, num_layers):
+        super().__init__()
+        inp_dim0 = inp_dim[0]
+        inp_dim1 = inp_dim[1]
 
-        self.sln_xs = th.empty((max_size, num_nodes), dtype=th.bool, device=self.device)
-        self.scores = th.empty(max_size, dtype=th.int64, device=self.device)
-        self.min_score = -th.inf
-        self.min_index = None
+        self.rnn0 = nn.LSTM(inp_dim0, mid_dim, num_layers=num_layers)
+        self.enc0 = nn.Sequential(nn.Linear(inp_dim1, mid_dim), nn.ReLU(),
+                                  nn.Linear(mid_dim, mid_dim))  # todo graph dist
+        self.mlp0 = nn.Sequential(nn.Linear(mid_dim + mid_dim, mid_dim), nn.ReLU(),
+                                  nn.Linear(mid_dim, out_dim))
 
-        enc = EncoderBase64(num_nodes=num_nodes)
-        self.bool_to_str = enc.bool_to_str
+        self.rnn1 = nn.LSTM(1, 8, num_layers=num_layers)
+        self.mlp1 = nn.Linear(8, 1)
 
-    def update(self, sln_x, score):
-        if (score < self.min_score) or th.any(th.all(sln_x.unsqueeze(0) == self.sln_xs, dim=1)):
-            return False
+    def forward(self, inp, graph, hid0=None, hid1=None):
+        d0, d1, d2 = inp.shape
+        inp1 = inp.reshape(d0, d1 * d2, 1)
+        tmp1, hid1 = self.rnn1(inp1, hid1)
+        out1 = self.mlp1(tmp1).reshape(d0, d1, d2)
 
-        self.sln_xs[self.min_index] = sln_x
-        self.scores[self.min_index] = score
-        self.min_score, self.min_index = th.min(self.scores, dim=0)
-        return True
+        tmp0, hid0 = self.rnn0(inp, hid0)
 
-    def save_or_load_history(self, cwd: str, if_save: bool):
+        graph = self.enc0(graph) * th.ones((d0, d1, 1), device=tmp0.device)
+        tmp0 = th.concat((tmp0, graph), dim=2)  # todo graph dist
+        out0 = self.mlp0(tmp0)
 
-        item_paths = (
-            (self.sln_xs, f"{cwd}/buffer_sln_xs.npz"),
-            (self.scores, f"{cwd}/buffer_scores.npz"),
-        )
-
-        if if_save:
-            # print(f"| buffer.save_or_load_history(): Save {cwd}")
-            for item, path in item_paths:
-                np.savez_compressed(path, arr=item.data.cpu().numpy())
-
-        elif all([os.path.isfile(path) for item, path in item_paths]):
-            for item, path in item_paths:
-                buf_item = np.load(path)['arr']
-                print(f"| buffer.save_or_load_history(): Load {path}    {buf_item.shape}")
-
-                max_size = buf_item.shape[0]
-                max_size = min(self.max_size, max_size)
-                item[:max_size] = th.tensor(buf_item[-max_size:], dtype=item.dtype, device=item.device)
-            self.min_score, self.min_index = th.min(self.scores, dim=0)
-
-    def init_with_random(self, sim):
-        probs = sim.get_rand_probs(num_envs=self.max_size)
-        sln_xs = sim.prob_to_bool(probs)
-        scores = sim.get_scores(sln_xs)
-        self.sln_xs[:] = sln_xs
-        self.scores[:] = scores
-        self.min_score, self.min_index = th.min(scores, dim=0)
-
-    def print_sln_x_str(self):
-        print(f"{'score':>8}  {'sln_x':8}")
-
-        sort_ids = th.argsort(self.scores)
-        for i in sort_ids:
-            sln_x = self.sln_xs[i]
-            score = self.scores[i]
-
-            sln_x_str = self.bool_to_str(sln_x)
-            enter_str = '\n' if len(sln_x_str) > 60 else ''
-            print(f"score {score:8}  {enter_str}{sln_x_str}")
-
-        ys = self.scores.sort().values.data.cpu().numpy()
-        xs = th.arange(ys.shape[0]).data.cpu().numpy()
-        plt.scatter(xs, ys)
-        plt.title(f"max score {ys.max().item()}  top {ys.shape[0]}")
-        plt.grid()
-        plt.show()
-
-
-def check_unique_buffer():
-    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    graph_name = 'powerlaw_64'
-
-    sim = GraphMaxCutSimulator(graph_name=graph_name, gpu_id=gpu_id)
-    enc = EncoderBase64(num_nodes=sim.num_nodes)
-    dim = sim.num_nodes
-
-    max_size = 4
-    buffer = UniqueBuffer(max_size=max_size, num_nodes=dim, gpu_id=gpu_id)
-    buffer.init_with_random(sim) if (buffer.min_score is None) else None
-
-    x_prob = sim.get_rand_probs(num_envs=1).unsqueeze(0)
-    x_bool = sim.prob_to_bool(x_prob)
-    x_str = enc.bool_to_str(x_bool)
-    sln_x = enc.str_to_bool(x_str)
-    score = sim.get_scores(sln_x.unsqueeze(0)).squeeze(0)
-    buffer.update(sln_x, score)
-    print(buffer.scores)
-
-    max_size = 2 ** 7
-    buffer = UniqueBuffer(max_size=max_size, num_nodes=dim, gpu_id=gpu_id)
-    buffer.init_with_random(sim) if (buffer.min_score is None) else None
-
-    result_paths = [f"result_{graph_name}_{i}" for i in (5, 6, 7)]
-    for result_path in result_paths:
-        if os.path.exists(result_path):
-            sln_xs = th.tensor(np.load(f"{result_path}/buffer_sln_xs.npz")['arr'], device=buffer.device)
-            scores = th.tensor(np.load(f"{result_path}/buffer_scores.npz")['arr'], device=buffer.device)
-            for i in range(sln_xs.shape[0]):
-                buffer.update(sln_xs[i], scores[i])
-        else:
-            print(result_path)
-
-    buffer.print_sln_x_str()
-    # buffer.save_or_load_history(cwd=result_paths[0], if_save=True)
+        out = out0 + out1
+        return out, hid0, hid1
 
 
 class Evaluator:
@@ -579,7 +501,7 @@ class Evaluator:
 
 
 class Agent:  # Demo
-    def __init__(self, graph_name='powerlaw_64', gpu_id: int = 0, json_path: str = ''):
+    def __init__(self, graph_name='powerlaw_64', gpu_id: int = 0, json_path: str = '', graph_tuple=None):
         pass
 
         """数据超参数（路径，存储，预处理）"""
@@ -600,15 +522,16 @@ class Agent:  # Demo
         self.eval_gap = 2 ** 2
         self.save_dir = f"./result_{graph_name}_{gpu_id}"
 
-        if os.path.exists(json_path):
-            self.load_from_json(json_path=json_path)
-            self.save_as_json(json_path=json_path)
-        vars_str = str(vars(self)).replace(", '", ", \n'")
-        print(f"| Config\n{vars_str}")
+        if graph_tuple is None:
+            if os.path.exists(json_path):
+                self.load_from_json(json_path=json_path)
+                self.save_as_json(json_path=json_path)
+            vars_str = str(vars(self)).replace(", '", ", \n'")
+            print(f"| Config\n{vars_str}")
 
         """agent"""
         '''init simulator'''
-        self.sim = GraphMaxCutSimulator(graph_name=graph_name, gpu_id=gpu_id)
+        self.sim = GraphMaxCutSimulator(graph_name=graph_name, gpu_id=gpu_id, graph_tuple=graph_tuple)
         self.enc = EncoderBase64(num_nodes=self.sim.num_nodes)
         self.num_nodes = self.sim.num_nodes
         self.num_edges = self.sim.num_edges
@@ -692,52 +615,6 @@ class Agent:  # Demo
             json.dump(json_dict, file, indent=4)
 
 
-class OptimizerLSTM2(nn.Module):
-    def __init__(self, inp_dim, mid_dim, out_dim, num_layers):
-        super().__init__()
-        inp_dim0 = inp_dim[0]
-        inp_dim1 = inp_dim[1]
-
-        self.rnn0 = nn.LSTM(inp_dim0, mid_dim, num_layers=num_layers)
-        self.enc0 = nn.Sequential(nn.Linear(inp_dim1, mid_dim), nn.ReLU(),
-                                  nn.Linear(mid_dim, mid_dim))  # todo graph dist
-        self.mlp0 = nn.Sequential(nn.Linear(mid_dim + mid_dim, mid_dim), nn.ReLU(),
-                                  nn.Linear(mid_dim, out_dim))
-
-        self.rnn1 = nn.LSTM(1, 8, num_layers=num_layers)
-        self.mlp1 = nn.Linear(8, 1)
-
-    def forward(self, inp, graph, hid0=None, hid1=None):
-        d0, d1, d2 = inp.shape
-        inp1 = inp.reshape(d0, d1 * d2, 1)
-        tmp1, hid1 = self.rnn1(inp1, hid1)
-        out1 = self.mlp1(tmp1).reshape(d0, d1, d2)
-
-        tmp0, hid0 = self.rnn0(inp, hid0)
-
-        graph = self.enc0(graph) * th.ones((d0, d1, 1), device=tmp0.device)
-        tmp0 = th.concat((tmp0, graph), dim=2)  # todo graph dist
-        out0 = self.mlp0(tmp0)
-
-        out = out0 + out1
-        return out, hid0, hid1
-
-
-def run_v31_find_xs_using_opti():
-    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_nodes = 64
-    graph_name = f"powerlaw_{num_nodes}"
-
-    agent = Agent(graph_name=graph_name, gpu_id=gpu_id, json_path='auto_build')
-
-    best_sln_x = None
-    best_score = None
-    for j in range(agent.num_opti):
-        best_sln_x, best_score = agent.search(j=j)
-    print(f"\nbest_sln_x {best_sln_x}"
-          f"\nbest_score {best_score}")
-
-
 class AgentDist(Agent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -748,6 +625,32 @@ class AgentDist(Agent):
             num_layers=self.num_layers
         ).to(self.device)
         self.opt_base = th.optim.Adam(self.opt_opti.parameters(), lr=self.learning_rate)
+
+    def iter_loop(self, probs, hidden0, hidden1):
+        prob_ = probs.clone()
+        updates = []
+        graph_tensor = self.sim.adjacency_vector
+
+        for j in range(self.seq_len):
+            obj = self.sim.get_objectives(probs).mean()
+            obj.backward()
+
+            grad_s = probs.grad.data
+            update, hidden0, hidden1 = self.opt_opti(
+                grad_s.unsqueeze(0),
+                graph_tensor.unsqueeze(0),
+                hidden0,
+                hidden1,
+            )  # todo graph dist
+            update = (update.squeeze_(0) - grad_s) * self.learning_rate
+            updates.append(update)
+            probs.data.add_(update).clip_(0, 1)
+        hidden0 = [h.detach() for h in hidden0]
+        hidden1 = [h.detach() for h in hidden1]
+
+        updates = th.stack(updates, dim=0)
+        prob_ = (prob_ + updates.mean(0)).clip(0, 1)
+        return prob_, hidden0, hidden1
 
     def search_for_valid(self, j):
         self.opt_base = None
@@ -771,21 +674,24 @@ class AgentDist(Agent):
         return best_sln_x, best_score
 
 
-def generate_graphs_for_validation(graph_name='powerlaw_48', num_valid=100, seed_num=0):
-    np.random.seed(seed_num)
-    th.manual_seed(seed_num)
-    g_type, num_nodes = graph_name.split('_')
-    num_nodes = int(num_nodes)
-    graphs = [generate_graph(num_nodes=num_nodes, g_type=g_type)[0] for _ in range(num_valid)]  # 生成固定100个图
-    matrix_list = [build_adjacency_matrix(graph, num_nodes) for graph in graphs]
-    vector_list = [convert_matrix_to_vector(matrix) for matrix in matrix_list]
-    valid_vectors = th.stack(vector_list)
-    return valid_vectors
+def run_v31_find_xs_using_opti():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    num_nodes = 48
+    graph_name = f"powerlaw_{num_nodes}"
+
+    agent = Agent(graph_name=graph_name, gpu_id=gpu_id, json_path='auto_build')
+
+    best_sln_x = None
+    best_score = None
+    for j in range(agent.num_opti):
+        best_sln_x, best_score = agent.search(j=j)
+    print(f"\nbest_sln_x {best_sln_x}"
+          f"\nbest_score {best_score}")
 
 
 def run_v32_find_xs_using_opti():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_nodes = 64
+    num_nodes = 48
     graph_name = f"powerlaw_{num_nodes}"
 
     # todo graph dist
@@ -798,144 +704,36 @@ def run_v32_find_xs_using_opti():
     agents = []
     for i in range(num_valid):
         graph, num_nodes, num_edges = generate_graph(num_nodes=num_nodes, g_type=g_type)
-        _graph_name = (graph, num_nodes, num_edges)
-        agent = AgentDist(graph_name=_graph_name, gpu_id=gpu_id, json_path='auto_build')
+        agent = AgentDist(graph_name=graph_name, gpu_id=gpu_id, json_path='auto_build',
+                          graph_tuple=(graph, num_nodes, num_edges))
 
         graphs.append(graph)
         agents.append(agent)
-    matrix_list = [build_adjacency_matrix(graph, num_nodes) for graph in graphs]
-    vector_list = [convert_matrix_to_vector(matrix) for matrix in matrix_list]
-    valid_vectors = th.stack(vector_list)
+    valid_opt_opti = agents[0].opt_opti
+    for i in range(1, num_valid):
+        agent = agents[i]
+        agent.opt_opti = valid_opt_opti
+        agent.opt_base = None
 
-    agent = Agent(graph_name=graph_name, gpu_id=gpu_id, json_path='auto_build')
+    agent = AgentDist(graph_name=graph_name, gpu_id=gpu_id, json_path='auto_build')
+    valid_opt_opti.load_state_dict(agent.opt_opti.state_dict())
 
     best_sln_xs: list = [0, ] * num_valid
     best_scores: list = [0, ] * num_valid
     for j in range(agent.num_opti):
         agent.sim.__init__(graph_name=graph_name, gpu_id=gpu_id)
         _best_sln_x, _best_score = agent.search(j=j)
+
+        valid_opt_opti.load_state_dict(agent.opt_opti.state_dict())
         for j_valid in range(num_valid):
             _agent = agents[j_valid]
             best_sln_x, best_score = _agent.search_for_valid(j=j)
             best_sln_xs[j_valid] = best_sln_x
             best_scores[j_valid] = best_score
+        print(f"| best_scores.avg {sum(best_scores) / len(best_scores)}")
 
     print(f"\nbest_sln_x {best_sln_xs}"
           f"\nbest_score {best_scores}")
-
-
-"""find solution_x using auto regression"""
-
-
-class NetLSTM(nn.Module):
-    def __init__(self, inp_dim, mid_dim, out_dim, num_layers):
-        super().__init__()
-        self.rnn1 = nn.LSTM(inp_dim, mid_dim, num_layers=num_layers)
-        self.mlp1 = nn.Sequential(nn.Linear(mid_dim, out_dim), nn.Sigmoid())
-
-    def forward(self, inp, hid=None):
-        tmp, hid = self.rnn1(inp, hid)
-        out = self.mlp1(tmp)
-        return out, hid
-
-
-def sample_sln_x_using_auto_regression(num_envs, device, dim, opt_opti, if_train=True):
-    hidden = None
-    sample = th.zeros((num_envs, 1), dtype=th.float32, device=device)
-    node_prob = th.zeros((num_envs, 1), dtype=th.float32, device=device)
-
-    samples = []
-    logprobs = []
-    entropies = []
-
-    samples.append(sample)
-    for _ in range(dim - 1):
-        obs = th.hstack((sample, node_prob))
-        node_prob, hidden = opt_opti(obs, hidden)
-        dist = Bernoulli(node_prob.squeeze(0))
-        sample = dist.sample()
-
-        samples.append(sample)
-        if if_train:
-            logprobs.append(dist.log_prob(sample))
-            entropies.append(dist.entropy())
-
-    samples = th.stack(samples).squeeze(2)
-    sln_xs = samples.permute(1, 0).to(th.int)
-
-    if if_train:
-        logprobs = th.stack(logprobs).squeeze(2).sum(0)
-        logprobs = logprobs - logprobs.mean()
-
-        entropies = th.stack(entropies).squeeze(2).mean(0)
-    return sln_xs, logprobs, entropies
-
-
-def run_v1_find_sln_x_using_auto_regression():
-    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    num_envs = 2 ** 8
-    # graph_name, num_limit = 'G14', sys.maxsize
-    graph_name, num_limit = 'G14', 28
-
-    '''hyper-parameters'''
-    lr = 1e-3
-    mid_dim = 2 ** 8
-    num_layers = 1
-    num_opt = int(2 ** 24 / num_envs)
-    eval_gap = 2 ** 4
-    print_gap = 2 ** 8
-
-    alpha_period = 2 ** 10
-    alpha_weight = 1.0
-
-    '''init task'''
-    sim = GraphMaxCutSimulator(graph_name=graph_name, gpu_id=gpu_id)
-    enc = EncoderBase64(num_nodes=sim.num_nodes)
-    dim = sim.num_nodes
-
-    '''init opti'''
-    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-    opt_opti = NetLSTM(inp_dim=2, mid_dim=mid_dim, out_dim=1, num_layers=num_layers).to(device)
-    opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr)
-
-    '''loop'''
-    best_score = -th.inf
-    best_sln_x = sim.get_rand_probs(num_envs=1)[0]
-    start_time = time.time()
-    for i in range(num_opt):
-        alpha = (math.cos(i * math.pi / alpha_period) + 1) / 2
-        sln_xs, logprobs, entropies = sample_sln_x_using_auto_regression(num_envs, device, dim, opt_opti, if_train=True)
-        scores = sim.get_scores(probs=sln_xs).detach().to(th.float32)
-        scores = (scores - scores.min()) / (scores.std() + 1e-4)
-
-        obj_probs = logprobs.exp()
-        obj = -((obj_probs / obj_probs.mean()) * scores + (alpha * alpha_weight) * entropies).mean()
-
-        opt_base.zero_grad()
-        obj.backward()
-        opt_base.step()
-
-        if i % eval_gap == 0:
-            _sln_xs, _, _ = sample_sln_x_using_auto_regression(num_envs, device, dim, opt_opti, if_train=False)
-            _scores = sim.get_scores(_sln_xs)
-
-            sln_xs = th.vstack((sln_xs, _sln_xs))
-            scores = th.hstack((scores, _scores))
-
-        max_score, max_id = th.max(scores, dim=0)
-        if max_score > best_score:
-            best_score = max_score
-            best_sln_x = sln_xs[max_id]
-            print(f"best_score {best_score}  best_sln_x \n{enc.bool_to_str(best_sln_x)}")
-
-        if i % print_gap == 0:
-            used_time = time.time() - start_time
-            print(f"|{used_time:9.0f}  {i:6}  {obj.item():9.3f}  "
-                  f"score {scores.max().item():6.0f}  {best_score:6.0f}  "
-                  f"entropy {entropies.mean().item():6.3f}  alpha {alpha:5.3f}")
-
-            if i % (print_gap * 256) == 0:
-                print(f"best_score {best_score}  best_sln_x \n{enc.bool_to_str(best_sln_x)}")
 
 
 if __name__ == '__main__':
