@@ -789,7 +789,7 @@ def run_v3_find_sln_x_using_opti():
 
 def run_v4_find_sln_x_using_opti_and_buffer():
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-    args = Config(json_path='', graph_name='gset_55', gpu_id=gpu_id)
+    args = Config(json_path='', graph_name='gset/gset_55', gpu_id=gpu_id)
 
     graph_name = args.graph_name
     save_dir = args.save_dir
@@ -843,7 +843,7 @@ def run_v4_find_sln_x_using_opti_and_buffer():
     '''loop'''
     start_time = time.time()
     pbar = tqdm(total=reset_gap * alpha_rate, ascii=True)
-    mpl.use('Agg')  # Generating matplotlib graphs without a running X server [duplicate]
+    #mpl.use('Agg')  # Generating matplotlib graphs without a running X server [duplicate]
     for i in range(1, num_opti + 1):
         if i % reset_gap == 0:
             buffer.update(sln_x=sln_xs[max_id], score=max_score)
