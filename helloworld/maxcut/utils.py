@@ -163,6 +163,19 @@ def generate_write_symmetric_adjacency_matrix_and_networkx_graph(num_nodes: int,
                     file.write(f'{i + 1} {j + 1} {weight}\n')
     return adjacency_matrix, g
 
+def write_networkx_graph(g: nx.Graph(), new_filename: str):
+    num_nodes = nx.number_of_nodes(g)
+    num_edges = nx.number_of_edges(g)
+    adjacency_matrix = nx.to_numpy_array(g)
+    with open(new_filename, 'w', encoding="UTF-8") as file:
+        file.write(f'{num_nodes} {num_edges} \n')
+        for i in range(num_nodes):
+            for j in range(i + 1, num_nodes):
+                weight = int(adjacency_matrix[i][j])
+                g.add_edge(i, j, weight=weight)
+                if weight != 0:
+                    file.write(f'{i + 1} {j + 1} {weight}\n')
+
 def calc_file_name(front: str, id2: int, val: int, end: str):
     return front + "_" + str(id2) + "_" + str(val) + end + "pkl"
 
