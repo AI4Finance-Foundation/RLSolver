@@ -7,12 +7,13 @@ import networkx as nx
 import numpy as np
 import torch as th
 import torch.nn as nn
-from torch.distributions import Bernoulli  # BinaryDist
 from tqdm import tqdm
-from typing import Union
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+try:
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
 
 """变量名缩写约定
 edge: graph 里的edge
@@ -313,17 +314,18 @@ class GraphMaxCutSimulator:  # Markov Chain Monte Carlo Simulator
 
 
 def draw_adjacency_matrix():
-    graph_name = 'syn_20_42'
+    graph_name = 'powerlaw_48'
     env = GraphMaxCutSimulator(graph_name=graph_name)
     ary = (env.adjacency_matrix != -1).to(th.int).data.cpu().numpy()
 
     d0 = d1 = ary.shape[0]
-    plt.imshow(1 - ary[:, ::-1], cmap='hot', interpolation='nearest', extent=[0, d1, 0, d0])
-    plt.gca().set_xticks(np.arange(0, d1, 1))
-    plt.gca().set_yticks(np.arange(0, d0, 1))
-    plt.grid(True, color='grey', linewidth=1)
-    plt.title('black denotes connect')
-    plt.show()
+    if plt:
+        plt.imshow(1 - ary[:, ::-1], cmap='hot', interpolation='nearest', extent=[0, d1, 0, d0])
+        plt.gca().set_xticks(np.arange(0, d1, 1))
+        plt.gca().set_yticks(np.arange(0, d0, 1))
+        plt.grid(True, color='grey', linewidth=1)
+        plt.title('black denotes connect')
+        plt.show()
 
 
 def check_simulator_encoder():
