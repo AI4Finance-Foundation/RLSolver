@@ -176,6 +176,15 @@ def write_networkx_graph(g: nx.Graph(), new_filename: str):
                 if weight != 0:
                     file.write(f'{i + 1} {j + 1} {weight}\n')
 
+def calc_networkx_graph(node_node_weight: List[List[int]], num_nodes: int) -> nx.Graph():
+    g = nx.Graph()
+    nodes = list(range(num_nodes))
+    g.add_nodes_from(nodes)
+    for i, j, weight in node_node_weight:
+        g.add_edge(i, j, weight=weight)
+    return g
+
+
 def calc_file_name(front: str, id2: int, val: int, end: str):
     return front + "_" + str(id2) + "_" + str(val) + end + "pkl"
 
