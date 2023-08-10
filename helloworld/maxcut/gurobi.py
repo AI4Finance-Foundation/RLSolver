@@ -10,6 +10,18 @@ from utils import calc_avg_std_of_objs
 from utils import plot_fig
 from utils import fetch_node
 from utils import float_to_binary
+
+# the file has been open
+def write_statistics(model, new_file, add_slash = False):
+    prefix = '// ' if add_slash else ''
+    new_file.write(f"{prefix}obj: {model.objVal}\n")
+    new_file.write(f"{prefix}running_duration: {model.Runtime}\n")
+    new_file.write(f"{prefix}gap: {model.MIPGap}\n")
+    new_file.write(f"{prefix}obj_bound: {model.ObjBound}\n")
+    # new_file.write(f"time_limit: {time_limit}\n")
+    time_limit = model.getParamInfo("TIME_LIMIT")
+    new_file.write(f"{prefix}time_limit: {time_limit}\n")
+
 # running_duration (seconds) is included.
 def write_result_gurobi(model, filename: str = 'result/result', running_duration: int = None):
     if filename.split('/')[0] == 'data':
@@ -33,16 +45,12 @@ def write_result_gurobi(model, filename: str = 'result/result', running_duration
         nodes.append(node)
         values.append(value)
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
+        write_statistics(model, new_file, True)
         for i in range(len(nodes)):
             new_file.write(f"{nodes[i] + 1} {values[i] + 1}\n")
+
     with open(f"{new_filename}.sta", 'w', encoding="UTF-8") as new_file:
-        new_file.write(f"obj: {model.objVal}\n")
-        new_file.write(f"running_duation: {model.Runtime}\n")
-        new_file.write(f"gap: {model.MIPGap}\n")
-        new_file.write(f"obj_bound: {model.ObjBound}\n")
-        # new_file.write(f"time_limit: {time_limit}\n")
-        time_limit = model.getParamInfo("TIME_LIMIT")
-        new_file.write(f"time_limit: {time_limit}\n")
+        write_statistics(model, new_file, False)
     with open(f"{new_filename}.sov", 'w', encoding="UTF-8") as new_file:
         new_file.write('values of vars: \n')
         vars = model.getVars()
