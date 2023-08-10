@@ -1,4 +1,4 @@
-# ElegantRL_Solver: High-performance GPU-based Solvers for Nonconvex and NP-complete Problems
+RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-complete Problems
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. Take the graph maxcut problem as an example, when the number of nodes is up to 10000, conventional solvers may not obtain high-quality solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
