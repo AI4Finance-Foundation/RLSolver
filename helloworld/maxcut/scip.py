@@ -11,6 +11,24 @@ from utils import calc_avg_std_of_objs
 from utils import plot_fig
 from utils import fetch_node
 from utils import float_to_binary
+
+
+# the file has been open
+def write_statistics(model, new_file, add_slash = False):
+    prefix = '// ' if add_slash else ''
+    obj = model.getObjVal()
+    new_file.write(f"{prefix}obj: {obj}\n")
+    new_file.write(f"{prefix}running_duration: {model.getTotalTime()}\n")
+    gap = model.getGap()
+    new_file.write(f"{prefix}gap: {gap}\n")
+    # calc obj_bound
+    if model.getObjectiveSense() == "maximize":
+        obj_bound = obj * (1 + gap)
+    else:
+        obj_bound = obj * (1 - gap)
+    new_file.write(f"{prefix}obj_bound: {obj_bound}\n")
+    new_file.write(f"{prefix}time_limit: {model.getParam('limits/time')}\n")
+
 # running_duration (seconds) is included.
 def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
     if filename.split('/')[0] == 'data':
@@ -34,21 +52,11 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
         nodes.append(node)
         values.append(value)
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
+        write_statistics(model, new_file, True)
         for i in range(len(nodes)):
             new_file.write(f"{nodes[i] + 1} {values[i] + 1}\n")
     with open(f"{new_filename}.sta", 'w', encoding="UTF-8") as new_file:
-        obj = model.getObjVal()
-        new_file.write(f"obj: {obj}\n")
-        new_file.write(f"running_duation: {model.getTotalTime()}\n")
-        gap = model.getGap()
-        new_file.write(f"gap: {gap}\n")
-        # calc obj_bound
-        if model.getObjectiveSense() == "maximize":
-            obj_bound = obj * (1 + gap)
-        else:
-            obj_bound = obj * (1 - gap)
-        new_file.write(f"obj_bound: {obj_bound}\n")
-        new_file.write(f"time_limit: {model.getParam('limits/time')}\n")
+        write_statistics(model, new_file, False)
     with open(f"{new_filename}.sov", 'w', encoding="UTF-8") as new_file:
         new_file.write('values of vars: \n')
         for var in vars:

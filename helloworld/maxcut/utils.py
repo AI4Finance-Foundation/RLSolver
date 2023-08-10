@@ -15,7 +15,13 @@ from torch import Tensor
 # The nodes in file start from 1, but the nodes start from 0 in our codes.
 def read_txt_as_networkx_graph(filename: str, plot_fig: bool = False) -> nx.Graph():
     with open(filename, 'r') as file:
-        lines = file.readlines()
+        lines = []
+        line = file.readline()  # 读取第一行
+        while line is not None and line != '':
+            if '//' not in line:
+                lines.append(line)
+            line = file.readline()  # 读取下一行
+        # lines = file.readlines()
         lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
     num_nodes, num_edges = lines[0]
     g = nx.Graph()
@@ -46,7 +52,7 @@ def obj_maxcut(result: Union[Tensor, List[int], np.array], graph: nx.Graph):
 
 # write a tensor/list/np.array (dim: 1) to a txt file.
 # The nodes start from 0, and the label of classified set is 0 or 1 in our codes, but the nodes written to file start from 1, and the label is 1 or 2
-def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/result.txt'):
+def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/result.txt', obj: Union[int, float] = None, running_duration: Union[int, float] = None):
     # assert len(result.shape) == 1
     # N = result.shape[0]
     num_nodes = len(result)
@@ -54,6 +60,10 @@ def write_result(result: Union[Tensor, List, np.array], filename: str = 'result/
     if not os.path.exists(directory):
         os.mkdir(directory)
     with open(filename, 'w', encoding="UTF-8") as file:
+        if obj is not None:
+            file.write(f'// obj: {obj}\n')
+        if running_duration is not None:
+            file.write(f'// running_duration: {running_duration}\n')
         for node in range(num_nodes):
             file.write(f'{node + 1} {int(result[node] + 1)}\n')
 
@@ -247,7 +257,7 @@ def calc_txt_files_with_prefix(directory: str, prefix: str):
             res.append(directory + '/' + file)
     return res
 
-def calc_files_with_prefix_suffix(directory: str, prefix: str, suffix: str, extension: str = '.sta'):
+def calc_files_with_prefix_suffix(directory: str, prefix: str, suffix: str, extension: str = '.txt'):
     res = []
     files = os.listdir(directory)
     new_suffix = '_' + suffix + extension
@@ -272,20 +282,20 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
     objs = []
     gaps = []
     obj_bounds = []
-    running_duations = []
+    running_durations = []
     suffix = str(time_limit)
     files = calc_files_with_prefix_suffix(directory, prefix, suffix)
     for i in range(len(files)):
         with open(files[i], 'r') as file:
             line = file.readline()
             assert 'obj' in line
-            obj = float(line.split(' ')[1].split('\n')[0])
+            obj = float(line.split('obj:')[1].split('\n')[0])
             objs.append(obj)
 
             line2 = file.readline()
-            running_duation_ = line2.split('running_duation:')
-            running_duation = float(running_duation_[1]) if len(running_duation_) >= 2 else None
-            running_duations.append(running_duation)
+            running_duration_ = line2.split('running_duration:')
+            running_duration = float(running_duration_[1]) if len(running_duration_) >= 2 else None
+            running_durations.append(running_duration)
 
             line3 = file.readline()
             gap_ = line3.split('gap:')
@@ -299,13 +309,13 @@ def calc_avg_std_of_obj(directory: str, prefix: str, time_limit: int):
 
     avg_obj = np.average(objs)
     std_obj = np.std(objs)
-    avg_running_duation = np.average(running_duations)
+    avg_running_duration = np.average(running_durations)
     avg_gap = np.average(gaps)
     avg_obj_bound = np.average(obj_bounds)
-    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duation {avg_running_duation}, avg_gap {avg_gap}, avg_obj_bound {avg_obj_bound}')
+    print(f'{directory} prefix {prefix}, suffix {suffix}: avg_obj {avg_obj}, std_obj {std_obj}, avg_running_duration {avg_running_duration}, avg_gap {avg_gap}, avg_obj_bound {avg_obj_bound}')
     if time_limit != init_time_limit:
         print()
-    return {(prefix, time_limit): (avg_obj, std_obj, avg_running_duation, avg_gap, avg_obj_bound)}
+    return {(prefix, time_limit): (avg_obj, std_obj, avg_running_duration, avg_gap, avg_obj_bound)}
 
 def calc_avg_std_of_objs(directory: str, prefixes: List[str], time_limits: List[int]):
     res = []
@@ -384,7 +394,7 @@ def rename_files(directory: str, orig: str, dest: str):
 
 
 if __name__ == '__main__':
-    read_txt = False
+    read_txt = True
     if read_txt:
         graph1 = read_txt_as_networkx_graph('data/gset/gset_14.txt')
         graph2 = read_txt_as_networkx_graph('data/syn_5_5.txt')
