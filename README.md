@@ -35,7 +35,7 @@ Key references:
 
 ## Markov chain Monte Carlo simulation
 
-ElegantRL_Solver follows the principles:
+RLSolver follows the principles:
 * Massively parallel sampling.
 * Multiple practical tricks to improve the performance.
 
@@ -111,14 +111,14 @@ Important functions:
 The partial results are stored in the folder "result" in this repo. The whole results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
 
 ## Performance
-The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/ElegantRL_Solver/tree/main/helloworld/maxcut).
+The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/readme).
 
 
 
 ## File Structure
 
 ```
-ElegantRL_Solver
+RLSolver
 └──helloworld
    └──maxcut
         └──data
