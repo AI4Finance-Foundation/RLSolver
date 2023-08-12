@@ -2,9 +2,7 @@ RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-complete Probl
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
-RLSolver collects RL/ML tricks for solving nonconvex and NP-complete optimization problems. It provides open datasets and benchmarks, including calssical methods, popular algorithms, our new algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance if users want to compare their solutions with others. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets and benchmarks. If encountering any problems, please submit github issues, and we can talk there. 
-
-For deep RL algorithms, we use [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL) and [OpenAI Gym](https://github.com/openai/gym).
+RLSolver collects RL/ML tricks for solving nonconvex and NP-complete optimization problems. It provides open datasets and benchmarks, including calssical methods, popular algorithms, our new algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance if users want to compare their solutions with others. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
 
 The following two key technologies are under active development: 
 
@@ -109,7 +107,7 @@ Important functions:
 The partial results are stored in the folder "result" in this repo. The whole results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
 
 ## Performance
-The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/readme).
+The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/helloworld/maxcut).
 
 
 
