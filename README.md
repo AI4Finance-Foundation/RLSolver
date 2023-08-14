@@ -54,24 +54,24 @@ Important functions:
 ## Benchmarks
 
 
-* Learn to branch
+* Learning to branch
   
 [code](https://github.com/cwfparsonson/retro_branching/tree/master) 2023 AAAI Reinforcement Learning for Branch-and-Bound Optimisation using Retrospective Trajectories 
 
 [code](https://github.com/ds4dm/branch-search-trees) 2021 AAAI Parameterizing Branch-and-Bound Search Trees to Learn Branching Policies
 
-* Learn to cut
+* Learning to cut
 
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
 
-* RL/ML + heuristic
+* RL/ML driven heuristic
   
-[code](https://github.com/Hanjun-Dai/graph_comb_opt) 2017 NeurIPS Learning Combinatorial Optimization Algorithms over Graphs
+[code](https://github.com/Hanjun-Dai/graph_comb_opt)  (greedy) 2017 NeurIPS Learning Combinatorial Optimization Algorithms over Graphs
 
-[code](https://github.com/JHL-HUST/VSR-LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
+[code](https://github.com/JHL-HUST/VSR-LKH) (LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
-[code](https://github.com/optsuite/MCPG) 2023, A Monte Carlo Policy Gradient Method with Local Search for Binary Optimization
+[code](https://github.com/optsuite/MCPG) (local search) 2023, A Monte Carlo Policy Gradient Method with Local Search for Binary Optimization
 
 * Classical methods
   1) Random walk
@@ -105,7 +105,7 @@ Important functions:
 
 ## Store results 
 
-The partial results are stored in the folder "result" in this repo. The whole results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
+The partial results are stored in the folder "result" in this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1eO6QHnN8FdyD2eJIsVTQQ3Ch863whFWp) or [Baidu Wangpan](https://pan.baidu.com/s/1aXbHCB-Kxop4gGHeu2Am0A) (CODE: 3mw0 for China users). 
 
 ## Performance
 The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/helloworld/maxcut).
