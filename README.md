@@ -71,6 +71,7 @@ Important functions:
 
 [code](https://github.com/JHL-HUST/VSR-LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
+[code](https://github.com/optsuite/MCPG) 2023, A Monte Carlo Policy Gradient Method with Local Search for Binary Optimization
 
 * Classical methods
   1) Random walk
