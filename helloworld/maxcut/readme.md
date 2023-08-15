@@ -23,7 +23,7 @@ simulated_annealing.py # the simulated annealing method
 
 ## Dataset
 
-With respect to dataset (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. There are two datasets: __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __Syn__, both of which are in the "data" folder. In the Syn dataset, syn_n_m.txt is with n nodes and m edges. If users need more synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for Chinese users). 
+With respect to dataset (.txt), the first row includes the number of nodes and edges, and the other rows indicate the two nodes together with the weight of the edge. There are two datasets: __[Gset](https://web.stanford.edu/~yyye/yyye/Gset/)__ and __Syn__, both of which are in the "data" folder. In the Syn dataset, syn_n_m.txt is with n nodes and m edges. If users need more synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). 
 
 Take gset_14.txt as an example,
 
