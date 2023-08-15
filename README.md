@@ -2,7 +2,7 @@ RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-complete Probl
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
-RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance. It provides open datasets and benchmarks, including calssical methods, popular algorithms, our new algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance if users want to compare their solutions with others. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
+RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance. It provides open datasets and benchmarks, including calssical methods, popular algorithms, our new algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance for users. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
 
 The following two key technologies are under active development: 
 
@@ -46,7 +46,7 @@ Important functions:
   
   1) [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford university, and is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
   
-  2) __Syn__ is the synthetic data obtained by calling the function generate_write in utils.py. The number of nodes is from 10 to 10000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). The results of experiments are obtained based on the whole synthetic data.
+  2) __Syn__ is the synthetic data obtained by calling the function generate_write in utils.py. The number of nodes is from 10 to 10000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). The results of experiments are obtained based on all the synthetic data.
   
 * TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
