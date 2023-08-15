@@ -114,7 +114,7 @@ When use solvers, "gap" is calculated based on the objective of its solution and
 
 2) __Syn__ 
 
-We use the whole synthetic data. For graphs with n nodes, there are 20 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
+We use the whole synthetic data. For graphs with n nodes, there are 5 datasets, and we run once for each dataset, and finally calcualte the average and standard deviation for the objective values. 
 
 In the following table, the first row illustrates the limited time for solvers. The average running duration is exactly the limited time if we do not write the average duration. We see that, when the number of nodes is not larger than 100, the optimal solutions are obtained, and the average running duraton is much less than 0.5 hour. The inference time of our method is less than 0.001 second.
  
