@@ -1,1 +1,0 @@
-# virtual machine placement
