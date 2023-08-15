@@ -6,11 +6,10 @@ import torch.nn as nn
 import numpy as np
 from typing import List, Union
 import networkx as nx
-import torch as th
+
 
 from torch import Tensor
-TEN = th.Tensor
-INT = th.IntTensor
+
 
 # read graph file, e.g., gset_14.txt, as networkx.Graph
 # The nodes in file start from 1, but the nodes start from 0 in our codes.
@@ -393,53 +392,6 @@ def rename_files(directory: str, orig: str, dest: str):
             new_filename = filename.replace(orig, dest)
             os.rename(filename, new_filename)
 
-def load_graph_from_txt(txt_path: str = './data/gset_14.txt'):
-    with open(txt_path, 'r') as file:
-        lines = file.readlines()
-        lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
-    num_nodes, num_edges = lines[0]
-    graph = [(n0 - 1, n1 - 1, dt) for n0, n1, dt in lines[1:]]  # node_id “从1开始”改为“从0开始”
-    return graph, num_nodes, num_edges
-
-def load_graph(graph_name: str):
-    data_dir = './data'
-    graph_types = ['erdos_renyi', 'powerlaw', 'barabasi_albert']
-
-    if os.path.exists(f"{data_dir}/{graph_name}.txt"):
-        txt_path = f"{data_dir}/{graph_name}.txt"
-        graph, num_nodes, num_edges = load_graph_from_txt(txt_path=txt_path)
-    elif graph_name.split('_')[0] in graph_types:
-        g_type, num_nodes = graph_name.split('_')
-        num_nodes = int(num_nodes)
-        graph, num_nodes, num_edges = generate_graph(num_nodes=num_nodes, g_type=g_type)
-    else:
-        raise ValueError(f"graph_name {graph_name}")
-    return graph, num_nodes, num_edges
-
-def generate_graph(num_nodes: int, g_type: str):
-    graph_types = ['erdos_renyi', 'powerlaw', 'barabasi_albert']
-    assert g_type in graph_types
-
-    if g_type == 'erdos_renyi':
-        g = nx.erdos_renyi_graph(n=num_nodes, p=0.15)
-    elif g_type == 'powerlaw':
-        g = nx.powerlaw_cluster_graph(n=num_nodes, m=4, p=0.05)
-    elif g_type == 'barabasi_albert':
-        g = nx.barabasi_albert_graph(n=num_nodes, m=4)
-    else:
-        raise ValueError(f"g_type {g_type} should in {graph_types}")
-
-    graph = []
-    for node0, node1 in g.edges:
-        distance = 1
-        graph.append((node0, node1, distance))
-    num_nodes = num_nodes
-    num_edges = len(graph)
-    return graph, num_nodes, num_edges
-
-def convert_matrix_to_vector(matrix):
-    vector = [row[i + 1:] for i, row in enumerate(matrix)]
-    return th.hstack(vector)
 
 if __name__ == '__main__':
     read_txt = True
@@ -495,4 +447,3 @@ if __name__ == '__main__':
     transfer_write_solver_results(directory_result, prefixes, time_limits, from_extension, to_extension)
 
     print()
-
