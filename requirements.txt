@@ -1,0 +1,17 @@
+# ML framework
+torch
+
+# data handling
+numpy
+
+# plot/simulation
+matplotlib
+gym==0.25.2
+
+# profiling
+wandb
+
+# networkx graph
+networkx
+
+
