@@ -153,14 +153,17 @@ RLSolver
 ```
 
 ## Progress
-
 - [x] MIMO
 - [x] Maxcut
 - [x] TNCO
+- [x] quantum_circuits 
+## TODO
+- [ ] Graph partitioning
+- [ ] Vehicle routing problem
+- [ ] Minimum vertex cover 
 - [ ] TSP
 - [ ] MILP
 - [ ] portfolio_management
-- [ ] quantum_circuits
 
 
 ## Related websites
