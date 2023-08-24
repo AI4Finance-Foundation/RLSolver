@@ -65,13 +65,13 @@ Important functions:
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
 
-* RL/ML driven heuristic
+* RL/ML-driven heuristic
   
 [code](https://github.com/Hanjun-Dai/graph_comb_opt)  (greedy) 2017 NeurIPS Learning Combinatorial Optimization Algorithms over Graphs
 
-[code](https://github.com/JHL-HUST/VSR-LKH) (LKH) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
-
 [code](https://github.com/optsuite/MCPG) (local search) 2023, A Monte Carlo Policy Gradient Method with Local Search for Binary Optimization
+
+[code](https://github.com/JHL-HUST/VSR-LKH) (LKH for TSP) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
 * Classical methods
   1) Random walk
@@ -105,7 +105,7 @@ Important functions:
 
 ## Store results 
 
-The partial results are stored in the folder "result" in this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
+The partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
 ## Performance
 The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/helloworld/maxcut).
@@ -158,10 +158,10 @@ RLSolver
 - [x] TNCO
 - [x] quantum_circuits 
 ## TODO
-- [ ] Graph partitioning
-- [ ] Vehicle routing problem
-- [ ] Minimum vertex cover 
 - [ ] TSP
+- [ ] Vehicle routing problem
+- [ ] Graph partitioning
+- [ ] Minimum vertex cover 
 - [ ] MILP
 - [ ] portfolio_management
 
