@@ -20,7 +20,7 @@ TEN = th.Tensor
 INT = th.IntTensor
 
 
-class OptimizerGNN(nn.Module):
+class PolicyGNN(nn.Module):
     def __init__(self, inp_dim, mid_dim, out_dim, num_nodes):
         super().__init__()
         self.inp_dim = inp_dim
@@ -65,7 +65,6 @@ def run():
     num_epoch = 64
     lr = 2e-4
     clip_grad_norm = 1.0
-    weight_entropy = 1
     num_nodes = 300
     graph_name = f'powerlaw_{num_nodes}_ID01'
     gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
@@ -89,7 +88,7 @@ def run():
     enc = EncoderBase64(num_nodes=sim.num_nodes)
 
     '''init opti'''
-    opt_opti = OptimizerGNN(inp_dim=inp_dim, mid_dim=mid_dim, out_dim=out_dim, num_nodes=num_nodes).to(device)
+    opt_opti = PolicyGNN(inp_dim=inp_dim, mid_dim=mid_dim, out_dim=out_dim, num_nodes=num_nodes).to(device)
     opt_base = th.optim.Adam(opt_opti.parameters(), lr=lr, maximize=True)
 
     x_best = th.randint(0, 2, size=(num_nodes,), device=device)
@@ -120,7 +119,6 @@ def run():
             xs = th.zeros((seq_len, num_sim, num_nodes), dtype=th.float64, device=device)
             vs = th.zeros((seq_len, num_sim), dtype=th.float64, device=device)
             logprobs = th.zeros((seq_len, num_sim), dtype=th.float64, device=device)
-            # entropies = th.zeros((seq_len, num_sim), dtype=th.float64, device=device)
             for i in range(seq_len):
                 inp = th.stack((x, v[:, None].repeat(1, num_nodes)), dim=2)
                 out = opt_opti(inp, mat, idx)
@@ -133,15 +131,12 @@ def run():
                 xs[i] = x
                 vs[i] = v
                 logprobs[i] = dist.log_prob(sample)
-                # entropies[i] = dist.entropy()
 
             vs_max = vs.max(dim=0)[0]
             mask = th.eq(vs_max, vs_max.max())
 
             obj_logprob = logprobs[:, mask].mean(dim=0).clip(-10, -0.1).exp().mean()
-            # obj_entropy = entropies[:, mask].clip(0.0, 4.0).mean(dim=0).mean()
-            # obj_opti = obj_logprob + obj_entropy * weight_entropy
-            obj_opti = obj_logprob # + obj_entropy * weight_entropy
+            obj_opti = obj_logprob  # + obj_entropy
 
             opt_base.zero_grad()
             obj_opti.backward()
