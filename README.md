@@ -22,7 +22,7 @@ Key references:
 
 - Makoviychuk, Viktor, et al. "Isaac Gym: High performance GPU based physics simulation for robot learning." Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2). 2021.
 
-# Work flow
+# Workflow
 <a target="\_blank">
 	<div align="center">
 		<img src=fig/work_flow.png width="90%"/>
