@@ -1,8 +1,8 @@
 # RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-complete Problems
 
-We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. 
+We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
 
-RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance. It provides open datasets and benchmarks, including calssical methods, popular algorithms, our new algorithms, and well-known solvers. We have provided functions to read data and write results; therefore, it is convenient to compare the performance for users. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
+# Key Technologies
 
 The following two key technologies are under active development: 
 
@@ -10,7 +10,11 @@ The following two key technologies are under active development:
 
 - **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
 
-Key references:
+- **Markov chain Monte Carlo simulation**
+
+
+
+# Key references
 
 - Mazyavkina, Nina, et al. "Reinforcement learning for combinatorial optimization: A survey." Computers & Operations Research 134 (2021): 105400.
 
@@ -29,17 +33,7 @@ Key references:
 	</div>
 </a>  
 
-## Markov chain Monte Carlo simulation
 
-RLSolver follows the principles:
-* Massively parallel sampling.
-* Multiple practical tricks to improve the performance.
-
-Important functions: 
-
-* reset(): Initialize the variables
-* obj(mu: Tensor): Calculate the objective value (i.e., Halmiltonian) of the graph mu
-* obj2(mu1: Tensor, mu2: Tensor): Calculate the objective value (i.e., Halmiltonian) of from the graph mu1 to another graph mu2. 
 
 ## Datasets
 * Maxcut:
@@ -102,13 +96,13 @@ Important functions:
 [BiqMac](https://biqmac.aau.at/): a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed. If users use it, we recommend to [download](https://biqmac.aau.at/) the sources and run it by local computers. 
 
 
-
 ## Store results 
 
 The partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
 ## Performance
 The performance of maxcut compared with other methods or solvers is presented [here](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/helloworld/maxcut).
+
 
 
 
