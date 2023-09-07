@@ -1,17 +1,12 @@
-# RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-complete Problems
+# RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-Complete Problems
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
 
 # Key Technologies
-
-The following two key technologies are under active development: 
-
 - **Massively parallel sampling** of Markov chain Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
 - **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
 - **OR tricks** such as local search, and tabu search.
 - **RL/ML tricks** such as learn to optimize, and curriculum learning.
-
-
 
 # Key References
 
@@ -67,14 +62,15 @@ The following two key technologies are under active development:
 [code](https://github.com/JHL-HUST/VSR-LKH) (LKH for TSP) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
 * Classical methods
-  1) Random walk
-  2) Greedy
-  3) $\epsilon$-greedy
-  4) Simulated annealing
-  5) Local search
-  6) Beam search
-  7) Branch-and-bound
-  8) Cutting plane
+  - Random walk
+  - Greedy
+  - $\epsilon$-greedy
+  - Simulated annealing
+  - Local search
+  - Beam search
+  - Tabu search
+  - Branch-and-bound
+  - Cutting plane
 
 
 ## Solvers to Compare with
