@@ -6,15 +6,14 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 The following two key technologies are under active development: 
 
-- **Massively parallel sampling** of Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
-
+- **Massively parallel sampling** of Markov chain Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
 - **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
+- **OR tricks** such as local search, and tabu search.
+- **RL/ML tricks** such as learn to optimize, and curriculum learning.
 
-- **Markov chain Monte Carlo simulation**
 
 
-
-# Key references
+# Key References
 
 - Mazyavkina, Nina, et al. "Reinforcement learning for combinatorial optimization: A survey." Computers & Operations Research 134 (2021): 105400.
 
@@ -78,14 +77,14 @@ The following two key technologies are under active development:
   8) Cutting plane
 
 
-## Solvers to compare with
+## Solvers to Compare with
 
 [Gurobi](https://www.gurobi.com/) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. We recommend to use Gurobi if users have licenses, since its performance is the best.
 
 [SCIP](https://www.scipopt.org/index.php#welcome) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have Gurobi licenses, SCIP is a good choice since it is __open-source and free__. Although its performance is not as good as Gurobi, we recommend to use SCIP if users do not have Gurobi licenses. 
 
 
-## Other solvers
+## Other Solvers
 
 [COPT](https://www.copt.de/): a mathematical optimization solver for large-scale problems.
 
@@ -96,7 +95,7 @@ The following two key technologies are under active development:
 [BiqMac](https://biqmac.aau.at/): a solver only for binary quadratic or maxcut. Users should upload txt file, but the response time is not guaranteed. If users use it, we recommend to [download](https://biqmac.aau.at/) the sources and run it by local computers. 
 
 
-## Store results 
+## Store Results 
 
 The partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
@@ -160,7 +159,7 @@ RLSolver
 - [ ] portfolio_management
 
 
-## Related websites
+## Related Websites
 
 + [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
