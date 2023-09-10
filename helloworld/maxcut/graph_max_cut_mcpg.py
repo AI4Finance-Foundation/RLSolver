@@ -808,7 +808,7 @@ def run():
         'max_epoch_num': 80, 'reset_epoch_num': 80, 'total_mcmc_num': 400, 'repeat_times': 120, 'num_ls': 5
     }
 
-    path = 'data/gset_14.txt'
+    path = 'data/gset/gset_14.txt'
     start_time = time.perf_counter()
     dataloader = dataloader_select(config["problem_type"])
     data, nvar = dataloader(path)
