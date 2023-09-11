@@ -898,7 +898,7 @@ def run_v4_find_sln_x_using_opti_and_buffer():
             best_sln_x = sln_xs[max_id]
             best_sln_x_str = enc.bool_to_str(best_sln_x)
             enter_str = '\n' if len(best_sln_x_str) > 60 else ''
-            print(f"\nbest_score {best_score}  best_sln_x {enter_str}{best_sln_x_str}")
+            print(f"\n graph_name {graph_name} best_score {best_score}  best_sln_x {enter_str}{best_sln_x_str}")
 
             recorder.append((i, best_score))
             recorder_ary = th.tensor(recorder)
