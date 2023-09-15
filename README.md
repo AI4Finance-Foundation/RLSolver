@@ -163,8 +163,8 @@ RLSolver
 
 
 ## Related Websites
-+ [Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
-+ [TSP](https://github.com/zhumingpassional/AI4TSP)
++ [AI4Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
++ [AI4TSP](https://github.com/zhumingpassional/AI4TSP)
 + [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
 + [Machine Learning for Combinatorial Optimization - NeurIPS 2021 Competition](https://github.com/ds4dm/ml4co-competition)
