@@ -34,13 +34,13 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 
 ## Datasets
-* Maxcut:
+* [Maxcut](https://github.com/zhumingpassional/AI4Maxcut):
   
   1) [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford university, and is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
   
   2) __Syn__ is the synthetic data obtained by calling the function generate_write in utils.py. The number of nodes is from 10 to 50000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). 
   
-* TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
+* [TSP](https://github.com/zhumingpassional/AI4TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
 
 ## Benchmarks
@@ -98,6 +98,8 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 ## Store Results 
 
 The partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
+
+With respect to maxcut, please refer to this [website](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to this [website](https://github.com/zhumingpassional/AI4TSP). 
 
 ## Performance
 [Maxcut](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/helloworld/maxcut).
@@ -160,7 +162,8 @@ RLSolver
 
 
 ## Related Websites
-
++ [Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
++ [TSP](https://github.com/zhumingpassional/AI4TSP)
 + [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
 + [Machine Learning for Combinatorial Optimization - NeurIPS 2021 Competition](https://github.com/ds4dm/ml4co-competition)
