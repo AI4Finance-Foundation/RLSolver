@@ -5,6 +5,10 @@
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. When the size of these problems becomes large, it is very hard to obtain optimal or near optimal solutions. RL with the help of GPU computing can obtain high-quality solutions within short time. RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance. We encourage users to try RL/ML tricks, and implement their own new ideas based on the datasets. If encountering any problems, please submit github issues, and we can talk there. 
 
+# Problem-oriented Repos
+
+- [AI4Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
+- [AI4TSP](https://github.com/zhumingpassional/AI4TSP)
 
 # Key Technologies
 - **Massively parallel sampling** of Markov chain Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
@@ -99,7 +103,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 Partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
-With respect to maxcut, please refer to this [website](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to this [website](https://github.com/zhumingpassional/AI4TSP). 
+With respect to maxcut, please refer to [AI4Maxcut](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to [AI4TSP](https://github.com/zhumingpassional/AI4TSP). 
 
 ## Performance
 [Maxcut](https://github.com/zhumingpassional/AI4Maxcut).
@@ -150,11 +154,11 @@ RLSolver
 
 ## Finished
 - [x] MIMO
-- [x] Maxcut
+- [x] [Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
 - [x] TNCO
 - [x] quantum_circuits 
 ## TODO
-- [ ] TSP
+- [ ] [TSP](https://github.com/zhumingpassional/AI4TSP)
 - [ ] Vehicle routing problem
 - [ ] Graph partitioning
 - [ ] Minimum vertex cover 
