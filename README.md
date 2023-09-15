@@ -57,7 +57,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
 
-* RL/ML-driven heuristic
+* RL/ML-based heuristic
   
 [code](https://github.com/Hanjun-Dai/graph_comb_opt)  (greedy) 2017 NeurIPS Learning Combinatorial Optimization Algorithms over Graphs
 
@@ -97,12 +97,13 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 ## Store Results 
 
-The partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
+Partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
 With respect to maxcut, please refer to this [website](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to this [website](https://github.com/zhumingpassional/AI4TSP). 
 
 ## Performance
-[Maxcut](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/helloworld/maxcut).
+[Maxcut](https://github.com/zhumingpassional/AI4Maxcut).
+[TSP](https://github.com/zhumingpassional/AI4TSP). 
 [Quantum circuits](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_quantum_circuits)
 [MIMO](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_mimo_beamforming)
 [Compressive sensing](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_compressive_sensing)
