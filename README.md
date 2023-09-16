@@ -82,7 +82,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 [Gurobi](https://www.gurobi.com/) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. 
 
-[SCIP](https://www.scipopt.org/index.php#welcome) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". SCIP is a good choice since it is __open-source and free__. 
+[SCIP](https://www.scipopt.org/index.php#welcome) is a well-known open-source solver, and its simplex is commonly used in "learning to branch/cut". SCIP is __open-source and free__. 
 
 
 ## Other Solvers
