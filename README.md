@@ -101,7 +101,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 Partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
-With respect to maxcut, please refer to [Maxcut](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to [TSP](https://github.com/zhumingpassional/AI4TSP). 
+With respect to maxcut, please refer to [Maxcut](https://github.com/zhumingpassional/Maxcut). With respect to TSP, please refer to [TSP](https://github.com/zhumingpassional/TSP). 
 
 ## Performance
 [Maxcut](https://github.com/zhumingpassional/Maxcut).
