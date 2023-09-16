@@ -7,8 +7,8 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 # Problem-oriented Repos
 
-- [AI4Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
-- [AI4TSP](https://github.com/zhumingpassional/AI4TSP)
+- [Maxcut](https://github.com/zhumingpassional/Maxcut)
+- [TSP](https://github.com/zhumingpassional/TSP)
 
 # Key Technologies
 - **Massively parallel sampling** of Markov chain Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
@@ -38,13 +38,13 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 
 ## Datasets
-* [Maxcut](https://github.com/zhumingpassional/AI4Maxcut):
+* [Maxcut](https://github.com/zhumingpassional/Maxcut):
   
   1) [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is opened by Standford university, and is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
   
   2) __Syn__ is the synthetic data obtained by calling the function generate_write in utils.py. The number of nodes is from 10 to 50000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). 
   
-* [TSP](https://github.com/zhumingpassional/AI4TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
+* [TSP](https://github.com/zhumingpassional/TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
 
 ## Benchmarks
@@ -103,11 +103,11 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 Partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
-With respect to maxcut, please refer to [AI4Maxcut](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to [AI4TSP](https://github.com/zhumingpassional/AI4TSP). 
+With respect to maxcut, please refer to [Maxcut](https://github.com/zhumingpassional/AI4Maxcut). With respect to TSP, please refer to [TSP](https://github.com/zhumingpassional/AI4TSP). 
 
 ## Performance
-[Maxcut](https://github.com/zhumingpassional/AI4Maxcut).
-[TSP](https://github.com/zhumingpassional/AI4TSP). 
+[Maxcut](https://github.com/zhumingpassional/Maxcut).
+[TSP](https://github.com/zhumingpassional/TSP). 
 [Quantum circuits](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_quantum_circuits)
 [MIMO](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_mimo_beamforming)
 [Compressive sensing](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_compressive_sensing)
@@ -154,11 +154,11 @@ RLSolver
 
 ## Finished
 - [x] MIMO
-- [x] [Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
+- [x] [Maxcut](https://github.com/zhumingpassional/Maxcut)
 - [x] TNCO
 - [x] quantum_circuits 
 ## TODO
-- [ ] [TSP](https://github.com/zhumingpassional/AI4TSP)
+- [ ] [TSP](https://github.com/zhumingpassional/TSP)
 - [ ] Vehicle routing problem
 - [ ] Graph partitioning
 - [ ] Minimum vertex cover 
@@ -167,8 +167,8 @@ RLSolver
 
 
 ## Related Websites
-+ [AI4Maxcut](https://github.com/zhumingpassional/AI4Maxcut)
-+ [AI4TSP](https://github.com/zhumingpassional/AI4TSP)
++ [Maxcut](https://github.com/zhumingpassional/Maxcut)
++ [TSP](https://github.com/zhumingpassional/TSP)
 + [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
 + [Machine Learning for Combinatorial Optimization - NeurIPS 2021 Competition](https://github.com/ds4dm/ml4co-competition)
