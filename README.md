@@ -1,7 +1,7 @@
 # RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-Complete Problems
 
 
-We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. RL with the help of GPU computing can obtain high-quality solutions within short time. RLSolver collects many RL/ML tricks and also operations research (OR) tricks to improve the performance.
+We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
 # Problem-oriented Repos
 
@@ -70,7 +70,6 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 * Classical methods
   - Random walk
   - Greedy
-  - $\epsilon$-greedy
   - Simulated annealing
   - Local search
   - Beam search
@@ -81,9 +80,9 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 ## Solvers to Compare with
 
-[Gurobi](https://www.gurobi.com/) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. We recommend to use Gurobi if users have licenses, since its performance is the best.
+[Gurobi](https://www.gurobi.com/) is the state-of-the-art solver. The license is required, and professors/students at universities can obtain the __academic license for free__. 
 
-[SCIP](https://www.scipopt.org/index.php#welcome) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". If users do not have Gurobi licenses, SCIP is a good choice since it is __open-source and free__. Although its performance is not as good as Gurobi, we recommend to use SCIP if users do not have Gurobi licenses. 
+[SCIP](https://www.scipopt.org/index.php#welcome) is a well-known open-source solver, and its simplex is commonly used in "learn to branch/cut". SCIP is a good choice since it is __open-source and free__. 
 
 
 ## Other Solvers
