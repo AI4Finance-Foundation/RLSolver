@@ -220,23 +220,26 @@ def run():
     max_epoch_num = 2 ** 13
     sample_epoch_num = 8
     repeat_times = 128
-    num_ls = 8
 
-    # reset_epoch_num = 128
-    # total_mcmc_num = 512
-    # path = 'data/gset_14.txt'
+    num_ls = 8
+    reset_epoch_num = 128
+    total_mcmc_num = 512
+    path = 'data/gset_14.txt'
     # path = 'data/gset_15.txt'
     # path = 'data/gset_49.txt'
     # path = 'data/gset_50.txt'
 
-    reset_epoch_num = 192
-    total_mcmc_num = 224
-    path = 'data/gset_22.txt'
+    # num_ls = 6
+    # reset_epoch_num = 192
+    # total_mcmc_num = 224
+    # path = 'data/gset_22.txt'
 
-    # reset_epoch_num = 128
-    # total_mcmc_num = 256
-    # path = 'data/gset_55.txt'
+    num_ls = 8
+    reset_epoch_num = 128
+    total_mcmc_num = 256
+    path = 'data/gset_55.txt'
 
+    # num_ls = 6
     # reset_epoch_num = 256
     # total_mcmc_num = 192
     # path = 'data/gset_70.txt'
@@ -262,7 +265,7 @@ def run():
 
     '''addition'''
     from graph_max_cut_simulator import load_graph, SimulatorGraphMaxCut
-    from beta1 import SolverRandomLocalSearch
+    from graph_max_cut_random_search import SolverRandomLocalSearch
     graph_name = path.split('/')[-1][:-4]
     graph = load_graph(graph_name=graph_name)
     simulator = SimulatorGraphMaxCut(graph=graph, device=device)
