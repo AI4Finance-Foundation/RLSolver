@@ -116,35 +116,41 @@ RLSolver
 └──helloworld
    └──maxcut
         └──data
-        └──mcmc_sim
         └──result
-        └──learn_to_anneal_x.py (ours)
-        └──gurobi.py
-        └──scip.py
-        └──random_walk.py
-        └──greedy.py
-        └──simulated_annealing.py
         └──utils.py
-└──opt_methods
-└──readme
-   └──graph_partitioning.md
+        └──mcmc_sim.py
+        └──l2a_x.py (ours)
+        └──comparisons
+            └──scip.py
+            └──random_walk.py
+            └──greedy.py
+            └──simulated_annealing.py
+└──performance
    └──maxcut.md
+   └──graph_partitioning.md
    └──tsp.md
+   └──tnco.md
 └──rlsolver (main folder)
-   └──data (datasets for problems)
-   └──mcmc_sim
-   └──result (store output files)
-   └──rlsolver_learn2opt
-      └──mimo
-      └──tensor_train
-   └──graph_partitioning.py
-   └──graph_partitioning_gurobi.py
-   └──maxcut.py
-   └──maxcut_H2O.py
-   └──maxcut_gurobi.py
-   └──tsp.py
-   └──tsp_gurobi.py
    └──utils.py
+   └──data
+      └──graph
+      └──quantum_circuits
+      └──milp_coefs
+      └──binary_coefs
+   └──problems
+      └──maxcut
+          └──comparisons
+          └──mcmc_sim.py
+          └──l2a.py(ours)
+      └──mimo
+          └──comparisons
+          └──mcmc_sim.py
+          └──l2a.py(ours)
+      └──tensor_train
+          └──comparisons
+          └──mcmc_sim.py
+          └──l2a.py(ours)
+
 
 
 ```
