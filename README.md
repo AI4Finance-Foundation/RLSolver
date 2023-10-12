@@ -119,7 +119,7 @@ RLSolver
         └──result
         └──utils.py
         └──mcmc_sim.py
-        └──l2a_x.py (ours)
+        └──l2a.py (ours)
         └──comparisons
             └──scip.py
             └──random_walk.py
