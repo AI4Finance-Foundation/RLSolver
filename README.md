@@ -118,7 +118,7 @@ RLSolver
         └──data
         └──result
         └──utils.py
-        └──mcmc_sim.py
+        └──mcmc.py
         └──l2a.py (ours)
         └──comparisons
             └──scip.py
@@ -140,7 +140,7 @@ RLSolver
    └──problems
       └──maxcut
           └──comparisons
-          └──mcmc_sim.py
+          └──mcmc.py
           └──l2a.py(ours)
       └──mimo
           └──comparisons
@@ -148,7 +148,7 @@ RLSolver
           └──l2a.py(ours)
       └──tensor_train
           └──comparisons
-          └──mcmc_sim.py
+          └──mcmc.py
           └──l2a.py(ours)
 
 
