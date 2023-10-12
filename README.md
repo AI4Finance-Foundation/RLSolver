@@ -121,7 +121,7 @@ RLSolver
         └──mcmc.py
         └──l2a.py (ours)
         └──comparisons
-            └──scip.py
+            └──gurobi.py
             └──random_walk.py
             └──greedy.py
             └──simulated_annealing.py
