@@ -146,14 +146,11 @@ RLSolver
           └──comparisons
           └──mcmc.py
           └──l2a.py(ours)
-      └──mimo
+      └──tnco
           └──comparisons
           └──mcmc_sim.py
           └──l2a.py(ours)
-      └──tensor_train
-          └──comparisons
-          └──mcmc.py
-          └──l2a.py(ours)
+
 
 
 
