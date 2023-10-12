@@ -142,6 +142,10 @@ RLSolver
           └──comparisons
           └──mcmc.py
           └──l2a.py(ours)
+      └──tsp
+          └──comparisons
+          └──mcmc.py
+          └──l2a.py(ours)
       └──mimo
           └──comparisons
           └──mcmc_sim.py
