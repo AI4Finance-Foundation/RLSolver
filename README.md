@@ -142,11 +142,11 @@ RLSolver
           └──comparisons
           └──mcmc.py
           └──l2a.py(ours)
-      └──tsp
+      └──tnco
           └──comparisons
           └──mcmc.py
           └──l2a.py(ours)
-      └──tnco
+      └──mimo
           └──comparisons
           └──mcmc.py
           └──l2a.py(ours)
