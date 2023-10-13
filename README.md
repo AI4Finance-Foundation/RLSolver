@@ -148,7 +148,7 @@ RLSolver
           └──l2a.py(ours)
       └──tnco
           └──comparisons
-          └──mcmc_sim.py
+          └──mcmc.py
           └──l2a.py(ours)
 
 
