@@ -103,7 +103,7 @@ def generate_graph_for_validation():
 
 def load_graph(graph_name: str):
     import random
-    data_dir = './data'
+    data_dir = './data/gset'
     graph_types = ['erdos_renyi', 'powerlaw', 'barabasi_albert']
 
     if os.path.exists(f"{data_dir}/{graph_name}.txt"):
