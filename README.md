@@ -120,12 +120,12 @@ RLSolver
         └──utils.py
         └──mcmc.py
         └──l2a.py (ours)
-        └──comparisons
+        └──baseline
             └──gurobi.py
             └──random_walk.py
             └──greedy.py
             └──simulated_annealing.py
-└──performance
+└──benchmark
    └──maxcut.md
    └──graph_partitioning.md
    └──tsp.md
@@ -139,15 +139,15 @@ RLSolver
       └──binary_coefs
    └──problems
       └──maxcut
-          └──comparisons
+          └──baseline
           └──mcmc.py
           └──l2a.py(ours)
       └──tnco
-          └──comparisons
+          └──baseline
           └──mcmc.py
           └──l2a.py(ours)
       └──mimo
-          └──comparisons
+          └──baseline
           └──mcmc.py
           └──l2a.py(ours)
 
