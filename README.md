@@ -33,7 +33,12 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 	</div>
 </a>  
 
-
+# Structure
+<a target="\_blank">
+	<div align="center">
+		<img src=fig/RLSolver_structure.png width="90%"/>
+	</div>
+</a>  
 
 ## Datasets
 * [Maxcut](https://github.com/zhumingpassional/Maxcut):
