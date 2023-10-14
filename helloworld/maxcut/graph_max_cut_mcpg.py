@@ -43,54 +43,40 @@ def metro_sampling(probs, start_status, max_transfer_time, device=None):
     return samples.float().to(device)
 
 
-def sampler_func(data, simulator,
-                 xs_bool, xs_prob,
-                 num_ls, change_times, total_mcmc_num,
+def sampler_func(data, simulator, xs_sample,
+                 num_ls, total_mcmc_num, repeat_times,
                  device=torch.device(f'cuda:{GPU_ID}' if torch.cuda.is_available() else 'cpu')):
-    # data, tensor_probs, probs, num_ls, change_times, total_mcmc_num
-    xs_prob = xs_prob.to(torch.device("cpu"))
+    k = 1 / 4
 
     num_nodes = data.num_nodes
     num_edges = data.num_edges
     n0s_tensor = data.edge_index[0]
     n1s_tensor = data.edge_index[1]
 
-    # get probs
-    xs_sample = metro_sampling(xs_prob, xs_bool.clone(), change_times)
     xs_loc_sample = xs_sample.clone()
-
-    xs_loc_sample += xs_loc_sample[data.sorted_degree_nodes[0]].clone()
-    xs_loc_sample = ((xs_loc_sample % 2) - 0.5) * 2 + 0.5
+    xs_loc_sample = xs_loc_sample * 2 - 0.5  # map (0, 1) to (-0.5, 1.5)
 
     # local search
-    expected_cut = torch.zeros(xs_loc_sample.size(dim=1))
-    cnt = 0
-    while True:
-        cnt += 1
+    for cnt in range(num_ls):
         for node_index in range(0, num_nodes):
             node0_id = data.sorted_degree_nodes[node_index]
             node1_ids = data.neighbors[node0_id]
-            neighbor_edge_weight = data.neighbor_edges[node0_id].float()
 
-            node_temp_v = torch.mm(neighbor_edge_weight, xs_loc_sample[node1_ids])
-            node_temp_v = torch.squeeze(node_temp_v)
-            node_temp_v += torch.rand(node_temp_v.shape[0], device=device) / 4
-            xs_loc_sample[node0_id] = node_temp_v.lt(data.weighted_degree[node0_id] / 2 + 0.125).long()
-        if cnt >= num_ls:
-            break
+            node_rand_v = xs_loc_sample[node1_ids].sum(dim=0) + torch.rand(total_mcmc_num * repeat_times, device=device) * k
+            xs_loc_sample[node0_id] = node_rand_v.lt((data.weighted_degree[node0_id] + k) / 2).long()
 
     nlr_probs = 2 * xs_loc_sample[n0s_tensor.type(torch.long)][:] - 1
     nlc_probs = 2 * xs_loc_sample[n1s_tensor.type(torch.long)][:] - 1
-    expected_cut[:] = (nlr_probs * nlc_probs).sum(dim=0)
+    expected_cut = (nlr_probs * nlc_probs).sum(dim=0)
 
     expected_cut_reshape = expected_cut.reshape((-1, total_mcmc_num))
     index = torch.argmin(expected_cut_reshape, dim=0)
-    index = torch.arange(total_mcmc_num) + index * total_mcmc_num
+    index = torch.arange(total_mcmc_num, device=device) + index * total_mcmc_num
     max_cut = expected_cut[index]
     temp_max = (num_edges - max_cut) / 2  # todo
 
     value = (expected_cut - torch.mean(expected_cut)).to(device)
-    return temp_max, xs_loc_sample[:, index], xs_sample, value
+    return temp_max, xs_loc_sample[:, index], value
 
 
 class Simpler(torch.nn.Module):
@@ -234,16 +220,26 @@ def run():
     max_epoch_num = 2 ** 13
     sample_epoch_num = 8
     repeat_times = 128
-    num_ls = 8
 
+    num_ls = 8
     reset_epoch_num = 128
     total_mcmc_num = 512
     path = 'data/gset_14.txt'
+    # path = 'data/gset_15.txt'
+    # path = 'data/gset_49.txt'
+    # path = 'data/gset_50.txt'
 
-    # reset_epoch_num = 128
-    # total_mcmc_num = 256
-    # path = 'data/gset_55.txt'
+    # num_ls = 6
+    # reset_epoch_num = 192
+    # total_mcmc_num = 224
+    # path = 'data/gset_22.txt'
 
+    num_ls = 8
+    reset_epoch_num = 128
+    total_mcmc_num = 256
+    path = 'data/gset_55.txt'
+
+    # num_ls = 6
     # reset_epoch_num = 256
     # total_mcmc_num = 192
     # path = 'data/gset_70.txt'
@@ -265,11 +261,11 @@ def run():
 
     net = Simpler(num_nodes)
     net.to(device).reset_parameters()
-    optimizer = torch.optim.Adam(net.parameters(), lr=1e-1)
+    optimizer = torch.optim.Adam(net.parameters(), lr=2e-2)
 
     '''addition'''
     from graph_max_cut_simulator import load_graph, SimulatorGraphMaxCut
-    from beta1 import SolverRandomLocalSearch
+    from graph_max_cut_random_search import SolverRandomLocalSearch
     graph_name = path.split('/')[-1][:-4]
     graph = load_graph(graph_name=graph_name)
     simulator = SimulatorGraphMaxCut(graph=graph, device=device)
@@ -283,16 +279,17 @@ def run():
 
     '''loop'''
     net.train()
-    probs = (torch.zeros(num_nodes) + 0.5).to(device)
-    tensor_probs = now_max_info.repeat(1, repeat_times)
+    xs_prob = (torch.zeros(num_nodes) + 0.5).to(device)
+    xs_bool = now_max_info.repeat(1, repeat_times)
 
     for epoch in range(1, max_epoch_num + 1):
         net.to(device).reset_parameters()
 
         for j1 in range(reset_epoch_num // sample_epoch_num):
-            _probs = probs.detach()
-            temp_max, temp_max_info, start_samples_temp, value = sampler_func(
-                data, simulator, tensor_probs, probs, num_ls, change_times, total_mcmc_num)
+            xs_sample = metro_sampling(xs_prob, xs_bool.clone(), change_times)
+
+            temp_max, temp_max_info, value = sampler_func(
+                data, simulator, xs_sample, num_ls, total_mcmc_num, repeat_times)
             # update now_max
             for i0 in range(total_mcmc_num):
                 if temp_max[i0] > now_max_res[i0]:
@@ -308,15 +305,15 @@ def run():
             temp_max_info[:, now_min_index] = now_max_info[:, now_max_index]
 
             # select best samples
-            tensor_probs = temp_max_info.clone()
-            tensor_probs = tensor_probs.repeat(1, repeat_times)
+            xs_bool = temp_max_info.clone()
+            xs_bool = xs_bool.repeat(1, repeat_times)
             # construct the start point for next iteration
-            start_samples = start_samples_temp.t()
+            start_samples = xs_sample.t()
             print(f"value     {max(now_max_res).item():9.2f}")
 
             for _ in range(sample_epoch_num):
-                probs = net()
-                ret_loss_ls = get_return(probs, start_samples, value)
+                xs_prob = net()
+                ret_loss_ls = get_return(xs_prob, start_samples, value)
 
                 optimizer.zero_grad()
                 ret_loss_ls.backward()
