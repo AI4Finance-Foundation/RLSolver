@@ -29,14 +29,14 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 # Workflow
 <a target="\_blank">
 	<div align="center">
-		<img src=fig/work_flow.png width="50%"/>
+		<img src=fig/work_flow.png width="60%"/>
 	</div>
 </a>  
 
 # Structure
 <a target="\_blank">
 	<div align="center">
-		<img src=fig/RLSolver_structure.png width="50%"/>
+		<img src=fig/RLSolver_structure.png width="70%"/>
 	</div>
 </a>  
 
