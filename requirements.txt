@@ -6,7 +6,6 @@ numpy
 
 # plot/simulation
 matplotlib
-gym==0.25.2
 
 # profiling
 wandb
