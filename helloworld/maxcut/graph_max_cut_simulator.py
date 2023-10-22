@@ -1,4 +1,6 @@
 import os
+import sys
+import time
 import torch as th
 import networkx as nx
 from typing import List, Tuple
@@ -10,19 +12,19 @@ GraphList = List[Tuple[int, int, int]]
 IndexList = List[List[int]]
 
 
-def _load_graph_from_txt(txt_path: str = 'G14.txt') -> GraphList:
+def load_graph_from_txt(txt_path: str = 'G14.txt') -> GraphList:
     with open(txt_path, 'r') as file:
         lines = file.readlines()
         lines = [[int(i1) for i1 in i0.split()] for i0 in lines]
     num_nodes, num_edges = lines[0]
     graph = [(n0 - 1, n1 - 1, dt) for n0, n1, dt in lines[1:]]  # 将node_id 由“从1开始”改为“从0开始”
 
-    assert num_nodes == _obtain_num_nodes(graph=graph)
+    assert num_nodes == obtain_num_nodes(graph=graph)
     assert num_edges == len(graph)
     return graph
 
 
-def _generate_graph(graph_type: str, num_nodes: int) -> GraphList:
+def generate_graph(graph_type: str, num_nodes: int) -> GraphList:
     graph_types = ['erdos_renyi', 'powerlaw', 'barabasi_albert']
     assert graph_type in graph_types
 
@@ -42,33 +44,33 @@ def _generate_graph(graph_type: str, num_nodes: int) -> GraphList:
 
 def load_graph(graph_name: str):
     import random
-    data_dir = './data'
+    data_dir = './data/gset'
     graph_types = ['erdos_renyi', 'powerlaw', 'barabasi_albert']
 
     if os.path.exists(f"{data_dir}/{graph_name}.txt"):
         txt_path = f"{data_dir}/{graph_name}.txt"
-        graph = _load_graph_from_txt(txt_path=txt_path)
+        graph = load_graph_from_txt(txt_path=txt_path)
     elif graph_name.split('_')[0] in graph_types and len(graph_name.split('_')) == 3:
         graph_type, num_nodes, valid_i = graph_name.split('_')
         num_nodes = int(num_nodes)
         valid_i = int(valid_i[len('ID'):])
         random.seed(valid_i)
-        graph = _generate_graph(num_nodes=num_nodes, graph_type=graph_type)
+        graph = generate_graph(num_nodes=num_nodes, graph_type=graph_type)
         random.seed()
     elif graph_name.split('_')[0] in graph_types and len(graph_name.split('_')) == 2:
         graph_type, num_nodes = graph_name.split('_')
         num_nodes = int(num_nodes)
-        graph = _generate_graph(num_nodes=num_nodes, graph_type=graph_type)
+        graph = generate_graph(num_nodes=num_nodes, graph_type=graph_type)
     else:
         raise ValueError(f"graph_name {graph_name}")
     return graph
 
 
-def _obtain_num_nodes(graph: GraphList) -> int:
+def obtain_num_nodes(graph: GraphList) -> int:
     return max([max(n0, n1) for n0, n1, distance in graph]) + 1
 
 
-def _build_adjacency_matrix(graph: GraphList, if_bidirectional: bool = False):
+def build_adjacency_matrix(graph: GraphList, if_bidirectional: bool = False):
     """例如，无向图里：
     - 节点0连接了节点1
     - 节点0连接了节点2
@@ -88,7 +90,7 @@ def _build_adjacency_matrix(graph: GraphList, if_bidirectional: bool = False):
     - 其余为False
     """
     not_connection = -1  # 选用-1去表示表示两个node之间没有edge相连，不选用0是为了避免两个节点的距离为0时出现冲突
-    num_nodes = _obtain_num_nodes(graph=graph)
+    num_nodes = obtain_num_nodes(graph=graph)
 
     adjacency_matrix = th.zeros((num_nodes, num_nodes), dtype=th.float32)
     adjacency_matrix[:] = not_connection
@@ -99,7 +101,7 @@ def _build_adjacency_matrix(graph: GraphList, if_bidirectional: bool = False):
     return adjacency_matrix
 
 
-def _build_adjacency_indies(graph: GraphList, if_bidirectional: bool = False) -> (IndexList, IndexList):
+def build_adjacency_indies(graph: GraphList, if_bidirectional: bool = False) -> (IndexList, IndexList):
     """
     用二维列表list2d表示这个图：
     [
@@ -122,7 +124,7 @@ def _build_adjacency_indies(graph: GraphList, if_bidirectional: bool = False) ->
     0, 2, 1
     2, 3, 1
     """
-    num_nodes = _obtain_num_nodes(graph=graph)
+    num_nodes = obtain_num_nodes(graph=graph)
 
     n0_to_n1s = [[] for _ in range(num_nodes)]  # 将 node0_id 映射到 node1_id
     n0_to_dts = [[] for _ in range(num_nodes)]  # 将 mode0_id 映射到 node1_id 与 node0_id 的距离
@@ -145,93 +147,72 @@ def _build_adjacency_indies(graph: GraphList, if_bidirectional: bool = False) ->
     return n0_to_n1s, n0_to_dts
 
 
+def get_gpu_info_str(device) -> str:
+    if not th.cuda.is_available():
+        return 'th.cuda.is_available() == False'
+
+    total_memory = th.cuda.get_device_properties(device).total_memory / (1024 ** 3)  # GB
+    max_allocated = th.cuda.max_memory_allocated(device) / (1024 ** 3)  # GB
+    memory_allocated = th.cuda.memory_allocated(device) / (1024 ** 3)  # GB
+
+    return (f"RAM(GB) {memory_allocated:.2f} < {max_allocated:.2f} < {total_memory:.2f}  "
+            f"Rate {(max_allocated / total_memory):5.2f}")
+
+
 '''simulator'''
 
 
 class SimulatorGraphMaxCut:
     def __init__(self, graph: GraphList, device=th.device('cpu'), if_bidirectional: bool = False):
         self.device = device
-        self.int_type = int_type = th.int32
+        self.int_type = int_type = th.long
         self.if_bidirectional = if_bidirectional
 
-        # 建立邻接索引
-        n0_to_n1s, n0_to_dts = _build_adjacency_indies(graph=graph, if_bidirectional=if_bidirectional)
+        '''建立邻接矩阵'''
+        self.adjacency_matrix = build_adjacency_matrix(graph=graph, if_bidirectional=if_bidirectional).to(device)
+
+        '''建立邻接索引'''
+        n0_to_n1s, n0_to_dts = build_adjacency_indies(graph=graph, if_bidirectional=if_bidirectional)
         n0_to_n1s = [t.to(int_type).to(device) for t in n0_to_n1s]
-        self.num_nodes = _obtain_num_nodes(graph)
+        self.num_nodes = obtain_num_nodes(graph)
         self.num_edges = len(graph)
         self.adjacency_indies = n0_to_n1s
 
-        # 建立邻接矩阵
-        self.adjacency_matrix = _build_adjacency_matrix(graph=graph, if_bidirectional=if_bidirectional).to(device)
-
-        # 建立基于edge 的索引n0_ids, n1_ids 用于高效计算
-        """
-        在K个子环境里，需要对N个点进行索引去计算计算GraphMaxCut距离：
-        - 建立邻接矩阵的方法，计算GraphMaxCut距离时，需要索引K*N次
-        - 下面这种方法直接保存并行索引信息，仅需要索引1次
-
-        为了用GPU加速计算，可以用两个固定长度的张量记录端点序号，再用两个固定长度的张量记录端点信息。去表示这个图：
-        我们直接将每条edge两端的端点称为：左端点node0 和 右端点node1 （在无向图里，左右端点可以随意命名）
-        node0_id   [0, 0, 2]  # 依次保存三条边的node0，用于索引
-        node0_prob [p, p, p]  # 依次根据索引得到node0 的概率，用于计算
-        node1_id   [1, 2, 3]  # 依次保存三条边的node1，用于索引
-        node1_prob [p, p, p]  # 依次根据索引得到node1 的概率，用于计算
-
-        env_id     [0, 1, 2, ..., num_envs]  # 保存了并行维度的索引信息
-        """
-        n0_ids = []
-        n1_ids = []
-        for i, n1s in enumerate(n0_to_n1s):
-            n0_ids.extend([i, ] * n1s.shape[0])
-            n1_ids.extend(n1s)
-        self.n0_ids = th.tensor(n0_ids, dtype=int_type, device=device).unsqueeze(0)
-        self.n1_ids = th.tensor(n1_ids, dtype=int_type, device=device).unsqueeze(0)
+        '''基于邻接索引，建立基于边edge的索引张量：(n0_ids, n1_ids)是所有边(第0个, 第1个)端点的索引'''
+        n0_to_n0s = [(th.zeros_like(n1s) + i) for i, n1s in enumerate(n0_to_n1s)]
+        self.n0_ids = th.hstack(n0_to_n0s)[None, :]
+        self.n1_ids = th.hstack(n0_to_n1s)[None, :]
         len_sim_ids = self.num_edges * (2 if if_bidirectional else 1)
-        self.sim_ids = th.zeros(len_sim_ids, dtype=int_type, device=device).unsqueeze(0)
-
-    def calculate_obj_values_for_loop(self, xs: TEN) -> TEN:  # 使用for循环重复查找索引，不适合GPU并行
-        num_sims, num_nodes = xs.shape
-        assert num_nodes == self.num_nodes
-
-        sum_edges = []
-        for env_i in range(num_sims):  # 逐个访问子环境
-            p0 = xs[env_i]
-
-            n0_to_p1 = []
-            for n0 in range(num_nodes):  # 逐个访问节点
-                n1s = th.where(self.adjacency_matrix[n0] != -1)[0]  # 根据邻接矩阵，找出与node0 相连的多个节点的索引
-                p1 = p0[n1s]  # 根据索引找出node1 属于集合的概率
-                n0_to_p1.append(p1)
-
-            sum_edge = []
-            for _p0, _p1 in zip(p0, n0_to_p1):
-                # `_p0 * (1-_p1)` node_0 属于这个集合 且 node1 属于那个集合的概率
-                # `_p1 * (1-_p0)` node_1 属于这个集合 且 node0 属于那个集合的概率
-                # dt = _p0 * (1-_p1) + _p1 * (1-_p0)  # 等价于以下一行代码，相加计算出了这条边两端的节点分别属于两个集合的概率
-                dt = _p0 + _p1 - 2 * _p0 * _p1
-                # 此计算只能算出的局部梯度，与全局梯度有差别，未考虑无向图里节点间的复杂关系，需要能跳出局部最优的求解器
-                sum_edge.append(dt.sum(dim=0))
-            sum_edge = th.stack(sum_edge).sum(dim=-1)  # 求和得到这个子环境的 objective
-            sum_edges.append(sum_edge)
-        sum_edges = th.hstack(sum_edges)  # 堆叠结果，得到 num_sims 个子环境的 objective
-        return sum_edges
+        self.sim_ids = th.zeros(len_sim_ids, dtype=int_type, device=device)[None, :]
+        self.n0_num_n1 = th.tensor([n1s.shape[0] for n1s in n0_to_n1s], device=device)[None, :]
 
     def calculate_obj_values(self, xs: TEN, if_sum: bool = True) -> TEN:
         num_sims = xs.shape[0]
         if num_sims != self.sim_ids.shape[0]:
             self.n0_ids = self.n0_ids[0].repeat(num_sims, 1)
             self.n1_ids = self.n1_ids[0].repeat(num_sims, 1)
-            self.sim_ids = self.sim_ids[0:1] + th.arange(num_sims, device=self.device).unsqueeze(1)
+            self.sim_ids = self.sim_ids[0:1] + th.arange(num_sims, dtype=self.int_type, device=self.device)[:, None]
 
-        xs_n0 = xs[self.sim_ids, self.n0_ids]
-        xs_n1 = xs[self.sim_ids, self.n1_ids]
-        value = xs_n0 ^ xs_n1
+        values = xs[self.sim_ids, self.n0_ids] ^ xs[self.sim_ids, self.n1_ids]
         if if_sum:
-            value = value.sum(1)
+            values = values.sum(1)
         if self.if_bidirectional:
-            value = value / 2
-        # return (xs_n0 + xs_n1 - 2 * xs_n0 * xs_n1).sum(1)
-        return value
+            values = values.float() / 2
+        return values
+
+    def calculate_obj_values_for_loop(self, xs: TEN, if_sum: bool = True) -> TEN:  # 有更高的并行度，但计算耗时增加一倍。
+        num_sims, num_nodes = xs.shape
+        values = th.zeros((num_sims, num_nodes), dtype=self.int_type, device=self.device)
+        for node0 in range(num_nodes):
+            node1s = self.adjacency_indies[node0]
+            if node1s.shape[0] > 0:
+                values[:, node0] = (xs[:, node0, None] ^ xs[:, node1s]).sum(dim=1)
+
+        if if_sum:
+            values = values.sum(dim=1)
+        if self.if_bidirectional:
+            values = values.float() / 2
+        return values
 
     def generate_xs_randomly(self, num_sims):
         xs = th.randint(0, 2, size=(num_sims, self.num_nodes), dtype=th.bool, device=self.device)
@@ -254,6 +235,69 @@ def check_simulator():
         obj = simulator.calculate_obj_values(xs=xs)
         print(f"| {i}  max_obj_value {obj.max().item()}")
     pass
+
+
+def find_best_num_sims():
+    gpu_id = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+
+    calculate_obj_func = 'calculate_obj_values'
+    graph_name = 'gset_14'
+    num_sims = 2 ** 16
+    num_iter = 2 ** 6
+    # calculate_obj_func = 'calculate_obj_values_for_loop'
+    # graph_name = 'gset_14'
+    # num_sims = 2 ** 13
+    # num_iter = 2 ** 9
+
+    if os.name == 'nt':
+        graph_name = 'powerlaw_64'
+        num_sims = 2 ** 4
+        num_iter = 2 ** 3
+
+    graph = load_graph(graph_name=graph_name)
+    device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
+    simulator = SimulatorGraphMaxCut(graph=graph, device=device, if_bidirectional=False)
+
+    print('find the best num_sims')
+    from math import ceil
+    for j in (1, 1, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32):
+        _num_sims = int(num_sims * j)
+        _num_iter = ceil(num_iter * num_sims / _num_sims)
+
+        timer = time.time()
+        for i in range(_num_iter):
+            xs = simulator.generate_xs_randomly(num_sims=_num_sims)
+            vs = getattr(simulator, calculate_obj_func)(xs=xs)
+            assert isinstance(vs, TEN)
+            # print(f"| {i}  max_obj_value {vs.max().item()}")
+        print(f"_num_iter {_num_iter:8}  "
+              f"_num_sims {_num_sims:8}  "
+              f"UsedTime {time.time() - timer:9.3f}  "
+              f"GPU {get_gpu_info_str(device)}")
+    """
+'''calculate_obj_values'''
+find the best num_sims
+_num_iter      512  _num_sims     8192  UsedTime     3.189  GPU RAM(GB) 1.73 < 2.52 < 10.75  Rate  0.23
+_num_iter      512  _num_sims     8192  UsedTime     4.141  GPU RAM(GB) 1.73 < 2.52 < 10.75  Rate  0.23
+_num_iter      512  _num_sims     8192  UsedTime     4.140  GPU RAM(GB) 1.73 < 2.52 < 10.75  Rate  0.23
+_num_iter      342  _num_sims    12288  UsedTime     3.632  GPU RAM(GB) 2.59 < 3.77 < 10.75  Rate  0.35
+_num_iter      256  _num_sims    16384  UsedTime     3.624  GPU RAM(GB) 3.45 < 5.03 < 10.75  Rate  0.47
+_num_iter      171  _num_sims    24576  UsedTime     3.247  GPU RAM(GB) 5.18 < 7.54 < 10.75  Rate  0.70
+
+'''calculate_obj_values_for_loop (lower effective, lower GPU RAM, higher parallel)'''
+find the best num_sims
+_num_iter       64  _num_sims    65536  UsedTime     7.018  GPU RAM(GB) 0.05 < 0.52 < 10.75  Rate  0.05
+_num_iter       64  _num_sims    65536  UsedTime     6.965  GPU RAM(GB) 0.05 < 0.52 < 10.75  Rate  0.05
+_num_iter       64  _num_sims    65536  UsedTime     6.962  GPU RAM(GB) 0.05 < 0.52 < 10.75  Rate  0.05
+_num_iter       43  _num_sims    98304  UsedTime     6.887  GPU RAM(GB) 0.08 < 0.77 < 10.75  Rate  0.07
+_num_iter       32  _num_sims   131072  UsedTime     6.815  GPU RAM(GB) 0.10 < 1.03 < 10.75  Rate  0.10
+_num_iter       22  _num_sims   196608  UsedTime     6.957  GPU RAM(GB) 0.15 < 1.54 < 10.75  Rate  0.14
+_num_iter       16  _num_sims   262144  UsedTime     6.681  GPU RAM(GB) 0.20 < 2.06 < 10.75  Rate  0.19
+_num_iter       11  _num_sims   393216  UsedTime     6.836  GPU RAM(GB) 0.30 < 3.08 < 10.75  Rate  0.29
+_num_iter        8  _num_sims   524288  UsedTime     6.594  GPU RAM(GB) 0.40 < 4.11 < 10.75  Rate  0.38
+_num_iter        6  _num_sims   786432  UsedTime     7.597  GPU RAM(GB) 0.59 < 6.16 < 10.75  Rate  0.57
+_num_iter        4  _num_sims  1048576  UsedTime     6.716  GPU RAM(GB) 0.79 < 8.21 < 10.75  Rate  0.76
+    """
 
 
 if __name__ == '__main__':
