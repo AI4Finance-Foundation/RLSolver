@@ -12,10 +12,10 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 - [TSP](https://github.com/zhumingpassional/TSP)
 
 # Key Technologies
-- **RL/ML tricks** such as learn to optimize, and curriculum learning.
-- **OR tricks** such as local search, and tabu search.
-- **Massively parallel sampling** of Markov chain Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
-- **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
+- **RL/ML tricks** such as learn to optimize and curriculum learning.
+- **OR tricks** such as local search and tabu search.
+- **Massively parallel sampling** of Markov chain Monte Carlo (MCMC) simulations on GPU using thousands of CUDA cores and tensor cores.
+- **Podracer scheduling** on a GPU cloud such as DGX-2 SuperPod.
 - 
 # Key References
 
