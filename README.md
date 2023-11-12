@@ -75,10 +75,16 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 [code](https://github.com/JHL-HUST/VSR-LKH) (LKH for TSP) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
+* Annealing
+
+[code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_classical_annealing) (VCA) 2023 Machine_Learning Supplementing recurrent neural networks with annealing to solve combinatorial optimization problems
+
+[code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_neural_annealing) (VNA) 2021 Nature_Machine_Intelligence Variational neural annealing
+
 * Classical methods
-  - Random walk
-  - Greedy
-  - Simulated annealing
+  - [Random walk](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/random_walk.py)
+  - [Greedy](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/greedy.py)
+  - [Simulated annealing](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/simulated_annealing.py)
   - Local search
   - Beam search
   - Tabu search
