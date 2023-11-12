@@ -135,10 +135,12 @@ RLSolver
         └──mcmc.py
         └──l2a.py (ours)
         └──baseline
+            └──greedy.py
             └──gurobi.py
             └──random_walk.py
-            └──greedy.py
             └──simulated_annealing.py
+            └──variational_classical_annealing
+            └──variational_neural_annealing
 └──benchmark
    └──maxcut.md
    └──graph_partitioning.md
