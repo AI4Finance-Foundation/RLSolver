@@ -75,7 +75,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 [code](https://github.com/JHL-HUST/VSR-LKH) (LKH for TSP) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
-* Annealing
+* Variational annealing
 
 [code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_classical_annealing) (VCA) 2023 Machine_Learning Supplementing recurrent neural networks with annealing to solve combinatorial optimization problems
 
