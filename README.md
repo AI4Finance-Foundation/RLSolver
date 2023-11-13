@@ -77,7 +77,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 * Variational annealing
 
-[code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_classical_annealing) (VCA) 2023 Machine_Learning Supplementing recurrent neural networks with annealing to solve combinatorial optimization problems
+[code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_classical_annealing) (VCA_RNN) 2023 Machine_Learning Supplementing recurrent neural networks with annealing to solve combinatorial optimization problems
 
 [code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_neural_annealing) (VNA) 2021 Nature_Machine_Intelligence Variational neural annealing
 
@@ -139,7 +139,7 @@ RLSolver
             └──gurobi.py
             └──random_walk.py
             └──simulated_annealing.py
-            └──variational_classical_annealing
+            └──variational_classical_annealing_RNN
             └──variational_neural_annealing
 └──benchmark
    └──maxcut.md
