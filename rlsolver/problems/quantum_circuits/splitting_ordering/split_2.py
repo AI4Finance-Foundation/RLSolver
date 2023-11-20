@@ -1,10 +1,6 @@
 import ast
 
 # 从文件中读取contraction_ordering
-# file_path = "N53M12.txt"
-# file_path = "N53M14.txt"
-# file_path = "N53M16.txt"
-# file_path = "N53M18.txt"
 file_path = "N53M20.txt"
 with open(file_path, 'r') as file:
     content = file.read()
@@ -28,29 +24,39 @@ while i < len(contraction_ordering) - 2:
     i += 1
 
 # 合并组合
-merged_combinations = []
-i = 0
-while i < len(valid_combinations):
-    current = valid_combinations[i]
+def can_merge(comb1, comb2):
+    """检查两个组合是否有共同的元素"""
+    flat_comb1 = set(sum([list(pair) for pair in comb1], []))
+    flat_comb2 = set(sum([list(pair) for pair in comb2], []))
+    return not flat_comb1.isdisjoint(flat_comb2)
 
-    # 检查是否可以与下一个组合合并
-    if i + 1 < len(valid_combinations):
-        next_combination = valid_combinations[i + 1]
-        if not (set(current[0]).intersection(set(next_combination[0])) or
-                set(current[1]).intersection(set(next_combination[1]))):
-            # 合并组合并跳过下一个
-            merged_combinations.append(
-                (current[0], current[1], next_combination[0], next_combination[1], current[2], next_combination[2]))
-            i += 1  # 跳过下一个组合
+def merge_combinations(combinations):
+    """合并没有共同元素的相邻组合"""
+    i = 0
+    merged = []
+    while i < len(combinations):
+        current = combinations[i]
+        if i + 1 < len(combinations) and not can_merge(current, combinations[i + 1]):
+            # 合并当前组合与下一个组合
+            next_combination = combinations[i + 1]
+            merged_combination = current + next_combination
+            merged.append(merged_combination)
+            i += 2  # 跳过合并的组合
         else:
-            merged_combinations.append(current)
-    else:
-        merged_combinations.append(current)
+            merged.append(current)
+            i += 1
+    return merged
 
-    i += 1
+# 迭代优化直到不再有合并机会
+while True:
+    new_combinations = merge_combinations(valid_combinations)
+    if len(new_combinations) == len(valid_combinations):
+        break
+    valid_combinations = new_combinations
 
+# 打印最终结果
 count = 0
-for group in merged_combinations:
+for group in valid_combinations:
     print(f"符合条件的组 {count + 1}:")
 
     # 确定需要移动到第二行的对的数量
