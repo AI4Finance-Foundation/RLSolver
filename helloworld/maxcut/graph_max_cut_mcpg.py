@@ -1,20 +1,21 @@
 import os
-
 import torch
 import sys
 from torch_geometric.data import Data
-from graph_max_cut_evaluator import EncoderBase64
+from evaluator import EncoderBase64
 from graph_max_cut_simulator import SimulatorGraphMaxCut, load_graph
 
 """
 pip install torch_geometric
 """
 
-GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+# GPU_ID = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+GPU_ID = 0  # todo
 
 
 def metro_sampling(probs, start_status, max_transfer_time, device=None):
     # Metropolis-Hastings sampling
+    torch.set_grad_enabled(False)
     if device is None:
         device = torch.device(f'cuda:{GPU_ID}' if torch.cuda.is_available() else 'cpu')
 
@@ -40,43 +41,57 @@ def metro_sampling(probs, start_status, max_transfer_time, device=None):
         samples[index_row, index_col] = torch.where(is_accept, ~chosen_value, chosen_value)
 
         count += is_accept.sum()
+    torch.set_grad_enabled(True)
     return samples.float().to(device)
 
 
-def sampler_func(data, simulator, xs_sample,
+def sampler_func(data, xs_sample,
                  num_ls, total_mcmc_num, repeat_times,
                  device=torch.device(f'cuda:{GPU_ID}' if torch.cuda.is_available() else 'cpu')):
+    torch.set_grad_enabled(False)
     k = 1 / 4
 
-    num_nodes = data.num_nodes
+    # num_nodes = data.num_nodes
     num_edges = data.num_edges
     n0s_tensor = data.edge_index[0]
     n1s_tensor = data.edge_index[1]
 
     xs_loc_sample = xs_sample.clone()
-    xs_loc_sample = xs_loc_sample * 2 - 0.5  # map (0, 1) to (-0.5, 1.5)
+    xs_loc_sample *= 2  # map (0, 1) to (-0.5, 1.5)
+    xs_loc_sample -= 0.5  # map (0, 1) to (-0.5, 1.5)
 
     # local search
     for cnt in range(num_ls):
-        for node_index in range(0, num_nodes):
-            node0_id = data.sorted_degree_nodes[node_index]
+        for node0_id in data.sorted_degree_nodes:
             node1_ids = data.neighbors[node0_id]
 
-            node_rand_v = xs_loc_sample[node1_ids].sum(dim=0) + torch.rand(total_mcmc_num * repeat_times, device=device) * k
+            node_rand_v = (xs_loc_sample[node1_ids].sum(dim=0) +
+                           torch.rand(total_mcmc_num * repeat_times, device=device) * k)
             xs_loc_sample[node0_id] = node_rand_v.lt((data.weighted_degree[node0_id] + k) / 2).long()
+    # pass
+    # vs1 = simulator.calculate_obj_values(xs_sample.t().bool())
+    # vs2 = simulator.calculate_obj_values(xs_loc_sample.t().bool())
+    # pass
+    expected_cut = torch.empty(total_mcmc_num * repeat_times, dtype=torch.float32, device=device)
+    for j in range(repeat_times):
+        j0 = total_mcmc_num * j
+        j1 = total_mcmc_num * (j + 1)
 
-    nlr_probs = 2 * xs_loc_sample[n0s_tensor.type(torch.long)][:] - 1
-    nlc_probs = 2 * xs_loc_sample[n1s_tensor.type(torch.long)][:] - 1
-    expected_cut = (nlr_probs * nlc_probs).sum(dim=0)
+        nlr_probs = 2 * xs_loc_sample[n0s_tensor.type(torch.long), j0:j1] - 1
+        nlc_probs = 2 * xs_loc_sample[n1s_tensor.type(torch.long), j0:j1] - 1
+        expected_cut[j0:j1] = (nlr_probs * nlc_probs).sum(dim=0)
 
     expected_cut_reshape = expected_cut.reshape((-1, total_mcmc_num))
     index = torch.argmin(expected_cut_reshape, dim=0)
     index = torch.arange(total_mcmc_num, device=device) + index * total_mcmc_num
     max_cut = expected_cut[index]
-    temp_max = (num_edges - max_cut) / 2  # todo
+    vs_good = (num_edges - max_cut) / 2
 
-    value = (expected_cut - torch.mean(expected_cut)).to(device)
-    return temp_max, xs_loc_sample[:, index], value
+    xs_good = xs_loc_sample[:, index]
+    value = expected_cut.float()
+    value -= value.mean()
+    torch.set_grad_enabled(True)
+    return vs_good, xs_good, value
 
 
 class Simpler(torch.nn.Module):
@@ -210,10 +225,31 @@ def append_neighbors(data, device=torch.device(f'cuda:{GPU_ID}' if torch.cuda.is
     return data
 
 
-def get_return(probs, samples, value):
-    log_prob = (samples * probs + (1 - samples) * (1 - probs)).log()
-    objective = log_prob.sum(dim=1) * value.t().detach()
-    return objective.mean()
+def get_return(probs, samples, value, total_mcmc_num, repeat_times):
+    log_prob_sum = torch.empty_like(value)
+    for j in range(repeat_times):
+        j0 = total_mcmc_num * j
+        j1 = total_mcmc_num * (j + 1)
+
+        _samples = samples[j0:j1]
+        log_prob = (_samples * probs + (1 - _samples) * (1 - probs)).log()
+        log_prob_sum[j0:j1] = log_prob.sum(dim=1)
+    objective = (log_prob_sum * value.detach()).mean()
+    return objective
+
+
+def print_gpu_memory(device):
+    if not torch.cuda.is_available():
+        return
+
+    total_memory = torch.cuda.get_device_properties(device).total_memory / (1024 ** 3)  # GB
+    max_allocated = torch.cuda.max_memory_allocated(device) / (1024 ** 3)  # GB
+    memory_allocated = torch.cuda.memory_allocated(device) / (1024 ** 3)  # GB
+
+    print(f"AllRAM {total_memory:.2f} GB, "
+          f"MaxRAM {max_allocated:.2f} GB, "
+          f"NowRAM {memory_allocated:.2f} GB, "
+          f"Rate {(max_allocated / total_memory) * 100:.2f}%")
 
 
 def run():
@@ -221,10 +257,10 @@ def run():
     sample_epoch_num = 8
     repeat_times = 128
 
-    num_ls = 8
-    reset_epoch_num = 128
-    total_mcmc_num = 512
-    path = 'data/gset_14.txt'
+    # num_ls = 8
+    # reset_epoch_num = 128
+    # total_mcmc_num = 512
+    # path = 'data/gset_14.txt'
     # path = 'data/gset_15.txt'
     # path = 'data/gset_49.txt'
     # path = 'data/gset_50.txt'
@@ -234,15 +270,33 @@ def run():
     # total_mcmc_num = 224
     # path = 'data/gset_22.txt'
 
-    num_ls = 8
-    reset_epoch_num = 128
-    total_mcmc_num = 256
-    path = 'data/gset_55.txt'
+    # num_ls = 8
+    # reset_epoch_num = 128
+    # total_mcmc_num = 256
+    # path = 'data/gset_55.txt'
 
-    # num_ls = 6
+    # num_ls = 8
     # reset_epoch_num = 256
     # total_mcmc_num = 192
     # path = 'data/gset_70.txt'
+
+    # num_ls = 8
+    # reset_epoch_num = 256
+    # repeat_times = 512
+    # total_mcmc_num = 2048
+    # path = 'data/gset_22.txt'  # GPU RAM 40GB
+
+    # num_ls = 8
+    # reset_epoch_num = 192
+    # repeat_times = 448
+    # total_mcmc_num = 1024
+    # path = 'data/gset_55.txt'  # GPU RAM 40GB
+
+    num_ls = 8
+    reset_epoch_num = 320
+    repeat_times = 288
+    total_mcmc_num = 768
+    path = 'data/gset_70.txt'  # GPU RAM 40GB
 
     show_gap = 2 ** 4
 
@@ -261,27 +315,32 @@ def run():
 
     net = Simpler(num_nodes)
     net.to(device).reset_parameters()
-    optimizer = torch.optim.Adam(net.parameters(), lr=2e-2)
+    optimizer = torch.optim.Adam(net.parameters(), lr=8e-2)
 
     '''addition'''
     from graph_max_cut_simulator import load_graph, SimulatorGraphMaxCut
-    from graph_max_cut_random_search import SolverRandomLocalSearch
+    from graph_max_cut_local_search import SolverLocalSearch
     graph_name = path.split('/')[-1][:-4]
     graph = load_graph(graph_name=graph_name)
     simulator = SimulatorGraphMaxCut(graph=graph, device=device)
-    solver = SolverRandomLocalSearch(simulator=simulator, num_nodes=num_nodes, spin_thresh=8 / num_nodes)
+    solver = SolverLocalSearch(simulator=simulator, num_nodes=num_nodes)
 
     xs = simulator.generate_xs_randomly(num_sims=total_mcmc_num)
-    solver.reset(xs)
-    solver.random_search(num_iters=repeat_times)
+    solver.reset(xs.bool())
+    for _ in range(16):
+        solver.random_search(num_iters=repeat_times // 16)
     now_max_info = solver.good_xs.t()
     now_max_res = solver.good_vs
+    del simulator
+    del solver
 
     '''loop'''
     net.train()
     xs_prob = (torch.zeros(num_nodes) + 0.5).to(device)
     xs_bool = now_max_info.repeat(1, repeat_times)
 
+    print('start loop')
+    sys.stdout.flush()  # add for slurm stdout
     for epoch in range(1, max_epoch_num + 1):
         net.to(device).reset_parameters()
 
@@ -289,7 +348,7 @@ def run():
             xs_sample = metro_sampling(xs_prob, xs_bool.clone(), change_times)
 
             temp_max, temp_max_info, value = sampler_func(
-                data, simulator, xs_sample, num_ls, total_mcmc_num, repeat_times)
+                data, xs_sample, num_ls, total_mcmc_num, repeat_times, device)
             # update now_max
             for i0 in range(total_mcmc_num):
                 if temp_max[i0] > now_max_res[i0]:
@@ -310,15 +369,17 @@ def run():
             # construct the start point for next iteration
             start_samples = xs_sample.t()
             print(f"value     {max(now_max_res).item():9.2f}")
+            sys.stdout.flush()  # add for slurm stdout
 
             for _ in range(sample_epoch_num):
                 xs_prob = net()
-                ret_loss_ls = get_return(xs_prob, start_samples, value)
+                ret_loss_ls = get_return(xs_prob, start_samples, value, total_mcmc_num, repeat_times)
 
                 optimizer.zero_grad()
                 ret_loss_ls.backward()
                 torch.nn.utils.clip_grad_norm_(net.parameters(), 1)
                 optimizer.step()
+            torch.cuda.empty_cache()
 
             if j1 % show_gap == 0:
                 total_max = now_max_res
@@ -331,6 +392,15 @@ def run():
                 encoder = EncoderBase64(num_nodes=num_nodes)
                 x_str = encoder.bool_to_str(x_bool=solution)
                 print(f"epoch {epoch:6}  objective value  {objective_value.item():8.2f}  solution {x_str}")
+                print_gpu_memory(device)
+
+            if os.path.exists('./stop'):
+                break
+        if os.path.exists('./stop'):
+            break
+    if os.path.exists('./stop'):
+        print(f"break: os.path.exists('./stop') {os.path.exists('./stop')}")
+        sys.stdout.flush()  # add for slurm stdout
 
 
 if __name__ == '__main__':

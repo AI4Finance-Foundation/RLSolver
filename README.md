@@ -3,16 +3,19 @@
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
+[![](https://dcbadge.vercel.app/api/server/trsr8SXpW5)](https://discord.gg/trsr8SXpW5)
+
+
 # Problem-oriented Repos
 
 - [Maxcut](https://github.com/zhumingpassional/Maxcut)
 - [TSP](https://github.com/zhumingpassional/TSP)
 
 # Key Technologies
-- **RL/ML tricks** such as learn to optimize, and curriculum learning.
-- **OR tricks** such as local search, and tabu search.
-- **Massively parallel sampling** of Markov chain Monte Carlo simulations on GPU, using thousands of CUDA cores and tensor cores.
-- **Podracer scheduling** on a GPU cloud, e.g., DGX-2 SuperPod.
+- **RL/ML tricks** such as learn to optimize and curriculum learning.
+- **OR tricks** such as local search and tabu search.
+- **Massively parallel sampling** of Markov chain Monte Carlo (MCMC) simulations on GPU using thousands of CUDA cores and tensor cores.
+- **Podracer scheduling** on a GPU cloud such as DGX-2 SuperPod.
 - 
 # Key References
 
@@ -72,10 +75,16 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 [code](https://github.com/JHL-HUST/VSR-LKH) (LKH for TSP) 2021 AAAI Combining reinforcement learning with Lin-Kernighan-Helsgaun algorithm for the traveling salesman problem 
 
+* Variational annealing
+
+[code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_classical_annealing_RNN) (VCA_RNN) 2023 Machine_Learning Supplementing recurrent neural networks with annealing to solve combinatorial optimization problems
+
+[code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_neural_annealing) (VNA) 2021 Nature_Machine_Intelligence Variational neural annealing
+
 * Classical methods
-  - Random walk
-  - Greedy
-  - Simulated annealing
+  - [Random walk](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/random_walk.py)
+  - [Greedy](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/greedy.py)
+  - [Simulated annealing](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/simulated_annealing.py)
   - Local search
   - Beam search
   - Tabu search
@@ -126,10 +135,12 @@ RLSolver
         └──mcmc.py
         └──l2a.py (ours)
         └──baseline
+            └──greedy.py
             └──gurobi.py
             └──random_walk.py
-            └──greedy.py
             └──simulated_annealing.py
+            └──variational_classical_annealing_RNN
+            └──variational_neural_annealing
 └──benchmark
    └──maxcut.md
    └──graph_partitioning.md
