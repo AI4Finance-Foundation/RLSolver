@@ -173,7 +173,7 @@ RLSolver
 - [x] quantum circuits 
 ## TODO
 - [ ] [TSP](https://github.com/zhumingpassional/TSP)
-- [ ] Vehicle routing problem
+- [ ] VRP (Vehicle routing problem)
 - [ ] Graph partitioning
 - [ ] Minimum vertex cover 
 - [ ] MILP
