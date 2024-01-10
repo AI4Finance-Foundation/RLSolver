@@ -42,7 +42,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
   
   1) [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
   
-  2) __Syn__ is the synthetic data obtained by calling the function generate_write in utils.py. The number of nodes is from 10 to 50000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). 
+  2) __Syn__ is the synthetic data obtained by calling the function generate_write in util.py. The number of nodes is from 10 to 50000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). 
   
 * [TSP](https://github.com/zhumingpassional/TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
@@ -125,7 +125,7 @@ RLSolver
    └──maxcut
         └──data
         └──result
-        └──utils.py
+        └──util.py
         └──mcmc.py
         └──l2a.py (ours)
         └──baseline
@@ -141,7 +141,7 @@ RLSolver
    └──tsp.md
    └──tnco.md
 └──rlsolver (main folder)
-   └──utils.py
+   └──util.py
    └──data
       └──graph
       └──quantum_circuits
@@ -170,14 +170,14 @@ RLSolver
 - [x] MIMO
 - [x] [Maxcut](https://github.com/zhumingpassional/Maxcut)
 - [x] TNCO
-- [x] quantum_circuits 
+- [x] quantum circuits 
 ## TODO
 - [ ] [TSP](https://github.com/zhumingpassional/TSP)
 - [ ] Vehicle routing problem
 - [ ] Graph partitioning
 - [ ] Minimum vertex cover 
 - [ ] MILP
-- [ ] portfolio_management
+- [ ] Portfolio allocation
 
 
 ## Related Websites
