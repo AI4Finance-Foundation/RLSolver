@@ -1,8 +1,8 @@
 import os
 import torch
-from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
-from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
-from rlsolver.rlsolver_mimo_beamforming.evaluator_mimo import evaluator
+from rlsolver.problems.mimo_beamforming.mimo_beamforming_env.env_mimo import MIMOEnv
+from rlsolver.problems.mimo_beamforming.net_mimo import Policy_Net_MIMO
+from rlsolver.problems.mimo_beamforming.evaluator_mimo import evaluator
 
 def train_curriculum_learning(policy_net_mimo, optimizer, save_path, device, K=4, N=4, P=10, noise_power=1, num_epochs=40000,
                 num_epochs_per_subspace=400, num_epochs_to_save_model=1000, num_epochs_to_evaluate=100):

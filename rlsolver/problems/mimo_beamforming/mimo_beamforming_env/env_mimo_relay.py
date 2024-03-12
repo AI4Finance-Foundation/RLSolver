@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from rlsolver.envs.mimo_beamforming.baseline_mmse import compute_mmse_beamformer_relay
+from rlsolver.problems.mimo_beamforming.mimo_beamforming_env.baseline_mmse import compute_mmse_beamformer_relay
 
 class MIMORelayEnv():
     def __init__(self, K=2, N=2, M=2, P=10, noise_power=1, episode_length=6, num_env=4096, device=torch.device("cuda:0")):

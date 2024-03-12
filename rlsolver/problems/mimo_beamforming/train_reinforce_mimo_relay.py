@@ -1,8 +1,8 @@
 import os
 import torch
-from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMORelayEnv
-from rlsolver.rlsolver_mimo_beamforming.net_mimo_relay import Policy_Net_MIMO_Relay
-from rlsolver.rlsolver_mimo_beamforming.evaluator_mimo_relay import evaluator_relay
+from rlsolver.problems.mimo_beamforming.mimo_beamforming_env.env_mimo_relay import MIMORelayEnv
+from rlsolver.problems.mimo_beamforming.net_mimo_relay import Policy_Net_MIMO_Relay
+from rlsolver.problems.mimo_beamforming.evaluator_mimo_relay import evaluator_relay
 
 def train_curriculum_learning_relay(policy_net_mimo_relay, optimizer, device, save_path=None, K=4, N=4, M=4, P=10, noise_power=1, num_epochs=400000,
                 num_epochs_per_subspace=1000, num_epochs_to_save_model=1000, num_epochs_to_evaluate=100):
