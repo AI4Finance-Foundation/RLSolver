@@ -1,5 +1,5 @@
 import torch
-from rlsolver.envs.mimo_beamforming.env_mimo_relay import MIMORelayEnv
+from rlsolver.problems.mimo_beamforming.mimo_beamforming_env.env_mimo_relay import MIMORelayEnv
 
 
 def evaluator_relay(policy_net_mimo_relay, K=4, N=4, M=4, P=10, noise_power=1, evaluate_H_path="H_K4N4M4.pkl", evaluate_G_path="G_K4N4M4.pkl", device=torch.device("cpu")):

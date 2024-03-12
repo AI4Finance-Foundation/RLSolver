@@ -1,7 +1,7 @@
 import torch
 import pickle as pkl
-from rlsolver.rlsolver_mimo_beamforming.net_mimo import Policy_Net_MIMO
-from rlsolver.envs.mimo_beamforming.env_mimo import MIMOEnv
+from rlsolver.problems.mimo_beamforming.net_mimo import Policy_Net_MIMO
+from rlsolver.problems.mimo_beamforming.mimo_beamforming_env.env_mimo import MIMOEnv
 
 def evaluator(policy_net_mimo, K=4, N=4, M=4, P=10, noise_power=1, evaluate_H_path="./Channel_K=4_N=4_P=10_Samples=120_Optimal=9.9.pkl", device=torch.device("cpu")):
     env_mimo = MIMOEnv(K=K, N=N, M=M, P=P, noise_power=noise_power, device=device, num_env=1000)

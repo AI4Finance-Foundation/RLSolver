@@ -45,11 +45,11 @@ class Policy_Net_MIMO(nn.Module):
         vec_HW = torch.cat((mat_HW.real.reshape(-1, self.K * self.N), mat_HW.imag.reshape(-1, self.K * self.N)), 1)
         mat_H
         mu = self.theta_0()
-        
+
         for i in range(selected):
-            
+            pass
             for j in range(selected):
-        
+                pass
         return mat_W_new
 class BiConvNet(nn.Module):
     def __init__(self, mid_dim, inp_dim, out_dim):
