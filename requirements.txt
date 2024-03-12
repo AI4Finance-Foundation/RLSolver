@@ -1,6 +1,5 @@
 # ML framework
 torch
-tensorflow
 
 # data handling
 numpy
@@ -11,7 +10,7 @@ matplotlib
 # profiling
 wandb
 
-# networkx graph
+# complex networks
 networkx
 
 
