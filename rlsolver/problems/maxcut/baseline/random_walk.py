@@ -1,16 +1,17 @@
-# comparison methods for maxcut: random walk, greedy, epsilon greedy, simulated annealing
+# compared methods for maxcut: random walk, greedy, epsilon greedy, simulated annealing
 import copy
 import time
 import networkx as nx
 import numpy as np
 from typing import List, Union
 import random
-from utils import read_txt_as_networkx_graph
-from utils import obj_maxcut
-from utils import write_result
-from utils import plot_fig
+from rlsolver.problems.maxcut.util import read_nxgraph
+from rlsolver.problems.maxcut.util import obj_maxcut
+from rlsolver.problems.maxcut.util import write_result
+from rlsolver.problems.maxcut.util import plot_fig
 
-
+import sys
+sys.path.append('../')
 def random_walk(init_solution: Union[List[int], np.array], num_steps: int, graph: nx.Graph) -> (int, Union[List[int], np.array], List[int]):
     print('random_walk')
     start_time = time.time()
@@ -36,7 +37,7 @@ def random_walk(init_solution: Union[List[int], np.array], num_steps: int, graph
 if __name__ == '__main__':
     # read data
     # graph1 = read_as_networkx_graph('data/gset_14.txt')
-    graph = read_txt_as_networkx_graph('../data/syn/syn_50_176.txt')
+    graph = read_nxgraph('../data/syn/syn_50_176.txt')
 
     # run alg
     # init_solution = [1, 0, 1, 0, 1]

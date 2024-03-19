@@ -1,16 +1,17 @@
-import numpy as np
+import sys
+sys.path.append('../')
 from pyscipopt import Model, quicksum, multidict
 import os
 import time
 from typing import List
 import networkx as nx
-from utils import read_txt_as_networkx_graph
-from utils import calc_txt_files_with_prefix
-from utils import calc_result_file_name
-from utils import calc_avg_std_of_objs
-from utils import plot_fig
-from utils import fetch_node
-from utils import float_to_binary
+from rlsolver.problems.maxcut.util import read_nxgraph
+from rlsolver.problems.maxcut.util import calc_txt_files_with_prefix
+from rlsolver.problems.maxcut.util import calc_result_file_name
+from rlsolver.problems.maxcut.util import calc_avg_std_of_objs
+from rlsolver.problems.maxcut.util import plot_fig
+from rlsolver.problems.maxcut.util import fetch_node
+from rlsolver.problems.maxcut.util import transfer_float_to_binary
 
 
 # the file has been open
@@ -30,7 +31,7 @@ def write_statistics(model, new_file, add_slash = False):
     new_file.write(f"{prefix}time_limit: {model.getParam('limits/time')}\n")
 
 # running_duration (seconds) is included.
-def write_result_of_scip(model, filename: str = 'result/result', running_duration: int = None):
+def write_result_of_scip(model, filename: str = './result/result', running_duration: int = None):
     if filename.split('/')[0] == 'data':
         filename = calc_result_file_name(filename)
     directory = filename.split('/')[0]
@@ -48,7 +49,7 @@ def write_result_of_scip(model, filename: str = 'result/result', running_duratio
         node = fetch_node(var.name)
         if node is None:
             break
-        value = float_to_binary(model.getVal(var))
+        value = transfer_float_to_binary(model.getVal(var))
         nodes.append(node)
         values.append(value)
     with open(f"{new_filename}.txt", 'w', encoding="UTF-8") as new_file:
@@ -71,7 +72,7 @@ def run_using_scip(filename: str, time_limit: int = None, plot_fig_: bool = Fals
     start_time = time.time()
     model = Model("maxcut")
 
-    graph = read_txt_as_networkx_graph(filename)
+    graph = read_nxgraph(filename)
 
     adjacency_matrix = nx.to_numpy_array(graph)
     num_nodes = nx.number_of_nodes(graph)
@@ -111,14 +112,14 @@ def run_using_scip(filename: str, time_limit: int = None, plot_fig_: bool = Fals
         plot_fig(scores, alg_name)
     print()
 
-def run_scip_over_multiple_files(prefixes: List[str], time_limits: List[int], directory_data: str = 'data', directory_result: str = 'result'):
+def run_scip_over_multiple_files(prefixes: List[str], time_limits: List[int], directory_data: str = 'data', directory_result: str = './result'):
     for prefix in prefixes:
         files = calc_txt_files_with_prefix(directory_data, prefix)
         for i in range(len(files)):
             print(f'The {i}-th file: {files[i]}')
             for j in range(len(time_limits)):
                 run_using_scip(files[i], time_limits[j])
-    directory = 'result'
+    directory = '../result'
     calc_avg_std_of_objs(directory, prefixes, time_limits)
 if __name__ == '__main__':
     select_single_file = True
@@ -131,13 +132,13 @@ if __name__ == '__main__':
         avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
 
     else:
+        directory_data = '../data/syn'
         prefixes = ['syn_10_', 'syn_50_', 'syn_100_', 'syn_300_', 'syn_500_', 'syn_700_', 'syn_900_', 'syn_1000_', 'syn_3000_', 'syn_5000_', 'syn_7000_', 'syn_9000_', 'syn_10000_']
         # prefixes = ['syn_10_']
         # time_limits = [0.5 * 3600, 1 * 3600]
         time_limits = [0.5 * 3600]
-        directory_data = '../data/syn'
-        run_scip_over_multiple_files(prefixes, time_limits, directory_data)
-        directory = '../result'
-        avg_std = calc_avg_std_of_objs(directory, prefixes, time_limits)
+        directory_result = '../result'
+        run_scip_over_multiple_files(prefixes, time_limits, directory_data, directory_result)
+        avg_std = calc_avg_std_of_objs(directory_result, prefixes, time_limits)
     pass
 
