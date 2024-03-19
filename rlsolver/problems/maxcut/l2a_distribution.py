@@ -8,8 +8,8 @@ import numpy as np
 import torch as th
 import torch.nn as nn
 from tqdm import tqdm
-from utils import write_networkx_graph
-from utils import calc_networkx_graph
+from util import write_networkx_graph
+from util import calc_networkx_graph
 try:
     import matplotlib as mpl
     import matplotlib.pyplot as plt

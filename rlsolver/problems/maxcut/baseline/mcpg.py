@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import torch
 import time
 import os
@@ -800,9 +802,6 @@ def read_data_mimo(K, N, SNR, X_num, r_seed, device=torch.device('cuda' if torch
 
 
 def run():
-    # gpu_id = 1
-    # device = th.device(f'cuda:{gpu_id}' if th.cuda.is_available() and gpu_id >= 0 else 'cpu')
-
     config = {
         'problem_type': 'maxcut', 'lr_init': 0.1, 'regular_init': 0, 'sample_epoch_num': 8,
         'max_epoch_num': 80, 'reset_epoch_num': 80, 'total_mcmc_num': 400, 'repeat_times': 120, 'num_ls': 5
