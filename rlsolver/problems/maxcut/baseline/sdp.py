@@ -18,8 +18,6 @@ def draw_graph(G, colors, pos):
     plt.show()
 
 
-
-
 # approx ratio 0.87
 # goemans_williamson alg
 def sdp_maxcut(filename: str):
@@ -76,7 +74,7 @@ if __name__ == '__main__':
     filename = '../data/syn/syn_50_176.txt'
     sdp_maxcut(filename)
 
-    from util import run_sdp_over_multiple_files
+    from rlsolver.problems.maxcut.util import run_sdp_over_multiple_files
     alg = sdp_maxcut
     alg_name = 'sdp'
     directory_data = '../data/syn_BA'
