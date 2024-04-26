@@ -6,10 +6,12 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 [![](https://dcbadge.vercel.app/api/server/trsr8SXpW5)](https://discord.gg/trsr8SXpW5)
 
 
-# Problem-oriented Repos
+# Sub-repos
 
+- [RLCO](https://github.com/zhumingpassional/RLCO)
 - [Maxcut](https://github.com/zhumingpassional/Maxcut)
 - [TSP](https://github.com/zhumingpassional/TSP)
+  
 
 # Key Technologies
 - **RL/ML tricks** such as learn to optimize and curriculum learning.
