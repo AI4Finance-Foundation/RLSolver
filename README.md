@@ -9,7 +9,6 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 # Sub-repos
 
 - [RLCO](https://github.com/zhumingpassional/RLCO)
-- [Maxcut](https://github.com/zhumingpassional/Maxcut)
 - [TSP](https://github.com/zhumingpassional/TSP)
   
 
