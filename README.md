@@ -76,6 +76,9 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 [code](https://github.com/zhumingpassional/Maxcut/tree/master/baseline/variational_neural_annealing) (VNA) 2021 Nature_Machine_Intelligence Variational neural annealing
 
+* Discrete sampling
+[code](https://github.com/zhumingpassional/RLCO/tree/master/baseline/isco) (iSCO) 2023 ICML Revisiting sampling for combinatorial optimization
+
 * Classical methods
   - [Random walk](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/random_walk.py)
   - [Greedy](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/greedy.py)
