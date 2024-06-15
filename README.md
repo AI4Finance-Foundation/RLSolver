@@ -8,7 +8,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 # Sub-repos
 
-- [RLCO](https://github.com/zhumingpassional/RLCO)
+- [RLSolver](https://github.com/zhumingpassional/RLCO)
 - [TSP](https://github.com/zhumingpassional/TSP)
   
 
@@ -48,7 +48,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 * [TSP](https://github.com/zhumingpassional/TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
 
-## Benchmarks
+## Compared Methods
 
 
 * Learning to branch
