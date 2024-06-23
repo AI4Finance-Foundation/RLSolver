@@ -174,7 +174,7 @@ RLSolver
 
 ## Finished
 - [x] MIMO
-- [x] [Maxcut](https://github.com/zhumingpassional/Maxcut)
+- [x] Maxcut
 - [x] TNCO
 - [x] quantum circuits 
 ## TODO
@@ -187,8 +187,8 @@ RLSolver
 
 
 ## Related Websites
-+ [Maxcut](https://github.com/zhumingpassional/Maxcut)
-+ [TSP](https://github.com/zhumingpassional/TSP)
++ Maxcut
++ TSP
 + [Benchmarks for optimization softwre](http://plato.asu.edu/bench.html) 
 + [Awesome Machine Learning for Combinatorial Optimization Resources](https://github.com/Thinklab-SJTU/awesome-ml4co)
 + [Machine Learning for Combinatorial Optimization - NeurIPS 2021 Competition](https://github.com/ds4dm/ml4co-competition)
