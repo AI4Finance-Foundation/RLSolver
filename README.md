@@ -42,8 +42,15 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 * [TSP](https://github.com/zhumingpassional/TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
 
-## Compared Methods
+## Methods
 
+* RL-based annealing using massively parallel enironments
+  
+2023 NeurIPS Classical Simulation of Quantum Circuits: Parallel Environments and Benchmark
+
+2023 NeurIPS workshop K-Spin Ising Model for Combinatorial Optimizations over Graphs: A Reinforcement Learning Approach
+
+2021 NeurIPS workshop ElegantRL-Podracer: Scalable and Elastic Library for Cloud-Native Deep Reinforcement Learning
 
 * Learning to branch
   
