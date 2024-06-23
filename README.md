@@ -79,12 +79,12 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 * Discrete sampling
   
-[code](https://github.com/zhumingpassional/RLCO/tree/master/baseline/isco) (iSCO) 2023 ICML Revisiting sampling for combinatorial optimization
+(iSCO) 2023 ICML Revisiting sampling for combinatorial optimization
 
 * Classical methods
-  - [Random walk](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/random_walk.py)
-  - [Greedy](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/greedy.py)
-  - [Simulated annealing](https://github.com/zhumingpassional/Maxcut/blob/master/baseline/simulated_annealing.py)
+  - Random walk
+  - Greedy
+  - Simulated annealing
   - Local search
   - Beam search
   - Tabu search
