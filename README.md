@@ -33,13 +33,13 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 
 ## Datasets
-* [Maxcut](https://github.com/zhumingpassional/Maxcut):
+* Maxcut:
   
   1) [Gset](https://web.stanford.edu/~yyye/yyye/Gset/) is stored in the "data" folder of this repo. The number of nodes is from 800 to 10000. 
   
   2) __Syn__ is the synthetic data obtained by calling the function generate_write in util.py. The number of nodes is from 10 to 50000. The (partial) synthetic data is stored in the "data" folder of this repo. If users need all the synthetic data, please refer to [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE hojh for China users). 
   
-* [TSP](https://github.com/zhumingpassional/TSP): [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
+* TSP: [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
   
 
 ## Methods
@@ -114,11 +114,8 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 
 Partial results are stored in the folder "result" of this repo. All the results are stored in [Google Drive](https://drive.google.com/drive/folders/1gkpndZPj09ew-s9IvrWEZvvCFDWzd7vL?usp=sharing) or [Baidu Wangpan](https://pan.baidu.com/s/11ljW8aS2IKE9fDzjSm5xVQ) (CODE: hojh for China users). 
 
-With respect to maxcut, please refer to [Maxcut](https://github.com/zhumingpassional/Maxcut). With respect to TSP, please refer to [TSP](https://github.com/zhumingpassional/TSP). 
 
 ## Performance
-[Maxcut](https://github.com/zhumingpassional/Maxcut).
-[TSP](https://github.com/zhumingpassional/TSP). 
 [Quantum circuits](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_quantum_circuits)
 [MIMO](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_mimo_beamforming)
 [Compressive sensing](https://github.com/AI4Finance-Foundation/RLSolver/tree/main/rlsolver/rlsolver_compressive_sensing)
@@ -178,7 +175,7 @@ RLSolver
 - [x] TNCO
 - [x] quantum circuits 
 ## TODO
-- [ ] [TSP](https://github.com/zhumingpassional/TSP)
+- [ ] TSP
 - [ ] VRP (Vehicle routing problem)
 - [ ] Graph partitioning
 - [ ] Minimum vertex cover 
