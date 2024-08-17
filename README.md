@@ -63,7 +63,7 @@ We aim to showcase that reinforcement learning (RL) or machine learning (ML) wit
 [code](https://github.com/Wenbo11/learntocut) 2020 ICML Reinforcement learning for integer programming: Learning to cut
 
 
-* RL/ML-based heuristic
+* RL-based heuristic
   
 [code](https://github.com/Hanjun-Dai/graph_comb_opt)  (greedy) 2017 NeurIPS Learning Combinatorial Optimization Algorithms over Graphs
 
