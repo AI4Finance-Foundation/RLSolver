@@ -1,5 +1,8 @@
 # RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-Complete Problems
 
+New repo: [website](https://github.com/zhumingpassional/RLSolver)
+
+Docs: [website](https://rlsolvers.readthedocs.io/index.html)
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
