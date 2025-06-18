@@ -2,7 +2,7 @@
 
 [New repo](https://github.com/zhumingpassional/RLSolver)
 
-[docs](https://rlsolvers.readthedocs.io/index.html)
+[RLSolver docs](https://rlsolvers.readthedocs.io/index.html)
 
 [RLSolver Competition docs](https://rlsolver-competition.readthedocs.io/en/latest/index.html)
 
