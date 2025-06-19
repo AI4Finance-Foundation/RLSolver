@@ -4,9 +4,9 @@
 
 [RLSolver docs](https://rlsolvers.readthedocs.io/index.html)
 
-[RLSolver Competition docs](https://rlsolver-competition.readthedocs.io/en/latest/index.html)
+[RLSolver Contest docs](https://rlsolver-competition.readthedocs.io/en/latest/index.html)
 
-[RLSolver Competition 2025](https://open-finance-lab.github.io/RLSolver_Competition_2025/)
+[RLSolver Contest 2025](https://open-finance-lab.github.io/RLSolver_Competition_2025/)
 
 We aim to showcase that reinforcement learning (RL) or machine learning (ML) with GPUs delivers the best benchmark performance for large-scale nonconvex and NP-complete problems. RL with the help of GPU computing can obtain high-quality solutions within short time. 
 
