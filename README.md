@@ -1,10 +1,10 @@
 # RLSolver: High-performance GPU-based Solvers for Nonconvex and NP-Complete Problems
 
-[New repo](https://github.com/zhumingpassional/RLSolver)
+[New repo](https://github.com/zhumingpassional/RLSolver) (We update RLSolver only in the new repo.)
 
 [RLSolver docs](https://rlsolvers.readthedocs.io/index.html)
 
-[RLSolver Contest docs](https://rlsolver_contest.readthedocs.io/en/latest/index.html)
+[RLSolver Contest docs](https://rlsolver-competition.readthedocs.io/en/latest/index.html)
 
 [RLSolver Contest 2025](https://open-finance-lab.github.io/RLSolver_Contest_2025/)
 
